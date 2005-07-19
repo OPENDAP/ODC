@@ -1,0 +1,74 @@
+OPeNDAP Data Connector Installation and Execution (Unix Platform)
+Version 2.54
+13 August 2004
+
+http://opendap.org/ODC/
+odc-help@opendap.org
+
+--- Introduction ---
+
+This program is the OPeNDAP Data Connector (ODC). Using the ODC's graphical interface you can search for and retrieve datasets published by OPeNDAP data servers. 
+
+--- Installation ---
+
+You can run the ODC from the CD (read-only mode) or from your hard drive. To install it on your hard drive move the folder ODC-2.54 to the location you desire on your hard drive. If you have downloaded the tar from the web site (rather than gotten the CD), change to the directory where you wish to install it and untar it. The typical command to do this is:
+
+tar -zxvf ODC-2.54-unix.tar.gz
+
+The distribution of the ODC requires a Java 1.4.0 later runtime to be installed on the machine (see Java Runtime below).
+
+--- Instant Startup ---
+
+Go to the directory where the ODC was installed (or to the unix ODC directory on the CD if running from the CD) and execute the "startup" script in the main directory (for example "sh startup").
+
+--- Java Runtime ---
+
+Type "java -version". It should list 1.4.0 or greater. If not you may need to install the runtime.
+
+If the runtime is already on your system you may need only to set your PATH and JAVA_HOME environments correctly. For example, if the jdk is installed in /usr/java you might need to enter the following in your startup script:
+set JAVA_HOME = /usr/java/j2sdk1.4.0_01
+set path=($JAVA_HOME/bin $path)
+
+Check with your system administrator about using an existing installation of the Java runtime.
+
+To install the Java runtime if you do you not already have one on your system go to:
+http://java.sun.com/j2se/1.4.2/download.html
+and follow the instructions there for your system.
+
+--- Running ---
+
+If you are not running on x86 Linux or for some reason cannot or do not want to use the provided "startup" script you can start the ODC by executing the following command (one line):
+
+java -Xms40m -Xmx300m -classpath  $:$/odc.jar:$/lib/xerces-2.5.0_xercesImpl.jar:$/lib/xerces-2.5.0_xml-apis.jar:$/lib/jdom-b9.jar:$/lib/activation.jar:$/lib/mail.jar:$/lib/imap.jar:$/lib/mailapi.jar:$/lib/pop3.jar opendap.clients.odc.ApplicationController $
+
+where "$" is the ODC base directory (contains odc.jar)
+
+You should change the maximum memory (Xmx switch) to match your system's memory. For example if your system has 512 megabytes of memory you should change -Xmx300m to -Xmx512m
+
+You may want to create an alias for this command.
+
+--- Running with Exact Specification---
+
+If your Java environment is not fixed or you do not want to use an environment you can make an exact command to start the 1.4.2_01 Java and the program like this
+
+/myjavadir/bin/java -Xms24m -Xmx500m -classpath "$/odc.jar:$/lib/echosoap.jar:$/lib/gnu-regexp-1.1.4.jar:$/lib/jdom-b9.jar:$/lib/xerces-2.5.0_xercesImpl.jar:$/lib/xerces-2.5.0_xml-apis.jar:$/lib/activation.jar:$/lib/mail.jar:$/lib/imap.jar:$/lib/mailapi.jar:$/lib/pop3.jar:/myjavadir/lib/ext/dnsns.jar:/myjavadir/lib/ext/ldapsec.jar:/myjavadir/lib/ext/sunjce_provider.jar:/myjavadir/lib/im/indicim.jar:/myjavadir/lib/im/thaiim.jar:/myjavadir/lib/jce.jar:/myjavadir/lib/plugin.jar:/myjavadir/lib/rt.jar:/myjavadir/lib/sunrsasign.jar:/myjavadir/lib/jsse.jar:/myjavadir/javaws/javaws.jar"  opendap.clients.odc.ApplicationController $
+
+where /myjavadir is where your Jara runtime installation is located
+
+where '$' is the directory where you have installed the program (but see note on base directory below).
+
+Note that this command is specific to Java version 1.4.2 and may be different for other versions of the runtime.
+
+--- Base Directory ---
+
+The trailing '$' in the execution command above is an optional argument to the startup that tells the program the location of the "base directory". Normally this will be where you install the program. Note, however, that the program will create directories and files below this base directory. If for some reason you want to separate your program directory from your base directory do the following: (1) untar to your program directory, (2) move all the files except the odc.jar and /lib directory files to the desired program files directory, and (3) in the java command above put the path to the program files directory where the trailing '$' is.
+
+For example, imagine that you want to install the program to /usr/bin/odc but do not want the program creating files there. Instead you want the program to put its program files/directories in /var/odc. In this case put all files except the odc.jar and /lib directory in the /var/odc directory and then use /var/odc as your base directory. Your completed command line would look like this:
+
+java -classpath /usr/bin/odc:/usr/bin/odc/odc.jar:/usr/bin/odc/lib/xerces-2.5.0_xercesImpl.jar:/usr/bin/odc/lib/xerces-2.5.0_xml-apis.jar:/usr/bin/odc/lib/jdom-b9.jar:/usr/bin/odc/lib/activation.jar:/usr/bin/odc/lib/mail.jar:/usr/bin/odc/lib/imap.jar:/usr/bin/odc/lib/mailapi.jar:/usr/bin/odc/lib/pop3.jar opendap.clients.odc.ApplicationController /var/odc
+
+
+--- Jar Replacement ---
+
+When newer versions of the ODC are released you can update your system by replacing the jar file (odc.jar) from http://opendap.org/ODC/. The jar file will be a much smaller download than the entire package. If an accessory file, such as the gazetteer, changes you can do a single file replacement the same way. See the accessory file link from the web page.
+

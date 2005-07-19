@@ -1,0 +1,616 @@
+#Introduction
+(help file revised 24 September 2004)
+
+This is the OPeNDAP Data Connector (ODC). Using the ODC you can search for and retrieve datasets published by OPeNDAP data servers. OPeNDAP servers (also known as DODS servers) located at major institutions around the world serve a wide variety of data including: climatic data, satellite imagery, and ocean sensor results. The ODC allows you to find these datasets, download them to your machine, save them, and import them into client applications like IDL, Matlab, SPSS, Excel, or into databases such as Access and Oracle. The ODC is your gateway to terabytes of scientific data and imagery.
+
+http://www.opendap.org/ODC/
+
+To report bugs or make comments use the feedback tab.
+
+You may also directly contact either:
+
+Dan Holloway <d.holloway@gso.uri.edu>
+John Chamberlain <odc-help@opendap.org>
+
+The development of this software was funded by the National Oceanographic Partnership Program (http://www.nopp.org/).
+
+#Startup and Shutdown
+
+Start the ODC by running the executable ("odc.exe" on Windows, "odc" on UNIX). Configuration parameters for startup are in the file "startup.ini" which must be in the base directory (unless you are doing a manual startup (see installation instructions for your system). Note that a 1.4 or better JRE must be available. The Windows package includes this JRE and on Mac OS X Jaguar or better it is built-in.
+
+To shutdown the ODC click the "x" in the upper right hand corner of the application window's title bar.
+
+The ODC has various configuration settings. These are stored in a file called "config.txt". You can view these settings by using the IPS command "show config" (see topic Third-Party and Command Line Support for information on using the console).
+
+*** Base Directory ***
+
+Your base directory on startup will always be the first status log entry (see Status and Errors topic below for how to display). You can change the base directory by supplying the desired directory path as an argument to your startup command. In a unix install this startup command is usually a script. In a Windows installation the application argument can be specified in the startup.ini file as the "ApplicationParameter" value.
+
+#Quickstart
+
+The ODC uses a tab-based interface. This is the help tab.
+The tabs are persistent: you can leave a tab and come back to it and it will be unchanged.
+As you do the quickstart you can come back and forth to the help tab without affecting your work.
+
+Operating the ODC involves three steps:
+
+	(1) identify the dataset you want to use (Search)
+	(2) retrieve its structure and make a sub-selection of the data if desired (Retrieve)
+	(3) output or view the data (View)
+
+The controls for these three steps are grouped onto three tabs accessible at the top of the screen.
+
+Follow along to learn how to do these steps:
+
+	1 - go to Search / Dataset List tab
+	2 - go into the "University of Rhode Island ..." folder
+	3 - go into the "1.1km Northwest Atlantic AVHRR" folder
+	4 - single click (DO NOT DOUBLE CLICK) on "Pathfinder SST"; your choice will highlight
+	5 - single click the red "To Retrieve" button at the top of the screen
+		[you should now move automatically to the retrieve panel]
+		[Pathfinder SST will be listed as one of your selected datasets]
+		[notice that it is highlighted; this means it is the active dataset]
+	6 - navigate the directory tree by double-clicking the folders to a month of your choice
+		[a list of data files for the month will appear on the right]
+	7 - double click one of the files; this will load its structure
+		[the structure of the file will appear in the pane below]
+	8 - click the check box next to the "dsp_band_1" variable
+	9 - modify the array ranges so they read "0:10:6143" (enter key "saves" the change)
+		[this specifies you only want every 10th value in the array]
+		[we subset the data like this because a 6143 x 6143 matrix 
+		would take a lot longer to process without adding much more to see]
+		[shortcut: use the "step" drop-down box below to set the step to 10]
+	10 - select "Plotter" in the drop-down list next to the "Output to" button
+	11 - click the "Output to" button
+		[you will automatically move to the View/Plot pane]
+		[the data will automatically be loaded to the plot pane]
+	12 - single click plot type "Pseudocolor" if it is not already selected
+		[the x and y values will automatically be picked for you]
+	13 - single click the blue "Plot" button
+		[a plot of the data will appear in a separate window]
+		
+Congratulations you have done a plot!
+
+Each of the screens above has much more functionality and options than we have explored here.
+Read the rest of the help when you want to learn more. Visit the web site's plot gallery (http://opendap.org/ODC/gallery) to get detailed walk throughs for how do plots of all types.
+	
+#About Network Resources, Firewalls and Proxies
+
+It is important to realize that the ODC does its work by accessing servers located all over the internet. These connections may not always be active or servers may be down or malfunctioning. In some cases a server will not be responsive and you will see the progress meter in the lower right-hand corner of the display strobe persistently. You can stop such actions by double-clicking the progress meter.
+
+During network accesses (by default) there is a yellow box that appears in the center of the screen. You can disable this box by changing a configuration setting.
+
+--- Firewalls and Proxies---
+
+You may work behind a "firewall" which prevents normal access to the internet. The ODC can still operate as long as there is an HTTP proxy server available to your machine. If your browser works, but you are behind a firewall it is probably because the browser is using a proxy server which the ODC can use as well. To set up the ODC to use your proxy you need to set configuration settings (see Configuration topic in this help for how to do that) called "proxy.Use", "proxy.Host" and proxy.Port". proxy.Use should be set to "Yes". The host setting should either be a machine name like "sodastraw.mycompany.com" or a numeric IP address like "123.456.789". The port setting will be an integer like "8080". This integer must be between 0 and 65535.
+
+If you do not have a proxy server or do not need to use one then proxy.Use should be set to "No" (the default).
+
+The ODC does not currently support authenticated proxies. Authenticated proxies are proxy servers that require a username and password.
+
+To determine the host and port of your proxy either ask your administrator or look in your browser settings. For example in Netscape 4.72 the proxy settings can be found under the menu Preferences / Advanced / Proxies.
+
+#About Memory
+
+The ODC is a memory-intensive application especially if you use it for plotting. You can increase its responsiveness by setting the minimum heap memory (the starting memory for the application). You should increase the maximum amount of memory available to the program to match the total amount of memory in your computer unless you have some special reason for restricting it. If you set the maximum memory higher than the total amount of real memory in your system the program will use "virtual memory", ie disk space, to serve as the memory. This is much slower than real memory, RAM, and wears the disk. For these reasons it is recommended that you try to match the maximum memory setting to actual amount of RAM available to the application.
+
+These settings are accomplished by adding switches like this to the startup command:
+
+     -Xms40m     starting memory of 40 megabytes (if no switch is present defaults to 2m)
+     -Xmx300m    maximum memory of 300 megabytes (if no switch is present defaults to 64m)
+
+If you are operating under Windows you can find these settings in the startup.ini file. In this file the format of the entry is like "Option = -Xms40m". On the Macintosh these settings these settings are in the app builder properties file. In a Unix environment they are the first parameters to the java startup command (e.g. "java -Xms40m -Xmx300m ... etc").
+
+It is recommended that users increase both the starting and maximum memory to at least the levels shown above (40 starting, 300 maximum) to get a standard level of performance.
+
+Failing to change maximum memory setting can be particularly debilitating because it prevents the ODC from using the full resources of your system.
+
+Note that the amount of memory used will often be much larger than the raw amount of memory a dataset consumes. For example, a dataset that consumes 20 megabytes as a raw stream might easily use 80 megabytes when it is being manipulated in memory. The reason for this is that for some operations, notably plotting, the data must be held in multiple buffers simultaneously.
+
+#Status and Errors
+
+The ODC keeps track of most major application actions in its status log. It also records all errors and warnings. To view status or error information go to the View / Text tab. At the bottom of the screen are buttons that will output the status and error information to the text windows. If you encounter a problem and want to report it to the developers please copy and paste your status log into the message to us. Errors always print out at the end of a status log dump. You can also dump just the errors and warnings by clicking the "Show Errors" button.
+
+#Configuration
+
+The default settings for this program will work for most people however you may need (or want) to tweak its configuration. For example, if you are behind a firewall you will need to set the configuration to use a proxy server.
+
+There are two ways to read and modify your configuration settings:
+(1) edit the configuration file directly
+(2) use the console
+
+The configuration settings for the ODC are in a file called "config.txt" located in your ODC base directory. This file is created automatically the first time you run the ODC. Your base directory is listed as the first entry in the status log (see topic on status and errors).
+
+You can use the console available on the View / Text tab to display or modify configuration settings. To show all settings enter "show config" in the text box at the bottom of the screen and press the Enter key. Likewise you can use the "set" command to change a setting. To display all the commands enter the command "help" or "?".
+
+#Searching and Retrieving
+
+The top row of tabs in the interface gives your search options. Favorites are your favorite data sets. Initially this list will be empty. Recent is the 20 (by default) most recent data sets selected. GCMD is the Global Change Master Directory sponsored by NASA. The dataset list is a general catalog of known OPeNDAP servers and their data. Note that the favorites and recent will not be visible if you are in read-only mode (eg running the program directly from a CD-ROM).
+
+The GCMD interface is not immediately accessible when you start the ODC. This is because it takes several network accesses to load it. If you wish to load the GCMD search interface go to the Select / GCMD tab and click the "Access GCMD" button in the center of the screen.
+
+After you have located one or more data sets of interest you must move them to the retrieve panel by clicking the "To Retrieve" button. You can move multiple files by multi-selecting holding down the Ctrl key.
+
+The information used to populate the dataset list comes from a file included with the ODC distribution called "datasets.xml". You can retrieve the latest version of this file from unidata.ucar by clicking the "Refresh Dataset List" button on the Dataset list tab. This will overwrite your local file cache with the remotely maintained copy at UCAR.
+
+* Any GCMD spatial constraint you specify will be applied to all GCMD queries. See the section below on the spatial constraint panel for more information on using it.
+
+* Double clicking on an item in the Favorites or Recent tabs will cause its information to be displayed in the area below
+
+* Dataset List Search: to use this search enter search terms in the box and click the "Search" button; the search is by default an "OR" search that includes any of your terms; if you want to guarantee a term is there ("AND") put a "+" in front of that search term; when the search completes the tree will be updated to only include matching nodes; to restore the tree to show all nodes make the search box empty and click the "Search" button again
+
+#Subset and Select
+
+When you send one or more dataset locations to the Retrieve panel, the panel will be activated and the dataset location title will be listed in the panel on the upper left. 
+
+The retrieved datasets panel lists the dataset locations which you have identified. There is a red button "?" to the left of each item. The "?" (Info) button will retrieve information about the location and display it in a text panel to the right. If the item is a directory (indicated by a folder icon) a directory tree will appear to the right in the top half of the panel when the location is selected (clicked once).
+
+The buttons are red to indicate that they do a network access. If you have network problems or the site holding the dataset is unavailable for some reason there may be a long delay before a response occurs.
+
+The directory tree for a given directory dataset item is not fully displayed when it is first shown. Only the first level of the directory is shown. To see subdirectories you must double-click on the desired sub-directory. Each time this is done a network access is made to further discover the subdirectory. If a directory has been not been discovered an ellipsis ("...") appears after its name. This means that the ODC does not know what is in the directory and it will require a network access to find out. If there is no ellipsis then you can expand the directory to see what is in it without making a network access.
+
+When you select a directory any files in the directory will be shown in the list box to the right of the directory tree.
+
+You may subset one or more directory files by double-clicking the file name. The criteria for that file will appear in the lower pane of the Additional Criteria area. Any criteria specified here will be applied to all the selected files in the directory tree.
+
+* Display the DDS (structure information) for a dataset by holding down the control key and double-clicking the dataset. Display the DAS (ancillary/descriptive information) for a dataset by holding down the shift and control keys while double-clicking.
+
+* You must select a dataset for a download to occur. In the case of a directory you must select one or more files within the directory, just selecting the directory itself will do nothing. The files you have selected will be listed in the "Selected Datasets" list box in the lower left of the retrieval panel.
+
+* You may select more than one item in a list or tree by hold down the Ctrl or Shift keys. Ctrl will add to your selection and Shift will cause your selection to be extended to the place of the mouse click
+
+* You can enter (or paste) an URL manually into the location box at the top of screen and pressing the "Add" button. The URL will be added as a new dataset location in the selected datasets lists.
+
+* The location bar at the top of the retrieve panel shows the URL for the current subset. Note that in the case of directory URLs there will be no file name in the URL in the location bar. You can use the location bar to enter an URL manually by clicking the "Add" button.
+
+--- Constraints ---
+
+To constrain the results from dataset use the lower pane of the "Additional Criteria" panel. If the selected dataset has fields that can be constrained they will appear here. In the case of an array you can specify the starting index, ending index and stride (ie step). For example, if you specify "4:2:12" you will get data for array indices 4, 6, 8, 10, and 12. In the case of sequences you can use the drop down box to specify a relation and then give a quantity in the text box next to it. For more information on constraining a dataset see the OPeNDAP web site.
+
+#Outputting
+
+There are various output options indicated by the buttons in the lower left quadrant of the retrieve panel. When you select one of these options they will be applied to all of the selected datasets as indicated in the "Selected Datasets" list box as long as the operation is valid. (For example, you cannot send a gif to the plotter; you can only send OPeNDAP datasets to the plotter.)
+
+The selected datasets list shows the estimated size of the dataset if possible. This measurement is shown in units of bytes (B), kilobytes (K), megabytes (M) or gigabytes (G). The estimate does not include any sequences or string data.
+
+If you output to a file specify a filename or directory in the box provided. The elipsis button (...) will give you a file dialog box you can use to navigate your machine's directory tree.
+
+If you specify a directory (the path ending in a slash) then when the file is saved the existing file name (or names) of the selected URL(s) will be used.
+
+The supported output file formats are:
+	Binary - the exact file as it exists on the server (only valid for non-OPeNDAP sources currently)
+	ASCII - A readable printout of the data in bracketed format (only valid for OPeNDAP sources)
+	Formatted - A readable printout that has been flattened into tables (only valid for OPeNDAP sources)
+The formatted output is appropriate when you want to read the data in a two-dimensional way. Also, the formatted output is specifically designed to be easy to parse.
+
+If you attempt to output a file in a non-supported format you will receive an error message to that effect.
+
+Data Binary Output Not Supported:
+Currently (as of version 2.41) data files which the server can read as OPeNDAP sources, for example, NetCDF (*.nc) and HDF files, CANNOT be returned in the binary format. You can only return the ASCII or formatted ASCII formats for data files. Binary file retrievals are only possible for non-OPeNDAP sources such as images (.gif, .jpg, etc), text or other non-OPeNDAP sources. This is a limitation of the current OPeNDAP server design.
+
+#Timeouts
+
+You may get a timeout error indicating that the ODC did not want to wait any longer for data. Some servers may require longer timeouts than normal because they have data archived using complex retrieval systems. This is true of MODIS data for example.
+
+To adjust timeouts change the configuration settings timeout.InternetRead and/or timeout.InternetConnect. The connect timeout applies only when the ODC is first connecting to the server and the read timeout applies once data retrieval has begun.
+
+One way to change these settings is to use the command interface found on the View/Text panel. For example, issuing the command:
+
+	set timeout.InternetRead 30
+
+Would set the timeout to 30 seconds. You can read more about entering commands and using the command interface in the next topic (Third-Party and Command Line Support).
+
+Another way to change this setting is to edit the config.txt file in the ODC base directory.
+
+#Third-Party and Command Line Support (Console)
+
+* The ODC has a command server called the "interprocess server" which listens by default on port 31870. You can issue commands to the IPS by entering them in the text box at the bottom of the text view panel and pressing Enter.
+
+       STEP-BY-STEP Dummies Guide to executing a command
+     - find the "View" tab at the top of the screen, click on it once
+     - find the "Text" tab at the top of the screen, click on it once
+          Near the bottom of the view text screen directly above the
+          buttons you should see a rectangular box with a
+          white background. This is the command entry edit box.
+     - click once inside the box to place the cursor inside the box
+          you should see a blinking vertical line inside the box
+          this is the cursor
+     - type the command desired, it should appear in the box
+          you can also copy and paste into the box
+     - press the enter key to execute the command
+          the results will appear in the text area above
+
+* You can issue the same commands by connecting from a third party application such as a telnet client.
+
+* Enter "?" or "help" in the command line at the bottom of the text view screen to see supported commands for the interprocess server. Step-by-step:
+
+* You can change configuration settings from console by using the command "set".
+
+#Program Directories and Files
+
+* The ODC uses various files and directories installed below its root directory relative to the "base directory". The base directory is normally where the application has been installed. The relative paths are:
+
+	config.txt
+	datasets.xml
+	ECHO_static_valids.xml
+	/preferences
+	/ImageCache
+
+* By default the PC launcher automatically sets the base directory to wherever the launcher executable is located. You can specify a different directory adding the following line to your startup.ini file:
+	ApplicationParameter = [desired directory]    (for example, "c:/usr/John Smith/odc")
+
+* If you do not use a launcher you should supply the name of the base directory as a startup argument. If you supply no base directory the working directory (user.dir) will be used.
+
+
+#Spatial-Temporal Constraint
+
+The spatial-temporal constraint panel can be used to create a spatial or temporal constraint on your search.
+
+To create a spatial constraint surround the desired area on the map with the white selection rectangle. You can modify the location and shape of the rectangle either by manipulating it with the mouse, editing the coordinate text boxes or selecting an item from the gazetteer. After you have selected an area you must make sure the "Apply" checkbox is checked. If this checkbox is off no spatial constraint will be applied.
+
+To create a temporal constraint enter the From and To dates in the boxes provided. The temporal constraint will be applied automatically if there is any text in any of the six temporal entry boxes. If you only make an entry in "From" then there will be no "To" constraint and vice versa. If you leave the year blank, but enter a month or a day then the From year will default to "0001" and the To year to the current year. The From month defaults to "01" and the To month defaults to "12". The From day defaults to "01" and the To day defaults to "31".
+
+The gazetteer has preset coordinates for well-known regions. The first list box contains region types. The second list box has the entries for the selected type. It updates automatically when you select a region type. The third list box has custom regions. By clicking the Add button you can define your own regions. These will be added to the gazetteer file. The gazetteer file is a text file the location of which is specified in your configuration. It has a self-evident format so you can modify it or provide your own gazetteer.
+
+#Plotting
+
+If you would like to graph your data the ODC has the ability to create plots of various kinds such as line, scatter, histograms, pseudocolor, contour and vector plots. A good way to get started plotting is to go to the OPeNDAP online gallery of example plots and see how those plots were done. This will give you an idea of the range of plotting capabilities and serve as a guide to setting up the plots of the various types. Each example in the gallery has a detailed set of directions for duplicating the plot.
+
+Selecting and Loading the Data
+
+First add the URL for the data you wish to plot to the retrieve panel and constrain it, if desired. In most cases you will need to constrain arrays to two dimensions or less. Use the "To Plotter" button in the retrieval panel to download the data and make it accesible to the plotter. This will load the data off the network into memory. Note that doing this involves a network access as indicated by the red color of the "To Plotter" button. If the load is successful the dataset will be listed in plotter panel. Select the loaded item from the list. The dataset structure will appear in the pane below. You are now ready to define your plot.
+
+If you select multi-dimensional arrays you must restrict them to one or two dimensions. The plotter will not process arrays with more than two dimensions. To restrict a dimension constrain it to a single value. For example, the constraint X[1:100],Y[1:250],Z[17:17] restricts the Z-dimension to a single value. This turns the array into a two-dimensional array.
+
+Defining the Plot
+
+To define your plot first pick one of the plot types, such as "Line", from the combo box. The plot definition pane may change to support the plot type chosen. The definition area will then allow you to specify which value(s) you want to plot. Choose a variable to plot from the "values" combo box. The contents of the X- and Y-Axis combos may change depending on which values you are plotting. If you are plotting a mapped grid, the axes choices are determined automatically. The interface will show the dimensions for that value and allow you to specify which dimensions should be the x and y. In the case of a line plot you can only select one x or y. All other dimensions must be constrained.
+
+Dimensions that are not assigned to an axis must by constrained and a text box will appear allowing you to enter a constraint. The constraint is a comma-separated list of values or ranges, for example, "1,2,4-6,9,13-17". These numbers are the index numbers of the data not the data values themselves. If there are more than one dimensions to constrain only one of the dimensions may have more than one index specified by the constraint. If you specify more than one value in a constraint multiple plots will be generated--one for each index in the constraint.
+
+Output Options
+
+Once you have defined a plot you can output the plot by clicking the "Plot" button. There are various output destinations available via the drop-down list next to the plot button. You can also change the scale of the plot with the zoom factor controls to the right of the plot button area. For more information on zoom factor see the topic Scaling. For more information on the output destinations see the topic Output.
+
+Using the Table View
+
+You can also plot from data contained in the table view. If you click the "Table View" radio button in the upper left the definition pane will change to allow you to enter one or more ranges to get the data from. Enter the ranges in spreadsheet fashion, for example "A3:B15". You can add ranges together by separating them with a comma, for example "A3:A15,D5:D23,M6:M400". If you add ranges they must have at least one identical dimension. For example, you could aggregate a 3x20 matrix and a 3x60 matrix but you could not aggregate a 4x5 matrix and a 3x15 matrix.
+
+Plotting Data in a File
+
+If you would like to plot data from a file, store it in CSV (comma-separated values) format and then load it into the table view. Once it is in the table view it can be plotted as described in the paragraph above. In a CSV file fields are separated by commas and records are separated by new lines. If there are strings in the data they can be delimited by quotation marks. To escape a quotation mark, double it. For example, "Satellite AR4078 (""AEGIS"") Data" will evaluate to [Satellite AR4078 ("AEGIS") Data].
+
+Missing Values
+
+The "Missing" text box allows you to enter one or more "missing values" for the data set. A missing value is a data value that is to be treated as null. These values show in the plot as a particular color indicated by the color specification. If there is more than one missing value separate them with spaces in the box. You can sometimes determine the missing value(s) by examing the global attributes of the data set (use 'show descriptions' in the constraint panel). The missing values assigments are part of the color specification.
+
+If the dataset's attribute information contains an attribute for the selected variable that starts with the word "missing" those values will automatically be parsed and used as missing values. You can have the ODC attempt to calculate the missing values for you which it does by default if no missing values attribute was found. This calculation will double your data memory requirements temporarily and take time proportional to n*log(n) where n is the number of data elements. You can turn it off via an option setting.
+
+#Plotting Lines
+
+When plotting lines directly from data (not using a table view) there are following ways of defining the data variables:
+
+     Independent      Dependent
+       none            1 x/y      lines only (scatter plots must have 2 variables)
+       none            slices     lines only (scatter plots must have 2 variables)
+     1 x/y/slice     1 y/x/slice
+     1 x/y/slice       n slices
+       n slices        n slices    (number of slices must match for both variables)
+
+In all cases only vectors (one-dimensional variables) may be used as line/scatter plot variables.
+
+It is necessary to select x and y vectors of the same length. If the vectors are of different lengths an error will occur.
+
+#Plotting - Axes
+
+For two-dimensional plot types (vector and pseudocolor) you can select what kind of axes the plot displays. If the data is gridded it may come with map vectors that associate specific values with the axes. If this is the case the axes selection will be automatic and will be reflected in the variables pane.
+
+The reverse check box allows you to choose the order of the axis values, ascending or descending. Sometimes you may notice that when you select a variable or dataset the reverse default is checked. The reason for this is that the map vectors in the data for whatever reason are in descending order and the plotter has automatically chosen to reverse them for you. This will often be the case for older data that was originally designed to be outputted to a line printer where the graphical origin will be the top left instead of the bottom left.
+
+If you choose "indexed" for the axes then then plot will show the one-based index numbers data rows/columns. The usefulness of this is that sometimes you may wish to know exactly what row/column is containing certain data values.
+
+#Plotting - Line and Scatter Plots from a table
+
+If you use the table view to set up your data ou have three options for defining your data:
+   1 one or more linear ranges with the same length
+   2 one or more sequential 2xN ranges
+   3 one 2-D array with the each line in a row or column
+
+In each case you can optionally specify an x-mapping. In each case the system will decide which option you picked depending on your input.
+
+In option 1 each range will make a new line. In this option the y-values must be sequential.
+
+You must use option 2 if you have lines of different lengths. In this case the first row/column in the range is considered to be the x-value (or index) and the second row/column is the y-value. If the x-values are integers you can have a x-mapping (see below) for the real values.
+
+Option 3 is possible if you have a large number of lines in a rectangular array. In this case a radio button allows you to specify whether the lines are in the rows or the columns. The values in the array are y-values. You can also specify a mapping as in the other two options.
+
+*** Line IDs ***
+
+If you add each line separately you can specify an ID for the lines. This is the string that will appear in the legend.
+
+#Plotting - Annotations
+
+The plotter can automatically generate a range of annotations and you can add custom text annotations. 
+
+*** Text ***
+
+Text is automatically generated by the plotter the first time it plots a dataset (in a row). It will generate text for the axes and the title as long as it can determine the information. You can see these entries by visiting the "Text" tab in the plotting definition area. You can delete them, modify them or add your own.
+
+*** Legend ***
+
+The legend shows the color bar for pseudocolor plots. The rotation is relative to the horizon and can only be in increments of 90 degrees (values other than 0, 90, 180 and 270 are ignored). The size is the length of the bar in screen dots (72 dpi). If you do not enter a size the following defaults are used:
+
+y-axis orientation: size = y-axis length
+x-axis orientation: size = x-axis length
+plot, top/bottom orientation: size = x-axis length
+plot, left/right orientation: size = y-axis length
+canvas, top/bottom orientation: size = canvas width
+canvas, left/right orientation: size = canvas height
+
+In general you should use a rotation of 0 for horizontal legends and 270 for vertical legends. The label is automatically rotated the same way.
+
+*** Scale ***
+
+The scale is a line that shows relationship between distances on the image to distances in reality. You must enter the real scale length and scale length relative to the length of the x-axis. For example if the x-axis covers 100 miles in reality and you want the scale be 20 miles wide (1/5 the length of the x-axis) you might enter a labels of "20 miles", an X-length of "100" and real scale length of "20". If you want to control the font/color/size of the label, leave the label blank and add a custom text annotation.
+
+Currently the scale only has one style: a line with out-turned ticks at each end.
+
+#Plotting - Layout
+
+The plotter locates text, legend/colorbar and scale on the plot using a layout system with six quantities: object, orientation, alignment, h/v offset and rotation.
+
+The relative object is the thing the object being placed is relative to. For example if you wanted the text to be in the upper right of the canvas you would pick "Canvas", but if you wanted it to be in the upper right of the plot area you would pick "Plot" as the object.
+
+The orientation is the place on the relative object where the text/legend is being placed. The alignment is part of the text/legend that is fitted to the orientation location. For example, if your object is "Plot", orientation is "Top Left" and alignment is "Center", then the center of the text will be positioned at the top left of the corner of the plot area.
+
+The offsets allow you to make absolute x/y ajustments in screen pixels to the placement location.
+
+The rotation is relative to the horizon. If the text is like a hand of a clock, 0 degrees would be at 3 o'clock, 90 degrees would be at 6 o'clock etc. Legends and scales can only be oriented in increments of 90 degrees, but text can have any rotation.
+
+If the bottom of the text seems to be extra high this is because the alignment takes into account descenders--characters such as 'y' and 'q' that have tails below the baseline. The text rectangle is placed so that its bottom includes the full descent of all possible characters.
+
+#Plotting - Output
+
+The output options are controlled by the drop-down list next to the blue Plot button.
+
+Preview     - the preview tab will be activated and the plot will appear therein
+              only one plot can be active at a time in the preview pane
+              if you plot to the preview pane you lose any previous plot that was there
+
+New Window  - a new window will be created for the plot, if you multiplot 20 plots to
+              new window you will create 20 new windows
+
+External Window  - use the external window for the plot; the external window is a single
+                   separate window; if you multiplot 20 plots to the external window each
+                   plot will appear in the window in turn separated by a delay called the
+                   the multiplot delay which is settable via the options panel
+
+Printer     - a dialog will appear requesting that you select a printer and the plot will
+              be sent to the printer
+
+Full Screen - the entire screen will be used to display the plot
+              press the escape key or the spacebar or click anywhere in the window to close it
+
+Thumbnails  - the plot(s) will be sent to the thumbnail pane; the thumbnails are shrunken to
+              a fixed width (by default 100 pixels) and laid out in a matrix on the thumbnail
+              pane; you can change the width of the thumbnails with an options setting; the
+              thumbnail view is useful for viewing many plots at once; use Shift-click to select
+              thumbnails; double-click on a thumbnail to plot it again
+
+Image       - you will be prompted for a file name and location and the plot will be stored as
+              a PNG image file
+
+#Plotting - Scale
+
+The scale tab has controls that allow you to define margins and scale for your plot. The scale is the relationship between data points and screen pixels. For example in a 1 to 1 scale there would be one data point for each pixel. In other words if you were plotting a 200 x 300 array in a pseudocolor plot the plot area would be 200 x 300 pixels in size on both and the printer. You can change the scale by setting the zoom factor which has the following meaning:
+
+ Max   - try to fill output area
+  %    - make proportional, for example 50% means 2 data points per pixel
+Custom - set the size to the exact dimensions shown
+
+When you are using Max or % zoom factors the custom area will show current size of the output.
+
+The nominal resolution of most computer screens is 72 pixels per inch.
+
+Note that printer output is scaled like a screen even though it is higher resolution.
+
+#Plotting - Histograms
+
+The histogram plotter can show you the distribution of values in your data. It can operate on any single variable or slice from your dataset. The X-axis shows the extreme values from lowest to highest and the Y-axis shows the number of values. Histograms work by sorting all the values of the dataset into classes. Classes are sometimes casually referred to as "bins". For example, you could divide a country's population into age groups. The first class might be children (age 0-10), the second adolescents (age 11-14), and so on.
+
+The main parameter when doing a histogram is the number of classes which can be set from the Options tab. If you select a small number of classes there will be only a few rectangles. If you select many, there will many narrow rectangles or lines in the maximal case. A setting of 0 classes will result in maximizing the number of classes for the current output. For example, on an 800x600 monitor the plot area for a full-screen display is typically 500 pixels wide. Thus, with a setting of 0 the plot could include up to 500 classes. Note that fewer classes than this may result because the value range is held constant. For example, if your plot area is 500 pixels wide and your data was the numbers 1 to 800 then the plot would be 400 pixels wide with each line representing a range of 2.
+
+Histogram Reports
+
+To get detailed information on a class single-click the rectangle. A popup box will appear showing range and count information for the class. Clicking on the plot area outside the rectangles will prompt you for a histogram report. This report is sent to the View / Text tab and you must go there to see it. It tabulates summary information about histogram.
+
+#Plotting - Colors
+
+In the ODC plotter you can specify colors via their HSB (hue, saturation, brightness) value. You can also specify transparency (called "alpha"). Each of these values ranges in hex from 00-FF and can be selected either numerically or using a picker.
+
+In the HSB system colors are formed by starting with a pure hue and adding black (saturation) or white (brightness). If you want to specify white, make brightness FF. If you want to specify black, make brightness 00. 
+
+The color specification appears as a list of entries in the box labeled "Colors". These entries can be saved to a file and used for any plot. Each entry has the following space-separated fields:
+
+	DataFrom DataTo ColorFrom ColorTo Step Hue Saturation Brightness Alpha [comments, ignored]
+	
+The color step is the direction of the spectrum (ascending: red to blue, descending: blue to red) and whether the hue/sat/bri/alpha vary in synchronized way. The codes (not case-sensitive) are:
+	
+	SA - synchronized ascending
+	SD - synchronized descending
+	CA - continuous ascending 
+	CD - continuous descending
+	
+For most cases you should use a synchronized descending step. This will tend to make the lower data values blue and the higher ones red. The Alpha is the transparency (0xFF for opaque and 0x00 for transparent). Normally a continous color step is only used when generating gray scale.
+
+This allows you to specify a range of data to be plotted using a range of colors. If you want the colors to be opaque but vary continuously, specify -1 for the HSB parameters and FF for alpha (opaque). If you want to hold one or more parameters constant give them a value. For example,
+
+	10.5 20.5 +1 -1 -1 80 FF -1 FF
+	
+This entry would cause the values between 10.5 and 20.5 to be plotted as an opaque, saturated, blue (80) which only varied in brightness. Setting the ColorFrom and ColorTo causes those values to be ignored.
+
+	10.5 20.5 +1 FF50FF77 FF80FF77 -1 -1 77 FF
+	
+In this example the data range plots between green (50) and blue (80). The hue (-1) and the saturation (-1) are allowed to float, but the brightness is held constant at 77 and the opacity is also held constant at 100% (FF). Note that the ColorFrom/To field values have the order AHSB.
+
+To get a better understanding of color systems and controlling color you may want to read the next topic, "Generating Colors".
+
+#Plotting - Data Parameters
+
+When data is plotted there are three key additional parameters to plotting it:
+
+- data type
+- range of values
+- missing values
+
+This information is necessary to create color specifications and do other plot processing. It is important to know that the plotter uses only set of data parameters--it does not maintain a different set of parameters for every loaded matrix in every loaded dataset. Calculating this information can be relatively expensive in terms of processing time so it is only recalculated under three conditions:
+
+- the user requests a recalculation using the calculator button on the variables pane
+- the data type does not match
+- the array/list dimensions do not match
+
+In other words if you plot one dataset and then another, if the second dataset has the same type and dimensions as the first the parameters will not be recalculated, but if either the data type or dimensions in the second dataset does not match those in the first, the parameters will be recalculated.
+
+You can view the data parameters in the values area of the variables panel.
+
+When a new color specification is created or colors are generated the current data parameters are used.
+
+#Plotting - Using the Color Picker
+
+The color picker is the dialog box titled "Choose Color" which comes up when you change a color.
+
+To define a color you modulate four quantities: its hue, saturation, brightness and alpha. Click on square in these areas to change that quantity for the currently selected color.
+
+The arrow keys move the last selected band (hue / sat / bri / alp ). Right arrow +1, left arrow -1, up arrow +16, down arrow -16.
+
+The currently selected color is shown at the bottom left next the label "Color:". Inside this rectangle are two colors: on the left is the selected color, on the right is the "compare color". You can swap these two colors by clicking anywhere in the color rectangle.
+
+The hex form of the color is shown next to the color rectangle. You will recognize this as the form of the color used in a color specification ranges. The format of the number is AHSB in that order. The ARGB number is also shown for the sake of comparison. You can enter an RGB number in the picker by clicking on the "ARGB" label and entering the 6-digit hex code for that color. You can find color mappings with these codes many places on the internet (for example: http://home.earthlink.net/~laanderson/colornet.htm).
+
+*** TIPS ***
+
+Copy a color -    to copy a color note that the compare color stays the same,
+                  so switch the color to the compare color box, move to
+                  to the place place you want to copy to and switch it back
+
+Fine adjustment - to make fine adjusments use the arrow keys
+
+Make white -      white = 0% sat, 100% bri (to make gray reduce brightness)
+
+Make black -      black = 0% brightness (no light!)
+
+#Plotting - Generating Colors
+
+If you do not make a color specification then the plots that require color will make their own using the ODC's color generating ability.
+
+You can use the color generator as well. Using the color generator is good way to get started creating a color specification. The color generator is controlled from the box labeled "Generate Colors" on the color specification tab.
+
+There are two basic types of color systems: continuous and banded. In a continuous system the color varies continuously with the data. In a banded system, all the data within a given fixed range is mapped to the same color. In an ODC color specification if the "ColorFrom" and "ColorTo" for a range are the same then the range is banded. If they are different then the range is continous. A color specification can include both types of ranges if the user desires.
+
+When you generate colors the range is determined by the total of ranges already in the specification (if there are no ranges then 0 to 1 is used). 
+
+To generate a banded color system, enter the number of bands (N) and other parameters as shown. The color generator will create N new ranges that are each mapped to a single color.
+
+To generate a continuous color system, pick the basic type (gray scale, multi-hue, full spectrum, little rainbow, weighted rainbow), then fill in the parameters appropriately. Description of the continous color systems:
+
+  gray scale
+        saturation is set to 0 and brightness is varied
+        across the data range for a continuous gray scale;
+
+  bw printer
+        the full range of values is used continuously from
+        00000000 to FFFFFFFF; on screen this will look
+        strange but when printed will give the best
+        possible gray scale
+
+  multi-hue
+        in a multi-hue system one or more hues are selected
+        and then are shaded, tinted or toned for variance
+				
+  full spectrum
+        the data ranges across the full range of possible
+        hues; the user can fix saturation and brightness
+        to particular levels (100% 100% is the default);
+        the user can also rotate the spectrum (by default
+        it begins/ends in the middle of red, hue 00)
+
+  little rainbow
+        the data ranges across a limited part of the spectrum
+        that the user selects; in a little rainbow one of 
+        the three primary colors will receive emphasis
+
+  weighted rainbow
+        in the standard spectrum, the boundary colors (yellow, 
+        cyan and magenta) are less prominent than the primary 
+        colors; the stretched rainbow expands these ranges so that 
+        all six colors (red, green, blue, yellow, cyan, magenta)
+        are of equal size; has the best spectrum distribution 
+  
+#Plotting - HSB
+
+The plotting color system uses the HSB (Hue-Saturation-Brightness) system. To make colors in this system you start with a hue and add black (saturation) or white (brightness). This table shows some of the conventional terms used under this system:
+
+Colour type   S      B
+
+Black        Any     0%
+White         0%    100%
+Gray          0%    1-99%
+Hue          100%   100%
+Shade        100%   1-99%
+Tint         1-99%  100%
+Tone         1-99%  1-99%
+
+For example, to make a brown shade you start with a yellow-red hue and shade it down to the brown.
+
+#Plotting - Line Styles
+
+Some settings allow you to set a line style. In the line style there will be a thickness, color and dash pattern.
+
+The dash pattern is a string. If you leave the box blank the line will be continuous. To indicate a dash pattern enter the number of pixels separated by spaces in the order line-gap-line-gap-... etc. You can specify as complex a pattern as you want. You can also specify a phase (where the pattern starts for every repetition) by appending a number separated from the rest of the string by a colon.
+
+Example:
+
+The dash pattern 4 2 3 1 would look like this (x's are pixels, ~'s are gaps),
+
+	XXXX~~XXX~XXXX~~XXX~XXXX~~XXX~XXXX~~XXX~XXXX~~XXX~
+
+By specifying a phase you can change where the pattern starts.
+For example 4 2 3 1 : 2 looks like this,
+
+	XX~~XXX~XXXX~~XXX~XXXX~~XXX~XXXX~~XXX~XXXX~~XXX~
+
+The phase must be greater than or equal to zero and cannot be greater than the total pattern length. For example, in the pattern above the total length is 4 + 2 + 3 + 1 = 10.
+
+#Plotting - Multiple Plots
+
+You can generate multiple plots all at once in several ways.
+
+If you have dataset with more than 2 dimensions you can specify one of the constraints to be range of values. For example, if you had a dataset that was time, latitude and longitude, you could make latitude 'Y' and longitude 'X' and constraint time to be '1,2,5-8,11'. This would generate seven plots, one for each time value.
+
+You can also multi-plot by creating thumbnails, selecting the thumbnails you want to plot by holding down the shift key and then pressing the plot button. All the selected thumbnails will be plotted.
+
+#Plotting - Coastline
+
+You can display a coastline by turning on the Show Coastline option in the Options tab.
+
+If you have coastline data available it will be applied according to the following resolution cutoffs:
+
+File        Description     Resolution  File Size  Cutoff
+------------------------------------------------------------
+gshhs_f.c   Full             0.04 km     87M       < 0.05 km
+gshhs_h.c   High             0.2  km     20M       < 0.4 km
+gshhs_i.c   Intermediate     1.0  km      5M       <  2 km
+gshhs_l.c   Low              5.0  km      1M       < 10 km
+gshhs_c.c   Crude           25    km    167K        
+
+You can cause only the crude coastline to be used by setting the coastline path (in the configuration settings) to blank. You can also cause a particular file always to be used by setting the coastline path to that particular file. If you set the coastline path to a directory it will search the directory for the above files. The default directory is /coastline.
+
+IMPORTANT: any resolution smaller than low (5 km) will use significant memory and time resources to load and process. Be cautious when using the coastline on data that covers a small region.
+
+#Additional Tips
+
+* In the GCMD search you can clear the info panel by clicking the area to the right of the info buttons
+* By double-clicking in this area you can see the currently defined constraint
+* Ctrl-clicking in this area will run whatever text is in this panel as a GCMD query
+* Some servers especially NOAA/NASA servers may require longer timeouts
+

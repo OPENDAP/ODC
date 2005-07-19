@@ -1,0 +1,102 @@
+OPeNDAP Data Connector Installation and Execution (Unix Platform)
+Version 2.57
+24 September 2004
+
+http://www.opendap.org/ODC/
+odc-help@opendap.org
+
+--- Introduction ---
+
+This program is the OPeNDAP Data Connector (ODC). Using the ODC's graphical interface you can search for and retrieve datasets published by OPeNDAP data servers. 
+
+--- Installation ---
+
+You can run the ODC from the CD (read-only mode) or from your hard drive. To install it on your hard drive move the folder ODC-2.54 to the location you desire on your hard drive. You may change the name of the directory if you wish. You should change the permissions of the directories and files to be writable.
+
+--- Instant Startup ---
+
+Go to the directory where the ODC was installed (or to the unix ODC directory on the CD if running from the CD) and execute the "startup" script in the main directory (for example "sh startup"). You can make this file executable with the command "chmod a+x startup".
+
+--- Java Runtime ---
+
+The distribution of the ODC requires a Java 1.4.0 later runtime to be installed on the machine. This CD comes with a distribution of Java for x86 Linux. If you are running a different flavor of Unix you may need to download and install a runtime (JRE).
+
+Type "java -version". It should list 1.4.0 or greater. If not you may need to install the runtime.
+
+If the runtime is already on your system you may need only to set your PATH and JAVA_HOME environments correctly. For example, if the jdk is installed in /usr/java you might need to enter the following in your startup script:
+
+set JAVA_HOME = /usr/java/j2sdk1.4.0_01
+set path=($JAVA_HOME/bin $path)
+
+An even better option is to export the java bin to your shell.
+
+Check with your system administrator about using an existing installation of the Java runtime.
+
+To install the Java runtime if you do you not already have one on your system go to either:
+             Linux users--->  the runtime is on the CD, you don't have to download anything
+     non-technical users--->  http://java.com
+   technical/power users--->  http://java.sun.com/j2se/1.4.2/download.html
+and follow the instructions there for your system.
+
+The JRE is a file called j2re-1_4_2_05-linux-i586-rpm.bin. Open a terminal window and give the j2sdk* file execute permission:
+[user]$ chmod a+x j2re-1_4_2_05-linux-i586-rpm.bin
+
+Concept: Use the tab key to complete your typing when you are typing directory or file names. You should never copy and paste directly from the examples. The reason for this is that directory names may be different on your Linux version. /usr/java/j + tab may result in Linux writing /usr/java/j2sdk1.6.3/
+
+File access permissions should now be:
+[user]$ ls -l
+-rwx--x--x    1 user     user     34367176 jan  9 18:40 j2sdk-1_4_2_03-linux-i586-rpm.bin
+You should also check the download file size.
+
+Execute the file:
+[user]$ ./j2re-1_4_2_05-linux-i586-rpm.bin
+
+Read the "Binary Code License Agreement", as if..., press space repeatedly for quick scrolling, and type yes. You now have two files:
+[user]$ ls
+j2re-1_4_2_05-linux-i586.rpm
+j2re-1_4_2_05-linux-i586-rpm.bin
+
+Log in as the super-user:
+[user]$ su
+Password: <the super-user password>
+
+If Java is not installed on your computer, type:
+[root]# rpm -iv j2re-1_4_2_05-linux-i586.rpm
+
+If Java is installed on your computer with rpm, but you want to update to the new version and uninstall the old, type:
+[root]# rpm -Uv j2re-1_4_2_05-linux-i586.rpm
+
+Check the installation by printing the product version:
+[root]# /usr/java/j2re1.4.2_05/bin/java -version
+
+If you are at all unfamiliar with this kind of administrative process under Linux/Unix it is strongly recommended that you find detailed instructions for installing a JRE on your system on the web. An example of such instructions is:
+
+	http://home.bredband.no/gaulyk/java/tutorial/javaredhat.html
+
+Once Java is installed the startup script should start the program.
+
+--- Running ---
+
+If you are not running on x86 Linux or for some reason cannot or do not want to use the provided "startup" script you can start the ODC by executing the following command (one line):
+
+java -Xms40m -Xmx300m -classpath  $:$/odc.jar:$/lib/xerces-2.5.0_xercesImpl.jar:$/lib/xerces-2.5.0_xml-apis.jar:$/lib/jdom-b9.jar:$/lib/activation.jar:$/lib/mail.jar:$/lib/imap.jar:$/lib/mailapi.jar:$/lib/pop3.jar opendap.clients.odc.ApplicationController $
+
+where "$" is the ODC base directory (contains odc.jar)
+
+You should change the maximum memory (Xmx switch) to match your system's memory. For example if your system has 512 megabytes of memory you should change -Xmx300m to -Xmx512m
+
+You may want to create an alias for this command.
+
+--- Base Directory ---
+
+The trailing '$' in the execution command above is an optional argument to the startup that tells the program the location of the "base directory". Normally this will be where you install the program. Note, however, that the program will create directories and files below this base directory. If for some reason you want to separate your program directory from your base directory do the following: (1) untar to your program directory, (2) move all the files except the odc.jar and /lib directory files to the desired program files directory, and (3) in the java command above put the path to the program files directory where the trailing '$' is.
+
+For example, imagine that you want to install the program to /usr/bin/odc but do not want the program creating files there. Instead you want the program to put its program files/directories in /var/odc. In this case put all files except the odc.jar and /lib directory in the /var/odc directory and then use /var/odc as your base directory. Your completed command line would look like this:
+
+java -classpath /usr/bin/odc:/usr/bin/odc/odc.jar:/usr/bin/odc/lib/xerces-2.5.0_xercesImpl.jar:/usr/bin/odc/lib/xerces-2.5.0_xml-apis.jar:/usr/bin/odc/lib/jdom-b9.jar:/usr/bin/odc/lib/activation.jar:/usr/bin/odc/lib/mail.jar:/usr/bin/odc/lib/imap.jar:/usr/bin/odc/lib/mailapi.jar:/usr/bin/odc/lib/pop3.jar opendap.clients.odc.ApplicationController /var/odc
+
+--- Jar Replacement ---
+
+When newer versions of the ODC are released you can update your system by replacing the jar file (odc.jar) from http://opendap.org/ODC/. The jar file will be a much smaller download than the entire package. If an accessory file, such as the gazetteer, changes you can do a single file replacement the same way. See the accessory file link from the web page.
+
+

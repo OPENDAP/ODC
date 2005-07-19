@@ -1,0 +1,2211 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- edited with XML Spy v3.5 (http://www.xmlspy.com) by Dan Holloway (University of Rhode Island - GSO) -->
+<ECHOStaticValids>
+	<Category>
+		<CategoryName>sensorName</CategoryName>
+		<CategoryType>GRANULES, COLLECTIONS</CategoryType>
+		<CategoryDescription>Sensor short names</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>sensorName</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>1024</CriteriaLength>
+				<CriteriaValues>
+					<CriteriaValue>AAS</CriteriaValue>
+					<CriteriaValue>ADVANCED SOLID-STATE ARRAY SPECTRORADIOMETER</CriteriaValue>
+					<CriteriaValue>AIR THERMOMETER</CriteriaValue>
+					<CriteriaValue>AIRBORNE VISIBLE AND INFRARED IMAGING SPECTROMETER</CriteriaValue>
+					<CriteriaValue>ALGORITHM</CriteriaValue>
+					<CriteriaValue>ANALYSIS</CriteriaValue>
+					<CriteriaValue>ANEMOMETER</CriteriaValue>
+					<CriteriaValue>ANEROID BAROMETER</CriteriaValue>
+					<CriteriaValue>ANTHRONE COLORIMETER</CriteriaValue>
+					<CriteriaValue>AOCI</CriteriaValue>
+					<CriteriaValue>ASAS</CriteriaValue>
+					<CriteriaValue>AUTOANALYZER</CriteriaValue>
+					<CriteriaValue>AVHRR</CriteriaValue>
+					<CriteriaValue>AVIRIS</CriteriaValue>
+					<CriteriaValue>BAROMETER</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO APPARATUS</CriteriaValue>
+					<CriteriaValue>BUGEYE</CriteriaValue>
+					<CriteriaValue>CAMERA</CriteriaValue>
+					<CriteriaValue>CAPACITIVE SENSOR</CriteriaValue>
+					<CriteriaValue>CARBON ANALYZER</CriteriaValue>
+					<CriteriaValue>CASI</CriteriaValue>
+					<CriteriaValue>CEILOMETER</CriteriaValue>
+					<CriteriaValue>CHEMILUMINESCENCE</CriteriaValue>
+					<CriteriaValue>CHN ANALYZER</CriteriaValue>
+					<CriteriaValue>CLIMATOLOGY DATABASE</CriteriaValue>
+					<CriteriaValue>CLINOMETER</CriteriaValue>
+					<CriteriaValue>CO2 SENSOR</CriteriaValue>
+					<CriteriaValue>CURRENT METER</CriteriaValue>
+					<CriteriaValue>DENSIOMETER</CriteriaValue>
+					<CriteriaValue>DEWPOINT HYDROMETER</CriteriaValue>
+					<CriteriaValue>DIELECTRIC PROBE</CriteriaValue>
+					<CriteriaValue>DIGITIZER</CriteriaValue>
+					<CriteriaValue>DOPPLER LIDAR</CriteriaValue>
+					<CriteriaValue>DOPPLER RADAR</CriteriaValue>
+					<CriteriaValue>DRY BULB THERMOMETER</CriteriaValue>
+					<CriteriaValue>EDDY CORRELATION APPARATUS</CriteriaValue>
+					<CriteriaValue>GAMMA RADIATION DETECTOR</CriteriaValue>
+					<CriteriaValue>GAS EXCHANGE SYSTEM</CriteriaValue>
+					<CriteriaValue>GC</CriteriaValue>
+					<CriteriaValue>GC-FID</CriteriaValue>
+					<CriteriaValue>GC-MS</CriteriaValue>
+					<CriteriaValue>GC-TCD</CriteriaValue>
+					<CriteriaValue>GOES-8 IMAGER</CriteriaValue>
+					<CriteriaValue>GPS</CriteriaValue>
+					<CriteriaValue>GUST PROBE</CriteriaValue>
+					<CriteriaValue>GYPSUM BLOCK</CriteriaValue>
+					<CriteriaValue>HIGH RESOLUTION VISIBLE SENSOR</CriteriaValue>
+					<CriteriaValue>HPLC</CriteriaValue>
+					<CriteriaValue>HRV-PAN</CriteriaValue>
+					<CriteriaValue>HRV-X3</CriteriaValue>
+					<CriteriaValue>HUMAN OBSERVER</CriteriaValue>
+					<CriteriaValue>HUMIDITY PROBE</CriteriaValue>
+					<CriteriaValue>HUMIDITY SENSOR</CriteriaValue>
+					<CriteriaValue>HYDROMETER</CriteriaValue>
+					<CriteriaValue>HYGROMETER</CriteriaValue>
+					<CriteriaValue>INCLINOMETER</CriteriaValue>
+					<CriteriaValue>INERTIAL NAVIGATION SYSTEM</CriteriaValue>
+					<CriteriaValue>INFRARED RADIOMETER</CriteriaValue>
+					<CriteriaValue>INFRARED THERMOMETER</CriteriaValue>
+					<CriteriaValue>INTEGRATING SPHERE</CriteriaValue>
+					<CriteriaValue>ION CHROMATOGRAPH</CriteriaValue>
+					<CriteriaValue>IR CO2 ANALYZER</CriteriaValue>
+					<CriteriaValue>IRGA</CriteriaValue>
+					<CriteriaValue>KJELDAHL DIGESTION</CriteriaValue>
+					<CriteriaValue>LANDSAT MSS</CriteriaValue>
+					<CriteriaValue>LANDSAT TM</CriteriaValue>
+					<CriteriaValue>LASER ALTIMETER</CriteriaValue>
+					<CriteriaValue>LEAF AREA METER</CriteriaValue>
+					<CriteriaValue>MAS</CriteriaValue>
+					<CriteriaValue>MASS SPECTROMETER</CriteriaValue>
+					<CriteriaValue>MICROSCOPE</CriteriaValue>
+					<CriteriaValue>MICROWAVE RADIOMETER</CriteriaValue>
+					<CriteriaValue>MODEL ANALYSIS</CriteriaValue>
+					<CriteriaValue>MODULAR MULTIBAND RADIOMETER</CriteriaValue>
+					<CriteriaValue>MULTIBAND LEAF RADIOMETER</CriteriaValue>
+					<CriteriaValue>MULTIBAND VEGETATION IMAGER</CriteriaValue>
+					<CriteriaValue>NDIR GAS ANALYZER</CriteriaValue>
+					<CriteriaValue>NET RADIOMETER</CriteriaValue>
+					<CriteriaValue>NEUTRON PROBE</CriteriaValue>
+					<CriteriaValue>NS-001 MULTISPECTRAL SCANNER</CriteriaValue>
+					<CriteriaValue>OSMOMETER</CriteriaValue>
+					<CriteriaValue>OXYGEN ANALYZER</CriteriaValue>
+					<CriteriaValue>OZONE SENSOR</CriteriaValue>
+					<CriteriaValue>OZONESONDE</CriteriaValue>
+					<CriteriaValue>PARABOLA RADIOMETER</CriteriaValue>
+					<CriteriaValue>PERMEAMETER</CriteriaValue>
+					<CriteriaValue>PH METER</CriteriaValue>
+					<CriteriaValue>PHOTOSYNTHESIS CHAMBER</CriteriaValue>
+					<CriteriaValue>PLANT CANOPY ANALYZER</CriteriaValue>
+					<CriteriaValue>PLANT STRESS MONITOR</CriteriaValue>
+					<CriteriaValue>POLDER</CriteriaValue>
+					<CriteriaValue>POROMETER</CriteriaValue>
+					<CriteriaValue>PRESSURE CHAMBER</CriteriaValue>
+					<CriteriaValue>PRESSURE SENSOR</CriteriaValue>
+					<CriteriaValue>PRESSURE TRANSDUCER</CriteriaValue>
+					<CriteriaValue>PSYCHROMETER</CriteriaValue>
+					<CriteriaValue>PYRANOMETER</CriteriaValue>
+					<CriteriaValue>PYRGEOMETER</CriteriaValue>
+					<CriteriaValue>PYRHELIOMETER</CriteriaValue>
+					<CriteriaValue>QUADRAT SAMPLING FRAME</CriteriaValue>
+					<CriteriaValue>QUANTUM SENSOR</CriteriaValue>
+					<CriteriaValue>RADAR ALTIMETER</CriteriaValue>
+					<CriteriaValue>RADIO ALTIMETER</CriteriaValue>
+					<CriteriaValue>RADIOSONDE</CriteriaValue>
+					<CriteriaValue>RAIN GAUGE</CriteriaValue>
+					<CriteriaValue>RASS</CriteriaValue>
+					<CriteriaValue>SAR</CriteriaValue>
+					<CriteriaValue>SCINTILLATION COUNTER</CriteriaValue>
+					<CriteriaValue>SIR-C</CriteriaValue>
+					<CriteriaValue>SNOW DENSITY CUTTER</CriteriaValue>
+					<CriteriaValue>SNOW MEASURING ROD</CriteriaValue>
+					<CriteriaValue>SNOW TUBE</CriteriaValue>
+					<CriteriaValue>SODAR</CriteriaValue>
+					<CriteriaValue>SOIL CORING DEVICE</CriteriaValue>
+					<CriteriaValue>SOIL DEPTH PROBE</CriteriaValue>
+					<CriteriaValue>SOIL GAS CHAMBER</CriteriaValue>
+					<CriteriaValue>SOIL HEAT FLUX TRANSDUCER</CriteriaValue>
+					<CriteriaValue>SOIL HEAT PROBE</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE PROBE</CriteriaValue>
+					<CriteriaValue>SOIL PRESSURE PLATE</CriteriaValue>
+					<CriteriaValue>SOIL TEMPERATURE PROBE</CriteriaValue>
+					<CriteriaValue>SOLAR MONITOR</CriteriaValue>
+					<CriteriaValue>SONIC ANEMOMETER</CriteriaValue>
+					<CriteriaValue>SPATIAL COORDINATE APPARATUS</CriteriaValue>
+					<CriteriaValue>SPECTROMETER</CriteriaValue>
+					<CriteriaValue>SPECTROPHOTOMETER</CriteriaValue>
+					<CriteriaValue>SPECTRORADIOMETER</CriteriaValue>
+					<CriteriaValue>SPOT MULTISPECTRAL</CriteriaValue>
+					<CriteriaValue>STEEL MEASURING TAPE</CriteriaValue>
+					<CriteriaValue>STILLING WELL</CriteriaValue>
+					<CriteriaValue>STREAM GAUGE</CriteriaValue>
+					<CriteriaValue>SUN PHOTOMETER</CriteriaValue>
+					<CriteriaValue>SUNFLECK CEPTOMETER</CriteriaValue>
+					<CriteriaValue>TEMPERATURE PROBE</CriteriaValue>
+					<CriteriaValue>TEMPERATURE SENSOR</CriteriaValue>
+					<CriteriaValue>TENSION INFILTROMETER</CriteriaValue>
+					<CriteriaValue>THEMATIC MAPPER SIMULATOR</CriteriaValue>
+					<CriteriaValue>THERMAL INFRARED MULTISPECTRAL SCANNER</CriteriaValue>
+					<CriteriaValue>THERMISTOR</CriteriaValue>
+					<CriteriaValue>THERMOCOUPLE</CriteriaValue>
+					<CriteriaValue>THERMOMETER</CriteriaValue>
+					<CriteriaValue>TIME DOMAIN REFLECTOMETER</CriteriaValue>
+					<CriteriaValue>TIMS</CriteriaValue>
+					<CriteriaValue>TOMS</CriteriaValue>
+					<CriteriaValue>TOVS-HIRS/2</CriteriaValue>
+					<CriteriaValue>TOVS-MSU</CriteriaValue>
+					<CriteriaValue>TOVS-SSU</CriteriaValue>
+					<CriteriaValue>TUNABLE DIODE LASER</CriteriaValue>
+					<CriteriaValue>ULTRASONIC DEPTH GAUGE</CriteriaValue>
+					<CriteriaValue>UV OZONE DETECTOR</CriteriaValue>
+					<CriteriaValue>VAS</CriteriaValue>
+					<CriteriaValue>VIDEO CAMERA</CriteriaValue>
+					<CriteriaValue>VIL</CriteriaValue>
+					<CriteriaValue>VIRR</CriteriaValue>
+					<CriteriaValue>VISIBILITY SENSOR</CriteriaValue>
+					<CriteriaValue>VISSR</CriteriaValue>
+					<CriteriaValue>WATER LEVEL GAUGE</CriteriaValue>
+					<CriteriaValue>WEIGHING BALANCE</CriteriaValue>
+					<CriteriaValue>WET BULB THERMOMETER</CriteriaValue>
+					<CriteriaValue>WILD-HEERBRUG RC-10 CAMERA</CriteriaValue>
+					<CriteriaValue>WIND MONITOR</CriteriaValue>
+					<CriteriaValue>WIND PROFILER</CriteriaValue>
+					<CriteriaValue>WIND SENSOR</CriteriaValue>
+					<CriteriaValue>WSR-100</CriteriaValue>
+					<CriteriaValue>X-RAY DENSITOMETRY</CriteriaValue>
+					<CriteriaValue>ZEISS RMK A CAMERA</CriteriaValue>
+					<CriteriaValue>ZEISS RMK AR CAMERA</CriteriaValue>
+					<CriteriaValue>MODIS</CriteriaValue>
+					<CriteriaValue>ETM+</CriteriaValue>
+					<CriteriaValue>SWIR</CriteriaValue>
+					<CriteriaValue>TIR</CriteriaValue>
+					<CriteriaValue>VNIR</CriteriaValue>
+				</CriteriaValues>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>instrumentName</CategoryName>
+		<CategoryType>GRANULES, COLLECTIONS</CategoryType>
+		<CategoryDescription>Instrument short name</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>instrumentName</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>1024</CriteriaLength>
+				<CriteriaValues>
+					<CriteriaValue>AAS</CriteriaValue>
+					<CriteriaValue>ADVANCED SOLID-STATE ARRAY SPECTRORADIOMETER</CriteriaValue>
+					<CriteriaValue>AIR THERMOMETER</CriteriaValue>
+					<CriteriaValue>AIRBORNE VISIBLE AND INFRARED IMAGING SPECTROMETER</CriteriaValue>
+					<CriteriaValue>ALGORITHM</CriteriaValue>
+					<CriteriaValue>ANALYSIS</CriteriaValue>
+					<CriteriaValue>ANEMOMETER</CriteriaValue>
+					<CriteriaValue>ANEROID BAROMETER</CriteriaValue>
+					<CriteriaValue>ANTHRONE COLORIMETER</CriteriaValue>
+					<CriteriaValue>AOCI</CriteriaValue>
+					<CriteriaValue>ASAS</CriteriaValue>
+					<CriteriaValue>AUTOANALYZER</CriteriaValue>
+					<CriteriaValue>AVHRR</CriteriaValue>
+					<CriteriaValue>AVIRIS</CriteriaValue>
+					<CriteriaValue>BAROMETER</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO APPARATUS</CriteriaValue>
+					<CriteriaValue>BUGEYE</CriteriaValue>
+					<CriteriaValue>CAMERA</CriteriaValue>
+					<CriteriaValue>CAPACITIVE SENSOR</CriteriaValue>
+					<CriteriaValue>CARBON ANALYZER</CriteriaValue>
+					<CriteriaValue>CASI</CriteriaValue>
+					<CriteriaValue>CEILOMETER</CriteriaValue>
+					<CriteriaValue>CHEMILUMINESCENCE</CriteriaValue>
+					<CriteriaValue>CHN ANALYZER</CriteriaValue>
+					<CriteriaValue>CLIMATOLOGY DATABASE</CriteriaValue>
+					<CriteriaValue>CLINOMETER</CriteriaValue>
+					<CriteriaValue>CO2 SENSOR</CriteriaValue>
+					<CriteriaValue>CURRENT METER</CriteriaValue>
+					<CriteriaValue>DENSIOMETER</CriteriaValue>
+					<CriteriaValue>DEWPOINT HYDROMETER</CriteriaValue>
+					<CriteriaValue>DIELECTRIC PROBE</CriteriaValue>
+					<CriteriaValue>DIGITIZER</CriteriaValue>
+					<CriteriaValue>DOPPLER LIDAR</CriteriaValue>
+					<CriteriaValue>DOPPLER RADAR</CriteriaValue>
+					<CriteriaValue>DRY BULB THERMOMETER</CriteriaValue>
+					<CriteriaValue>EDDY CORRELATION APPARATUS</CriteriaValue>
+					<CriteriaValue>GAMMA RADIATION DETECTOR</CriteriaValue>
+					<CriteriaValue>GAS EXCHANGE SYSTEM</CriteriaValue>
+					<CriteriaValue>GC</CriteriaValue>
+					<CriteriaValue>GC-FID</CriteriaValue>
+					<CriteriaValue>GC-MS</CriteriaValue>
+					<CriteriaValue>GC-TCD</CriteriaValue>
+					<CriteriaValue>GOES-8 IMAGER</CriteriaValue>
+					<CriteriaValue>GPS</CriteriaValue>
+					<CriteriaValue>GUST PROBE</CriteriaValue>
+					<CriteriaValue>GYPSUM BLOCK</CriteriaValue>
+					<CriteriaValue>HIGH RESOLUTION VISIBLE SENSOR</CriteriaValue>
+					<CriteriaValue>HPLC</CriteriaValue>
+					<CriteriaValue>HRV-PAN</CriteriaValue>
+					<CriteriaValue>HRV-X3</CriteriaValue>
+					<CriteriaValue>HUMAN OBSERVER</CriteriaValue>
+					<CriteriaValue>HUMIDITY PROBE</CriteriaValue>
+					<CriteriaValue>HUMIDITY SENSOR</CriteriaValue>
+					<CriteriaValue>HYDROMETER</CriteriaValue>
+					<CriteriaValue>HYGROMETER</CriteriaValue>
+					<CriteriaValue>INCLINOMETER</CriteriaValue>
+					<CriteriaValue>INERTIAL NAVIGATION SYSTEM</CriteriaValue>
+					<CriteriaValue>INFRARED RADIOMETER</CriteriaValue>
+					<CriteriaValue>INFRARED THERMOMETER</CriteriaValue>
+					<CriteriaValue>INTEGRATING SPHERE</CriteriaValue>
+					<CriteriaValue>ION CHROMATOGRAPH</CriteriaValue>
+					<CriteriaValue>IR CO2 ANALYZER</CriteriaValue>
+					<CriteriaValue>IRGA</CriteriaValue>
+					<CriteriaValue>KJELDAHL DIGESTION</CriteriaValue>
+					<CriteriaValue>LANDSAT MSS</CriteriaValue>
+					<CriteriaValue>LANDSAT TM</CriteriaValue>
+					<CriteriaValue>LASER ALTIMETER</CriteriaValue>
+					<CriteriaValue>LEAF AREA METER</CriteriaValue>
+					<CriteriaValue>MAS</CriteriaValue>
+					<CriteriaValue>MASS SPECTROMETER</CriteriaValue>
+					<CriteriaValue>MICROSCOPE</CriteriaValue>
+					<CriteriaValue>MICROWAVE RADIOMETER</CriteriaValue>
+					<CriteriaValue>MODEL ANALYSIS</CriteriaValue>
+					<CriteriaValue>MODULAR MULTIBAND RADIOMETER</CriteriaValue>
+					<CriteriaValue>MULTIBAND LEAF RADIOMETER</CriteriaValue>
+					<CriteriaValue>MULTIBAND VEGETATION IMAGER</CriteriaValue>
+					<CriteriaValue>NDIR GAS ANALYZER</CriteriaValue>
+					<CriteriaValue>NET RADIOMETER</CriteriaValue>
+					<CriteriaValue>NEUTRON PROBE</CriteriaValue>
+					<CriteriaValue>NS-001 MULTISPECTRAL SCANNER</CriteriaValue>
+					<CriteriaValue>OSMOMETER</CriteriaValue>
+					<CriteriaValue>OXYGEN ANALYZER</CriteriaValue>
+					<CriteriaValue>OZONE SENSOR</CriteriaValue>
+					<CriteriaValue>OZONESONDE</CriteriaValue>
+					<CriteriaValue>PARABOLA RADIOMETER</CriteriaValue>
+					<CriteriaValue>PERMEAMETER</CriteriaValue>
+					<CriteriaValue>PH METER</CriteriaValue>
+					<CriteriaValue>PHOTOSYNTHESIS CHAMBER</CriteriaValue>
+					<CriteriaValue>PLANT CANOPY ANALYZER</CriteriaValue>
+					<CriteriaValue>PLANT STRESS MONITOR</CriteriaValue>
+					<CriteriaValue>POLDER</CriteriaValue>
+					<CriteriaValue>POROMETER</CriteriaValue>
+					<CriteriaValue>PRESSURE CHAMBER</CriteriaValue>
+					<CriteriaValue>PRESSURE SENSOR</CriteriaValue>
+					<CriteriaValue>PRESSURE TRANSDUCER</CriteriaValue>
+					<CriteriaValue>PSYCHROMETER</CriteriaValue>
+					<CriteriaValue>PYRANOMETER</CriteriaValue>
+					<CriteriaValue>PYRGEOMETER</CriteriaValue>
+					<CriteriaValue>PYRHELIOMETER</CriteriaValue>
+					<CriteriaValue>QUADRAT SAMPLING FRAME</CriteriaValue>
+					<CriteriaValue>QUANTUM SENSOR</CriteriaValue>
+					<CriteriaValue>RADAR ALTIMETER</CriteriaValue>
+					<CriteriaValue>RADIO ALTIMETER</CriteriaValue>
+					<CriteriaValue>RADIOSONDE</CriteriaValue>
+					<CriteriaValue>RAIN GAUGE</CriteriaValue>
+					<CriteriaValue>RASS</CriteriaValue>
+					<CriteriaValue>SAR</CriteriaValue>
+					<CriteriaValue>SCINTILLATION COUNTER</CriteriaValue>
+					<CriteriaValue>SIR-C</CriteriaValue>
+					<CriteriaValue>SNOW DENSITY CUTTER</CriteriaValue>
+					<CriteriaValue>SNOW MEASURING ROD</CriteriaValue>
+					<CriteriaValue>SNOW TUBE</CriteriaValue>
+					<CriteriaValue>SODAR</CriteriaValue>
+					<CriteriaValue>SOIL CORING DEVICE</CriteriaValue>
+					<CriteriaValue>SOIL DEPTH PROBE</CriteriaValue>
+					<CriteriaValue>SOIL GAS CHAMBER</CriteriaValue>
+					<CriteriaValue>SOIL HEAT FLUX TRANSDUCER</CriteriaValue>
+					<CriteriaValue>SOIL HEAT PROBE</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE PROBE</CriteriaValue>
+					<CriteriaValue>SOIL PRESSURE PLATE</CriteriaValue>
+					<CriteriaValue>SOIL TEMPERATURE PROBE</CriteriaValue>
+					<CriteriaValue>SOLAR MONITOR</CriteriaValue>
+					<CriteriaValue>SONIC ANEMOMETER</CriteriaValue>
+					<CriteriaValue>SPATIAL COORDINATE APPARATUS</CriteriaValue>
+					<CriteriaValue>SPECTROMETER</CriteriaValue>
+					<CriteriaValue>SPECTROPHOTOMETER</CriteriaValue>
+					<CriteriaValue>SPECTRORADIOMETER</CriteriaValue>
+					<CriteriaValue>SPOT MULTISPECTRAL</CriteriaValue>
+					<CriteriaValue>STEEL MEASURING TAPE</CriteriaValue>
+					<CriteriaValue>STILLING WELL</CriteriaValue>
+					<CriteriaValue>STREAM GAUGE</CriteriaValue>
+					<CriteriaValue>SUN PHOTOMETER</CriteriaValue>
+					<CriteriaValue>SUNFLECK CEPTOMETER</CriteriaValue>
+					<CriteriaValue>TEMPERATURE PROBE</CriteriaValue>
+					<CriteriaValue>TEMPERATURE SENSOR</CriteriaValue>
+					<CriteriaValue>TENSION INFILTROMETER</CriteriaValue>
+					<CriteriaValue>THEMATIC MAPPER SIMULATOR</CriteriaValue>
+					<CriteriaValue>THERMAL INFRARED MULTISPECTRAL SCANNER</CriteriaValue>
+					<CriteriaValue>THERMISTOR</CriteriaValue>
+					<CriteriaValue>THERMOCOUPLE</CriteriaValue>
+					<CriteriaValue>THERMOMETER</CriteriaValue>
+					<CriteriaValue>TIME DOMAIN REFLECTOMETER</CriteriaValue>
+					<CriteriaValue>TIMS</CriteriaValue>
+					<CriteriaValue>TOMS</CriteriaValue>
+					<CriteriaValue>TOVS-HIRS/2</CriteriaValue>
+					<CriteriaValue>TOVS-MSU</CriteriaValue>
+					<CriteriaValue>TOVS-SSU</CriteriaValue>
+					<CriteriaValue>TUNABLE DIODE LASER</CriteriaValue>
+					<CriteriaValue>ULTRASONIC DEPTH GAUGE</CriteriaValue>
+					<CriteriaValue>UV OZONE DETECTOR</CriteriaValue>
+					<CriteriaValue>VAS</CriteriaValue>
+					<CriteriaValue>VIDEO CAMERA</CriteriaValue>
+					<CriteriaValue>VIL</CriteriaValue>
+					<CriteriaValue>VIRR</CriteriaValue>
+					<CriteriaValue>VISIBILITY SENSOR</CriteriaValue>
+					<CriteriaValue>VISSR</CriteriaValue>
+					<CriteriaValue>WATER LEVEL GAUGE</CriteriaValue>
+					<CriteriaValue>WEIGHING BALANCE</CriteriaValue>
+					<CriteriaValue>WET BULB THERMOMETER</CriteriaValue>
+					<CriteriaValue>WILD-HEERBRUG RC-10 CAMERA</CriteriaValue>
+					<CriteriaValue>WIND MONITOR</CriteriaValue>
+					<CriteriaValue>WIND PROFILER</CriteriaValue>
+					<CriteriaValue>WIND SENSOR</CriteriaValue>
+					<CriteriaValue>WSR-100</CriteriaValue>
+					<CriteriaValue>X-RAY DENSITOMETRY</CriteriaValue>
+					<CriteriaValue>ZEISS RMK A CAMERA</CriteriaValue>
+					<CriteriaValue>ZEISS RMK AR CAMERA</CriteriaValue>
+					<CriteriaValue>MODIS</CriteriaValue>
+					<CriteriaValue>ASTER</CriteriaValue>
+					<CriteriaValue>ETM+</CriteriaValue>
+				</CriteriaValues>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>sourceName</CategoryName>
+		<CategoryType>GRANULES, COLLECTIONS</CategoryType>
+		<CategoryDescription>Source short name</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>source</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>1024</CriteriaLength>
+				<CriteriaValues>
+					<CriteriaValue>AERIAL PHOTOGRAPH</CriteriaValue>
+					<CriteriaValue>AERO COMMANDER</CriteriaValue>
+					<CriteriaValue>C-130</CriteriaValue>
+					<CriteriaValue>C-130 FIELD INVESTIGATION</CriteriaValue>
+					<CriteriaValue>CHIEFTAIN NAVAHO</CriteriaValue>
+					<CriteriaValue>COMPUTER MODEL</CriteriaValue>
+					<CriteriaValue>DC-8</CriteriaValue>
+					<CriteriaValue>DIGITAL ELEVATION MODEL</CriteriaValue>
+					<CriteriaValue>ERS-1</CriteriaValue>
+					<CriteriaValue>FAO SOIL MAP</CriteriaValue>
+					<CriteriaValue>FAO SOIL MAP COMPUTER MODEL</CriteriaValue>
+					<CriteriaValue>FIELD INVESTIGATION</CriteriaValue>
+					<CriteriaValue>FIELD INVESTIGATION PHOTOSYNTHESIS CHAMBER</CriteriaValue>
+					<CriteriaValue>GOES-7</CriteriaValue>
+					<CriteriaValue>GOES-8</CriteriaValue>
+					<CriteriaValue>GROUND STATION</CriteriaValue>
+					<CriteriaValue>GROUND STATION STREAMFLOW STATION METEOROLOGICAL STATION</CriteriaValue>
+					<CriteriaValue>HELICOPTER</CriteriaValue>
+					<CriteriaValue>KINGAIR</CriteriaValue>
+					<CriteriaValue>LABORATORY</CriteriaValue>
+					<CriteriaValue>LABORATORY COMPUTER MODEL</CriteriaValue>
+					<CriteriaValue>LABORATORY FIELD INVESTIGATION</CriteriaValue>
+					<CriteriaValue>LABORATORY FIELD INVESTIGATION PHOTOSYNTHESIS CHAMBER</CriteriaValue>
+					<CriteriaValue>LABORATORY ULTRALIGHT</CriteriaValue>
+					<CriteriaValue>LABORATORY WEATHER BALLOON</CriteriaValue>
+					<CriteriaValue>LANDSAT-1</CriteriaValue>
+					<CriteriaValue>LANDSAT-2</CriteriaValue>
+					<CriteriaValue>LANDSAT-3</CriteriaValue>
+					<CriteriaValue>LANDSAT-4</CriteriaValue>
+					<CriteriaValue>LANDSAT-5</CriteriaValue>
+					<CriteriaValue>METEOROLOGICAL STATION</CriteriaValue>
+					<CriteriaValue>NASA C-130B</CriteriaValue>
+					<CriteriaValue>NASA C-130Q</CriteriaValue>
+					<CriteriaValue>NASA DC-8</CriteriaValue>
+					<CriteriaValue>NASA ER-2</CriteriaValue>
+					<CriteriaValue>NCAR ELECTRA</CriteriaValue>
+					<CriteriaValue>NIMBUS-7</CriteriaValue>
+					<CriteriaValue>NOAA LONG-EZ</CriteriaValue>
+					<CriteriaValue>NOAA-10</CriteriaValue>
+					<CriteriaValue>NOAA-11</CriteriaValue>
+					<CriteriaValue>NOAA-12</CriteriaValue>
+					<CriteriaValue>NOAA-14</CriteriaValue>
+					<CriteriaValue>NOAA-9</CriteriaValue>
+					<CriteriaValue>NOAA-9 NOAA-10</CriteriaValue>
+					<CriteriaValue>NOAA-9 NOAA-10 NOAA-11</CriteriaValue>
+					<CriteriaValue>PHOTOSYNTHESIS CHAMBER</CriteriaValue>
+					<CriteriaValue>RADARSAT-1</CriteriaValue>
+					<CriteriaValue>SOIL SURVEY</CriteriaValue>
+					<CriteriaValue>SPOT-1</CriteriaValue>
+					<CriteriaValue>SPOT-1 LANDSAT-1 LANDSAT-2 LANDSAT-3 LANDSAT-4 LANDSAT-5</CriteriaValue>
+					<CriteriaValue>SPOT-2</CriteriaValue>
+					<CriteriaValue>SPOT-3</CriteriaValue>
+					<CriteriaValue>SRL-1</CriteriaValue>
+					<CriteriaValue>SRL-2</CriteriaValue>
+					<CriteriaValue>STREAMFLOW STATION</CriteriaValue>
+					<CriteriaValue>SURFACE WATER WEIR</CriteriaValue>
+					<CriteriaValue>TOPOGRAPHIC MAP</CriteriaValue>
+					<CriteriaValue>TOPOGRAPHIC MAP FIELD INVESTIGATION</CriteriaValue>
+					<CriteriaValue>TOWER</CriteriaValue>
+					<CriteriaValue>TOWER FIELD INVESTIGATION</CriteriaValue>
+					<CriteriaValue>TOWER LABORATORY</CriteriaValue>
+					<CriteriaValue>TOWER METEOROLOGICAL STATION</CriteriaValue>
+					<CriteriaValue>TWIN OTTER</CriteriaValue>
+					<CriteriaValue>TWIN OTTER NCAR ELECTRA NOAA LONG-EZ</CriteriaValue>
+					<CriteriaValue>ULTRALIGHT</CriteriaValue>
+					<CriteriaValue>ULTRALIGHT FIELD INVESTIGATION</CriteriaValue>
+					<CriteriaValue>VEGETATION SURVEY</CriteriaValue>
+					<CriteriaValue>WATSTORE</CriteriaValue>
+					<CriteriaValue>WATSTORE GROUND STATION STREAMFLOW STATION METEOROLOGICAL STATION</CriteriaValue>
+					<CriteriaValue>WEATHER BALLOON</CriteriaValue>
+					<CriteriaValue>WEATHER BALLOON METEOROLOGICAL STATION</CriteriaValue>
+					<CriteriaValue>Terra</CriteriaValue>
+					<CriteriaValue>AM-1</CriteriaValue>
+					<CriteriaValue>Aqua</CriteriaValue>
+					<CriteriaValue>L7</CriteriaValue>
+				</CriteriaValues>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>campaign</CategoryName>
+		<CategoryType>GRANULES, COLLECTIONS</CategoryType>
+		<CategoryDescription>Campaign short name</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>campaignName</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>1024</CriteriaLength>
+				<CriteriaValues>
+					<CriteriaValue>BOREAS</CriteriaValue>
+					<CriteriaValue>CANOPY CHEMISTRY (ACCP)</CriteriaValue>
+					<CriteriaValue>CLIMATE COLLECTIONS</CriteriaValue>
+					<CriteriaValue>FIFE</CriteriaValue>
+					<CriteriaValue>FIFE FOLLOW-ON</CriteriaValue>
+					<CriteriaValue>HYDROCLIMATOLOGY COLLECTIONS</CriteriaValue>
+					<CriteriaValue>LBA</CriteriaValue>
+					<CriteriaValue>NET PRIMARY PRODUCTIVITY (NPP)</CriteriaValue>
+					<CriteriaValue>OTTER</CriteriaValue>
+					<CriteriaValue>RIVER DISCHARGE (RIVDIS)</CriteriaValue>
+					<CriteriaValue>SOIL COLLECTIONS</CriteriaValue>
+					<CriteriaValue>SUPERIOR NATIONAL FOREST</CriteriaValue>
+					<CriteriaValue>VEGETATION COLLECTIONS</CriteriaValue>
+					<CriteriaValue>VEGETATION-ECOSYSTEM MODELING (VEMAP)</CriteriaValue>
+				</CriteriaValues>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>dataSetId</CategoryName>
+		<CategoryType>GRANULES, COLLECTIONS</CategoryType>
+		<CategoryDescription>Dataset Identifier</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>datasetID</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>500</CriteriaLength>
+				<CriteriaValues>
+					<CriteriaValue>15 MINUTE STREAM FLOW DATA: USGS (FIFE)</CriteriaValue>
+					<CriteriaValue>30 MINUTE RAINFALL DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-DETRENDED: NRCC (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-DETRENDED: U OF WY. (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-DETRENDED: UNIV.COL.(FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-FILTERED: NRCC (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-FILTERED: U OF WY. (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-FILTERED: UNIV.COL. (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-RAW: NRCC (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-RAW: U OF WY. (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-RAW: UNIV. COL. (FIFE)</CriteriaValue>
+					<CriteriaValue>AMAZON RIVER BASIN PRECIPITATION, 1972-1992</CriteriaValue>
+					<CriteriaValue>AMS (AUTOMATED MET STATION) DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>ASPEN FOREST COVER BY STRATUM/PLOT (SNF)</CriteriaValue>
+					<CriteriaValue>ATMOS. PROFILE: RADIOSONDE - NCDC (FIFE)</CriteriaValue>
+					<CriteriaValue>ATMOS. PROFILE: STD. PRESS. LEVEL (FIFE)</CriteriaValue>
+					<CriteriaValue>ATMOSPHERIC PROFILES: BRUTSAERT (FIFE)</CriteriaValue>
+					<CriteriaValue>ATMOSPHERIC PROFILES: TOVS - NOAA (FIFE)</CriteriaValue>
+					<CriteriaValue>BIOMASS OF SACRIFICED SPRUCE/ASPEN (SNF)</CriteriaValue>
+					<CriteriaValue>BOREAS 1994 HYD-09 BELFORT RAIN GAUGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS 1994 HYD-09 TIPPING BUCKET RAIN DATA</CriteriaValue>
+					<CriteriaValue>BOREAS 1995 HYD-09 BELFORT RAIN GAUGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS 1995 HYD-09 TIPPING BUCKET RAIN DATA</CriteriaValue>
+					<CriteriaValue>BOREAS 1996 HYD-09 BELFORT RAIN GAUGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS 1996 HYD-09 TIPPING BUCKET RAIN DATA</CriteriaValue>
+					<CriteriaValue>BOREAS 1996 SNOW DEPTH DATA: HYD-03</CriteriaValue>
+					<CriteriaValue>BOREAS 1996 SNOW PIT MEASUREMENTS: HYD-03</CriteriaValue>
+					<CriteriaValue>BOREAS AES CANADIAN HOURLY AND DAILY SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AES FIVE-DAY AVERAGED SURFACE METEOROLOGICAL AND UPPER AIR DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-01 NOAA/ATDD LONG-EZ AIRCRAFT FLUX DATA OVER THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-02 KING AIR 1994 AIRCRAFT FLUX AND MOVING WINDOW DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-02 WYOMING KING AIR 1994 AIRCRAFT SOUNDING DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-03 ELECTRA 1994 AIRCRAFT FLUX AND MOVING WINDOW DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-03 NCAR ELECTRA 1994 AIRCRAFT SOUNDING DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-04 TWIN OTTER AIRCRAFT FLUX DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-04 TWIN OTTER AIRCRAFT SOUNDING DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-04 TWIN OTTER VIDEO TAPES</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-05 LEVEL-1 UPPER AIR NETWORK DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-05 LEVEL-2 UPPER AIR NETWORK STANDARD PRESSURE LEVEL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-06 BOUNDARY LAYER HEIGHT DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-06 MEAN TEMPERATURE PROFILE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-06 MEAN WIND PROFILE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-06 NOAA/ETL 35 GHZ CLOUD/TURBULENCE RADAR GIF IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-06 SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-08 ECMWF HOURLY SURFACE AND UPPER AIR DATA FOR THE SSA AND NSA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-11 AIRCRAFT FLUX ANALYSIS REPORTS</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-13 AIRCRAFT FLUX ANALYSES</CriteriaValue>
+					<CriteriaValue>BOREAS AIRCRAFT GAMMA RAY SOIL MOISTURE: HYD-06</CriteriaValue>
+					<CriteriaValue>BOREAS C-130 VIDEO TAPES</CriteriaValue>
+					<CriteriaValue>BOREAS C130 AIRCRAFT FLIGHT LOGS</CriteriaValue>
+					<CriteriaValue>BOREAS CALIBRATION GAS STANDARDS</CriteriaValue>
+					<CriteriaValue>BOREAS CANOPY DENSITY DATA: HYD-03</CriteriaValue>
+					<CriteriaValue>BOREAS CANSIS REGIONAL SOILS DATA IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS DAEDALUS TMS LEVEL-0 IMAGERY: DIGITAL COUNTS IN BIL FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS DEM DATA OVER THE NSA-MSA AND SSA-MSA IN AEAC PROJECTION</CriteriaValue>
+					<CriteriaValue>BOREAS DERIVED SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS ECMWF DATA</CriteriaValue>
+					<CriteriaValue>BOREAS ELEVATION CONTOURS OVER THE NSA AND SSA ARC/INFO GENERATE FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS ER2 AIRCRAFT FLIGHT LOGS</CriteriaValue>
+					<CriteriaValue>BOREAS FOREST COVER DATA LAYERS OVER THE SSA-MSA IN RASTER FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS FOREST COVER LAYERS OF THE NSA IN RASTER FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS GROUND GRAVIMETRIC SOIL MOISTURE: HYD-06</CriteriaValue>
+					<CriteriaValue>BOREAS HARD COPY MAPS</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-01 UNDER CANOPY PRECIPITATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-01 VOLUMETRIC SOIL MOISTURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-02 ESTIMATED SNOW WATER EQUIVALENT FROM MICROWAVE</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-03 1996 TREE STEM DENSITY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-03 SNOW WATER EQUIVALENT DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-03 SNOW WATER EQUIVALENT: 1996</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-03 SSA/OLD ASPEN DBH DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-03 SUBCANOPY METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-03 SUBCANOPY RADIATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-04 AREAL SNOW COURSE SURVEY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-04 STANDARD SNOW COURSE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-05 BEAR TRAP CREEK AND NAMEKUS LAKE WINTER SURFACE FLUX DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-06 MOSS/HUMUS MOISTURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-08 1994 GRAVIMETRIC MOSS DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-08 1996 GRAVIMETRIC MOSS DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-08 1996 GROSS PRECIPITATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-08 DEM DATA OVER THE NSA-MSA AND SSA-MSA IN UTM PROJECTION</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-08 THROUGHFALL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-09 HOURLY AND DAILY RADAR RAINFALL MAPS FOR THE SOUTHERN STUDY AREA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-09 STREAM GAUGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS LANDSAT MSS IMAGERY: DIGITAL COUNTS</CriteriaValue>
+					<CriteriaValue>BOREAS LANDSAT TM LEVEL-3A IMAGERY: SCALED AT-SENSOR RADIANCE IN BSQ FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LANDSAT TM LEVEL-3B IMAGERY: AT-SENSOR RADIANCE IN BSQ FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LANDSAT TM LEVEL-3P IMAGERY: GEOCODED AND SCALED AT-SENSOR RADIANCE</CriteriaValue>
+					<CriteriaValue>BOREAS LANDSAT TM LEVEL-3S IMAGERY: SCALED AT-SENSOR RADIANCE IN LGSOWG FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-0 AOCI IMAGERY: DIGITAL COUNTS IN BIL FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-0 C-130 AERIAL PHOTOGRAPHY</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-0 C-130 NAVIGATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-0 ER-2 AERIAL PHOTOGRAPHY</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-0 ER-2 NAVIGATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-0 TIMS IMAGERY: DIGITAL COUNTS IN BIL FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-1B MAS IMAGERY: AT-SENSOR RADIANCE, RELATIVE X AND Y COORDINATES</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-1B TIMS IMAGERY: AT SENSOR RADIANCE IN BSQ FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-2 MAS SURFACE REFLECTANCE AND TEMPERATURE IMAGES IN BSQ FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-3B AVHRR-LAC IMAGERY: SCALED AT-SENSOR RADIANCE IN LGSOWG FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-3S SPOT IMAGERY: SCALED AT-SENSOR RADIANCE IN LGSOWG FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-4B AVHRR-LAC TEN-DAY COMPOSITE IMAGES: AT-SENSOR RADIANCE</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-4C AVHRR-LAC TEN-DAY COMPOSITE IMAGES: SURFACE PARAMETERS</CriteriaValue>
+					<CriteriaValue>BOREAS MEDIA VIDEO TAPES</CriteriaValue>
+					<CriteriaValue>BOREAS NS001 TMS LEVEL-0 IMAGES IN BIL FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS NS001 TMS LEVEL-2 IMAGES: REFLECTANCE AND TEMPERATURE IN BSQ FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS PHOTO CD-ROMS AND SLIDES</CriteriaValue>
+					<CriteriaValue>BOREAS PRINCE ALBERT NATIONAL PARK FOREST COVER DATA IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS RADARSAT IMAGES CD-ROM</CriteriaValue>
+					<CriteriaValue>BOREAS REGIONAL DEM IN RASTER FORMAT AND AEAC PROJECTION</CriteriaValue>
+					<CriteriaValue>BOREAS REGIONAL SOILS DATA IN RASTER FORMAT AND AEAC PROJECTION</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-01 PARABOLA SSA SURFACE REFLECTANCE AND TRANSMITTANCE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-02 EXTRACTED REFLECTANCE FACTORS DERIVED FROM ASAS IMAGERY</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-02 LEVEL-1B ASAS IMAGE DATA: AT-SENSOR RADIANCE IN BSQ FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-03 ATMOSPHERIC CONDITIONS FROM A HELICOPTER-MOUNTED SUNPHOTOMETER</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-03 IMAGERY AND SNAPSHOTS FROM A HELICOPTER-MOUNTED VIDEO CAMERA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-03 REFLECTANCE MEASURED FROM A HELICOPTER-MOUNTED BARNES MMR</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-03 REFLECTANCE MEASURED FROM A HELICOPTER-MOUNTED SE-590</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-04 1994 JACK PINE LEAF BIOCHEMISTRY AND MODELED SPECTRA IN THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-04 1994 SOUTHERN STUDY AREA JACK PINE LAI \amp FPAR DATA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-07 LAI, GAP FRACTION, AND FPAR DATA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-07 LANDSAT TM LAI IMAGES OF THE SSA AND NSA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-07 REGIONAL LAI AND FPAR IMAGES FROM TEN-DAY AVHRR-LAC COMPOSITES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-08 BIOME-BGC MODEL SIMULATIONS AT TOWER FLUX SITES IN 1994</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-08 BIOME-BGC SSA SIMULATIONS OF ANNUAL WATER AND CARBON FLUXES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-08 IFC-3 ADS-PSII MEASUREMENTS OF BRDF AT SSA-OBS AND SSA-OA SITES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-08 SNOW MAPS DERIVED FROM LANDSAT TM IMAGERY</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-08 SSA IFC-3 DIGITIZED STEREO IMAGERY AT THE OBS, OA, AND OJP SITES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-10 TOMS CIRCUMPOLAR ONE-DEGREE PAR IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-11 GROUND SUNPHOTOMETER DATA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-12 AIRBORNE TRACKING SUNPHOTOMETER MEASUREMENTS (C-130)</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-12 AUTOMATED GROUND SUNPHOTOMETER MEASUREMENTS IN THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-14 GOES-7 LEVEL-1 IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-14 GOES-7 LEVEL-1A IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-14 GOES-7 LEVEL-2 SHORTWAVE AND LONGWAVE RADIATION IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-14 GOES-8 LEVEL-1 VISIBLE, INFRARED AND WATER VAPOR IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-14 GOES-8 LEVEL-1A VISIBLE, INFRARED AND WATER VAPOR IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-14 LEVEL-3 GRIDDED RADIOMETER AND SATELLITE SURFACE RADIATION IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-15 SIR-C AND TM BIOMASS AND LANDCOVER MAPS OF THE NSA AND SSA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-16 AIRSAR CM V6.1 IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-16 LEVEL-3B DC-8 AIRSAR CM IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-16 LEVEL-3B DC-8 AIRSAR SY IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-17 1994 ERS-1 LEVEL-3 FREEZE/THAW BACKSCATTER CHANGE IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-17 DIELECTRIC CONSTANT PROFILE MEASUREMENTS</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-17 ERS-1 IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-17 STEM, SOIL, AND AIR TEMPERATURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-17 XYLEM FLUX DENSITY MEASUREMENTS AT THE SSA-OBS SITE</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-18 LEVEL-1B AVIRIS IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-18 OPTICAL THICKNESS</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-19 1994 CASI AT-SENSOR RADIANCE AND REFLECTANCE IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-19 1996 CASI AT-SENSOR RADIANCE AND REFLECTANCE IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-19 CHIEFTAIN NAVAHO VIDEO TAPES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-19 SEASONAL UNDERSTORY REFLECTANCE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-20 POLDER C-130 MEASUREMENTS OF SURFACE BRDF</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-20 POLDER HELICOPTER-MOUNTED MEASUREMENTS OF SURFACE BRDF</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-20 POLDER RADIANCE IMAGES FROM THE NASA C-130</CriteriaValue>
+					<CriteriaValue>BOREAS SASKATCHEWAN FOREST FIRE CONTROL CENTRE SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS SCANNING LIDAR IMAGER OF CANOPIES BY ECHO RECOVERY (SLICER): LEVEL-3 DATA</CriteriaValue>
+					<CriteriaValue>BOREAS SERM FOREST COVER DATA LAYERS OF THE SSA IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS SERM FOREST COVER DATA OF SASKATCHEWAN IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS SERM FOREST FIRE CHRONOLOGY OF SASKATCHEWAN IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS SITE AND AREA GEOGRAPHIC COORDINATE INFORMATION</CriteriaValue>
+					<CriteriaValue>BOREAS SNOW TEMPERATURE PROFILES: HYD-03</CriteriaValue>
+					<CriteriaValue>BOREAS SOIL HYDRAULIC PROPERTIES: HYD01</CriteriaValue>
+					<CriteriaValue>BOREAS SOILS DATA OVER THE SSA IN RASTER FORMAT AND AEAC PROJECTION</CriteriaValue>
+					<CriteriaValue>BOREAS TE-01 CH4 FLUX DATA OVER THE SSA-OA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-01 CO2 AND CH4 FLUX DATA OVER THE SSA-OBS SITE</CriteriaValue>
+					<CriteriaValue>BOREAS TE-01 SOILS DATA OVER THE SSA TOWER SITES IN RASTER FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS TE-01 SSA SOIL LAB DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-01 SSA-FEN SOIL PROFILE NUTRIENT DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-02 CONTINUOUS WOOD RESPIRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-02 FOLIAGE RESPIRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-02 ROOT RESPIRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-02 STEM GROWTH \amp SAPWOOD DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-02 WOOD RESPIRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-04 BRANCH BAG DATA FROM BOREAL TREE SPECIES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-04 GAS EXCHANGE DATA FROM BOREAL TREE SPECIES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 CO2 CONCENTRATION AND STABLE ISOTOPE COMPOSITION</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 DIURNAL CO2 CANOPY PROFILE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 LEAF CARBON ISOTOPE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 LEAF GAS EXCHANGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 SOIL RESPIRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 SURFACE METEOROLOGICAL \amp RADIATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 TREE RING AND CARBON ISOTOPE RATIO DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-06 1994 SOIL AND AIR TEMPERATURES IN THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-06 ALLOMETRY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-06 BIOMASS AND FOLIAGE AREA DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-06 MULTIBAND VEG IMAGER DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-06 NPP FOR THE TOWER FLUX, CARBON EVALUATION, AND AUXILIARY SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-06 PREDAWN LEAF WATER POTENTIALS AND FOLIAGE MOISTURE CONTENT DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-07 DENDROLOGY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-07 SAPFLOW DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-08 ASPEN BARK CHEMISTRY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-08 ASPEN BARK SPECTRAL REFLECTANCE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 IN SITU DIURNAL GAS EXCHANGE OF NSA BOREAL FOREST STANDS</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 IN SITU UNDERSTORY SPECTRAL REFLECTANCE WITHIN THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 LEAF BIOCHEMISTRY AVERAGES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 LEAF BIOCHEMISTRY POINT DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 NSA LEAF CHLOROPHYLL DENSITY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 PAR \amp LEAF NITROGEN DATA FOR NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 PHOTOSYNTHETIC CAPACITY AND FOLIAGE NITROGEN DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 PHOTOSYNTHETIC RESPONSE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-10 LEAF CHEMISTRY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-10 LEAF GAS EXCHANGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-10 LEAF OPTICAL PROPERTIES FOR SSA SPECIES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-10 PHOTOSYNTHETIC RESPONSE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-11 LEAF GAS EXCHANGE MEASUREMENTS</CriteriaValue>
+					<CriteriaValue>BOREAS TE-11 SAPFLOW DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-11 SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-12 INCOMING PAR THROUGH THE FOREST CANOPY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-12 LEAF GAS EXCHANGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-12 LEAF OPTICAL DATA FOR SSA SPECIES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-12 SSA SHOOT GEOMETRY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-12 SSA WATER POTENTIAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-13 BIOMETRY REPORTS</CriteriaValue>
+					<CriteriaValue>BOREAS TE-17 PRODUCTION EFFICIENCY MODEL IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18 BIOMASS DENSITY IMAGE OF THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18 GEOSAIL CANOPY REFLECTANCE MODEL</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18 LANDSAT TM MAXIMUM LIKELIHOOD CLASSIFICATION IMAGE OF THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18 LANDSAT TM MAXIMUM LIKELIHOOD CLASSIFICATION IMAGE OF THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18 LANDSAT TM PHYSICAL CLASSIFICATION IMAGE OF THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18 LANDSAT TM PHYSICAL CLASSIFICATION IMAGE OF THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18, 30-M, RADIOMETRICALLY RECTIFIED LANDSAT TM IMAGERY</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18, 60-M, RADIOMETRICALLY RECTIFIED LANDSAT TM IMAGERY</CriteriaValue>
+					<CriteriaValue>BOREAS TE-19 ECOSYSTEM CARBON BALANCE MODEL</CriteriaValue>
+					<CriteriaValue>BOREAS TE-20 NSA SOIL LAB DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-20 SITE CHARACTERISTICS DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-20 SOILS DATA OVER THE NSA-MSA AND TOWER SITES IN RASTER FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS TE-20 SOILS DATA OVER THE NSA-MSA AND TOWER SITES IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS TE-20 SUPPLEMENTARY SITE INFORMATION FOR NSA TOWER SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-21 DAILY SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-22 ALLOMETRIC FOREST SURVEY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-22 TREE RING DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-23 CANOPY ARCHITECTURE AND SPECTRAL DATA FROM HEMISPHERICAL PHOTOS</CriteriaValue>
+					<CriteriaValue>BOREAS TE-23 MAP PLOT DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-01 SSA-OA SOIL CHARACTERISTICS DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-01 SSA-OA TOWER FLUX, METEOROLOGICAL, AND SOIL TEMPERATURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-01 SSA-OA UNDERSTORY FLUX, METEOROLOGICAL, AND SOIL TEMPERATURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-01 SSA-OA WEEKLY TOWER CH4 AND N2O FLUX</CriteriaValue>
+					<CriteriaValue>BOREAS TF-02 SSA-OA TETHERSONDE METEOROLOGICAL AND OZONE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-02 SSA-OA TOWER FLUX, METEOROLOGICAL, AND PRECIPITATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-03 AUTOMATED CHAMBER CO2 FLUX DATA FROM THE NSA-OBS</CriteriaValue>
+					<CriteriaValue>BOREAS TF-03 TOWER FLUX \amp METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-04 CO2 AND CH4 CHAMBER FLUX DATA FROM THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-04 CO2 AND CH4 SOIL PROFILE DATA FROM THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-04 SSA-YJP TOWER FLUX, METEOROLOGICAL, AND CANOPY CONDITION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-05 TOWER FLUX \amp METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-06 SSA-YA SURFACE ENERGY FLUX AND METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-07 SSA-OBS TOWER FLUX AND METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-08 NSA-OJP AND SSA-OBS CEILOMETER DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-08 NSA-OJP TOWER FLUX, METEOROLOGICAL, AND SOIL TEMPERATURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-09 SSA-OBS BRANCH LEVEL FLUX DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-09 SSA-OBS TOWER FLUX, METEOROLOGICAL, AND SOIL TEMPERATURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-10 NSA-FEN TOWER FLUX AND METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-10 NSA-YJP TOWER FLUX, METEOROLOGICAL, AND POROMETRY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 BIOMASS DATA OVER THE SSA-FEN</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 CO2 AND CH4 CONCENTRATION DATA FROM THE SSA-FEN</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 DECOMPOSITION</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 METHANE AND CARBON DIOXIDE FLUX</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 SSA FEN 1996 WATER SURFACE FILM CAPPING DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 SSA FEN LEAF GAS EXCHANGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 SSA FEN SOIL SURFACE CO2 FLUX DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 SSA-FEN 1995 LEAF AREA INDEX DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 SSA-FEN TOWER FLUX AND METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-01 CH4 \amp CO2 CHAMBER FLUX DATA: NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-01 CH4 CONCENTRATION AND FLUX DATA FROM NSA TOWER SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-01 SF6 CHAMBER FLUX DATA: NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-01 SOIL CH4 AND CO2 PROFILE DATA FROM NSA TOWER SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-01/TGB-03 NEE DATA OVER THE NSA FEN</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-01/TGB-03 WATER TABLE AND PEAT TEMPERATURE DATA OVER THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-03 CH4 AND CO2 CHAMBER FLUX OVER NSA UPLAND SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-03 CH4 CHAMBER FLUX DATA: NSA FEN</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-03 DISSOLVED ORGANIC CARBON DATA FROM THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-03 PLANT SPECIES COMPOSITION</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-04 NSA-BVP TOWER FLUX AND METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-04 WATER AND SEDIMENT TEMPERATURE DATA OVER THE NSA-BP (BEAVER POND)</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-05 BIOGENIC SOIL EMISSIONS OF NO AND NITROUS OXIDE</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-05 CO2, CH4, AND CO CHAMBER FLUX DATA OVER THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-05 DISSOLVED ORGANIC CARBON CONCENTRATIONS FROM NSA BEAVER PONDS</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-05 FIRE HISTORY OF MANITOBA 1980 TO 1991 IN RASTER FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-05 FIRE HISTORY OF MANITOBA 1980 TO 1991 IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-06 SOIL METHANE OXIDATION AND PRODUCTION FROM NSA BP AND FEN SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-07 AMBIENT AIR HERBICIDE AND ORGANOCHLORINE CONCENTRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-07 DRY DEPOSITION HERBICIDE AND ORGANOCHLORINE FLUX DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-07 RAINWATER HERBICIDE AND ORGANOCHLORINE CONCENTRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-08 MONOTERPENE CONCENTRATION DATA OVER THE SSA-OBS AND THE SSA-OJP</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-08 PHOTOSYNTHETIC RATE DATA OVER THE SSA-OBS AND THE SSA-OJP</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-08 STARCH CONCENTRATION DATA OVER THE SSA-OBS AND THE SSA-OJP</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-09 ABOVE-CANOPY NMHC AT SSA-OBS, SSA-OJP AND SSA-OA SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-10 OXIDANT CONCENTRATION DATA OVER THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-10 OXIDANT FLUX DATA OVER THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-10 VOLATILE ORGANIC CARBON DATA OVER THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-12 ISOTOPE CARBON DIOXIDE DATA OVER THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-12 RADON-222 ACTIVITY DATA OVER THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-12 RADON-222 FLUX DATA: NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-12 SOIL CARBON AND FLUX DATA OF NSA-MSA IN RASTER FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-12 SOIL CARBON DATA: NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB12 SOIL CARBON SITE INFO</CriteriaValue>
+					<CriteriaValue>BOREAS TOPOGRAPHIC MAP DATA OVER THE NSA AND SSA IN SIF FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS/AES CAMPBELL SCIENTIFIC 15-MINUTE SURFACE METEOROLOGICAL DATA: 1993</CriteriaValue>
+					<CriteriaValue>BOREAS/AES CAMPBELL SCIENTIFIC 15-MINUTE SURFACE METEOROLOGICAL DATA: 1994</CriteriaValue>
+					<CriteriaValue>BOREAS/AES CAMPBELL SCIENTIFIC 15-MINUTE SURFACE METEOROLOGICAL DATA: 1995</CriteriaValue>
+					<CriteriaValue>BOREAS/AES CAMPBELL SCIENTIFIC 15-MINUTE SURFACE METEOROLOGICAL DATA: 1996</CriteriaValue>
+					<CriteriaValue>BOREAS/AES MARS-II 15-MINUTE SURFACE METEOROLOGICAL DATA: 1994</CriteriaValue>
+					<CriteriaValue>BOREAS/AES READAC 15-MINUTE SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS/AGRICULTURE CANADA CENTRAL SASKATCHEWAN VECTOR SOILS DATA</CriteriaValue>
+					<CriteriaValue>BOREAS/SRC AMS SUITE A SURFACE METEOROLOGICAL AND RADIATION DATA: 1994</CriteriaValue>
+					<CriteriaValue>BOREAS/SRC AMS SUITE A SURFACE METEOROLOGICAL AND RADIATION DATA: 1995</CriteriaValue>
+					<CriteriaValue>BOREAS/SRC AMS SUITE A SURFACE METEOROLOGICAL AND RADIATION DATA: 1996</CriteriaValue>
+					<CriteriaValue>BOREAS/SRC AMS SUITE B SURFACE METEOROLOGICAL AND RADIATION DATA: 1994</CriteriaValue>
+					<CriteriaValue>BOREAS/SRC AMS SUITE B SURFACE METEOROLOGICAL AND RADIATION DATA: 1995</CriteriaValue>
+					<CriteriaValue>BOREAS/SRC AMS SUITE B SURFACE METEOROLOGICAL AND RADIATION DATA: 1996</CriteriaValue>
+					<CriteriaValue>BOUNDARY LAYER HEIGHTS: LIDAR (FIFE)</CriteriaValue>
+					<CriteriaValue>BOUNDARY LAYER HEIGHTS: SODAR (FIFE)</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO SURF. FLUX: FRITSCHEN (FIFE)</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO SURFACE FLUX: GSFC (FIFE)</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO SURFACE FLUX: KSU (FIFE)</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO SURFACE FLUX: SMITH (FIFE)</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO SURFACE FLUX: UNL (FIFE)</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO SURFACE FLUX: USGS (FIFE)</CriteriaValue>
+					<CriteriaValue>CALCULATED LEAF CARBON AND NITROGEN, 1992 (ACCP)</CriteriaValue>
+					<CriteriaValue>CANOPY CHEMISTRY (OTTER)</CriteriaValue>
+					<CriteriaValue>CANOPY PHOTOSYNTHESIS RATES (FIFE)</CriteriaValue>
+					<CriteriaValue>CLOUD CAMERA DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>DAILY RAINFALL DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>EDDY CORR. SURFACE FLUX: ANL (FIFE)</CriteriaValue>
+					<CriteriaValue>EDDY CORR. SURFACE FLUX: GSFC (FIFE)</CriteriaValue>
+					<CriteriaValue>EDDY CORR. SURFACE FLUX: UK (FIFE)</CriteriaValue>
+					<CriteriaValue>EDDY CORR. SURFACE FLUX: UNL (FIFE)</CriteriaValue>
+					<CriteriaValue>EDDY CORR. SURFACE FLUX: USGS (FIFE)</CriteriaValue>
+					<CriteriaValue>FIFE COMPLETE DATASET CD-ROM</CriteriaValue>
+					<CriteriaValue>FOREST BIOPHYSICAL PARAMETERS (SNF)</CriteriaValue>
+					<CriteriaValue>FOREST CANOPY COMPOSITION (SNF)</CriteriaValue>
+					<CriteriaValue>FOREST-BGC MODEL (OTTER)</CriteriaValue>
+					<CriteriaValue>GAMMA RAY DATA: PECK (FIFE)</CriteriaValue>
+					<CriteriaValue>GEMMA HELICOPTOR DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>GLOBAL 10-YEAR MEAN MONTHLY CLIMATOLOGY, 1901-1990 (NEW ET AL.)</CriteriaValue>
+					<CriteriaValue>GLOBAL 30-YEAR MEAN MONTHLY CLIMATOLOGY, 1901-1960 (NEW ET AL.)</CriteriaValue>
+					<CriteriaValue>GLOBAL 30-YEAR MEAN MONTHLY CLIMATOLOGY, 1930-1960, V. 2.1 (CRAMER AND LEEMANS)</CriteriaValue>
+					<CriteriaValue>GLOBAL 30-YEAR MEAN MONTHLY CLIMATOLOGY, 1961-1990 (NEW ET AL.)</CriteriaValue>
+					<CriteriaValue>GLOBAL DATA SET OF DERIVED SOIL PROPERTIES, 0.5-DEGREE GRID (ISRIC-WISE)</CriteriaValue>
+					<CriteriaValue>GLOBAL DISTRIBUTION OF INUNDATED AREAS, 1971-1982 (MATTHEWS)</CriteriaValue>
+					<CriteriaValue>GLOBAL DISTRIBUTION OF PLANT-EXTRACTABLE WATER CAPACITY OF SOIL (DUNNE)</CriteriaValue>
+					<CriteriaValue>GLOBAL GRIDDED SURFACES OF SELECTED SOIL CHARACTERISTICS (IGBP-DIS)</CriteriaValue>
+					<CriteriaValue>GLOBAL HISTORICAL CLIMATOLOGY NETWORK, 1753-1990</CriteriaValue>
+					<CriteriaValue>GLOBAL MONTHLY CLIMATOLOGY FOR THE TWENTIETH CENTURY (NEW ET AL.)</CriteriaValue>
+					<CriteriaValue>GLOBAL MONTHLY PRECIPITATION, 1900-1999 (HULME)</CriteriaValue>
+					<CriteriaValue>GLOBAL ORGANIC SOIL CARBON AND NITROGEN (ZINKE ET AL.)</CriteriaValue>
+					<CriteriaValue>GLOBAL RIVER DISCHARGE, 1807-1991, V. 1.1 (RIVDIS)</CriteriaValue>
+					<CriteriaValue>GLOBAL SOIL DATA PRODUCTS CD-ROM (IGBP-DIS)</CriteriaValue>
+					<CriteriaValue>GLOBAL SOIL PROFILE DATA (ISRIC-WISE)</CriteriaValue>
+					<CriteriaValue>GLOBAL SOIL TEXTURE AND DERIVED WATER-HOLDING CAPACITIES (WEBB ET AL.)</CriteriaValue>
+					<CriteriaValue>GLOBAL SOIL TYPES, 0.5-DEGREE GRID (MODIFIED ZOBLER)</CriteriaValue>
+					<CriteriaValue>GLOBAL SOIL TYPES, 1-DEGREE GRID (MODIFIED ZOBLER)</CriteriaValue>
+					<CriteriaValue>GLOBAL VEGETATION TYPES, 1971-1982 (MATTHEWS)</CriteriaValue>
+					<CriteriaValue>GLOBAL WETLAND AREAS, 1971-1982 (MATTHEWS)</CriteriaValue>
+					<CriteriaValue>HELICOPTER MMR REFLECTANCE DATA (SNF)</CriteriaValue>
+					<CriteriaValue>HISTORIC DAILY METEOROLOGY DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>HISTORIC MONTHLY METEOROLOGY DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>HYDROCLIMATOLOGY CD-ROMS</CriteriaValue>
+					<CriteriaValue>LAI \amp PAR DATA: LIGHT BAR - KSU (FIFE)</CriteriaValue>
+					<CriteriaValue>LAI \amp PAR DATA: LIGHT BAR - UNL (FIFE)</CriteriaValue>
+					<CriteriaValue>LAI (INDIRECT): LIGHT WAND - KSU (FIFE)</CriteriaValue>
+					<CriteriaValue>LEAF ANGLE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>LEAF AREA INDEX DATA (OTTER)</CriteriaValue>
+					<CriteriaValue>LEAF CHEMISTRY, 1992-1993 (ACCP)</CriteriaValue>
+					<CriteriaValue>LEAF PHOTOSYNTHESIS RATES (FIFE)</CriteriaValue>
+					<CriteriaValue>LEAF REFLECTANCES: LICOR (OTTER)</CriteriaValue>
+					<CriteriaValue>LEAF REFLECTANCES: PERKIN-ELMER (OTTER)</CriteriaValue>
+					<CriteriaValue>LONGWAVE RADIATION DATA: UNL (FIFE)</CriteriaValue>
+					<CriteriaValue>METEOROLOGY (OTTER)</CriteriaValue>
+					<CriteriaValue>MMR CALIBRATION DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>MMR GROUND DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>MMR HELICOPTOR DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>MMR LEAF OPTICAL PROPERTIES DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>MOWING EXPERIMENT BIOPHYS. DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>MOWING EXPERIMENT EXOTECH DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>NMC UPPER AIR DERIVED DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>NOAA REGIONAL SURFACE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>NPP BOREAL FOREST: CANAL FLATS, CANADA, 1984</CriteriaValue>
+					<CriteriaValue>NPP BOREAL FOREST: FLAKALIDEN, SWEDEN, 1986-1996</CriteriaValue>
+					<CriteriaValue>NPP BOREAL FOREST: JADRAAS, SWEDEN, 1973-1980</CriteriaValue>
+					<CriteriaValue>NPP BOREAL FOREST: KUUSAMO, FINLAND, 1967-1971</CriteriaValue>
+					<CriteriaValue>NPP BOREAL FOREST: SIBERIAN SCOTS PINE FORESTS, RUSSIA, 1968-1974</CriteriaValue>
+					<CriteriaValue>NPP BOREAL FOREST: SUPERIOR NATIONAL FOREST, U.S.A., 1983-1984</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: BADKHYZ, TURKMENISTAN, 1948-1982</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: BEACON HILL, U.K., 1972-1973</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: BRIDGER, U.S.A., 1970-1973</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: CALABOZO, VENEZUELA, 1969-1987</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: CANAS, COSTA RICA, 1969-1970</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: CENTRAL PLAINS EXPERIMENTAL RANGE (SGS), U.S.A., 1970-1975</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: CHARLEVILLE, AUSTRALIA, 1973-1974</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: DICKINSON, U.S.A., 1970</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: DZHANYBEK, KAZAKHSTAN, 1955-1989</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: HAYS, U.S.A., 1970</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: JORNADA, U.S.A., 1970-1972</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: KHOMUTOV, UKRAINE, 1948-1970</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: KLONG HOI KHONG, THAILAND, 1984-1990</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: KONZA PRAIRIE, U.S.A., 1984-1990</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: KURSK, RUSSIA, 1954-1983</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: KURUKSHETRA, INDIA, 1970-1971</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: LAMTO, IVORY COAST, 1965-1987</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: MATADOR, CANADA, 1968-1971</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: MEDIA LUNA, ARGENTINA, 1981-1983</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: MONTECILLOS, MEXICO, 1984-1994</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: NAIROBI, KENYA, 1984-1994</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: NYLSVLEY, SOUTH AFRICA, 1974-1989</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: OLOKEMEJI, NIGERIA, 1956-1964</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: OSAGE, U.S.A., 1970-1972</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: OTRADNOE, RUSSIA, 1969-1973</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: PAMPA DE LEMAN, ARGENTINA, 1980-1982</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: SHORTANDY, KAZAKHSTAN, 1975-1980</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: TOWOOMBA, SOUTH AFRICA, 1949-1990</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: TULLGARNSNASET, SWEDEN, 1968-1969</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: TUMENTSOGT, MONGOLIA, 1982-1990</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: TUMUGI, CHINA, 1981-1990</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: TUVA, RUSSIA, 1978-1985</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: VINDHYAN, INDIA, 1986-1989</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: XILINGOL, CHINA, 1980-1989</CriteriaValue>
+					<CriteriaValue>NPP MULTI-BIOME: GLOBAL IBP WOODLANDS DATA, 1955-1975</CriteriaValue>
+					<CriteriaValue>NPP MULTI-BIOME: GLOBAL OSNABRUCK DATA, 1937-1981</CriteriaValue>
+					<CriteriaValue>NPP MULTI-BIOME: TEM CALIBRATION DATA, 1992</CriteriaValue>
+					<CriteriaValue>NPP TEMPERATE FOREST: OTTER PROJECT SITES, OREGON, U.S.A., 1989-1991</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: BARRO COLORADO, PANAMA, 1969-1990</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: CINNAMON BAY, U.S. VIRGIN ISLANDS, 1982-1993</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: DARIEN, PANAMA, 1967-1968</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: GUNUNG MULU, MALAYSIA, 1977-1978</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: JOHN CROW RIDGE, JAMAICA, 1974-1978</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: KADE, GHANA, 1957-1972</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: KHAO CHONG, THAILAND, 1962-1965</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: LA SELVA, COSTA RICA, 1969-1985</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: LUQUILLO, PUERTO RICO, 1963-1994</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: MAGDALENA VALLEY, COLOMBIA, 1970-1971</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: MARAFUNGA, PAPUA NEW GUINEA, 1970-1971</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: PASOH, MALAYSIA, 1971-1973</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: SAN CARLOS DE RIO NEGRO, VENEZUELA, 1975-1984</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: SAN EUSEBIO, VENEZUELA, 1970-1971</CriteriaValue>
+					<CriteriaValue>NS001 TMS EXTRACTED DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1972 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1972-1990</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1973 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1974 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1975 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1976 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1977 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1978 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1979 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1980 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1981 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1982 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1983 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1984 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1985 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1986 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1987 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1988 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1989 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1990 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS MONTHLY CLIMATOLOGY SUMMARY (SNF)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS CROSS-CALIB. (FIFE)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS DATA: AIRCRAFT (OTTER)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS DATA: BRUEGGE (FIFE)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS DATA: C-130 (FIFE)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS DATA: FRASER (FIFE)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS DATA: GROUND (OTTER)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS DATA: STAFF (FIFE)</CriteriaValue>
+					<CriteriaValue>OTTER COMPLETE DATASET CD-ROM</CriteriaValue>
+					<CriteriaValue>PARABOLA DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>PLANT BIOMASS/PRODUCTION/CONSUMP. (FIFE)</CriteriaValue>
+					<CriteriaValue>PRE-LBA CD-ROM COLLECTION</CriteriaValue>
+					<CriteriaValue>PRINCE ALBERT NATIONAL PARK PHOTO-CD-ROM</CriteriaValue>
+					<CriteriaValue>RADIANT TEMP. HELICOPTER DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>RADIANT TEMP. MULTIANGLE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>RADIANT TEMPERATURE GROUND DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>RADIOSONDE DATA: NOAA (FIFE)</CriteriaValue>
+					<CriteriaValue>REFLECTANCE REFERENCE TARGETS (OTTER)</CriteriaValue>
+					<CriteriaValue>ROOT BIOMASS DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SATELLITE ATMOS. CORRECTION COEF. (FIFE)</CriteriaValue>
+					<CriteriaValue>SATELLITE AVHRR EXTRACTED DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SATELLITE LANDSAT TM EXTR. DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SATELLITE SPOT EXTRACTED DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SE-590 FIELD-MEAS. REFLECTANCES (OTTER)</CriteriaValue>
+					<CriteriaValue>SE-590 GROUND DATA: GSFC (FIFE)</CriteriaValue>
+					<CriteriaValue>SE-590 GROUND DATA: UNL (FIFE)</CriteriaValue>
+					<CriteriaValue>SE-590 LAB-MEASURED REFLECTANCES (OTTER)</CriteriaValue>
+					<CriteriaValue>SE-590 LANDSCAPE REFLECTANCES (OTTER)</CriteriaValue>
+					<CriteriaValue>SE-590 LEAF OPTICAL PROP. DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SE-590 LOW ALTITUDE REFLECTANCES (OTTER)</CriteriaValue>
+					<CriteriaValue>SE-590 REFLECTANCE \amp RADIANCES (FIFE)</CriteriaValue>
+					<CriteriaValue>SEEDLING CANOPY CHEMISTRY, 1992-1993 (ACCP)</CriteriaValue>
+					<CriteriaValue>SEEDLING CANOPY REFLECTANCE SPECTRA, 1992-1993 (ACCP)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED AMS DATA: 1987 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED AMS DATA: 1987-89 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED AMS DATA: 1988 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED AMS DATA: 1989 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED FLUX DATA: 1987 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED FLUX DATA: 1987-89 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED FLUX DATA: 1988 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED FLUX DATA: 1989 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. GRAV. SOIL MSTR: 1987 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. GRAV. SOIL MSTR: 1988 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. GRAV. SOIL MSTR: 1989 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. GRAV. SOIL MSTR: 87-89 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. NEUT. SOIL MSTR: 1987 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. NEUT. SOIL MSTR: 1988 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. NEUT. SOIL MSTR: 1989 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. NEUT. SOIL MSTR: 87-89 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVIRIS IMAGES, 1992 (ACCP)</CriteriaValue>
+					<CriteriaValue>SNF FOREST COVER BY SPECIES/STRATA</CriteriaValue>
+					<CriteriaValue>SNF FOREST PHENOLOGY/LEAF EXPANSION DATA</CriteriaValue>
+					<CriteriaValue>SNF FOREST UNDERSTORY COVER DATA</CriteriaValue>
+					<CriteriaValue>SNF FOREST UNDERSTORY COVER DATA (TABLE)</CriteriaValue>
+					<CriteriaValue>SNF LEAF OPTICAL PROPERTIES: CARY-14</CriteriaValue>
+					<CriteriaValue>SNF LEAF OPTICAL PROPERTIES: TMS</CriteriaValue>
+					<CriteriaValue>SNF NS001-TMS CANOPY REFLECTANCE 1983-84</CriteriaValue>
+					<CriteriaValue>SNF SATELLITE IMAGE DATA INVENTORY</CriteriaValue>
+					<CriteriaValue>SNF SITE CHARACTERIZATION DATA: C.JARVIS</CriteriaValue>
+					<CriteriaValue>SNF SITE CHARACTERIZATION VALIDATION</CriteriaValue>
+					<CriteriaValue>SNF VEGETATION COVER DATA: C. JARVIS</CriteriaValue>
+					<CriteriaValue>SOIL BULK DENSITY DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL CO2 FLUX DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL GAS FLUXES USING SOIL CORES (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL HYDRAULIC CONDUCTIVITY DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL IMPEDANCE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE DATA: PECK (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE GRAVIMETRIC DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE NEUTRON PROBE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE RELEASE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE TRANSECT DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL REFLECTANCE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL SURVEY REFERENCE (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL THERMAL CONDUCTIVITY DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL WATER PROP. DERIVED DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>STANDING CROP \amp NITROGEN CONTENT (FIFE)</CriteriaValue>
+					<CriteriaValue>STREAM FLOW DAILY DATA: USGS (FIFE)</CriteriaValue>
+					<CriteriaValue>STREAM FLOW STORM DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SURFACE FLUX BASELINE 92 DERIVED (FIFE)</CriteriaValue>
+					<CriteriaValue>SURFACE METEOROLOGY DATA: NCDC (FIFE)</CriteriaValue>
+					<CriteriaValue>SURFACE RADIANCE DATA: UNL (FIFE)</CriteriaValue>
+					<CriteriaValue>TEMPERATURE PROFILES: RADIOSONDE (FIFE)</CriteriaValue>
+					<CriteriaValue>TIMBER MEASUREMENTS (OTTER)</CriteriaValue>
+					<CriteriaValue>TOTAL LEAF TISSUE WATER POTENTIAL (FIFE)</CriteriaValue>
+					<CriteriaValue>The Complete BOREAS CD-ROM Set</CriteriaValue>
+					<CriteriaValue>U.S. HYDROLOGY AND CLIMATOLOGY, 1947-1987 (WALLIS, LETTENMAIER, AND WOOD)</CriteriaValue>
+					<CriteriaValue>USGS HYDRO-CLIMATIC DATA NETWORK (HCDN) STREAMFLOW DATA, 1874-1988</CriteriaValue>
+					<CriteriaValue>VEGETATION BIOPHYSICAL DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>VEGETATION SPECIES DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>VEGETATION SPECIES REFERENCE (FIFE)</CriteriaValue>
+					<CriteriaValue>VEMAP 1: GEOREFERENCING</CriteriaValue>
+					<CriteriaValue>VEMAP 1: MODEL INPUT DATABASE CD-ROM</CriteriaValue>
+					<CriteriaValue>VEMAP 1: U.S. CLIMATE CHANGE SCENARIOS BASED ON MODELS WITH INCREASED CO2</CriteriaValue>
+					<CriteriaValue>VEMAP 1: U.S. CLIMATE, 1961-1990</CriteriaValue>
+					<CriteriaValue>VEMAP 1: U.S. POTENTIAL NATURAL VEGETATION</CriteriaValue>
+					<CriteriaValue>VEMAP 1: U.S. SITE FILES</CriteriaValue>
+					<CriteriaValue>VEMAP 1: U.S. SOIL</CriteriaValue>
+					<CriteriaValue>VEMAP 2: U.S. MONTHLY CLIMATE CHANGE SCENARIOS</CriteriaValue>
+					<CriteriaValue>VEMAP 2: U.S. MONTHLY CLIMATE, 1895-1993</CriteriaValue>
+					<CriteriaValue>VISIBLE AND NEAR-INFRARED LEAF REFLECTANCE SPECTRA, 1992-1993 (ACCP)</CriteriaValue>
+					<CriteriaValue>WIND PROFILE DATA: LIDAR - NOAA (FIFE)</CriteriaValue>
+					<CriteriaValue>WIND PROFILE DATA: RADIOSONDE (FIFE)</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Calibrated Radiances 5-Min L1B Swath 1km V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Calibrated Radiances 5-Min L1B Swath 250m V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Calibrated Radiances 5-Min L1B Swath 500m V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Cloud Mask and Spectral Test Results 5-Min L2 Swath 250m and 1km V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Geolocation Fields 5-Min L1A Swath 1km V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra On-Board Calibrator and Engineering Data 5-Min L1B V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Temperature and Water Vapor Profiles 5-Min L2 Swath 5km V003</CriteriaValue>
+					<CriteriaValue>ASTER Level 1A Data Set - Reconstructed, unprocessed instrument data V002</CriteriaValue>
+					<CriteriaValue>ASTER Level 1B Data Set Registered Radiance at the Sensor V002</CriteriaValue>
+					<CriteriaValue>Landsat-7 Level-0R Floating Scenes V001</CriteriaValue>
+					<CriteriaValue>Landsat-7 Level-0R Floating Scenes V002</CriteriaValue>
+					<CriteriaValue>Landsat-7 Level-0R IGS Subinterval Metadata V001</CriteriaValue>
+					<CriteriaValue>Landsat-7 Level-0R IGS Subinterval Metadata V002</CriteriaValue>
+					<CriteriaValue>Landsat-7 Level-0R WRS-Scene V001</CriteriaValue>
+					<CriteriaValue>Landsat-7 Level-0R WRS-Scene V002</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Albedo 16-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Geolocation Angles Daily L2G Global 1km ISIN Grid Day V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Geolocation Angles Daily L2G Global 1km ISIN Grid Night V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Land Cover Type 96-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Land Surface Temperature/Emissivity 5-Min L2 Swath 1km V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Land Surface Temperature/Emissivity 8-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Land Surface Temperature/Emissivity Daily L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Land Surface Temperature/Emissivity Daily L3 Global 5km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Leaf Area Index/FPAR 8-Day L4 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Nadir BRDF-Adjusted Reflectance 16-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Net Photosynthesis 8-Day L4 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Observation Pointers Daily L2G Global 1km ISIN Grid Day V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Observation Pointers Daily L2G Global 1km ISIN Grid Night V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Observation Pointers Daily L2G Global 250m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Observation Pointers Daily L2G Global 500m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Surface Reflectance 8-Day L3 Global 250m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Surface Reflectance 8-Day L3 Global 500m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Surface Reflectance Daily L2G Global 250m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Surface Reflectance Daily L2G Global 500m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Surface Reflectance Quality Daily L2G Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Thermal Anomalies/Fire 5-Min L2 Swath 1km V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Thermal Anomalies/Fire 8-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Thermal Anomalies/Fire Daily L2G Global 1km ISIN Grid Day V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Thermal Anomalies/Fire Daily L2G Global 1km ISIN Grid Night V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Thermal Anomalies/Fire Daily L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Vegetation Cover Conversion 32-Day L3 Global 250m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Vegetation Indices 16-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Vegetation Indices 16-Day L3 Global 250m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Vegetation Indices 16-Day L3 Global 500m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Aqua Vegetation Indices Monthly L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Albedo 16-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra BRDF/Albedo Model-1 16-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra BRDF/Albedo Model-2 16-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Geolocation Angles Daily L2G Global 1km ISIN Grid Day V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Geolocation Angles Daily L2G Global 1km ISIN Grid Night V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Land Surface Temperature/Emissivity 5-Min L2 Swath 1km V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Land Surface Temperature/Emissivity 8-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Land Surface Temperature/Emissivity Daily L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Land Surface Temperature/Emissivity Daily L3 Global 5km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Leaf Area Index/FPAR 8-Day L4 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Nadir BRDF-Adjusted Reflectance 16-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Net Photosynthesis 8-Day L4 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Observation Pointers Daily L2G Global 1km ISIN Grid Day V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Observation Pointers Daily L2G Global 1km ISIN Grid Night V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Observation Pointers Daily L2G Global 250m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Observation Pointers Daily L2G Global 500m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Surface Reflectance 8-Day L3 Global 500m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Surface Reflectance Daily L2G Global 250m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Surface Reflectance Daily L2G Global 500m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Surface Reflectance Quality Daily L2G Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Thermal Anomalies/Fire 5-Min L2 Swath 1km V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Thermal Anomalies/Fire 8-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Thermal Anomalies/Fire Daily L2G Global 1km ISIN Grid Day V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Thermal Anomalies/Fire Daily L2G Global 1km ISIN Grid Night V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Thermal Anomalies/Fire Daily L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Vegetation Cover Conversion 32-Day L3 Global 250m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Vegetation Indices 16-Day L3 Global 1km ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Vegetation Indices 16-Day L3 Global 500m ISIN Grid V003</CriteriaValue>
+					<CriteriaValue>MODIS/Terra Vegetation Indices Monthly L3 Global 1km ISIN Grid V003</CriteriaValue>
+				</CriteriaValues>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>cloudCover</CategoryName>
+		<CategoryType>GRANULES</CategoryType>
+		<CategoryDescription>Scene Cloud Coverage in percentage</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>cloudCover</CriteriaName>
+				<CriteriaType>float</CriteriaType>
+				<CriteriaMinVal>0</CriteriaMinVal>
+				<CriteriaMaxVal>100</CriteriaMaxVal>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>granuleId</CategoryName>
+		<CategoryType>GRANULES</CategoryType>
+		<CategoryDescription>ECHO granule identifier, ECHO wide unique</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>granuleID</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>1024</CriteriaLength>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>browseOnly</CategoryName>
+		<CategoryType>GRANULES</CategoryType>
+		<CategoryDescription>Granules with browse data</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>browseOnly</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>3</CriteriaLength>
+				<CriteriaValues>
+					<CriteriaValue>N</CriteriaValue>
+				</CriteriaValues>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>dayNightFlag</CategoryName>
+		<CategoryType>GRANULES</CategoryType>
+		<CategoryDescription>Day Night flag setting of the granule</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>dayNightFlag</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>5</CriteriaLength>
+				<CriteriaValues>
+					<CriteriaValue/>
+					<CriteriaValue>Both</CriteriaValue>
+					<CriteriaValue>Day</CriteriaValue>
+					<CriteriaValue>NA</CriteriaValue>
+					<CriteriaValue>Night</CriteriaValue>
+					<CriteriaValue>D</CriteriaValue>
+					<CriteriaValue>N</CriteriaValue>
+					<CriteriaValue/>
+				</CriteriaValues>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>globalGranulesOnly</CategoryName>
+		<CategoryType>GRANULES</CategoryType>
+		<CategoryDescription>Granules with global coverage</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>globalGranulesOnly</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>3</CriteriaLength>
+				<CriteriaValues>
+					<CriteriaValue>N</CriteriaValue>
+				</CriteriaValues>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>granuleUR</CategoryName>
+		<CategoryType>GRANULES</CategoryType>
+		<CategoryDescription>Data provider's granule identifier</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>granuleUR</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>1024</CriteriaLength>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>parameter</CategoryName>
+		<CategoryType>COLLECTIONS</CategoryType>
+		<CategoryDescription>Parameter keyword search</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>parameter</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>1024</CriteriaLength>
+				<CriteriaValues>
+					<CriteriaValue>AIR TEMPERATURE GEOPOTENTIAL HEIGHT ATMOSPHERIC PRESSURE</CriteriaValue>
+					<CriteriaValue>AIR TEMPERATURE SURFACE PRESSURE SEA LEVEL PRESSURE PRECIPITATION AMOUNT</CriteriaValue>
+					<CriteriaValue>AIR TEMPERATURE VIRTUAL TEMPERATURE</CriteriaValue>
+					<CriteriaValue>ALBEDO REFLECTANCE WATER VAPOR RADIATIVE FLUX SOLAR RADIATION LAND SURFACE TEMPERATURE INCOMING SHORTWAVE RADIATION</CriteriaValue>
+					<CriteriaValue>BAROMETRIC ALTITUDE ALTITUDE CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>BIOMASS</CriteriaValue>
+					<CriteriaValue>BIOMASS CONSUMPTION PRIMARY PRODUCTION</CriteriaValue>
+					<CriteriaValue>BIOMASS LAND COVER</CriteriaValue>
+					<CriteriaValue>BIOMASS LEAF CHARACTERISTICS CANOPY CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>BIOMASS NITROGEN PHOSPHORUS PRIMARY PRODUCTION</CriteriaValue>
+					<CriteriaValue>BIOMASS NITROGEN SOIL DEPTH TERRAIN ELEVATION</CriteriaValue>
+					<CriteriaValue>BIOMASS PRIMARY PRODUCTION</CriteriaValue>
+					<CriteriaValue>BIOMASS PRIMARY PRODUCTION FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>BIOMASS PRIMARY PRODUCTION LEAF CHARACTERISTICS CANOPY CHARACTERISTICS PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>BIOMASS PRIMARY PRODUCTION VEGETATION SPECIES LEAF CHARACTERISTICS PLANT CHARACTERISTICS FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>BIOMASS RESPIRATION PRIMARY PRODUCTION SURFACE AIR TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>BIOMASS VEGETATION COVER PRIMARY PRODUCTION</CriteriaValue>
+					<CriteriaValue>BIOMASS VEGETATION SPECIES CANOPY CHARACTERISTICS LITTER CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>BIOMASS VEGETATION SPECIES PLANT CHARACTERISTICS FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>CANOPY CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>CANOPY CHARACTERISTICS PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>CARBON DIOXIDE</CriteriaValue>
+					<CriteriaValue>CARBON DIOXIDE SOIL TEMPERATURE</CriteriaValue>
+					<CriteriaValue>CARBON DIOXIDE SOIL TEMPERATURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>CARBON DIOXIDE VEGETATION SPECIES</CriteriaValue>
+					<CriteriaValue>CARBON NITROGEN CHLOROPHYLL VEGETATION SPECIES LEAF CHARACT</CriteriaValue>
+					<CriteriaValue>CARBON NITROGEN CHLOROPHYLL VEGETATION SPECIES LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>CARBON NITROGEN PHOSPHORUS RESPIRATION SOIL TEMPERATURE VEGETATION SPECIES</CriteriaValue>
+					<CriteriaValue>CARBON NITROGEN SOIL CHEMISTRY SOIL BULK DENSITY SOIL CLASSIFICATION SOIL HORIZONS/PROFILE SOIL MOISTURE/WATER CONTENT SOIL WATER HOLDING CAPACITY</CriteriaValue>
+					<CriteriaValue>CARBON OXYGEN SOIL GAS/AIR SOIL CHEMISTRY SOIL TEMPERATURE SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>CARBON RESPIRATION SOIL TEMPERATURE PRIMARY PRODUCTION</CriteriaValue>
+					<CriteriaValue>CARBON SOIL COLOR SOIL TEXTURE ORGANIC MATTER SOIL CHEMISTRY SOIL IMPEDANCE SOIL STRUCTURE SOIL BULK DENSITY SOIL HORIZONS/PROFILE SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>CARBON SOIL PH SOIL POROSITY ORGANIC MATTER SOIL CHEMISTRY SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>CARBON TREE RINGS VEGETATION SPECIES</CriteriaValue>
+					<CriteriaValue>CHLOROPHYLL VEGETATION SPECIES</CriteriaValue>
+					<CriteriaValue>CHLOROPHYLL VEGETATION SPECIES LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>CLOUD CEILING CLOUD AMOUNT/FREQUENCY</CriteriaValue>
+					<CriteriaValue>CLOUD TYPES CLOUD AMOUNT/FREQUENCY</CriteriaValue>
+					<CriteriaValue>CONTOURS LAND CLASSES TERRAIN ELEVATION</CriteriaValue>
+					<CriteriaValue>CROWN BIOMASS EVAPORATION REFLECTANCE RESPIRATION WATER VAPOR DECOMPOSITION PHOTOSYNTHESIS AIR TEMPERATURE SOLAR RADIATION SOIL TEMPERATURE VEGETATION COVER AERIAL PHOTOGRAPH EVAPOTRANSPIRATION PRIMARY PRODUCTION LEAF CHARACTERISTICS PRECIPITATION AMOUNT CANOPY CHARACTERISTICS OPTICAL DEPTH/THICKNESS SURFACE AIR TEMPERATURE SOIL MOISTURE/WATER CONTENT FOREST COMPOSITION/STRUCTURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>CROWN BIOMASS LEAF CHARACTERISTICS PLANT CHARACTERISTICS FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>CROWN BIOMASS VEGETATION SPECIES PLANT CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>CROWN FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>CROWN LICHENS VEGETATION COVER VEGETATION SPECIES MOSSES AND LIVERWORTS PLANT CHARACTERISTICS LITTER CHARACTERISTICS FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>CROWN VEGETATION SPECIES PLANT CHARACTERISTICS FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>DECOMPOSITION LITTER CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>DEW POINT AIR TEMPERATURE SOLAR IRRADIANCE UPPER LEVEL WINDS SNOW WATER EQUIVALENT BRIGHTNESS TEMPERATURE LAND SURFACE TEMPERATURE</CriteriaValue>
+					<CriteriaValue>DEW POINT CLOUD TYPES CLOUD CEILING SURFACE WINDS AIR TEMPERATURE SEA LEVEL PRESSURE VIRTUAL TEMPERATURE CLOUD AMOUNT/FREQUENCY SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>DEW POINT SURFACE WINDS AIR TEMPERATURE PRESSURE TENDENCY VIRTUAL TEMPERATURE PRECIPITATION AMOUNT DIFFERENTIAL PRESSURE MAXIMUM/MINIMUM TEMPERATURE</CriteriaValue>
+					<CriteriaValue>DEW POINT VISIBILITY CLOUD CEILING SURFACE WINDS SURFACE PRESSURE PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>DEW POINT WATER VAPOR CARBON DIOXIDE AIR TEMPERATURE UPPER LEVEL WINDS LONGWAVE RADIATION SHORTWAVE RADIATION ATMOSPHERIC PRESSURE</CriteriaValue>
+					<CriteriaValue>DISCHARGE/FLOW</CriteriaValue>
+					<CriteriaValue>DISCHARGE/FLOW AIR TEMPERATURE WATER TEMPERATURE PRECIPITATION AMOUNT</CriteriaValue>
+					<CriteriaValue>DISCHARGE/FLOW WATERSHED CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>DOPPLER SPEED RADAR REFLECTIVITY</CriteriaValue>
+					<CriteriaValue>DRAINAGE LAND COVER SOIL TEXTURE FIRE OCCURRENCE FOREST MANAGEMENT FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>DRAINAGE WETLANDS PERMAFROST WATER TABLE LAND CLASSES SOIL TEXTURE ORGANIC MATTER FIRE OCCURRENCE SOIL CLASSIFICATION SOIL HORIZONS/PROFILE FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>EVAPORATION RESPIRATION DECOMPOSITION PHOTOSYNTHESIS EVAPOTRANSPIRATION SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>EVAPORATION RESPIRATION PHOTOSYNTHESIS EVAPOTRANSPIRATION PRIMARY PRODUCTION SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>FIRE OCCURRENCE</CriteriaValue>
+					<CriteriaValue>FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>FOREST HABITAT</CriteriaValue>
+					<CriteriaValue>FROST WATER VAPOR AIR TEMPERATURE PRECIPITATION AMOUNT CLOUD AMOUNT/FREQUENCY MAXIMUM/MINIMUM TEMPERATURE</CriteriaValue>
+					<CriteriaValue>FROST WATER VAPOR SURFACE WINDS AIR TEMPERATURE SOLAR IRRADIANCE PRECIPITATION AMOUNT CLOUD AMOUNT/FREQUENCY MAXIMUM/MINIMUM TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HEAT FLUX IRRADIANCE WATER VAPOR SURFACE WINDS CARBON DIOXIDE AIR TEMPERATURE VEGETATION COVER UPPER LEVEL WINDS BAROMETRIC ALTITUDE GEOPOTENTIAL HEIGHT ATMOSPHERIC PRESSURE POTENTIAL TEMPERATURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HEAT FLUX REFLECTANCE WATER VAPOR CARBON DIOXIDE</CriteriaValue>
+					<CriteriaValue>HEAT FLUX REFLECTANCE WATER VAPOR NET RADIATION SURFACE WINDS CARBON DIOXIDE SOIL HEAT BUDGET SOIL TEMPERATURE SOLAR IRRADIANCE SURFACE PRESSURE LONGWAVE RADIATION LEAF CHARACTERISTICS PRECIPITATION AMOUNT CANOPY CHARACTERISTICS SURFACE AIR TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HEAT FLUX SOIL HEAT BUDGET</CriteriaValue>
+					<CriteriaValue>HEAT FLUX WATER TABLE WATER VAPOR NET RADIATION SURFACE WINDS CARBON DIOXIDE DISCHARGE/FLOW SOLAR IRRADIANCE SURFACE PRESSURE SURFACE AIR TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS AIR TEMPERATURE SOIL HEAT BUDGET SOIL TEMPERATURE PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS AIR TEMPERATURE SOIL HEAT BUDGET SOIL TEMPERATURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS AIR TEMPERATURE SOIL HEAT BUDGET SOIL TEMPERATURE VIRTUAL TEMPERATURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS AIR TEMPERATURE SOLAR RADIATION SOIL HEAT BUDGET SOIL TEMPERATURE PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS AIR TEMPERATURE SOLAR RADIATION SOIL HEAT BUDGET SOIL TEMPERATURE VIRTUAL TEMPERATURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS CARBON DIOXIDE AIR TEMPERATURE SOIL TEMPERATURE PRECIPITATION RATE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS CARBON DIOXIDE SOIL HEAT BUDGET SOIL TEMPERATURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS CARBON DIOXIDE SOLAR IRRADIANCE SURFACE PRESSURE PRECIPITATION AMOUNT PLANT CHARACTERISTICS SURFACE AIR TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS CARBON DIOXIDE SOLAR RADIATION SOIL HEAT BUDGET SOIL TEMPERATURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS SOLAR RADIATION SOIL HEAT BUDGET SOIL TEMPERATURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HEAT FLUX WATER VAPOR SURFACE WINDS AIR TEMPERATURE SOLAR RADIATION SOIL HEAT BUDGET SOIL TEMPERATURE LONGWAVE RADIATION ATMOSPHERIC PRESSURE PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE OUTGOING LONGWAVE RADIATION SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>HUMIDITY DEW POINT SNOW DEPTH SURFACE WINDS SURFACE PRESSURE PRECIPITATION AMOUNT CLOUD AMOUNT/FREQUENCY SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HUMIDITY DEW POINT SNOW DEPTH SURFACE WINDS SURFACE PRESSURE PRESSURE TENDENCY SEA LEVEL PRESSURE PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HUMIDITY HEAT FLUX NET RADIATION SURFACE WINDS CARBON DIOXIDE SOIL TEMPERATURE SOLAR IRRADIANCE SURFACE PRESSURE LONGWAVE RADIATION PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE SOIL MOISTURE/WATER CONTENT PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HUMIDITY HEAT FLUX NET RADIATION SURFACE WINDS CARBON DIOXIDE SOIL TEMPERATURE SURFACE PRESSURE SNOW/ICE TEMPERATURE PLANT CHARACTERISTICS SURFACE AIR TEMPERATURE SOIL MOISTURE/WATER CONTENT PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HUMIDITY HEAT FLUX NET RADIATION SURFACE WINDS SHORTWAVE RADIATION SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HUMIDITY HEAT FLUX REFLECTANCE NET RADIATION SURFACE WINDS AIR TEMPERATURE SOIL HEAT BUDGET SOIL TEMPERATURE SOLAR IRRADIANCE SURFACE PRESSURE SHORTWAVE RADIATION PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HUMIDITY HEAT FLUX REFLECTANCE WATER VAPOR NET RADIATION SURFACE WINDS CARBON DIOXIDE AIR TEMPERATURE SOIL HEAT BUDGET SOIL TEMPERATURE SOLAR IRRADIANCE PRECIPITATION AMOUNT PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HUMIDITY HEAT FLUX WATER DEPTH WATER VAPOR NET RADIATION SURFACE WINDS CARBON DIOXIDE SOIL HEAT BUDGET SOIL TEMPERATURE SOLAR IRRADIANCE SURFACE PRESSURE LONGWAVE RADIATION PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HUMIDITY HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS CARBON DIOXIDE SOIL TEMPERATURE SURFACE PRESSURE LONGWAVE RADIATION SHORTWAVE RADIATION PRECIPITATION AMOUNT PLANT CHARACTERISTICS SURFACE AIR TEMPERATURE SOIL MOISTURE/WATER CONTENT PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HUMIDITY NET RADIATION SURFACE WINDS SOIL TEMPERATURE SOLAR IRRADIANCE SURFACE PRESSURE PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE LAND SURFACE TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HUMIDITY PHOTOSYNTHESIS VEGETATION SPECIES</CriteriaValue>
+					<CriteriaValue>HUMIDITY SNOW DEPTH NET RADIATION SURFACE WINDS SOLAR RADIATION SOIL TEMPERATURE SURFACE PRESSURE PRECIPITATION RATE PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE LAND SURFACE TEMPERATURE INCOMING SHORTWAVE RADIATION PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HUMIDITY SNOW DEPTH NET RADIATION SURFACE WINDS SOLAR RADIATION SURFACE PRESSURE LONGWAVE RADIATION PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE LAND SURFACE TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HUMIDITY SOIL TEMPERATURE SURFACE AIR TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HUMIDITY SURFACE WINDS AIR TEMPERATURE PRECIPITATION AMOUNT</CriteriaValue>
+					<CriteriaValue>HUMIDITY SURFACE WINDS AIR TEMPERATURE SURFACE PRESSURE UPPER LEVEL WINDS ATMOSPHERIC PRESSURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HUMIDITY SURFACE WINDS LONGWAVE RADIATION SNOW/ICE TEMPERATURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HUMIDITY SURFACE WINDS PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HUMIDITY SURFACE WINDS SOLAR IRRADIANCE PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>HUMIDITY VEGETATION SPECIES PLANT CHARACTERISTICS SURFACE AIR TEMPERATURE INCOMING SHORTWAVE RADIATION</CriteriaValue>
+					<CriteriaValue>HUMIDITY WATER VAPOR SOLAR RADIATION SOLAR IRRADIANCE PRECIPITATION AMOUNT MAXIMUM/MINIMUM TEMPERATURE</CriteriaValue>
+					<CriteriaValue>HUMIDITY WATER VAPOR SURFACE WINDS AIR TEMPERATURE SOLAR RADIATION PRECIPITATION AMOUNT</CriteriaValue>
+					<CriteriaValue>HUMIDITY WATER VAPOR SURFACE WINDS AIR TEMPERATURE SOLAR RADIATION SOLAR IRRADIANCE PRECIPITATION AMOUNT</CriteriaValue>
+					<CriteriaValue>INCOMING SHORTWAVE RADIATION</CriteriaValue>
+					<CriteriaValue>INFRARED IMAGERY</CriteriaValue>
+					<CriteriaValue>INUNDATION</CriteriaValue>
+					<CriteriaValue>IRRADIANCE LAND SURFACE TEMPERATURE</CriteriaValue>
+					<CriteriaValue>IRRADIANCE REFLECTANCE</CriteriaValue>
+					<CriteriaValue>IRRADIANCE REFLECTANCE LAND SURFACE TEMPERATURE</CriteriaValue>
+					<CriteriaValue>IRRADIANCE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>IRRADIANCE TRANSMITTANCE</CriteriaValue>
+					<CriteriaValue>LAND COVER</CriteriaValue>
+					<CriteriaValue>LAND COVER FIRE OCCURRENCE TERRAIN ELEVATION SOIL CLASSIFICATION</CriteriaValue>
+					<CriteriaValue>LAND COVER REFLECTANCE</CriteriaValue>
+					<CriteriaValue>LAND COVER REFLECTANCE BRIGHTNESS TEMPERATURE ATMOSPHERIC EMITTED RADIATION</CriteriaValue>
+					<CriteriaValue>LAND COVER SNOW DEPTH SNOW DENSITY SNOW WATER EQUIVALENT</CriteriaValue>
+					<CriteriaValue>LAND COVER SOIL GAS/AIR</CriteriaValue>
+					<CriteriaValue>LAND COVER SOIL GAS/AIR SOIL CHEMISTRY SOIL TEMPERATURE SOIL BULK DENSITY SURFACE AIR TEMPERATURE SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>LAND COVER SOIL GAS/AIR SOIL TEMPERATURE</CriteriaValue>
+					<CriteriaValue>LAND COVER SOIL HORIZONS/PROFILE FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>LAND COVER VEGETATION SPECIES CANOPY CHARACTERISTICS FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>LAND SURFACE TEMPERATURE</CriteriaValue>
+					<CriteriaValue>LANDFORMS LAND COVER SOIL DEPTH SOIL TEXTURE SOIL COMPACTION SOIL HORIZONS/PROFILE</CriteriaValue>
+					<CriteriaValue>LANDFORMS PERMAFROST SOIL TEXTURE SOIL CLASSIFICATION</CriteriaValue>
+					<CriteriaValue>LANDFORMS SOIL DEPTH SOIL TEXTURE SOIL HORIZONS/PROFILE</CriteriaValue>
+					<CriteriaValue>LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>LITTER CHARACTERISTICS SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>LONGWAVE RADIATION</CriteriaValue>
+					<CriteriaValue>METHANE CARBON DIOXIDE</CriteriaValue>
+					<CriteriaValue>METHANE HEAT FLUX WATER VAPOR SURFACE WINDS CARBON DIOXIDE NITROGEN DIOXIDE SOLAR IRRADIANCE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>METHANE HUMIDITY HEAT FLUX REFLECTANCE WATER DEPTH NET RADIATION SURFACE WINDS CARBON DIOXIDE SOIL HEAT BUDGET SOLAR IRRADIANCE SURFACE PRESSURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>METHANE NITROUS OXIDE</CriteriaValue>
+					<CriteriaValue>METHANE SURFACE PRESSURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>NITROGEN CHLOROPHYLL LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>NITROGEN LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>NITROGEN LEAF CHARACTERISTICS NON-METHANE HYDROCARBONS</CriteriaValue>
+					<CriteriaValue>NITROGEN PHOSPHORUS RESPIRATION VEGETATION SPECIES LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>NITROGEN PHOSPHORUS VEGETATION SPECIES PLANT CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>NITROGEN PHOTOSYNTHESIS VEGETATION SPECIES LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>NITROGEN VEGETATION SPECIES LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>NITROGEN VEGETATION SPECIES PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>NON-METHANE HYDROCARBONS</CriteriaValue>
+					<CriteriaValue>OPTICAL DEPTH/THICKNESS</CriteriaValue>
+					<CriteriaValue>ORGANIC MATTER</CriteriaValue>
+					<CriteriaValue>ORGANIC MATTER SOIL CHEMISTRY</CriteriaValue>
+					<CriteriaValue>OXYGEN CARBON DIOXIDE</CriteriaValue>
+					<CriteriaValue>OZONE ATMOSPHERIC PRESSURE OPTICAL DEPTH/THICKNESS</CriteriaValue>
+					<CriteriaValue>OZONE DEW POINT CARBON DIOXIDE AIR TEMPERATURE UPPER LEVEL WINDS</CriteriaValue>
+					<CriteriaValue>OZONE DEW POINT CARBON DIOXIDE AIR TEMPERATURE UPPER LEVEL WINDS ATMOSPHERIC PRESSURE</CriteriaValue>
+					<CriteriaValue>OZONE HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS CARBON DIOXIDE SOIL HEAT BUDGET SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>OZONE HEAT FLUX WATER VAPOR NET RADIATION SURFACE WINDS SOLAR RADIATION SOIL HEAT BUDGET SOIL TEMPERATURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>OZONE HUMIDITY AIR TEMPERATURE UPPER LEVEL WINDS ATMOSPHERIC PRESSURE</CriteriaValue>
+					<CriteriaValue>OZONE HUMIDITY HEAT FLUX NET RADIATION SURFACE WINDS CARBON DIOXIDE SOIL HEAT BUDGET SOIL TEMPERATURE SURFACE AIR TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>OZONE HUMIDITY HEAT FLUX NET RADIATION SURFACE WINDS CARBON DIOXIDE SURFACE PRESSURE SHORTWAVE RADIATION VIRTUAL TEMPERATURE PRECIPITATION AMOUNT ATMOSPHERIC STABILITY SURFACE AIR TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>OZONE REFLECTANCE CARBON DIOXIDE AIR TEMPERATURE SOLAR IRRADIANCE UPPER LEVEL WINDS ATMOSPHERIC PRESSURE LAND SURFACE TEMPERATURE</CriteriaValue>
+					<CriteriaValue>OZONE REFLECTANCE WATER VAPOR NET RADIATION CARBON DIOXIDE AIR TEMPERATURE SOLAR IRRADIANCE UPPER LEVEL WINDS LONGWAVE RADIATION ATMOSPHERIC PRESSURE LAND SURFACE TEMPERATURE</CriteriaValue>
+					<CriteriaValue>OZONE SURFACE PRESSURE ATMOSPHERIC PRESSURE CLOUD AMOUNT/FREQUENCY SURFACE AIR TEMPERATURE BOUNDARY LAYER TEMPERATURE</CriteriaValue>
+					<CriteriaValue>OZONE VOLATILE ORGANIC COMPOUNDS</CriteriaValue>
+					<CriteriaValue>OZONE WATER VAPOR OPTICAL DEPTH/THICKNESS</CriteriaValue>
+					<CriteriaValue>PESTICIDES/PCBS</CriteriaValue>
+					<CriteriaValue>PESTICIDES/PCBS PRECIPITATION AMOUNT</CriteriaValue>
+					<CriteriaValue>PH WATER TABLE SOIL GAS/AIR SOIL TEMPERATURE NITROGEN COMPOUNDS GROUNDWATER CHEMISTRY</CriteriaValue>
+					<CriteriaValue>PHOTOSYNTHESIS SOLAR IRRADIANCE LONGWAVE RADIATION VEGETATION SPECIES LEAF CHARACTERISTICS PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>PHOTOSYNTHESIS SOLAR IRRADIANCE VEGETATION SPECIES LEAF CHARACTERISTICS PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>PHOTOSYNTHESIS VEGETATION SPECIES</CriteriaValue>
+					<CriteriaValue>PHOTOSYNTHESIS VEGETATION SPECIES LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>PHOTOSYNTHESIS VEGETATION SPECIES LEAF CHARACTERISTICS PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>PLANETARY BOUNDARY LAYER HEIGHT</CriteriaValue>
+					<CriteriaValue>PLANT CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>PRECIPITATION AMOUNT</CriteriaValue>
+					<CriteriaValue>PRECIPITATION AMOUNT MAXIMUM/MINIMUM TEMPERATURE</CriteriaValue>
+					<CriteriaValue>PRIMARY PRODUCTION</CriteriaValue>
+					<CriteriaValue>RADAR BACKSCATTER</CriteriaValue>
+					<CriteriaValue>RAIN SUNSHINE AIR TEMPERATURE PRECIPITATION AMOUNT</CriteriaValue>
+					<CriteriaValue>REFLECTANCE</CriteriaValue>
+					<CriteriaValue>REFLECTANCE CANOPY CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>REFLECTANCE CANOPY CHARACTERISTICS PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>REFLECTANCE INFRARED IMAGERY THERMAL INFRARED</CriteriaValue>
+					<CriteriaValue>REFLECTANCE LAND SURFACE TEMPERATURE</CriteriaValue>
+					<CriteriaValue>REFLECTANCE LAND SURFACE TEMPERATURE ATMOSPHERIC EMITTED RADIATION</CriteriaValue>
+					<CriteriaValue>REFLECTANCE LONGWAVE RADIATION</CriteriaValue>
+					<CriteriaValue>REFLECTANCE NET RADIATION SOLAR IRRADIANCE</CriteriaValue>
+					<CriteriaValue>REFLECTANCE NET RADIATION SURFACE WINDS AIR TEMPERATURE SOIL TEMPERATURE SURFACE PRESSURE LONGWAVE RADIATION SHORTWAVE RADIATION ATMOSPHERIC PRESSURE PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>REFLECTANCE OUTGOING LONGWAVE RADIATION</CriteriaValue>
+					<CriteriaValue>REFLECTANCE SURFACE WINDS AIR TEMPERATURE SOLAR RADIATION SOIL TEMPERATURE LONGWAVE RADIATION PRECIPITATION RATE ATMOSPHERIC PRESSURE SURFACE AIR TEMPERATURE INCOMING SHORTWAVE RADIATION</CriteriaValue>
+					<CriteriaValue>REFLECTANCE TRANSMITTANCE LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>REFLECTANCE TRANSMITTANCE LEAF CHARACTERISTICS PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>REFLECTANCE TRANSMITTANCE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>REFLECTANCE VEGETATION SPECIES</CriteriaValue>
+					<CriteriaValue>REFLECTANCE VISIBLE IMAGERY INFRARED IMAGERY THERMAL INFRARED</CriteriaValue>
+					<CriteriaValue>REFLECTANCE WATER VAPOR</CriteriaValue>
+					<CriteriaValue>REFLECTANCE WATER VAPOR CARBON DIOXIDE AIR TEMPERATURE UPPER LEVEL WINDS ATMOSPHERIC PRESSURE</CriteriaValue>
+					<CriteriaValue>RESPIRATION CARBON DIOXIDE PHOTOSYNTHESIS PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>RESPIRATION CARBON DIOXIDE SOIL TEMPERATURE LEAF CHARACTERISTICS SURFACE AIR TEMPERATURE SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>RESPIRATION EVAPOTRANSPIRATION PRIMARY PRODUCTION</CriteriaValue>
+					<CriteriaValue>RESPIRATION PHOTOSYNTHESIS VEGETATION SPECIES LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>RESPIRATION SOIL CHEMISTRY SOIL COMPACTION SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>RESPIRATION VEGETATION SPECIES</CriteriaValue>
+					<CriteriaValue>SCATTERING LITTER CHARACTERISTICS FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>SCATTERING VEGETATION SPECIES CANOPY CHARACTERISTICS FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>SNOW ALBEDO DEW POINT HEAT FLUX EVAPORATION SURFACE WINDS SOIL TEMPERATURE SOLAR IRRADIANCE SURFACE PRESSURE PRECIPITATION AMOUNT CLOUD AMOUNT/FREQUENCY SURFACE AIR TEMPERATURE SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>SNOW COVER</CriteriaValue>
+					<CriteriaValue>SNOW DEPTH</CriteriaValue>
+					<CriteriaValue>SNOW DEPTH SNOW DENSITY SNOW WATER EQUIVALENT</CriteriaValue>
+					<CriteriaValue>SNOW RUNOFF DEW POINT HEAT FLUX EVAPORATION NET RADIATION SURFACE WINDS SOIL TEMPERATURE SURFACE PRESSURE PRECIPITATION AMOUNT CLOUD AMOUNT/FREQUENCY SURFACE AIR TEMPERATURE SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>SNOW/ICE TEMPERATURE</CriteriaValue>
+					<CriteriaValue>SOIL COLOR ORGANIC MATTER SOIL STRUCTURE SOIL HORIZONS/PROFILE</CriteriaValue>
+					<CriteriaValue>SOIL COLOR SOIL DEPTH SOIL TEXTURE SOIL CONSISTENCE VEGETATION COVER CANOPY CHARACTERISTICS LITTER CHARACTERISTICS SOIL MOISTURE/WATER CONTENT FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>SOIL COLOR SOIL DEPTH TREE RINGS SOIL TEXTURE SOIL STRUCTURE SOIL BULK DENSITY VEGETATION SPECIES SOIL CLASSIFICATION PLANT CHARACTERISTICS SOIL HORIZONS/PROFILE LITTER CHARACTERISTICS SOIL MOISTURE/WATER CONTENT FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>SOIL COMPACTION</CriteriaValue>
+					<CriteriaValue>SOIL COMPACTION SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>SOIL DEPTH HYDRAULIC CONDUCTIVITY</CriteriaValue>
+					<CriteriaValue>SOIL DEPTH SOIL TEXTURE ORGANIC MATTER SOIL BULK DENSITY SOIL CLASSIFICATION SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>SOIL DEPTH SOIL TEXTURE SOIL CLASSIFICATION SOIL HORIZONS/PROFILE SOIL WATER HOLDING CAPACITY</CriteriaValue>
+					<CriteriaValue>SOIL GAS/AIR</CriteriaValue>
+					<CriteriaValue>SOIL GAS/AIR SOIL RESPIRATION SOIL TEMPERATURE SOIL BULK DENSITY SOIL HORIZONS/PROFILE SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>SOIL GAS/AIR SOIL TEMPERATURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>SOIL GAS/AIR SOIL TEMPERATURE SURFACE AIR TEMPERATURE INCOMING SHORTWAVE RADIATION</CriteriaValue>
+					<CriteriaValue>SOIL GAS/AIR SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>SOIL HORIZONS/PROFILE FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>SOIL IMPEDANCE SOIL TEMPERATURE</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE/WATER CONTENT SOIL WATER HOLDING CAPACITY</CriteriaValue>
+					<CriteriaValue>SOIL PH DRAINAGE LANDFORMS LAND COVER SOIL COLOR SOIL DEPTH SOIL TYPES WATER TABLE SOIL TEXTURE SOIL CHEMISTRY SOIL STRUCTURE VEGETATION COVER SOIL BULK DENSITY TERRAIN ELEVATION SOIL HORIZONS/PROFILE SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>SOIL POROSITY SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>SOIL TEMPERATURE GROUNDWATER CHEMISTRY</CriteriaValue>
+					<CriteriaValue>SOIL TEMPERATURE PLANT CHARACTERISTICS SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>SOIL TEMPERATURE SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>SOIL TEMPERATURE WATER TEMPERATURE</CriteriaValue>
+					<CriteriaValue>SOIL TEXTURE HYDRAULIC CONDUCTIVITY</CriteriaValue>
+					<CriteriaValue>SOIL TEXTURE SOIL CHEMISTRY SOIL BULK DENSITY SOIL HORIZONS/PROFILE SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>SOIL TEXTURE SOIL CLASSIFICATION</CriteriaValue>
+					<CriteriaValue>SOIL TEXTURE SOIL CLASSIFICATION SOIL HORIZONS/PROFILE</CriteriaValue>
+					<CriteriaValue>SOIL TEXTURE SUSPENDED SOLIDS SOIL CLASSIFICATION</CriteriaValue>
+					<CriteriaValue>SOLAR RADIATION</CriteriaValue>
+					<CriteriaValue>SOLAR RADIATION LONGWAVE RADIATION</CriteriaValue>
+					<CriteriaValue>STAGE HEIGHT DISCHARGE/FLOW</CriteriaValue>
+					<CriteriaValue>STATION HEIGHT</CriteriaValue>
+					<CriteriaValue>SURFACE PRESSURE OPTICAL DEPTH/THICKNESS</CriteriaValue>
+					<CriteriaValue>SURFACE PRESSURE OPTICAL DEPTH/THICKNESS SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>SURFACE WINDS UPPER LEVEL WINDS</CriteriaValue>
+					<CriteriaValue>SURFACE WINDS UPPER LEVEL WINDS VIRTUAL TEMPERATURE ATMOSPHERIC PRESSURE</CriteriaValue>
+					<CriteriaValue>SURFACE WINDS VIRTUAL TEMPERATURE ATMOSPHERIC PRESSURE</CriteriaValue>
+					<CriteriaValue>TERRAIN ELEVATION</CriteriaValue>
+					<CriteriaValue>THERMAL CONDUCTIVITY SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>TRANSMITTANCE ATMOSPHERIC PRESSURE OPTICAL DEPTH/THICKNESS</CriteriaValue>
+					<CriteriaValue>TRANSMITTANCE LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>TREE RINGS VEGETATION SPECIES PLANT CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>UPPER LEVEL WINDS</CriteriaValue>
+					<CriteriaValue>VEGETATION COVER</CriteriaValue>
+					<CriteriaValue>VEGETATION COVER VEGETATION SPECIES</CriteriaValue>
+					<CriteriaValue>VEGETATION COVER VEGETATION SPECIES CANOPY CHARACTERISTICS FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>VEGETATION COVER VEGETATION SPECIES FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>VEGETATION COVER VEGETATION SPECIES PLANT CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>VEGETATION COVER VEGETATION SPECIES PLANT CHARACTERISTICS FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>VEGETATION SPECIES</CriteriaValue>
+					<CriteriaValue>VEGETATION SPECIES CANOPY CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>VEGETATION SPECIES CANOPY CHARACTERISTICS FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>VEGETATION SPECIES LEAF CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>VEGETATION SPECIES LEAF CHARACTERISTICS PLANT CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>VEGETATION SPECIES PLANT CHARACTERISTICS</CriteriaValue>
+					<CriteriaValue>VISIBILITY CLOUD CEILING SURFACE WINDS SURFACE PRESSURE PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE CLOUD VERTICAL DISTRIBUTION</CriteriaValue>
+					<CriteriaValue>VISIBLE IMAGERY</CriteriaValue>
+					<CriteriaValue>VISIBLE IMAGERY CANOPY CHARACTERISTICS FOREST COMPOSITION/STRUCTURE</CriteriaValue>
+					<CriteriaValue>VISIBLE IMAGERY INFRARED IMAGERY</CriteriaValue>
+					<CriteriaValue>VOLATILE ORGANIC COMPOUNDS</CriteriaValue>
+					<CriteriaValue>WATER DEPTH SURFACE AIR TEMPERATURE SOIL MOISTURE/WATER CONTENT</CriteriaValue>
+					<CriteriaValue>WATER TABLE CARBON DIOXIDE SOIL TEMPERATURE</CriteriaValue>
+					<CriteriaValue>WATER TABLE SOIL GAS/AIR</CriteriaValue>
+					<CriteriaValue>WATER VAPOR AIR TEMPERATURE GEOPOTENTIAL HEIGHT ATMOSPHERIC PRESSURE</CriteriaValue>
+					<CriteriaValue>WATER VAPOR AIR TEMPERATURE VEGETATION SPECIES LEAF CHARACTERISTICS SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>WATER VAPOR LONGWAVE RADIATION SHORTWAVE RADIATION PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>WATER VAPOR NET RADIATION CARBON DIOXIDE AIR TEMPERATURE UPPER LEVEL WINDS ATMOSPHERIC PRESSURE LAND SURFACE TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>WATER VAPOR OPTICAL DEPTH/THICKNESS</CriteriaValue>
+					<CriteriaValue>WATER VAPOR PHOTOSYNTHESIS AIR TEMPERATURE CANOPY CHARACTERISTICS SURFACE AIR TEMPERATURE PHOTOSYNTHETICALLY ACTIVE RADIATION</CriteriaValue>
+					<CriteriaValue>WATER VAPOR POTENTIAL TEMPERATURE</CriteriaValue>
+					<CriteriaValue>WATER VAPOR SOLAR RADIATION PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>WATER VAPOR SOLAR RADIATION SOIL TEMPERATURE PRECIPITATION AMOUNT SURFACE AIR TEMPERATURE</CriteriaValue>
+					<CriteriaValue>WATER VAPOR SURFACE WINDS AIR TEMPERATURE UPPER LEVEL WINDS GEOPOTENTIAL HEIGHT ATMOSPHERIC PRESSURE</CriteriaValue>
+					<CriteriaValue>WATER VAPOR VISIBLE IMAGERY INFRARED IMAGERY</CriteriaValue>
+					<CriteriaValue>WETLANDS</CriteriaValue>
+					<CriteriaValue>WETLANDS FOREST HABITAT</CriteriaValue>
+				</CriteriaValues>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>processingLevel</CategoryName>
+		<CategoryType>COLLECTIONS</CategoryType>
+		<CategoryDescription>Processing Level</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>processingLevel</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>1024</CriteriaLength>
+				<CriteriaValues>
+					<CriteriaValue>2</CriteriaValue>
+					<CriteriaValue>3</CriteriaValue>
+					<CriteriaValue>4</CriteriaValue>
+					<CriteriaValue>1A</CriteriaValue>
+					<CriteriaValue>1B</CriteriaValue>
+					<CriteriaValue>0</CriteriaValue>
+					<CriteriaValue>2G</CriteriaValue>
+				</CriteriaValues>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>shortName</CategoryName>
+		<CategoryType>COLLECTIONS</CategoryType>
+		<CategoryDescription>Short Name of the Collection</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>shortName</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>1024</CriteriaLength>
+				<CriteriaValues>
+					<CriteriaValue>15 MINUTE STREAM FLOW DATA: USGS (FIFE)</CriteriaValue>
+					<CriteriaValue>30 MINUTE RAINFALL DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-DETRENDED: NRCC (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-DETRENDED: U OF WY. (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-DETRENDED: UNIV.COL.(FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-FILTERED: NRCC (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-FILTERED: U OF WY. (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-FILTERED: UNIV.COL. (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-RAW: NRCC (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-RAW: U OF WY. (FIFE)</CriteriaValue>
+					<CriteriaValue>AIRCRAFT FLUX-RAW: UNIV. COL. (FIFE)</CriteriaValue>
+					<CriteriaValue>AMAZON RIVER BASIN PRECIPITATION, 1972-1992</CriteriaValue>
+					<CriteriaValue>AMS (AUTOMATED MET STATION) DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>ASPEN FOREST COVER BY STRATUM/PLOT (SNF)</CriteriaValue>
+					<CriteriaValue>ATMOS. PROFILE: RADIOSONDE - NCDC (FIFE)</CriteriaValue>
+					<CriteriaValue>ATMOS. PROFILE: STD. PRESS. LEVEL (FIFE)</CriteriaValue>
+					<CriteriaValue>ATMOSPHERIC PROFILES: BRUTSAERT (FIFE)</CriteriaValue>
+					<CriteriaValue>ATMOSPHERIC PROFILES: TOVS - NOAA (FIFE)</CriteriaValue>
+					<CriteriaValue>BIOMASS OF SACRIFICED SPRUCE/ASPEN (SNF)</CriteriaValue>
+					<CriteriaValue>BOREAS 1994 HYD-09 BELFORT RAIN GAUGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS 1994 HYD-09 TIPPING BUCKET RAIN DATA</CriteriaValue>
+					<CriteriaValue>BOREAS 1995 HYD-09 BELFORT RAIN GAUGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS 1995 HYD-09 TIPPING BUCKET RAIN DATA</CriteriaValue>
+					<CriteriaValue>BOREAS 1996 HYD-09 BELFORT RAIN GAUGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS 1996 HYD-09 TIPPING BUCKET RAIN DATA</CriteriaValue>
+					<CriteriaValue>BOREAS 1996 SNOW DEPTH DATA: HYD-03</CriteriaValue>
+					<CriteriaValue>BOREAS 1996 SNOW PIT MEASUREMENTS: HYD-03</CriteriaValue>
+					<CriteriaValue>BOREAS AES CANADIAN HOURLY AND DAILY SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AES FIVE-DAY AVERAGED SURFACE METEOROLOGICAL AND UPPER AIR DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-01 NOAA/ATDD LONG-EZ AIRCRAFT FLUX DATA OVER THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-02 KING AIR 1994 AIRCRAFT FLUX AND MOVING WINDOW DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-02 WYOMING KING AIR 1994 AIRCRAFT SOUNDING DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-03 ELECTRA 1994 AIRCRAFT FLUX AND MOVING WINDOW DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-03 NCAR ELECTRA 1994 AIRCRAFT SOUNDING DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-04 TWIN OTTER AIRCRAFT FLUX DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-04 TWIN OTTER AIRCRAFT SOUNDING DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-04 TWIN OTTER VIDEO TAPES</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-05 LEVEL-1 UPPER AIR NETWORK DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-05 LEVEL-2 UPPER AIR NETWORK STANDARD PRESSURE LEVEL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-06 BOUNDARY LAYER HEIGHT DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-06 MEAN TEMPERATURE PROFILE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-06 MEAN WIND PROFILE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-06 NOAA/ETL 35 GHZ CLOUD/TURBULENCE RADAR GIF IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-06 SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-08 ECMWF HOURLY SURFACE AND UPPER AIR DATA FOR THE SSA AND NSA</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-11 AIRCRAFT FLUX ANALYSIS REPORTS</CriteriaValue>
+					<CriteriaValue>BOREAS AFM-13 AIRCRAFT FLUX ANALYSES</CriteriaValue>
+					<CriteriaValue>BOREAS AIRCRAFT GAMMA RAY SOIL MOISTURE: HYD-06</CriteriaValue>
+					<CriteriaValue>BOREAS C-130 VIDEO TAPES</CriteriaValue>
+					<CriteriaValue>BOREAS C130 AIRCRAFT FLIGHT LOGS</CriteriaValue>
+					<CriteriaValue>BOREAS CALIBRATION GAS STANDARDS</CriteriaValue>
+					<CriteriaValue>BOREAS CANOPY DENSITY DATA: HYD-03</CriteriaValue>
+					<CriteriaValue>BOREAS CANSIS REGIONAL SOILS DATA IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS DAEDALUS TMS LEVEL-0 IMAGERY: DIGITAL COUNTS IN BIL FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS DEM DATA OVER THE NSA-MSA AND SSA-MSA IN AEAC PROJECTION</CriteriaValue>
+					<CriteriaValue>BOREAS DERIVED SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS ECMWF DATA</CriteriaValue>
+					<CriteriaValue>BOREAS ELEVATION CONTOURS OVER THE NSA AND SSA ARC/INFO GENERATE FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS ER2 AIRCRAFT FLIGHT LOGS</CriteriaValue>
+					<CriteriaValue>BOREAS FOREST COVER DATA LAYERS OVER THE SSA-MSA IN RASTER FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS FOREST COVER LAYERS OF THE NSA IN RASTER FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS GROUND GRAVIMETRIC SOIL MOISTURE: HYD-06</CriteriaValue>
+					<CriteriaValue>BOREAS HARD COPY MAPS</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-01 UNDER CANOPY PRECIPITATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-01 VOLUMETRIC SOIL MOISTURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-02 ESTIMATED SNOW WATER EQUIVALENT FROM MICROWAVE</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-03 1996 TREE STEM DENSITY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-03 SNOW WATER EQUIVALENT DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-03 SNOW WATER EQUIVALENT: 1996</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-03 SSA/OLD ASPEN DBH DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-03 SUBCANOPY METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-03 SUBCANOPY RADIATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-04 AREAL SNOW COURSE SURVEY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-04 STANDARD SNOW COURSE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-05 BEAR TRAP CREEK AND NAMEKUS LAKE WINTER SURFACE FLUX DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-06 MOSS/HUMUS MOISTURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-08 1994 GRAVIMETRIC MOSS DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-08 1996 GRAVIMETRIC MOSS DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-08 1996 GROSS PRECIPITATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-08 DEM DATA OVER THE NSA-MSA AND SSA-MSA IN UTM PROJECTION</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-08 THROUGHFALL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-09 HOURLY AND DAILY RADAR RAINFALL MAPS FOR THE SOUTHERN STUDY AREA</CriteriaValue>
+					<CriteriaValue>BOREAS HYD-09 STREAM GAUGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS LANDSAT MSS IMAGERY: DIGITAL COUNTS</CriteriaValue>
+					<CriteriaValue>BOREAS LANDSAT TM LEVEL-3A IMAGERY: SCALED AT-SENSOR RADIANCE IN BSQ FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LANDSAT TM LEVEL-3B IMAGERY: AT-SENSOR RADIANCE IN BSQ FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LANDSAT TM LEVEL-3P IMAGERY: GEOCODED AND SCALED AT-SENSOR RADIANCE</CriteriaValue>
+					<CriteriaValue>BOREAS LANDSAT TM LEVEL-3S IMAGERY: SCALED AT-SENSOR RADIANCE IN LGSOWG FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-0 AOCI IMAGERY: DIGITAL COUNTS IN BIL FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-0 C-130 AERIAL PHOTOGRAPHY</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-0 C-130 NAVIGATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-0 ER-2 AERIAL PHOTOGRAPHY</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-0 ER-2 NAVIGATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-0 TIMS IMAGERY: DIGITAL COUNTS IN BIL FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-1B MAS IMAGERY: AT-SENSOR RADIANCE, RELATIVE X AND Y COORDINATES</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-1B TIMS IMAGERY: AT SENSOR RADIANCE IN BSQ FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-2 MAS SURFACE REFLECTANCE AND TEMPERATURE IMAGES IN BSQ FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-3B AVHRR-LAC IMAGERY: SCALED AT-SENSOR RADIANCE IN LGSOWG FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-3S SPOT IMAGERY: SCALED AT-SENSOR RADIANCE IN LGSOWG FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-4B AVHRR-LAC TEN-DAY COMPOSITE IMAGES: AT-SENSOR RADIANCE</CriteriaValue>
+					<CriteriaValue>BOREAS LEVEL-4C AVHRR-LAC TEN-DAY COMPOSITE IMAGES: SURFACE PARAMETERS</CriteriaValue>
+					<CriteriaValue>BOREAS MEDIA VIDEO TAPES</CriteriaValue>
+					<CriteriaValue>BOREAS NS001 TMS LEVEL-0 IMAGES IN BIL FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS NS001 TMS LEVEL-2 IMAGES: REFLECTANCE AND TEMPERATURE IN BSQ FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS PHOTO CD-ROMS AND SLIDES</CriteriaValue>
+					<CriteriaValue>BOREAS PRINCE ALBERT NATIONAL PARK FOREST COVER DATA IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS RADARSAT IMAGES CD-ROM</CriteriaValue>
+					<CriteriaValue>BOREAS REGIONAL DEM IN RASTER FORMAT AND AEAC PROJECTION</CriteriaValue>
+					<CriteriaValue>BOREAS REGIONAL SOILS DATA IN RASTER FORMAT AND AEAC PROJECTION</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-01 PARABOLA SSA SURFACE REFLECTANCE AND TRANSMITTANCE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-02 EXTRACTED REFLECTANCE FACTORS DERIVED FROM ASAS IMAGERY</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-02 LEVEL-1B ASAS IMAGE DATA: AT-SENSOR RADIANCE IN BSQ FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-03 ATMOSPHERIC CONDITIONS FROM A HELICOPTER-MOUNTED SUNPHOTOMETER</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-03 IMAGERY AND SNAPSHOTS FROM A HELICOPTER-MOUNTED VIDEO CAMERA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-03 REFLECTANCE MEASURED FROM A HELICOPTER-MOUNTED BARNES MMR</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-03 REFLECTANCE MEASURED FROM A HELICOPTER-MOUNTED SE-590</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-04 1994 JACK PINE LEAF BIOCHEMISTRY AND MODELED SPECTRA IN THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-04 1994 SOUTHERN STUDY AREA JACK PINE LAI \amp FPAR DATA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-07 LAI, GAP FRACTION, AND FPAR DATA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-07 LANDSAT TM LAI IMAGES OF THE SSA AND NSA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-07 REGIONAL LAI AND FPAR IMAGES FROM TEN-DAY AVHRR-LAC COMPOSITES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-08 BIOME-BGC MODEL SIMULATIONS AT TOWER FLUX SITES IN 1994</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-08 BIOME-BGC SSA SIMULATIONS OF ANNUAL WATER AND CARBON FLUXES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-08 IFC-3 ADS-PSII MEASUREMENTS OF BRDF AT SSA-OBS AND SSA-OA SITES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-08 SNOW MAPS DERIVED FROM LANDSAT TM IMAGERY</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-08 SSA IFC-3 DIGITIZED STEREO IMAGERY AT THE OBS, OA, AND OJP SITES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-10 TOMS CIRCUMPOLAR ONE-DEGREE PAR IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-11 GROUND SUNPHOTOMETER DATA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-12 AIRBORNE TRACKING SUNPHOTOMETER MEASUREMENTS (C-130)</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-12 AUTOMATED GROUND SUNPHOTOMETER MEASUREMENTS IN THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-14 GOES-7 LEVEL-1 IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-14 GOES-7 LEVEL-1A IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-14 GOES-7 LEVEL-2 SHORTWAVE AND LONGWAVE RADIATION IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-14 GOES-8 LEVEL-1 VISIBLE, INFRARED AND WATER VAPOR IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-14 GOES-8 LEVEL-1A VISIBLE, INFRARED AND WATER VAPOR IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-14 LEVEL-3 GRIDDED RADIOMETER AND SATELLITE SURFACE RADIATION IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-15 SIR-C AND TM BIOMASS AND LANDCOVER MAPS OF THE NSA AND SSA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-16 AIRSAR CM V6.1 IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-16 LEVEL-3B DC-8 AIRSAR CM IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-16 LEVEL-3B DC-8 AIRSAR SY IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-17 1994 ERS-1 LEVEL-3 FREEZE/THAW BACKSCATTER CHANGE IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-17 DIELECTRIC CONSTANT PROFILE MEASUREMENTS</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-17 ERS-1 IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-17 STEM, SOIL, AND AIR TEMPERATURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-17 XYLEM FLUX DENSITY MEASUREMENTS AT THE SSA-OBS SITE</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-18 LEVEL-1B AVIRIS IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-18 OPTICAL THICKNESS</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-19 1994 CASI AT-SENSOR RADIANCE AND REFLECTANCE IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-19 1996 CASI AT-SENSOR RADIANCE AND REFLECTANCE IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-19 CHIEFTAIN NAVAHO VIDEO TAPES</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-19 SEASONAL UNDERSTORY REFLECTANCE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-20 POLDER C-130 MEASUREMENTS OF SURFACE BRDF</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-20 POLDER HELICOPTER-MOUNTED MEASUREMENTS OF SURFACE BRDF</CriteriaValue>
+					<CriteriaValue>BOREAS RSS-20 POLDER RADIANCE IMAGES FROM THE NASA C-130</CriteriaValue>
+					<CriteriaValue>BOREAS SASKATCHEWAN FOREST FIRE CONTROL CENTRE SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS SCANNING LIDAR IMAGER OF CANOPIES BY ECHO RECOVERY (SLICER): LEVEL-3 DATA</CriteriaValue>
+					<CriteriaValue>BOREAS SERM FOREST COVER DATA LAYERS OF THE SSA IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS SERM FOREST COVER DATA OF SASKATCHEWAN IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS SERM FOREST FIRE CHRONOLOGY OF SASKATCHEWAN IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS SITE AND AREA GEOGRAPHIC COORDINATE INFORMATION</CriteriaValue>
+					<CriteriaValue>BOREAS SNOW TEMPERATURE PROFILES: HYD-03</CriteriaValue>
+					<CriteriaValue>BOREAS SOIL HYDRAULIC PROPERTIES: HYD01</CriteriaValue>
+					<CriteriaValue>BOREAS SOILS DATA OVER THE SSA IN RASTER FORMAT AND AEAC PROJECTION</CriteriaValue>
+					<CriteriaValue>BOREAS TE-01 CH4 FLUX DATA OVER THE SSA-OA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-01 CO2 AND CH4 FLUX DATA OVER THE SSA-OBS SITE</CriteriaValue>
+					<CriteriaValue>BOREAS TE-01 SOILS DATA OVER THE SSA TOWER SITES IN RASTER FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS TE-01 SSA SOIL LAB DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-01 SSA-FEN SOIL PROFILE NUTRIENT DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-02 CONTINUOUS WOOD RESPIRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-02 FOLIAGE RESPIRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-02 ROOT RESPIRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-02 STEM GROWTH \amp SAPWOOD DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-02 WOOD RESPIRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-04 BRANCH BAG DATA FROM BOREAL TREE SPECIES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-04 GAS EXCHANGE DATA FROM BOREAL TREE SPECIES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 CO2 CONCENTRATION AND STABLE ISOTOPE COMPOSITION</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 DIURNAL CO2 CANOPY PROFILE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 LEAF CARBON ISOTOPE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 LEAF GAS EXCHANGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 SOIL RESPIRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 SURFACE METEOROLOGICAL \amp RADIATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-05 TREE RING AND CARBON ISOTOPE RATIO DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-06 1994 SOIL AND AIR TEMPERATURES IN THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-06 ALLOMETRY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-06 BIOMASS AND FOLIAGE AREA DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-06 MULTIBAND VEG IMAGER DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-06 NPP FOR THE TOWER FLUX, CARBON EVALUATION, AND AUXILIARY SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-06 PREDAWN LEAF WATER POTENTIALS AND FOLIAGE MOISTURE CONTENT DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-07 DENDROLOGY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-07 SAPFLOW DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-08 ASPEN BARK CHEMISTRY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-08 ASPEN BARK SPECTRAL REFLECTANCE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 IN SITU DIURNAL GAS EXCHANGE OF NSA BOREAL FOREST STANDS</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 IN SITU UNDERSTORY SPECTRAL REFLECTANCE WITHIN THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 LEAF BIOCHEMISTRY AVERAGES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 LEAF BIOCHEMISTRY POINT DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 NSA LEAF CHLOROPHYLL DENSITY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 PAR \amp LEAF NITROGEN DATA FOR NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 PHOTOSYNTHETIC CAPACITY AND FOLIAGE NITROGEN DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-09 PHOTOSYNTHETIC RESPONSE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-10 LEAF CHEMISTRY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-10 LEAF GAS EXCHANGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-10 LEAF OPTICAL PROPERTIES FOR SSA SPECIES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-10 PHOTOSYNTHETIC RESPONSE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-11 LEAF GAS EXCHANGE MEASUREMENTS</CriteriaValue>
+					<CriteriaValue>BOREAS TE-11 SAPFLOW DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-11 SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-12 INCOMING PAR THROUGH THE FOREST CANOPY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-12 LEAF GAS EXCHANGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-12 LEAF OPTICAL DATA FOR SSA SPECIES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-12 SSA SHOOT GEOMETRY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-12 SSA WATER POTENTIAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-13 BIOMETRY REPORTS</CriteriaValue>
+					<CriteriaValue>BOREAS TE-17 PRODUCTION EFFICIENCY MODEL IMAGES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18 BIOMASS DENSITY IMAGE OF THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18 GEOSAIL CANOPY REFLECTANCE MODEL</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18 LANDSAT TM MAXIMUM LIKELIHOOD CLASSIFICATION IMAGE OF THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18 LANDSAT TM MAXIMUM LIKELIHOOD CLASSIFICATION IMAGE OF THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18 LANDSAT TM PHYSICAL CLASSIFICATION IMAGE OF THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18 LANDSAT TM PHYSICAL CLASSIFICATION IMAGE OF THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18, 30-M, RADIOMETRICALLY RECTIFIED LANDSAT TM IMAGERY</CriteriaValue>
+					<CriteriaValue>BOREAS TE-18, 60-M, RADIOMETRICALLY RECTIFIED LANDSAT TM IMAGERY</CriteriaValue>
+					<CriteriaValue>BOREAS TE-19 ECOSYSTEM CARBON BALANCE MODEL</CriteriaValue>
+					<CriteriaValue>BOREAS TE-20 NSA SOIL LAB DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-20 SITE CHARACTERISTICS DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-20 SOILS DATA OVER THE NSA-MSA AND TOWER SITES IN RASTER FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS TE-20 SOILS DATA OVER THE NSA-MSA AND TOWER SITES IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS TE-20 SUPPLEMENTARY SITE INFORMATION FOR NSA TOWER SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TE-21 DAILY SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-22 ALLOMETRIC FOREST SURVEY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-22 TREE RING DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TE-23 CANOPY ARCHITECTURE AND SPECTRAL DATA FROM HEMISPHERICAL PHOTOS</CriteriaValue>
+					<CriteriaValue>BOREAS TE-23 MAP PLOT DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-01 SSA-OA SOIL CHARACTERISTICS DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-01 SSA-OA TOWER FLUX, METEOROLOGICAL, AND SOIL TEMPERATURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-01 SSA-OA UNDERSTORY FLUX, METEOROLOGICAL, AND SOIL TEMPERATURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-01 SSA-OA WEEKLY TOWER CH4 AND N2O FLUX</CriteriaValue>
+					<CriteriaValue>BOREAS TF-02 SSA-OA TETHERSONDE METEOROLOGICAL AND OZONE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-02 SSA-OA TOWER FLUX, METEOROLOGICAL, AND PRECIPITATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-03 AUTOMATED CHAMBER CO2 FLUX DATA FROM THE NSA-OBS</CriteriaValue>
+					<CriteriaValue>BOREAS TF-03 TOWER FLUX \amp METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-04 CO2 AND CH4 CHAMBER FLUX DATA FROM THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-04 CO2 AND CH4 SOIL PROFILE DATA FROM THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-04 SSA-YJP TOWER FLUX, METEOROLOGICAL, AND CANOPY CONDITION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-05 TOWER FLUX \amp METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-06 SSA-YA SURFACE ENERGY FLUX AND METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-07 SSA-OBS TOWER FLUX AND METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-08 NSA-OJP AND SSA-OBS CEILOMETER DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-08 NSA-OJP TOWER FLUX, METEOROLOGICAL, AND SOIL TEMPERATURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-09 SSA-OBS BRANCH LEVEL FLUX DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-09 SSA-OBS TOWER FLUX, METEOROLOGICAL, AND SOIL TEMPERATURE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-10 NSA-FEN TOWER FLUX AND METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-10 NSA-YJP TOWER FLUX, METEOROLOGICAL, AND POROMETRY DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 BIOMASS DATA OVER THE SSA-FEN</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 CO2 AND CH4 CONCENTRATION DATA FROM THE SSA-FEN</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 DECOMPOSITION</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 METHANE AND CARBON DIOXIDE FLUX</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 SSA FEN 1996 WATER SURFACE FILM CAPPING DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 SSA FEN LEAF GAS EXCHANGE DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 SSA FEN SOIL SURFACE CO2 FLUX DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 SSA-FEN 1995 LEAF AREA INDEX DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TF-11 SSA-FEN TOWER FLUX AND METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-01 CH4 \amp CO2 CHAMBER FLUX DATA: NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-01 CH4 CONCENTRATION AND FLUX DATA FROM NSA TOWER SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-01 SF6 CHAMBER FLUX DATA: NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-01 SOIL CH4 AND CO2 PROFILE DATA FROM NSA TOWER SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-01/TGB-03 NEE DATA OVER THE NSA FEN</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-01/TGB-03 WATER TABLE AND PEAT TEMPERATURE DATA OVER THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-03 CH4 AND CO2 CHAMBER FLUX OVER NSA UPLAND SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-03 CH4 CHAMBER FLUX DATA: NSA FEN</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-03 DISSOLVED ORGANIC CARBON DATA FROM THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-03 PLANT SPECIES COMPOSITION</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-04 NSA-BVP TOWER FLUX AND METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-04 WATER AND SEDIMENT TEMPERATURE DATA OVER THE NSA-BP (BEAVER POND)</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-05 BIOGENIC SOIL EMISSIONS OF NO AND NITROUS OXIDE</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-05 CO2, CH4, AND CO CHAMBER FLUX DATA OVER THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-05 DISSOLVED ORGANIC CARBON CONCENTRATIONS FROM NSA BEAVER PONDS</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-05 FIRE HISTORY OF MANITOBA 1980 TO 1991 IN RASTER FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-05 FIRE HISTORY OF MANITOBA 1980 TO 1991 IN VECTOR FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-06 SOIL METHANE OXIDATION AND PRODUCTION FROM NSA BP AND FEN SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-07 AMBIENT AIR HERBICIDE AND ORGANOCHLORINE CONCENTRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-07 DRY DEPOSITION HERBICIDE AND ORGANOCHLORINE FLUX DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-07 RAINWATER HERBICIDE AND ORGANOCHLORINE CONCENTRATION DATA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-08 MONOTERPENE CONCENTRATION DATA OVER THE SSA-OBS AND THE SSA-OJP</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-08 PHOTOSYNTHETIC RATE DATA OVER THE SSA-OBS AND THE SSA-OJP</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-08 STARCH CONCENTRATION DATA OVER THE SSA-OBS AND THE SSA-OJP</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-09 ABOVE-CANOPY NMHC AT SSA-OBS, SSA-OJP AND SSA-OA SITES</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-10 OXIDANT CONCENTRATION DATA OVER THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-10 OXIDANT FLUX DATA OVER THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-10 VOLATILE ORGANIC CARBON DATA OVER THE SSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-12 ISOTOPE CARBON DIOXIDE DATA OVER THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-12 RADON-222 ACTIVITY DATA OVER THE NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-12 RADON-222 FLUX DATA: NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-12 SOIL CARBON AND FLUX DATA OF NSA-MSA IN RASTER FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS TGB-12 SOIL CARBON DATA: NSA</CriteriaValue>
+					<CriteriaValue>BOREAS TGB12 SOIL CARBON SITE INFO</CriteriaValue>
+					<CriteriaValue>BOREAS TOPOGRAPHIC MAP DATA OVER THE NSA AND SSA IN SIF FORMAT</CriteriaValue>
+					<CriteriaValue>BOREAS/AES CAMPBELL SCIENTIFIC 15-MINUTE SURFACE METEOROLOGICAL DATA: 1993</CriteriaValue>
+					<CriteriaValue>BOREAS/AES CAMPBELL SCIENTIFIC 15-MINUTE SURFACE METEOROLOGICAL DATA: 1994</CriteriaValue>
+					<CriteriaValue>BOREAS/AES CAMPBELL SCIENTIFIC 15-MINUTE SURFACE METEOROLOGICAL DATA: 1995</CriteriaValue>
+					<CriteriaValue>BOREAS/AES CAMPBELL SCIENTIFIC 15-MINUTE SURFACE METEOROLOGICAL DATA: 1996</CriteriaValue>
+					<CriteriaValue>BOREAS/AES MARS-II 15-MINUTE SURFACE METEOROLOGICAL DATA: 1994</CriteriaValue>
+					<CriteriaValue>BOREAS/AES READAC 15-MINUTE SURFACE METEOROLOGICAL DATA</CriteriaValue>
+					<CriteriaValue>BOREAS/AGRICULTURE CANADA CENTRAL SASKATCHEWAN VECTOR SOILS DATA</CriteriaValue>
+					<CriteriaValue>BOREAS/SRC AMS SUITE A SURFACE METEOROLOGICAL AND RADIATION DATA: 1994</CriteriaValue>
+					<CriteriaValue>BOREAS/SRC AMS SUITE A SURFACE METEOROLOGICAL AND RADIATION DATA: 1995</CriteriaValue>
+					<CriteriaValue>BOREAS/SRC AMS SUITE A SURFACE METEOROLOGICAL AND RADIATION DATA: 1996</CriteriaValue>
+					<CriteriaValue>BOREAS/SRC AMS SUITE B SURFACE METEOROLOGICAL AND RADIATION DATA: 1994</CriteriaValue>
+					<CriteriaValue>BOREAS/SRC AMS SUITE B SURFACE METEOROLOGICAL AND RADIATION DATA: 1995</CriteriaValue>
+					<CriteriaValue>BOREAS/SRC AMS SUITE B SURFACE METEOROLOGICAL AND RADIATION DATA: 1996</CriteriaValue>
+					<CriteriaValue>BOUNDARY LAYER HEIGHTS: LIDAR (FIFE)</CriteriaValue>
+					<CriteriaValue>BOUNDARY LAYER HEIGHTS: SODAR (FIFE)</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO SURF. FLUX: FRITSCHEN (FIFE)</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO SURFACE FLUX: GSFC (FIFE)</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO SURFACE FLUX: KSU (FIFE)</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO SURFACE FLUX: SMITH (FIFE)</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO SURFACE FLUX: UNL (FIFE)</CriteriaValue>
+					<CriteriaValue>BOWEN RATIO SURFACE FLUX: USGS (FIFE)</CriteriaValue>
+					<CriteriaValue>CALCULATED LEAF CARBON AND NITROGEN, 1992 (ACCP)</CriteriaValue>
+					<CriteriaValue>CANOPY CHEMISTRY (OTTER)</CriteriaValue>
+					<CriteriaValue>CANOPY PHOTOSYNTHESIS RATES (FIFE)</CriteriaValue>
+					<CriteriaValue>CLOUD CAMERA DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>DAILY RAINFALL DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>EDDY CORR. SURFACE FLUX: ANL (FIFE)</CriteriaValue>
+					<CriteriaValue>EDDY CORR. SURFACE FLUX: GSFC (FIFE)</CriteriaValue>
+					<CriteriaValue>EDDY CORR. SURFACE FLUX: UK (FIFE)</CriteriaValue>
+					<CriteriaValue>EDDY CORR. SURFACE FLUX: UNL (FIFE)</CriteriaValue>
+					<CriteriaValue>EDDY CORR. SURFACE FLUX: USGS (FIFE)</CriteriaValue>
+					<CriteriaValue>FIFE COMPLETE DATASET CD-ROM</CriteriaValue>
+					<CriteriaValue>FOREST BIOPHYSICAL PARAMETERS (SNF)</CriteriaValue>
+					<CriteriaValue>FOREST CANOPY COMPOSITION (SNF)</CriteriaValue>
+					<CriteriaValue>FOREST-BGC MODEL (OTTER)</CriteriaValue>
+					<CriteriaValue>GAMMA RAY DATA: PECK (FIFE)</CriteriaValue>
+					<CriteriaValue>GEMMA HELICOPTOR DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>GLOBAL 10-YEAR MEAN MONTHLY CLIMATOLOGY, 1901-1990 (NEW ET AL.)</CriteriaValue>
+					<CriteriaValue>GLOBAL 30-YEAR MEAN MONTHLY CLIMATOLOGY, 1901-1960 (NEW ET AL.)</CriteriaValue>
+					<CriteriaValue>GLOBAL 30-YEAR MEAN MONTHLY CLIMATOLOGY, 1930-1960, V. 2.1 (CRAMER AND LEEMANS)</CriteriaValue>
+					<CriteriaValue>GLOBAL 30-YEAR MEAN MONTHLY CLIMATOLOGY, 1961-1990 (NEW ET AL.)</CriteriaValue>
+					<CriteriaValue>GLOBAL DATA SET OF DERIVED SOIL PROPERTIES, 0.5-DEGREE GRID (ISRIC-WISE)</CriteriaValue>
+					<CriteriaValue>GLOBAL DISTRIBUTION OF INUNDATED AREAS, 1971-1982 (MATTHEWS)</CriteriaValue>
+					<CriteriaValue>GLOBAL DISTRIBUTION OF PLANT-EXTRACTABLE WATER CAPACITY OF SOIL (DUNNE)</CriteriaValue>
+					<CriteriaValue>GLOBAL GRIDDED SURFACES OF SELECTED SOIL CHARACTERISTICS (IGBP-DIS)</CriteriaValue>
+					<CriteriaValue>GLOBAL HISTORICAL CLIMATOLOGY NETWORK, 1753-1990</CriteriaValue>
+					<CriteriaValue>GLOBAL MONTHLY CLIMATOLOGY FOR THE TWENTIETH CENTURY (NEW ET AL.)</CriteriaValue>
+					<CriteriaValue>GLOBAL MONTHLY PRECIPITATION, 1900-1999 (HULME)</CriteriaValue>
+					<CriteriaValue>GLOBAL ORGANIC SOIL CARBON AND NITROGEN (ZINKE ET AL.)</CriteriaValue>
+					<CriteriaValue>GLOBAL RIVER DISCHARGE, 1807-1991, V. 1.1 (RIVDIS)</CriteriaValue>
+					<CriteriaValue>GLOBAL SOIL DATA PRODUCTS CD-ROM (IGBP-DIS)</CriteriaValue>
+					<CriteriaValue>GLOBAL SOIL PROFILE DATA (ISRIC-WISE)</CriteriaValue>
+					<CriteriaValue>GLOBAL SOIL TEXTURE AND DERIVED WATER-HOLDING CAPACITIES (WEBB ET AL.)</CriteriaValue>
+					<CriteriaValue>GLOBAL SOIL TYPES, 0.5-DEGREE GRID (MODIFIED ZOBLER)</CriteriaValue>
+					<CriteriaValue>GLOBAL SOIL TYPES, 1-DEGREE GRID (MODIFIED ZOBLER)</CriteriaValue>
+					<CriteriaValue>GLOBAL VEGETATION TYPES, 1971-1982 (MATTHEWS)</CriteriaValue>
+					<CriteriaValue>GLOBAL WETLAND AREAS, 1971-1982 (MATTHEWS)</CriteriaValue>
+					<CriteriaValue>HELICOPTER MMR REFLECTANCE DATA (SNF)</CriteriaValue>
+					<CriteriaValue>HISTORIC DAILY METEOROLOGY DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>HISTORIC MONTHLY METEOROLOGY DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>HYDROCLIMATOLOGY CD-ROMS</CriteriaValue>
+					<CriteriaValue>LAI \amp PAR DATA: LIGHT BAR - KSU (FIFE)</CriteriaValue>
+					<CriteriaValue>LAI \amp PAR DATA: LIGHT BAR - UNL (FIFE)</CriteriaValue>
+					<CriteriaValue>LAI (INDIRECT): LIGHT WAND - KSU (FIFE)</CriteriaValue>
+					<CriteriaValue>LEAF ANGLE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>LEAF AREA INDEX DATA (OTTER)</CriteriaValue>
+					<CriteriaValue>LEAF CHEMISTRY, 1992-1993 (ACCP)</CriteriaValue>
+					<CriteriaValue>LEAF PHOTOSYNTHESIS RATES (FIFE)</CriteriaValue>
+					<CriteriaValue>LEAF REFLECTANCES: LICOR (OTTER)</CriteriaValue>
+					<CriteriaValue>LEAF REFLECTANCES: PERKIN-ELMER (OTTER)</CriteriaValue>
+					<CriteriaValue>LONGWAVE RADIATION DATA: UNL (FIFE)</CriteriaValue>
+					<CriteriaValue>METEOROLOGY (OTTER)</CriteriaValue>
+					<CriteriaValue>MMR CALIBRATION DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>MMR GROUND DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>MMR HELICOPTOR DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>MMR LEAF OPTICAL PROPERTIES DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>MOWING EXPERIMENT BIOPHYS. DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>MOWING EXPERIMENT EXOTECH DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>NMC UPPER AIR DERIVED DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>NOAA REGIONAL SURFACE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>NPP BOREAL FOREST: CANAL FLATS, CANADA, 1984</CriteriaValue>
+					<CriteriaValue>NPP BOREAL FOREST: FLAKALIDEN, SWEDEN, 1986-1996</CriteriaValue>
+					<CriteriaValue>NPP BOREAL FOREST: JADRAAS, SWEDEN, 1973-1980</CriteriaValue>
+					<CriteriaValue>NPP BOREAL FOREST: KUUSAMO, FINLAND, 1967-1971</CriteriaValue>
+					<CriteriaValue>NPP BOREAL FOREST: SIBERIAN SCOTS PINE FORESTS, RUSSIA, 1968-1974</CriteriaValue>
+					<CriteriaValue>NPP BOREAL FOREST: SUPERIOR NATIONAL FOREST, U.S.A., 1983-1984</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: BADKHYZ, TURKMENISTAN, 1948-1982</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: BEACON HILL, U.K., 1972-1973</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: BRIDGER, U.S.A., 1970-1973</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: CALABOZO, VENEZUELA, 1969-1987</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: CANAS, COSTA RICA, 1969-1970</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: CENTRAL PLAINS EXPERIMENTAL RANGE (SGS), U.S.A., 1970-1975</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: CHARLEVILLE, AUSTRALIA, 1973-1974</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: DICKINSON, U.S.A., 1970</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: DZHANYBEK, KAZAKHSTAN, 1955-1989</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: HAYS, U.S.A., 1970</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: JORNADA, U.S.A., 1970-1972</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: KHOMUTOV, UKRAINE, 1948-1970</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: KLONG HOI KHONG, THAILAND, 1984-1990</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: KONZA PRAIRIE, U.S.A., 1984-1990</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: KURSK, RUSSIA, 1954-1983</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: KURUKSHETRA, INDIA, 1970-1971</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: LAMTO, IVORY COAST, 1965-1987</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: MATADOR, CANADA, 1968-1971</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: MEDIA LUNA, ARGENTINA, 1981-1983</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: MONTECILLOS, MEXICO, 1984-1994</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: NAIROBI, KENYA, 1984-1994</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: NYLSVLEY, SOUTH AFRICA, 1974-1989</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: OLOKEMEJI, NIGERIA, 1956-1964</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: OSAGE, U.S.A., 1970-1972</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: OTRADNOE, RUSSIA, 1969-1973</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: PAMPA DE LEMAN, ARGENTINA, 1980-1982</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: SHORTANDY, KAZAKHSTAN, 1975-1980</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: TOWOOMBA, SOUTH AFRICA, 1949-1990</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: TULLGARNSNASET, SWEDEN, 1968-1969</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: TUMENTSOGT, MONGOLIA, 1982-1990</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: TUMUGI, CHINA, 1981-1990</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: TUVA, RUSSIA, 1978-1985</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: VINDHYAN, INDIA, 1986-1989</CriteriaValue>
+					<CriteriaValue>NPP GRASSLAND: XILINGOL, CHINA, 1980-1989</CriteriaValue>
+					<CriteriaValue>NPP MULTI-BIOME: GLOBAL IBP WOODLANDS DATA, 1955-1975</CriteriaValue>
+					<CriteriaValue>NPP MULTI-BIOME: GLOBAL OSNABRUCK DATA, 1937-1981</CriteriaValue>
+					<CriteriaValue>NPP MULTI-BIOME: TEM CALIBRATION DATA, 1992</CriteriaValue>
+					<CriteriaValue>NPP TEMPERATE FOREST: OTTER PROJECT SITES, OREGON, U.S.A., 1989-1991</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: BARRO COLORADO, PANAMA, 1969-1990</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: CINNAMON BAY, U.S. VIRGIN ISLANDS, 1982-1993</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: DARIEN, PANAMA, 1967-1968</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: GUNUNG MULU, MALAYSIA, 1977-1978</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: JOHN CROW RIDGE, JAMAICA, 1974-1978</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: KADE, GHANA, 1957-1972</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: KHAO CHONG, THAILAND, 1962-1965</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: LA SELVA, COSTA RICA, 1969-1985</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: LUQUILLO, PUERTO RICO, 1963-1994</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: MAGDALENA VALLEY, COLOMBIA, 1970-1971</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: MARAFUNGA, PAPUA NEW GUINEA, 1970-1971</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: PASOH, MALAYSIA, 1971-1973</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: SAN CARLOS DE RIO NEGRO, VENEZUELA, 1975-1984</CriteriaValue>
+					<CriteriaValue>NPP TROPICAL FOREST: SAN EUSEBIO, VENEZUELA, 1970-1971</CriteriaValue>
+					<CriteriaValue>NS001 TMS EXTRACTED DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1972 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1972-1990</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1973 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1974 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1975 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1976 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1977 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1978 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1979 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1980 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1981 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1982 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1983 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1984 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1985 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1986 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1987 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1988 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1989 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS DAILY CLIMATOLOGY DATA: 1990 (SNF)</CriteriaValue>
+					<CriteriaValue>NWS MONTHLY CLIMATOLOGY SUMMARY (SNF)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS CROSS-CALIB. (FIFE)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS DATA: AIRCRAFT (OTTER)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS DATA: BRUEGGE (FIFE)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS DATA: C-130 (FIFE)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS DATA: FRASER (FIFE)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS DATA: GROUND (OTTER)</CriteriaValue>
+					<CriteriaValue>OPTICAL THICKNESS DATA: STAFF (FIFE)</CriteriaValue>
+					<CriteriaValue>OTTER COMPLETE DATASET CD-ROM</CriteriaValue>
+					<CriteriaValue>PARABOLA DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>PLANT BIOMASS/PRODUCTION/CONSUMP. (FIFE)</CriteriaValue>
+					<CriteriaValue>PRE-LBA CD-ROM COLLECTION</CriteriaValue>
+					<CriteriaValue>PRINCE ALBERT NATIONAL PARK PHOTO-CD-ROM</CriteriaValue>
+					<CriteriaValue>RADIANT TEMP. HELICOPTER DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>RADIANT TEMP. MULTIANGLE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>RADIANT TEMPERATURE GROUND DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>RADIOSONDE DATA: NOAA (FIFE)</CriteriaValue>
+					<CriteriaValue>REFLECTANCE REFERENCE TARGETS (OTTER)</CriteriaValue>
+					<CriteriaValue>ROOT BIOMASS DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SATELLITE ATMOS. CORRECTION COEF. (FIFE)</CriteriaValue>
+					<CriteriaValue>SATELLITE AVHRR EXTRACTED DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SATELLITE LANDSAT TM EXTR. DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SATELLITE SPOT EXTRACTED DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SE-590 FIELD-MEAS. REFLECTANCES (OTTER)</CriteriaValue>
+					<CriteriaValue>SE-590 GROUND DATA: GSFC (FIFE)</CriteriaValue>
+					<CriteriaValue>SE-590 GROUND DATA: UNL (FIFE)</CriteriaValue>
+					<CriteriaValue>SE-590 LAB-MEASURED REFLECTANCES (OTTER)</CriteriaValue>
+					<CriteriaValue>SE-590 LANDSCAPE REFLECTANCES (OTTER)</CriteriaValue>
+					<CriteriaValue>SE-590 LEAF OPTICAL PROP. DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SE-590 LOW ALTITUDE REFLECTANCES (OTTER)</CriteriaValue>
+					<CriteriaValue>SE-590 REFLECTANCE \amp RADIANCES (FIFE)</CriteriaValue>
+					<CriteriaValue>SEEDLING CANOPY CHEMISTRY, 1992-1993 (ACCP)</CriteriaValue>
+					<CriteriaValue>SEEDLING CANOPY REFLECTANCE SPECTRA, 1992-1993 (ACCP)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED AMS DATA: 1987 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED AMS DATA: 1987-89 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED AMS DATA: 1988 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED AMS DATA: 1989 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED FLUX DATA: 1987 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED FLUX DATA: 1987-89 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED FLUX DATA: 1988 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVERAGED FLUX DATA: 1989 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. GRAV. SOIL MSTR: 1987 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. GRAV. SOIL MSTR: 1988 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. GRAV. SOIL MSTR: 1989 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. GRAV. SOIL MSTR: 87-89 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. NEUT. SOIL MSTR: 1987 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. NEUT. SOIL MSTR: 1988 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. NEUT. SOIL MSTR: 1989 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVG. NEUT. SOIL MSTR: 87-89 (BETTS)</CriteriaValue>
+					<CriteriaValue>SITE AVIRIS IMAGES, 1992 (ACCP)</CriteriaValue>
+					<CriteriaValue>SNF FOREST COVER BY SPECIES/STRATA</CriteriaValue>
+					<CriteriaValue>SNF FOREST PHENOLOGY/LEAF EXPANSION DATA</CriteriaValue>
+					<CriteriaValue>SNF FOREST UNDERSTORY COVER DATA</CriteriaValue>
+					<CriteriaValue>SNF FOREST UNDERSTORY COVER DATA (TABLE)</CriteriaValue>
+					<CriteriaValue>SNF LEAF OPTICAL PROPERTIES: CARY-14</CriteriaValue>
+					<CriteriaValue>SNF LEAF OPTICAL PROPERTIES: TMS</CriteriaValue>
+					<CriteriaValue>SNF NS001-TMS CANOPY REFLECTANCE 1983-84</CriteriaValue>
+					<CriteriaValue>SNF SATELLITE IMAGE DATA INVENTORY</CriteriaValue>
+					<CriteriaValue>SNF SITE CHARACTERIZATION DATA: C.JARVIS</CriteriaValue>
+					<CriteriaValue>SNF SITE CHARACTERIZATION VALIDATION</CriteriaValue>
+					<CriteriaValue>SNF VEGETATION COVER DATA: C. JARVIS</CriteriaValue>
+					<CriteriaValue>SOIL BULK DENSITY DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL CO2 FLUX DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL GAS FLUXES USING SOIL CORES (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL HYDRAULIC CONDUCTIVITY DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL IMPEDANCE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE DATA: PECK (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE GRAVIMETRIC DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE NEUTRON PROBE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE RELEASE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL MOISTURE TRANSECT DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL REFLECTANCE DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL SURVEY REFERENCE (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL THERMAL CONDUCTIVITY DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SOIL WATER PROP. DERIVED DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>STANDING CROP \amp NITROGEN CONTENT (FIFE)</CriteriaValue>
+					<CriteriaValue>STREAM FLOW DAILY DATA: USGS (FIFE)</CriteriaValue>
+					<CriteriaValue>STREAM FLOW STORM DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>SURFACE FLUX BASELINE 92 DERIVED (FIFE)</CriteriaValue>
+					<CriteriaValue>SURFACE METEOROLOGY DATA: NCDC (FIFE)</CriteriaValue>
+					<CriteriaValue>SURFACE RADIANCE DATA: UNL (FIFE)</CriteriaValue>
+					<CriteriaValue>TEMPERATURE PROFILES: RADIOSONDE (FIFE)</CriteriaValue>
+					<CriteriaValue>TIMBER MEASUREMENTS (OTTER)</CriteriaValue>
+					<CriteriaValue>TOTAL LEAF TISSUE WATER POTENTIAL (FIFE)</CriteriaValue>
+					<CriteriaValue>The Complete BOREAS CD-ROM Set</CriteriaValue>
+					<CriteriaValue>U.S. HYDROLOGY AND CLIMATOLOGY, 1947-1987 (WALLIS, LETTENMAIER, AND WOOD)</CriteriaValue>
+					<CriteriaValue>USGS HYDRO-CLIMATIC DATA NETWORK (HCDN) STREAMFLOW DATA, 1874-1988</CriteriaValue>
+					<CriteriaValue>VEGETATION BIOPHYSICAL DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>VEGETATION SPECIES DATA (FIFE)</CriteriaValue>
+					<CriteriaValue>VEGETATION SPECIES REFERENCE (FIFE)</CriteriaValue>
+					<CriteriaValue>VEMAP 1: GEOREFERENCING</CriteriaValue>
+					<CriteriaValue>VEMAP 1: MODEL INPUT DATABASE CD-ROM</CriteriaValue>
+					<CriteriaValue>VEMAP 1: U.S. CLIMATE CHANGE SCENARIOS BASED ON MODELS WITH INCREASED CO2</CriteriaValue>
+					<CriteriaValue>VEMAP 1: U.S. CLIMATE, 1961-1990</CriteriaValue>
+					<CriteriaValue>VEMAP 1: U.S. POTENTIAL NATURAL VEGETATION</CriteriaValue>
+					<CriteriaValue>VEMAP 1: U.S. SITE FILES</CriteriaValue>
+					<CriteriaValue>VEMAP 1: U.S. SOIL</CriteriaValue>
+					<CriteriaValue>VEMAP 2: U.S. MONTHLY CLIMATE CHANGE SCENARIOS</CriteriaValue>
+					<CriteriaValue>VEMAP 2: U.S. MONTHLY CLIMATE, 1895-1993</CriteriaValue>
+					<CriteriaValue>VISIBLE AND NEAR-INFRARED LEAF REFLECTANCE SPECTRA, 1992-1993 (ACCP)</CriteriaValue>
+					<CriteriaValue>WIND PROFILE DATA: LIDAR - NOAA (FIFE)</CriteriaValue>
+					<CriteriaValue>WIND PROFILE DATA: RADIOSONDE (FIFE)</CriteriaValue>
+					<CriteriaValue>MOD021KM</CriteriaValue>
+					<CriteriaValue>MOD02HKM</CriteriaValue>
+					<CriteriaValue>MOD02OBC</CriteriaValue>
+					<CriteriaValue>MOD02QKM</CriteriaValue>
+					<CriteriaValue>MOD03</CriteriaValue>
+					<CriteriaValue>MOD07_L2</CriteriaValue>
+					<CriteriaValue>MOD35_L2</CriteriaValue>
+					<CriteriaValue>AST_L1A</CriteriaValue>
+					<CriteriaValue>AST_L1B</CriteriaValue>
+					<CriteriaValue>L70R</CriteriaValue>
+					<CriteriaValue>L70RWRS</CriteriaValue>
+					<CriteriaValue>L7IGS</CriteriaValue>
+					<CriteriaValue>MOD09A1</CriteriaValue>
+					<CriteriaValue>MOD09GHK</CriteriaValue>
+					<CriteriaValue>MOD09GQK</CriteriaValue>
+					<CriteriaValue>MOD09GST</CriteriaValue>
+					<CriteriaValue>MOD11A1</CriteriaValue>
+					<CriteriaValue>MOD11A2</CriteriaValue>
+					<CriteriaValue>MOD11B1</CriteriaValue>
+					<CriteriaValue>MOD11_L2</CriteriaValue>
+					<CriteriaValue>MOD13A1</CriteriaValue>
+					<CriteriaValue>MOD13A2</CriteriaValue>
+					<CriteriaValue>MOD13A3</CriteriaValue>
+					<CriteriaValue>MOD14</CriteriaValue>
+					<CriteriaValue>MOD14A1</CriteriaValue>
+					<CriteriaValue>MOD14A2</CriteriaValue>
+					<CriteriaValue>MOD14GD</CriteriaValue>
+					<CriteriaValue>MOD14GN</CriteriaValue>
+					<CriteriaValue>MOD15A2</CriteriaValue>
+					<CriteriaValue>MOD17A2</CriteriaValue>
+					<CriteriaValue>MOD43B1</CriteriaValue>
+					<CriteriaValue>MOD43B2</CriteriaValue>
+					<CriteriaValue>MOD43B3</CriteriaValue>
+					<CriteriaValue>MOD43B4</CriteriaValue>
+					<CriteriaValue>MOD44A</CriteriaValue>
+					<CriteriaValue>MODMGGAD</CriteriaValue>
+					<CriteriaValue>MODMGGAN</CriteriaValue>
+					<CriteriaValue>MODPT1KD</CriteriaValue>
+					<CriteriaValue>MODPT1KN</CriteriaValue>
+					<CriteriaValue>MODPTHKM</CriteriaValue>
+					<CriteriaValue>MODPTQKM</CriteriaValue>
+					<CriteriaValue>MYD09A1</CriteriaValue>
+					<CriteriaValue>MYD09GHK</CriteriaValue>
+					<CriteriaValue>MYD09GQK</CriteriaValue>
+					<CriteriaValue>MYD09GST</CriteriaValue>
+					<CriteriaValue>MYD09Q1</CriteriaValue>
+					<CriteriaValue>MYD11A1</CriteriaValue>
+					<CriteriaValue>MYD11A2</CriteriaValue>
+					<CriteriaValue>MYD11B1</CriteriaValue>
+					<CriteriaValue>MYD11_L2</CriteriaValue>
+					<CriteriaValue>MYD12Q1</CriteriaValue>
+					<CriteriaValue>MYD13A1</CriteriaValue>
+					<CriteriaValue>MYD13A2</CriteriaValue>
+					<CriteriaValue>MYD13A3</CriteriaValue>
+					<CriteriaValue>MYD13Q1</CriteriaValue>
+					<CriteriaValue>MYD14</CriteriaValue>
+					<CriteriaValue>MYD14A1</CriteriaValue>
+					<CriteriaValue>MYD14A2</CriteriaValue>
+					<CriteriaValue>MYD14GD</CriteriaValue>
+					<CriteriaValue>MYD14GN</CriteriaValue>
+					<CriteriaValue>MYD15A2</CriteriaValue>
+					<CriteriaValue>MYD17A2</CriteriaValue>
+					<CriteriaValue>MYD43B3</CriteriaValue>
+					<CriteriaValue>MYD43B4</CriteriaValue>
+					<CriteriaValue>MYD44A</CriteriaValue>
+					<CriteriaValue>MYDMGGAD</CriteriaValue>
+					<CriteriaValue>MYDMGGAN</CriteriaValue>
+					<CriteriaValue>MYDPT1KD</CriteriaValue>
+					<CriteriaValue>MYDPT1KN</CriteriaValue>
+					<CriteriaValue>MYDPTHKM</CriteriaValue>
+					<CriteriaValue>MYDPTQKM</CriteriaValue>
+				</CriteriaValues>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>spatialKeywords</CategoryName>
+		<CategoryType>COLLECTIONS</CategoryType>
+		<CategoryDescription>Spatial Keywords</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>spatialKeywords</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>1024</CriteriaLength>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+	<Category>
+		<CategoryName>temporalKeywords</CategoryName>
+		<CategoryType>COLLECTIONS</CategoryType>
+		<CategoryDescription>Temporal Keywords</CategoryDescription>
+		<CriteriaList>
+			<Criteria>
+				<CriteriaName>temporalKeywords</CriteriaName>
+				<CriteriaType>String</CriteriaType>
+				<CriteriaLength>1024</CriteriaLength>
+			</Criteria>
+		</CriteriaList>
+	</Category>
+</ECHOStaticValids>
