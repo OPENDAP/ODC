@@ -53,10 +53,9 @@
             destdir="${build.classes}"
             compiler="${build.compiler}"
             deprecation="${compile.deprecation}"
-        >
+            >
+            
             <include name="opendap/clients/odc/**/*.java"/>
-            <!--<include name="opendap/dap/**/*.java"/>
-            <include name="opendap/util/**/*.java"/>    -->
             <include name="tmap_30/**/*.java"/>
             <exclude name="dods/clients/importwizard/IPSClient/**"/>
             <classpath refid="compile.classpath" />
@@ -134,6 +133,7 @@
 		<copy file="${lib.dir}/imap.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/imap.jar" />
 		<copy file="${lib.dir}/mailapi.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/mailapi.jar" />
 		<copy file="${lib.dir}/pop3.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/pop3.jar" />
+		<copy file="${lib.dir}/opendap-0.0.0.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/opendap-0.0.0.jar" />
 
 		<mkdir dir="${dist.dir}/ODC-${DSTAMP}/doc"/>
 		<copy todir="${dist.dir}/ODC-${DSTAMP}/doc" >
