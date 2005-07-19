@@ -1,0 +1,3 @@
+java -Xms40m -Xmx500m -classpath ./odc.jar:./lib/xerces-2.5.0_xercesImpl.jar:./lib/xerces-2.5.0_xml-apis.jar:./lib/jdom-b9.jar:./lib/mail.jar:./lib/mailapi.jar:./lib/activation.jar:./lib/pop3.jar:./lib/imap.jar opendap.clients.odc.ApplicationController ./
+
+
