@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Start the Import Wizard
+
+# Where is the code installed
+JDODS=/home/jimg/Java-DODS
+export JDODS
+
+# Search these jar files
+CLASSPATH=$CLASSPATH:$JDODS/lib/classes12.jar:$JDODS/lib/crimson.jar:$JDODS/lib/echosoap.jar:$JDODS/lib/jaxp.jar:$JDODS/lib/jdom.jar
+export CLASSPATH
+
+# Crank it up
+java dods.clients.importwizard.DodsImport
+

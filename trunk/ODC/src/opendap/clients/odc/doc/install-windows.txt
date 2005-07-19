@@ -1,0 +1,51 @@
+OPeNDAP Data Connector Installation and Execution (Windows Platform)
+Version 2.57
+24 September 2004
+
+http://opendap.org/ODC/
+
+--- Introduction ---
+
+This program is the OPeNDAP Data Connector (ODC). Using the ODC's graphical interface you can search for and retrieve datasets published by OPeNDAP data servers. 
+
+--- Installation ---
+
+If you have unzipped this file you have already installed the program. The ODC is ready to run as soon as it is unzipped onto your hard drive.
+
+--- Memory Recommendation ---
+
+It is recommended that you change the maximum memory setting to match the amount of RAM in your computer. If you look in the file startup.ini you will find a line at the end of the file like this:
+
+Option = -Xmx300m
+
+Change the 300 to be however many megabytes your computer has (minus what is taken by other applications). For example, if you have 512 meg of RAM (or DRAM) you might change it to: "Option = -Xmx500m". Note that there are two options (Xms and Xmx) in the file. The first is starting memory. The second is the maximum memory.
+
+--- Running ---
+
+The program executable is called "ODC.exe". You can run it directly by either:
+(1) double-clicking it in the Windows explorer
+(2) choosing Start/Run, entering its path in the box provided and clicking 'Ok'
+(3) double-clicking an icon for it (see next topic for how to create an icon)
+
+--- Creating an Icon for the ODC ---
+
+You can create two different kinds of icons, a desktop icon and/or a start menu icon.
+
+To create a desktop icon open the Windows explorer and drag the ODC.exe entry onto your desktop. The sillouette should have a curved arrow at the corner indicating that you are creating a shortcut (you should not actually move the file itself).
+
+You can see your desktop at any time by pressing WindowKey+M.
+
+Similarly, to create a start menu icon drag the ODC.exe entry from the explorer to the desired location on your start menu.
+
+You can change the label of a desktop icon or start menu item by right clicking it and selecting "Rename".
+
+You can find out where the shortcut is pointing by right clicking it and selecting "Properties". The target path should point to the directory where you unzipped the package.
+
+--- Integration Tool: Excel ---
+
+The Windows package includes an add-in for Microsoft Excel that allows you to directly move data from the ODC into Excel. To use it, start Excel and open the "OPeNDAP.xla" file located in the /tools directory. A new menu choice will appear on your Excel menu allowing to import the currently selected dataset(s). Note that you must have a dataset selected in the retrieve panel of the ODC prior to using the Excel menu command.
+
+--- Jar Replacement ---
+
+When newer versions of the ODC are released you can update your system by replacing the jar file (odc.jar) from http://opendap.org/ODC/. The jar file will be a much smaller download than the entire package. If an accessory file, such as the gazetteer, changes you can do a single file replacement the same way. See the accessory file link from the web page.
+

@@ -1,0 +1,5 @@
+<SearchInterfaces>
+  <Interface shortname="GCMD" url="http://gcmd.nasa.gov/servlets/md/">dods.clients.importwizard.GCMD.GCMDSearch</Interface>
+  <Interface shortname="datasets.xml" url="file:///E|/_ business/URI/src/Java-DODS/dods/clients/importwizard/DatasetList/datasets.xml">dods.clients.importwizard.DatasetList.DatasetList</Interface>
+  <Interface shortname="Simple" url="http://dodsdev.gso.uri.edu/datasets.list">dods.clients.importwizard.SimpleInterface</Interface>
+</SearchInterfaces>

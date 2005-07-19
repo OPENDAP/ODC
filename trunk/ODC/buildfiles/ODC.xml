@@ -1,0 +1,195 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [
+    <!ENTITY globalprops   SYSTEM "file:./globalprops.xml">
+    <!ENTITY globaltargets SYSTEM "file:./globaltargets.xml">
+]>
+
+<!-- Build file for OPeNDAP Data Connector (ODC) software -->
+
+
+<project name="OPeNDAP Data Connector" default="compile" basedir="..">
+
+    <!-- Global Properties -->
+    &globalprops;
+
+    <!-- Global Targets -->
+    &globaltargets;
+
+	<path id="compile.classpath">
+		<fileset dir="${lib.dir}">
+			<include name="xerces-2.5.0_xercesImpl.jar"/>
+			<include name="xerces-2.5.0_xml-apis.jar"/>
+			<include name="jdom-b9.jar"/>
+			<include name="echosoap.jar"/>
+			<include name="activation.jar"/>
+			<include name="mail.jar"/>
+			<include name="imap.jar"/>
+			<include name="mailapi.jar"/>
+			<include name="pop3.jar"/>
+			<include name="opendap-0.0.0.jar"/>
+			<include name="gnu-regexp-1.1.4.jar"/>
+		</fileset>
+	</path>
+
+
+
+    <target name="compile" depends="init">
+
+        <echo message="AntFile: ${ant.file} Compiling Core Software"/>
+        <echo message="Using the ${build.compiler} javac compiler"/>
+        <echo message=""/>
+
+
+
+        <echo message=""/>
+        <echo message="AntFile: ${ant.file} Compiling ODC"/>
+        <echo message=""/>
+
+        <javac
+            debug="${compile.debug}"
+            debuglevel="${compile.debuglevel}"
+            srcdir="${src.dir}"
+            destdir="${build.classes}"
+            compiler="${build.compiler}"
+            deprecation="${compile.deprecation}"
+        >
+            <include name="opendap/clients/odc/**/*.java"/>
+            <!--<include name="opendap/dap/**/*.java"/>
+            <include name="opendap/util/**/*.java"/>    -->
+            <include name="tmap_30/**/*.java"/>
+            <exclude name="dods/clients/importwizard/IPSClient/**"/>
+            <classpath refid="compile.classpath" />
+        </javac>
+
+        <echo message=""/>
+        <echo message="AntFile: ${ant.file} Compiling Tools"/>
+        <echo message=""/>
+
+        <javac
+            debug="${compile.debug}"
+            debuglevel="${compile.debuglevel}"
+            srcdir="${src.dir}"
+            destdir="${build.IPSClient}"
+            compiler="${build.compiler}"
+            deprecation="${compile.deprecation}"
+        >
+            <include name="opendap/clients/odc/IPSClient/*.java"/>
+            <classpath refid="compile.classpath" />
+        </javac>
+
+
+    </target>
+
+	<target name="dist-java" depends="clean,compile">
+		<copy todir="${build.classes}/opendap/clients/odc/icons">
+			<fileset dir="${src.dir}/opendap/clients/odc/icons"></fileset>
+		</copy>
+		<copy todir="${build.classes}/opendap/clients/odc/images">
+			<fileset dir="${src.dir}/opendap/clients/odc/images"></fileset>
+		</copy>
+		<copy todir="${build.classes}/tmap_30/images">
+			<fileset dir="${src.dir}/tmap_30/images"></fileset>
+		</copy>
+		<copy todir="${build.classes}/opendap/clients/odc/doc">
+			<fileset dir="${src.dir}/opendap/clients/odc/doc">
+				<include name="odc-help.txt"/>
+			</fileset>
+		</copy>
+		<copy todir="${build.classes}/opendap/clients/odc/coastline">
+			<fileset dir="${src.dir}/opendap/clients/odc/coastline">
+				<include name="gshhs_c.b"/>
+			</fileset>
+		</copy>
+        <mkdir dir="${dist.dir}"/>
+		<delete dir="${dist.dir}/ODC-${DSTAMP}"/>
+		<waitfor maxwait="5" maxwaitunit="second">
+			<not>
+				<available file="${dist.dir}/ODC-${DSTAMP}/jre/bin/client/jvm.dll"/>
+			</not>
+		</waitfor>
+		<mkdir dir="${dist.dir}/ODC-${DSTAMP}"/>
+		<mkdir dir="${dist.dir}/ODC-${DSTAMP}/tools"/>
+		<jar jarfile="${dist.dir}/ODC-${DSTAMP}/odc.jar" basedir="${build.classes}"/>
+		<jar jarfile="${dist.dir}/ODC-${DSTAMP}/tools/IPSClient.jar" basedir="${build.IPSClient}"/>
+		<copy todir="${dist.dir}/ODC-${DSTAMP}" >
+			<fileset dir="${src.dir}/opendap/clients/odc">
+				<include name="ECHO_static_valids.xml"/>
+				<include name="gazetteer.txt"/>
+			</fileset>
+			<fileset dir="../xml/datasets">
+				<include name="datasets.xml"/>
+			</fileset>
+		</copy>
+
+
+        <!-- Copy the libraries that ODC relies on... -->
+
+		<copy file="${lib.dir}/xerces-2.5.0_xercesImpl.jar"     tofile="${dist.dir}/ODC-${DSTAMP}/lib/xerces-2.5.0_xercesImpl.jar"/>
+		<copy file="${lib.dir}/xerces-2.5.0_xml-apis.jar"  tofile="${dist.dir}/ODC-${DSTAMP}/lib/xerces-2.5.0_xml-apis.jar"/>
+		<copy file="${lib.dir}/jdom-b9.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/jdom-b9.jar"/>
+		<copy file="${lib.dir}/echosoap.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/echosoap.jar" />
+		<copy file="${lib.dir}/activation.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/activation.jar" />
+		<copy file="${lib.dir}/mail.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/mail.jar" />
+		<copy file="${lib.dir}/imap.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/imap.jar" />
+		<copy file="${lib.dir}/mailapi.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/mailapi.jar" />
+		<copy file="${lib.dir}/pop3.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/pop3.jar" />
+
+		<mkdir dir="${dist.dir}/ODC-${DSTAMP}/doc"/>
+		<copy todir="${dist.dir}/ODC-${DSTAMP}/doc" >
+			<fileset dir="${src.dir}/opendap/clients/odc/doc" >
+				<include name="odc-help.txt"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="dist-windows" depends="dist-java">
+		<copy todir="${dist.dir}/ODC-${DSTAMP}" >
+			<fileset dir="${basedir}/launcher" >
+				<include name="ODC.exe"/>
+				<include name="startup.ini"/>
+			</fileset>
+			<fileset dir="${src.dir}/opendap/clients/odc/doc" >
+				<include name="install-windows.txt"/>
+			</fileset>
+		</copy>
+		<copy todir="${dist.dir}/ODC-${DSTAMP}/tools" >
+			<fileset dir="${src.dir}/opendap/clients/excel">
+				<include name="OPeNDAP.xla"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="dist-unix" depends="dist-java">
+		<copy todir="${dist.dir}/ODC-${DSTAMP}" >
+			<fileset dir="${src.dir}/opendap/clients/odc/doc" >
+				<include name="install-unix.txt"/>
+			</fileset>
+		</copy>
+		<mkdir dir="${dist.dir}/ODC-${DSTAMP}/tools"/>
+	</target>
+
+    <target name="dist-mac" depends="dist-java">
+        <mkdir dir="${dist.dir}/ODC-${DSTAMP}/tools"/>
+    </target>
+
+    <target name="dist-classic-windows">
+        <antcall target="dist-windows" inheritAll="false" >
+            <param name="build.compiler" value="${classic.compiler}"/>
+        </antcall>
+    </target>
+
+    <target name="dist-classic-unix">
+        <antcall target="dist-unix" inheritAll="false" >
+            <param name="build.compiler" value="${classic.compiler}"/>
+        </antcall>
+    </target>
+
+    <target name="dist-classic-mac">
+        <antcall target="dist-mac" inheritAll="false" >
+            <param name="build.compiler" value="${classic.compiler}"/>
+        </antcall>
+    </target>
+
+</project>
+

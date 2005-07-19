@@ -1,0 +1,27 @@
+Pending Tasks for the ODC
+
+Complete by third week in November:
+   CE panel: add stride to arrays
+   CE panel: add drop-down and dynamic text boxes to sequences
+   url length warning is repeatedly occurring
+   make sure appropriate CE comes up when new URL selected
+   recheck that double clicking on progress meter causes cancel always
+   be able to clear status bar by clicking on it
+
+Complete by end of November:
+   have combined info text output using new DAP
+   radio button for integrated attribute info in CE pane using new DAP
+   change tab arrangement in GCMD so spatial appears as internal window
+   make image viewing more polished and automatic
+
+Complete by end of first week in December
+   make sure all necessary activities are threaded
+   add ability to download any file
+   add file out capability
+
+Complete by end of second week in December
+   basic plotting capability including quiver and TS plots
+   ECHO client integration
+
+Third week in December testing and wrap up for release.
+
