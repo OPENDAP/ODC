@@ -2,7 +2,7 @@ function [URLs_requested, URLs] = ODCget(arg1)
 
 %-------------------------------------------------------------------
 %     Copyright 2004 (C) URI/MIT
-%     $Revision: 1.4 $
+%     $Revision$
 %
 % DESCRIPTION:
 %
@@ -110,7 +110,7 @@ function [URLs_requested, URLs] = ODCget(arg1)
 
   return
 
-% $Id: ODCget.m,v 1.4 2004/09/29 21:04:26 dan Exp $
+% $Id$
 
 % $Log: ODCget.m,v $
 % Revision 1.4  2004/09/29 21:04:26  dan

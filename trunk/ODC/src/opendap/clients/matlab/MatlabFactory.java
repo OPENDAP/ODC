@@ -5,7 +5,7 @@ import opendap.dap.*;
 /**
  * The factory to create matlab types
  *
- * @version $Revision: 1.1 $
+ * @version $Revision$
  * @author jehamby
  * @see BaseTypeFactory
  */
