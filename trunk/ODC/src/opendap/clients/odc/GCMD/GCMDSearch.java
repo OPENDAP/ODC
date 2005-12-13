@@ -24,7 +24,7 @@ public class GCMDSearch extends JPanel {
     /**
      * Create a new <code>GCMDSearch</code>
      */
-    public GCMDSearch(final String baseURL) {
+    public GCMDSearch( final String baseURL ) {
 		//super("ECHO Search Wizard");
 		//actionListeners = new Vector();
 
@@ -41,8 +41,13 @@ public class GCMDSearch extends JPanel {
 		jbuttonAccessGCMD.setMinimumSize(new Dimension(250, 100));
 		jbuttonAccessGCMD.setMaximumSize(new Dimension(250, 100));
 		jbuttonAccessGCMD.setPreferredSize(new Dimension(250, 100));
-		javax.swing.ImageIcon iiInternetConnectionIcon = Utility.imageiconLoadResource("icons/internet-connection-icon.gif");
-		jbuttonAccessGCMD.setIcon(iiInternetConnectionIcon);
+		StringBuffer sbError = new StringBuffer();
+		javax.swing.ImageIcon iiInternetConnectionIcon = Utility.imageiconLoadResource(Resources.ICONS_InternetConnection, sbError);
+		if( iiInternetConnectionIcon == null ){
+			// do not use an icon
+		} else {
+			jbuttonAccessGCMD.setIcon(iiInternetConnectionIcon);
+		}
 		final ActionListener action =
 			new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
