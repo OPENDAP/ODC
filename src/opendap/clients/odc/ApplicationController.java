@@ -177,13 +177,13 @@ public class ApplicationController {
 
 	private static javax.swing.JWindow windowSplash = null;
 	private static javax.swing.JLabel labelSplash = null;
-	private final static String msSplashScreenPath = "images/splash-1.png"; // png doesn't seem to work when loaded as a resource
 	private static ImageIcon imageiconSplash;
 	void vShowSplashScreen(){
 		try {
-			imageiconSplash = Utility.imageiconLoadResource(msSplashScreenPath);
+			StringBuffer sbError = new StringBuffer();
+			imageiconSplash = Utility.imageiconLoadResource(Resources.SplashScreen, sbError);
 			if( imageiconSplash == null ){
-				System.err.println("splash screen [" + msSplashScreenPath + "] missing from classpath");
+				System.err.println("splash screen [" + Resources.SplashScreen + "] missing from classpath (" + sbError + ")");
 				javax.swing.JOptionPane.showMessageDialog(null, "startup screen unavailable");
 				return;
 			}
