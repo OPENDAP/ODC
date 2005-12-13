@@ -137,8 +137,9 @@ public class DatasetList extends SearchInterface {
         mjbuttonRefresh = new JButton("Refresh Dataset List");
 		mjbuttonRefresh.setMinimumSize(new Dimension(40, 30));
 		if( isURLRemote() ){
-			javax.swing.ImageIcon iiInternetConnectionIcon = Utility.imageiconLoadResource("icons/internet-connection-icon.gif");
-			mjbuttonRefresh.setIcon(iiInternetConnectionIcon);
+			StringBuffer sbError = new StringBuffer();
+			javax.swing.ImageIcon iiInternetConnectionIcon = Utility.imageiconLoadResource(Resources.ICONS_InternetConnection, sbError);
+			if( iiInternetConnectionIcon != null ) mjbuttonRefresh.setIcon(iiInternetConnectionIcon);
 		}
         mjbuttonRefresh.addActionListener(new ActionRefresh());
         mjbuttonRefresh.setAlignmentX(JComponent.LEFT_ALIGNMENT);
