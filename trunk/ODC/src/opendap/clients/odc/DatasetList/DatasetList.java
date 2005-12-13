@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.io.RandomAccessFile;
 
+import opendap.clients.odc.*;
+
 /**
  * This class provides the base structure for the DatasetList application.
  *
@@ -188,8 +190,22 @@ public class DatasetList extends SearchInterface {
 						StringBuffer sbError = new StringBuffer(80);
 						DodsURL[] urls = DatasetList.this.getURLs(sbError);
 	    				if( urls == null ) return;
-		    			ApplicationController.getInstance().getRetrieveModel().getURLList().vDatasets_Add( urls );
+						Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
+		    			retrieve_model.getURLList().vDatasets_Add( urls );
 				    	ApplicationController.getInstance().getAppFrame().vActivateRetrievalPanel();
+
+						// select the first URL in the added ones, and activate it
+						DodsURL urlFirst = urls[0];
+						Model_URLList modelURLList = retrieve_model.getURLList();
+						Panel_URLList panelList = modelURLList.getControl();
+						for( int iListIndex = 0; iListIndex < modelURLList.getSize(); iListIndex++ ){
+							if( modelURLList.get( iListIndex ) == urlFirst ){
+								panelList.vSelectIndex(iListIndex);
+								ApplicationController.getInstance().getRetrieveModel().vShowURL( urlFirst, null );
+							}
+						}
+
+
 					}
 				}
 			}
