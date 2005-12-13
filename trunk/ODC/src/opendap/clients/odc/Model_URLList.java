@@ -10,7 +10,6 @@ package opendap.clients.odc;
  */
 
 import opendap.dap.*;
-import java.util.ArrayList;
 
 public class Model_URLList extends javax.swing.DefaultListModel implements Model_URL_control {
 
@@ -29,6 +28,9 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 
 	public void setControl( Panel_URLList list_panel ){
 		mpanelList = list_panel;
+	}
+	public Panel_URLList getControl(){
+		return mpanelList;
 	}
 
 	boolean zDisplayingSubset(){ return zDisplayingSubset; }
@@ -187,12 +189,14 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 			}
 
 			// add any URLs that are in the display list but not in the JTable
+			int ctItemsAdded = 0;
 			for (int xURL = 0; xURL < aDisplayedURLs.length; xURL++) {
 				int ctElements = this.getSize();
 				int xElement = 0;
 				while (true) {
 					if (xElement >= ctElements) { // did not find url in JList
 						this.addElement(aDisplayedURLs[xURL]);
+						ctItemsAdded++;
 						ctElements = this.getSize();
 						break;
 					}
@@ -207,15 +211,16 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 			// remove any URLs that are not in the display list but are in the JList
 			int ctElements = this.getSize();
 			int xElement = 0;
-			while (true) {
-				if (xElement >= ctElements)
+			int ctItemsRemoved = 0;
+			while( true ){
+				if( xElement >= ctElements )
 					break; // done
 				Object oElement = this.getElementAt(xElement);
-				boolean zIsThere = false;
 				int xURL = 0;
-				while (true) {
+				while( true ){
 					if (xURL >= aDisplayedURLs.length) { // not in display list
 						this.removeElementAt(xElement);
+						ctItemsRemoved++;
 						xElement = 0; // start scanning from beginning of JList again just to be sure
 						break;
 					}
@@ -227,10 +232,15 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 				}
 			}
 
-			if (this.zDisplayingSubset()) {
+			if( this.zDisplayingSubset() ){
 				int ctURLs = this.getAllURLs().length;
 				this.addElement("[remaining " + (ctURLs - aDisplayedURLs.length) + " URLs not displayed]");
 			}
+
+			if( ctItemsAdded > 0 || ctItemsRemoved > 0 ){
+				this.fireContentsChanged( this, 0, this.getSize() - 1 );
+			}
+
 		} catch (Exception ex) {
 			Utility.vUnexpectedError(ex, new StringBuffer("while synchronizing selection list"));
 		}
@@ -268,7 +278,6 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 	}
 
 	public void vDatasets_DeleteSelected(){
-		StringBuffer sbError = new StringBuffer();
 	    int[] aiSelectedToDelete = mpanelList.getSelectedIndices();
 		if( aiSelectedToDelete == null || aiSelectedToDelete.length == 0 ){
 			ApplicationController.getInstance().vShowStatus("Nothing selected for delete request.");
@@ -365,6 +374,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		}
 		ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
 	}
+
 	class ListModelTypeChecker extends Thread {
 		public ListModelTypeChecker(){
 			this.setDaemon(true);
@@ -404,7 +414,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 					ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
 				}
 			} catch( Exception ex ) {
-				ApplicationController.vShowError("Unexpected error determing dataset types: " +  ex);
+				Utility.vUnexpectedError( ex, "Unexpected error determing dataset types" );
 			}
 		}
 	}

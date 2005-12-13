@@ -6,12 +6,11 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2003-4
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.45
+ * @version      2.59
  */
 
 import java.io.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -27,13 +26,12 @@ public class Panel_Retrieve_Output extends JPanel {
 	private JComboBox jcbTarget;
 	private JLabel labelSize;
 
-// no longer used
-//	private JButton buttonDeselect;
-//	private JLabel labelSelected;
-//	private DefaultListModel lmSelected;
-//  private DodsURL[] urls;
+	ComboBoxModel modelCombo_Blank;
+	ComboBoxModel modelCombo_Text;
+	ComboBoxModel modelCombo_Image;
+	ComboBoxModel modelCombo_Data;
 
-	private final static String[] asTargets = { "Plotter", "Text View", "Table View", "Image Viewer", "File", "Standard Out" };
+	final JPanel panelFileSpec = new JPanel();
 
     boolean zInitialize( StringBuffer sbError ){
 
@@ -48,17 +46,26 @@ public class Panel_Retrieve_Output extends JPanel {
 			}
 
 			final JPanel panelTarget = new JPanel();
-			final JPanel panelFileSpec = new JPanel();
 			panelFileSpec.setVisible(false);
 
 			javax.swing.ImageIcon imageInternet = Utility.imageiconLoadResource("icons/internet-connection-icon.gif");
 
-			jcbTarget = new JComboBox(asTargets);
+			String[] asTargets_Blank = { "[no selection]" };
+			String[] asTargets_Text = { "Text View", "File", "Standard Out", "Clipboard" };
+			String[] asTargets_Image = { "Image Viewer" };
+			String[] asTargets_Data = { "Plotter", "Text View", "Table View" };
+
+			modelCombo_Blank = new DefaultComboBoxModel( asTargets_Blank );
+			modelCombo_Text = new DefaultComboBoxModel( asTargets_Text );
+			modelCombo_Image = new DefaultComboBoxModel( asTargets_Image );
+			modelCombo_Data = new DefaultComboBoxModel( asTargets_Data );
+
+			jcbTarget = new JComboBox();
+			jcbTarget.setModel( modelCombo_Blank );
 			final ActionListener actionActivateFileSpec =
 				new ActionListener(){
 					public void actionPerformed(ActionEvent event) {
-						int xSelected = jcbTarget.getSelectedIndex();
-						if( xSelected == 4 ){
+						if( jcbTarget.getSelectedItem().equals("File") ){
 							panelFileSpec.setVisible(true);
 						} else {
 							panelFileSpec.setVisible(false);
@@ -84,70 +91,80 @@ public class Panel_Retrieve_Output extends JPanel {
 							ApplicationController.vShowError("Failed to get selected URLs: " + sbError);
 							return;
 						}
-						switch( xSelection ){
-							case 0: // plotter
-								if( !ApplicationController.getInstance().getOutputEngine().zOutputToPlotter(aURLs, buttonTarget, this, sbError) ){
-									ApplicationController.vShowError("Failed to output to plotter: " + sbError);
+						ComboBoxModel model = jcbTarget.getModel();
+						String sSelection = model.getSelectedItem().toString();
+						if( sSelection == null ){
+							ApplicationController.vShowWarning("output selection model was unexpectedly missing");
+						} else if( sSelection.equalsIgnoreCase("plotter") ){
+							if( !ApplicationController.getInstance().getOutputEngine().zOutputToPlotter(aURLs, buttonTarget, this, sbError) ){
+								ApplicationController.vShowError("Failed to output to plotter: " + sbError);
+							}
+						} else if( sSelection.equalsIgnoreCase("text") ){
+							if( model == modelCombo_Text ){
+								OutputStream os = ApplicationController.getInstance().getAppFrame().getTextViewerOS();
+								String sRetrievePanelText = ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getPanelDDX().getRetrieveMessage();
+								try {
+									os.write( sRetrievePanelText.getBytes() );
+								} catch( Throwable t ) {
+									ApplicationController.getInstance().vShowError("Unexpected error trying to send retrieve panel text to Text View: " + t);
 								}
-								break;
-							case 1: // text
+							} else {
 								if( !ApplicationController.getInstance().getOutputEngine().zOutputToTextView(aURLs, buttonTarget, this, sbError) ){
 									ApplicationController.vShowError("Failed to output to text view: " + sbError);
 								}
-								break;
-							case 2: // table
-								if( !ApplicationController.getInstance().getOutputEngine().zOutputToTableView(aURLs, buttonTarget, this, sbError) ){
-									ApplicationController.vShowError("Failed to output to table view: " + sbError);
-								}
-								break;
-							case 3: // image
-								if( !ApplicationController.getInstance().getOutputEngine().zOutputToImageViewer(aURLs, buttonTarget, this, sbError) ){
-									ApplicationController.vShowError("Failed to output to image viewer: " + sbError);
-								}
-								break;
-							case 4: // file
-								String sPath = jtfPath.getText();
-								if( sPath.length() == 0 ){
-									String sSeparator = Utility.getFileSeparator();
-									String sBaseDirectory = ConfigurationManager.getInstance().getBaseDirectory();
-									String sDataDirectory = Utility.sConnectPaths(sBaseDirectory, "data") + sSeparator;
-									File fileDataDirectory = new File(sDataDirectory);
-									if( !fileDataDirectory.exists() ){
-										try {
-											fileDataDirectory.createNewFile();
-										} catch(Exception ex) {
-											ApplicationController.vShowError("Unable to create default data directory (" + sDataDirectory + "): " + ex);
-											break;
-										}
+							}
+						} else if( sSelection.equalsIgnoreCase("table") ){
+							if( !ApplicationController.getInstance().getOutputEngine().zOutputToTableView(aURLs, buttonTarget, this, sbError) ){
+								ApplicationController.vShowError("Failed to output to table view: " + sbError);
+							}
+						} else if( sSelection.equalsIgnoreCase("image") ){
+							if( !ApplicationController.getInstance().getOutputEngine().zOutputToImageViewer(aURLs, buttonTarget, this, sbError) ){
+								ApplicationController.vShowError("Failed to output to image viewer: " + sbError);
+							}
+						} else if( sSelection.equalsIgnoreCase("file") ){
+							String sPath = jtfPath.getText();
+							if( sPath.length() == 0 ){
+								String sSeparator = Utility.getFileSeparator();
+								String sBaseDirectory = ConfigurationManager.getInstance().getBaseDirectory();
+								String sDataDirectory = Utility.sConnectPaths(sBaseDirectory, "data") + sSeparator;
+								File fileDataDirectory = new File(sDataDirectory);
+								if( !fileDataDirectory.exists() ){
+									try {
+										fileDataDirectory.createNewFile();
+									} catch(Exception ex) {
+										ApplicationController.vShowError("Unable to create default data directory (" + sDataDirectory + "): " + ex);
+										return;
 									}
-									sPath = sDataDirectory;
-									jtfPath.setText(sPath);
 								}
-								int eFormat;
-								String sFormat = jcbFileFormat.getSelectedItem().toString();
-								if( sFormat.equalsIgnoreCase("BINARY") ){
-									eFormat = OutputProfile.FORMAT_Data_Raw;
-								} else if( sFormat.equalsIgnoreCase("ASCII") ){
-									eFormat = OutputProfile.FORMAT_Data_ASCII_text;
-								} else if( sFormat.equalsIgnoreCase("ASCII FORMATTED") ){
-									eFormat = OutputProfile.FORMAT_Data_ASCII_records;
-								} else {
-									eFormat = OutputProfile.FORMAT_Data_ASCII_text; // default
-								}
-								if( ApplicationController.getInstance().getOutputEngine().zOutputToFile(aURLs, sPath, eFormat, buttonOutput, this, sbError) ){
-									ApplicationController.getInstance().vShowStatus("" + aURLs.length + " data set" + (aURLs.length==1?"":"s") + " sent to file " + sPath);
-								} else {
-									ApplicationController.vShowError("Failed to output to file(s): " + sbError);
-								}
-								break;
-							case 5: // standard out
-								OutputProfile op = new OutputProfile(aURLs, OutputProfile.TARGET_StandardOut, null, OutputProfile.FORMAT_URLs);
-								if( ApplicationController.getInstance().getOutputEngine().zOutputProfile(buttonTarget, this, op, sbError) ){
-									ApplicationController.getInstance().vShowStatus("" + aURLs.length + " data set" + (aURLs.length==1?"":"s") + " sent to standard out");
-								} else {
-									ApplicationController.vShowError("Failed to output to standard out: " + sbError);
-								}
-								break;
+								sPath = sDataDirectory;
+								jtfPath.setText(sPath);
+							}
+							int eFormat;
+							String sFormat = jcbFileFormat.getSelectedItem().toString();
+							if( sFormat.equalsIgnoreCase("BINARY") ){
+								eFormat = OutputProfile.FORMAT_Data_Raw;
+							} else if( sFormat.equalsIgnoreCase("ASCII") ){
+								eFormat = OutputProfile.FORMAT_Data_ASCII_text;
+							} else if( sFormat.equalsIgnoreCase("ASCII FORMATTED") ){
+								eFormat = OutputProfile.FORMAT_Data_ASCII_records;
+							} else {
+								eFormat = OutputProfile.FORMAT_Data_ASCII_text; // default
+							}
+							if( ApplicationController.getInstance().getOutputEngine().zOutputToFile(aURLs, sPath, eFormat, buttonOutput, this, sbError) ){
+								ApplicationController.getInstance().vShowStatus("" + aURLs.length + " data set" + (aURLs.length==1?"":"s") + " sent to file " + sPath);
+							} else {
+								ApplicationController.vShowError("Failed to output to file(s): " + sbError);
+							}
+						} else if( sSelection.equalsIgnoreCase("standard out") ){
+							OutputProfile op = new OutputProfile(aURLs, OutputProfile.TARGET_StandardOut, null, OutputProfile.FORMAT_URLs);
+							if( ApplicationController.getInstance().getOutputEngine().zOutputProfile( buttonTarget, this, op, sbError ) ){
+								ApplicationController.getInstance().vShowStatus("" + aURLs.length + " data set" + (aURLs.length==1?"":"s") + " sent to standard out");
+							} else {
+								ApplicationController.vShowError("Failed to output to standard out: " + sbError);
+							}
+						} else if( sSelection.equalsIgnoreCase("clipboard") ){
+							String sRetrievePanelText = ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getPanelDDX().getRetrieveMessage();
+							Utility.vCopyToClipboard( sRetrievePanelText );
 						}
 				    }
 				};
@@ -231,6 +248,24 @@ public class Panel_Retrieve_Output extends JPanel {
         }
 
     }
+
+	public void vUpdateOutput_Text(){
+		jcbTarget.setModel( modelCombo_Text );
+		panelFileSpec.setVisible(false);
+	}
+
+	public void vUpdateOutput_Blank(){
+		jcbTarget.setModel( modelCombo_Blank );
+		panelFileSpec.setVisible(false);
+	}
+	public void vUpdateOutput_Image(){
+		jcbTarget.setModel( modelCombo_Image );
+		panelFileSpec.setVisible(false);
+	}
+	public void vUpdateOutput_Data(){
+		jcbTarget.setModel( modelCombo_Data );
+		panelFileSpec.setVisible(false);
+	}
 
 	private static StringBuffer sbSelectedError = new StringBuffer(80);
 

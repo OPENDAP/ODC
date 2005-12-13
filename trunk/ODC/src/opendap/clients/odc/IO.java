@@ -251,6 +251,7 @@ ReadHeader:
 							return ""; // document is empty
 						} else {
 							sbError.append("premature end of stream in header after " + ctTotalBytesRead + " bytes read, header: [" + sbHeader + "]");
+							ApplicationController.vClearStatus(); // clear the waiting for header status message
 							return null;
 						}
 					case 0: // nothing read
@@ -264,6 +265,7 @@ ReadHeader:
 						if( (System.currentTimeMillis() - nReadStarted) > iTimeoutRead_seconds * 1000 ){
 							sbError.append( "timeout waiting to read (see help topic Timeouts) after " + ctTotalBytesRead + " bytes read, header: [" + Utility.sSafeSubstring(sbHeader.toString(), 1, 120) + "]" );
 							try { socket_channel.close(); } catch( Throwable t_is ){}
+							ApplicationController.vClearStatus(); // clear the waiting for header status message
 							return null;
 						}
 						break;
@@ -277,6 +279,7 @@ ReadHeader:
 						if( ctTotalBytesRead > MAX_HEADER_BYTES ){
 							sbError.append("Maximum number of header bytes (" + MAX_HEADER_BYTES + ") exceeded by header: [" + Utility.sSafeSubstring(sbHeader.toString(), 1, 120) + "...]" );
 							try { socket_channel.close(); } catch( Throwable t_is ){}
+							ApplicationController.vClearStatus(); // clear the waiting for header status message
 							return null;
 						} else if( ctTotalBytesRead == 5 ){
 							if( ! sbHeader.toString().equalsIgnoreCase("HTTP/") ){
@@ -301,9 +304,11 @@ ReadHeader:
 				}
 				if( activity != null && activity.isCancelled() ){
 					sbError.append("operation cancelled by user");
+					ApplicationController.vClearStatus(); // clear the waiting for header status message
 					return null;
 				}
 			}
+			ApplicationController.vClearStatus(); // clear the waiting for header status message
 			return sbHeader.toString();
 		} catch( Throwable t ) {
 			sbError.append("error scanning header: ");

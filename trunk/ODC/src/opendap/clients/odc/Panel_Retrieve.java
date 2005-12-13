@@ -1,10 +1,10 @@
 package opendap.clients.odc;
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 
 public class Panel_Retrieve extends JPanel {
+
 	private Panel_Retrieve_Location panelLocation;
 	private Panel_Retrieve_SelectedDatasets panelSelectedDatasets;
 	private Panel_Retrieve_AdditionalCriteria panelAdditionalCriteria;
@@ -76,6 +76,8 @@ public class Panel_Retrieve extends JPanel {
 
 		return true;
 	}
+
+	public Panel_Retrieve_Output getOutputPanel(){ return panelOutput_below; }
 
 // just not working
 //	boolean zUsingBelow = true;

@@ -10,11 +10,8 @@ package opendap.clients.odc;
  */
 
 import java.lang.*;
-import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.tree.*;
-import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import opendap.dap.*;
@@ -31,11 +28,9 @@ public class Panel_Retrieve_DDX extends JPanel {
 	private JScrollPane mscrollpane_Criteria;
 	private final JCheckBox jcheckShowDescriptions = new JCheckBox(" details");
 	private boolean mzShowingDescriptions = false;
-	private final JLabel jlabelBlank = new JLabel("");
 	private final static JLabel jlabelStride = new JLabel("Step:");
 	private final static String[] masStrideValues = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "15", "20", "25", "30", "40", "50", "75", "100" };
 	private final JComboBox jcbStride = new JComboBox( masStrideValues );
-	Panel_Retrieve_Output panelOutput_right;
 
     public Panel_Retrieve_DDX(){}
 
@@ -126,12 +121,6 @@ public class Panel_Retrieve_DDX extends JPanel {
 				}
 			);
 
-//			panelOutput_right = new Panel_Retrieve_Output();
-//			if( !panelOutput_right.zInitialize(sbError) ){
-//				sbError.insert(0, "Failed to initialize output panel 1: ");
-//				return false;
-//			}
-
 			mpanelControl.add(Box.createHorizontalStrut(3));
 			mpanelControl.add(jlabelStride);
 			mpanelControl.add(Box.createHorizontalStrut(2));
@@ -139,7 +128,6 @@ public class Panel_Retrieve_DDX extends JPanel {
 			mpanelControl.add(Box.createHorizontalStrut(3));
 			mpanelControl.add(jcheckShowDescriptions);
 			mpanelControl.add(Box.createHorizontalStrut(3));
-//    		mpanelControl.add(panelOutput_right);
 			mpanelControl.add(Box.createHorizontalGlue());
 
 			add( mscrollpane_Criteria, BorderLayout.CENTER );
@@ -157,17 +145,32 @@ public class Panel_Retrieve_DDX extends JPanel {
 
 	Component glue = Box.createGlue();
 	void vClear(){
-		jcbStride.setSelectedIndex(0);
-		mscrollpane_Criteria.setViewportView(glue);
-		mscrollpane_Criteria.invalidate();
+		SwingUtilities.invokeLater(
+			new Runnable(){
+				public void run(){
+					jcbStride.setSelectedIndex(0);
+					mscrollpane_Criteria.setViewportView(glue);
+					mscrollpane_Criteria.invalidate();
+					ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Blank();
+				}
+			}
+		);
 	}
-
 
 	JTextArea jtaMessage = new JTextArea();
-	void setRetrieveMessage( String sMessage ){
-		jtaMessage.setText( sMessage );
-		mscrollpane_Criteria.setViewportView(jtaMessage);
+	void setRetrieveMessage( final String sMessage ){
+		SwingUtilities.invokeLater(
+			new Runnable(){
+				public void run(){
+					jtaMessage.setText( sMessage );
+					mscrollpane_Criteria.setViewportView(jtaMessage);
+					ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Text();
+				}
+			}
+		);
 	}
+
+	String getRetrieveMessage(){ return jtaMessage.getText(); }
 
 	boolean setStructure( DodsURL url, StringBuffer sbError ){
 		try {

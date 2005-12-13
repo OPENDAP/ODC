@@ -10,7 +10,6 @@ package opendap.clients.odc;
  */
 
 import opendap.dap.*;
-import opendap.clients.odc.plot.*;
 import java.util.Enumeration;
 
 public class DAP {
@@ -931,9 +930,9 @@ public class DAP {
 		try {
 			AttributeTable atMatching = findAttributeTable( das, sVariableName );
 			if( atMatching == null ) return null;
-			java.util.Enumeration enum = atMatching.getNames();
-			while(enum.hasMoreElements()){
-				String sElementAttributeName = (String)enum.nextElement();
+			java.util.Enumeration enumNames = atMatching.getNames();
+			while(enumNames.hasMoreElements()){
+				String sElementAttributeName = (String)enumNames.nextElement();
 				if( sElementAttributeName.equalsIgnoreCase(sAttributeName) ){
 					Attribute attr = atMatching.getAttribute(sAttributeName);
 					java.util.Enumeration enumAttributeValues = attr.getValues();
@@ -960,9 +959,9 @@ public class DAP {
 		try {
 			AttributeTable atMatching = findAttributeTable( das, sVariableName );
 			if( atMatching == null ) return null;
-			java.util.Enumeration enum = atMatching.getNames();
-			while(enum.hasMoreElements()){
-				String sAttributeName = (String)enum.nextElement();
+			java.util.Enumeration enumNames = atMatching.getNames();
+			while(enumNames.hasMoreElements()){
+				String sAttributeName = (String)enumNames.nextElement();
 				if( sAttributeName.toUpperCase().startsWith("MISSING") ){
 					Attribute attr = atMatching.getAttribute(sAttributeName);
 					java.util.Enumeration enumAttributeValues = attr.getValues();
@@ -1000,9 +999,9 @@ public class DAP {
 				if( sVariableName.equals( at.getName() ) ){
 					return at;
 				} else {
-					java.util.Enumeration enum = at.getNames();
-					while( enum.hasMoreElements() ){
-						String sName = (String)enum.nextElement();
+					java.util.Enumeration enumNames = at.getNames();
+					while( enumNames.hasMoreElements() ){
+						String sName = (String)enumNames.nextElement();
 						Attribute sub_attribute = at.getAttribute(sName);
 						if( sub_attribute == null ){
 							continue;

@@ -1,12 +1,12 @@
 package opendap.clients.odc;
 
 import java.util.regex.*;
+import javax.swing.SwingUtilities;
 
 public class Model_Retrieve {
 
 	private Model_URLList mmodelURLs;
 	public Model_URLList getURLList(){ return mmodelURLs; }
-	public void setURLList( Model_URLList url_list ){ mmodelURLs = url_list; }
 	Model_DirectoryTree mActiveDirectoryTree;
 
 	Panel_Retrieve retrieve_panel;
@@ -17,26 +17,32 @@ public class Model_Retrieve {
 			return false;
 		}
 		retrieve_panel = main_retrieve_panel;
+		mmodelURLs = new Model_URLList( false );
 		return true;
 	}
 
 	public void vShowURL( DodsURL url, Activity activity ){
 		if( url.getType() == DodsURL.TYPE_Data ){
 			vShowConstraintEditor( url, activity );
+			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Data();
 		} else if( url.getType() == DodsURL.TYPE_Directory ){
 			vShowDirectory( url, activity );
 		} else if( url.getType() == DodsURL.TYPE_Catalog ){
 			vShowMessage( "[catalogs not currently supported]" );
+			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Blank();
 		} else if( url.getType() == DodsURL.TYPE_HTML ||
 				   url.getType() == DodsURL.TYPE_Text
 				  ){
 			vShowContent(url);
 		} else if( url.getType() == DodsURL.TYPE_Image ){
 			vShowMessage( "URL is image, output to image viewer to see" );
+			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Image();
 		} else if( url.getType() == DodsURL.TYPE_Binary ){
 			vShowMessage( "URL seems to be a binary file of unknown type" );
+			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Blank();
 		} else {
 			vShowMessage( "URL is of an unknown type" );
+			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Blank();
 		}
 	}
 
@@ -79,8 +85,12 @@ public class Model_Retrieve {
 					retrieve_panel.vShowDirectory(true);
 				}
 				public void Failure( String sReason ){
-					retrieve_panel.vShowDirectory(true);
-					retrieve_panel.getPanelDirectory().vShowMessage("Error getting structure information: " + sbError);
+					if( retrieve_panel == null ){
+						ApplicationController.getInstance().vShowError( "internal error trying to show directory in non-existent retrieve panel (Error getting structure information: " + sbError + ")");
+					} else {
+						retrieve_panel.vShowDirectory(true);
+						retrieve_panel.getPanelDirectory().vShowMessage("Error getting structure information: " + sbError);
+					}
 				}
 			};
 			vUpdateDirectory( url, con, activity );
@@ -103,7 +113,6 @@ public class Model_Retrieve {
 
 	public void vShowDDS( String sBaseURL, Activity activity ){
 		StringBuffer sbError = new StringBuffer(80);
-		Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
 		try {
 			String sCE = null;
 			OpendapConnection connection = new OpendapConnection();
@@ -131,7 +140,6 @@ public class Model_Retrieve {
 
 	public void vShowDAS( String sBaseURL, Activity activity ){
 		StringBuffer sbError = new StringBuffer(80);
-		Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
 		try {
 			String sCE = null;
 			OpendapConnection connection = new OpendapConnection();
@@ -152,7 +160,6 @@ public class Model_Retrieve {
 
 	public void vShowContent( DodsURL url ){
 		StringBuffer sbError = new StringBuffer(80);
-		Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
 		try {
 			String sBaseURL = url.getBaseURL();
 			ByteCounter bc = null;
@@ -172,7 +179,6 @@ public class Model_Retrieve {
 	}
 
 	public void vShowMessage( String sText ){
-		Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
 		retrieve_panel.getPanelDDX().setRetrieveMessage( sText );
 	}
 
@@ -271,7 +277,7 @@ public class Model_Retrieve {
 					}
 					final boolean zRecurse = false; // only do root, not whole tree, because some trees are enormous
 					activity.vUpdateStatus("generating directory tree");
-					Model_DirectoryTree dirtree = zGenerateDirectoryTree(activity, sBaseURL, zRecurse, sbError);
+					Model_DirectoryTree dirtree = zGenerateDirectoryTree( activity, sBaseURL, zRecurse, sbError );
 					if( dirtree == null ){
 						if( con != null ) con.Failure("Error getting directory " + sBaseURL + " for retrieve panel: " + sbError);
 						return;
@@ -543,7 +549,13 @@ public class Model_Retrieve {
 				node.setError("bad directory: " + sbNodeError);
 				return;
 			} else {
-				ApplicationController.getInstance().set("_dir_html", sPageHTML);
+				String sServerError = Utility.sGetDODSError( sPageHTML );
+				if( sServerError == null ){ // no error occurred
+					ApplicationController.getInstance().set("_dir_html", sPageHTML);
+				} else {
+					node.setError( "directory server error: " + sServerError );
+					return;
+				}
 			}
 
 			Matcher matcherGradsDir = mPattern_GradsDir.matcher(sPageHTML);
