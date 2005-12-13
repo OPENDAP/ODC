@@ -1,0 +1,21 @@
+ODC 2.59
+12 December 2005
+
+Release Notes
+
+This release is existing functionality upgrade. Most of the changes are bug fixes, smoothness enhancements, internal plumbing reworkings and other changes designed to create long term stability and increase the reliability of the software.
+
+Bug and Behavior Fixes and Upgrades
+
+- retrieve panel output shows only valid and working choices
+- default mail settings changed (mail server changed)
+- [bug posts]
+- type checking no longer being on retrieved URLs (obsolete)
+- DODS errors being returned from servers on directory accesses now properly handled
+- some lingering status messages now cleared at the appropriate time
+
+Internal Enhancements
+
+- retrieve panel changed to a list format (used to be table)
+- URL storage now uses an MVC design
+
