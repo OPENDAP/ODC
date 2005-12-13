@@ -18,8 +18,6 @@ import java.util.ArrayList;
 
 public class Panel_Help extends JPanel {
 
-	private final static String HELP_PATH = "doc/odc-help.txt";
-
     public Panel_Help() {}
 
 	String[] asTopics = new String[0];
@@ -92,10 +90,10 @@ public class Panel_Help extends JPanel {
 
 	boolean zLoadHelp(StringBuffer sbError){
 		StringBuffer sbContent = new StringBuffer(5000);
-		if( Utility.zLoadStringResource(HELP_PATH, sbContent, sbError) ){
+		if( Utility.zLoadStringResource(Resources.HelpText, sbContent, sbError) ){
 			// help successfully loaded
 		} else {
-			sbError.insert(0, "Failed to find help file [" + HELP_PATH + "]: ");
+			sbError.insert(0, "Failed to find help file [" + Resources.HelpText + "]: ");
 			return false;
 		}
 		int ctTopic = 0;
