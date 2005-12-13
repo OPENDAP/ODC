@@ -462,7 +462,12 @@ public class Panel_View_Plot extends JPanel {
 		panelSourceType.setVisible(false); // todo this control is targeted for elimination
 
 		// buttons
-		javax.swing.ImageIcon imageInternet = Utility.imageiconLoadResource("icons/internet-connection-icon.gif");
+		StringBuffer sbError = new StringBuffer();
+		javax.swing.ImageIcon imageInternet = Utility.imageiconLoadResource(Resources.ICONS_InternetConnection, sbError);
+		if( imageInternet == null ){
+			ApplicationController.getInstance().vShowError( "failed to load internet icon while setting up source selector: " + sbError );
+			return;
+		}
 		buttonSelectAll.addActionListener(
 			new ActionListener(){
 	    		public void actionPerformed(ActionEvent event) {
@@ -591,7 +596,6 @@ public class Panel_View_Plot extends JPanel {
 //		JLabel jlabelInstructions = new JLabel("here are the instructions");
 //		jpanelInstructions.add(jlabelInstructions);
 
-		StringBuffer sbError = new StringBuffer(120);
 		if( !Output_ToPlot.zInitialize( sbError) ){
 			ApplicationController.vShowError("Error initializing plotting handler: " + sbError);
 		}
