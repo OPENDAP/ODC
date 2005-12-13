@@ -56,7 +56,7 @@ public class THREDDSSearch extends SearchInterface {
 //			jbuttonAccessTHREDDS.setMinimumSize(new Dimension(250, 100));
 //			jbuttonAccessTHREDDS.setMaximumSize(new Dimension(250, 100));
 //			jbuttonAccessTHREDDS.setPreferredSize(new Dimension(250, 100));
-//			javax.swing.ImageIcon iiInternetConnectionIcon = Utility.imageiconLoadResource("icons/internet-connection-icon.gif");
+//			javax.swing.ImageIcon iiInternetConnectionIcon = Utility.imageiconLoadResource(Resources.ICON_InternetConnection);
 //			jbuttonAccessTHREDDS.setIcon(iiInternetConnectionIcon);
 //			final ActionListener action =
 //				new ActionListener(){
