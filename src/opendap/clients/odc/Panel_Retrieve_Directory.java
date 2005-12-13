@@ -10,14 +10,12 @@ package opendap.clients.odc;
  */
 
 import java.lang.*;
-import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.tree.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
-import opendap.dap.*;
 
 public class Panel_Retrieve_Directory extends JPanel {
 
@@ -25,13 +23,11 @@ public class Panel_Retrieve_Directory extends JPanel {
 
 	private DodsURL murlDirectory = null;
 	private DodsURL murlFile = null;
-	private JPanel mpanelButtons = null;
 	private JPanel mpanelRegex = null;
 	private JTree mtreeDirectory = null;
 	private JList mlistDirectory = null;
 	private JTextArea mjtaMessage = null;
 	private JTextField mjtfDirectoryRegex = null;
-	private JLabel mjlabelDirectorySample = null;
 	private JScrollPane mscrollpane_DirectoryTree;
 	private JScrollPane mscrollpane_DirectoryList;
 	private JSplitPane msplitDirectory;
@@ -223,7 +219,6 @@ public class Panel_Retrieve_Directory extends JPanel {
 									mActiveNode.setFileURL(xItem, murlFile);
 									DodsURL[] aURL = new DodsURL[1];
 									aURL[0]	= murlFile;
-									modelRetrieve.getURLList().vDatasets_Add(aURL, true);
 									modelRetrieve.vShowURL(murlFile, null);
 								}
 							}

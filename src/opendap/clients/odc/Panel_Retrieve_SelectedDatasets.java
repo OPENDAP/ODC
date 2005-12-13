@@ -12,7 +12,6 @@ package opendap.clients.odc;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.table.*;
 import javax.swing.border.*;
 
@@ -29,7 +28,7 @@ public class Panel_Retrieve_SelectedDatasets extends JPanel {
 
 	Panel_Retrieve_Directory getPanelDirectory(){ return mPanel_Directory; }
 
-    boolean zInitialize(StringBuffer sbError){
+    boolean zInitialize( StringBuffer sbError ){
 
         try {
 
@@ -40,11 +39,11 @@ public class Panel_Retrieve_SelectedDatasets extends JPanel {
 			}
 
 			// establish model
-//			Model_URLTable theListModel = new Model_URLTable(mjtableSelected, false, true, true);
-			final Model_URLList theListModel = new Model_URLList( true );
+//			Model_URLTable theListModel = new Model_URLTable(mjtableSelected, false, true, true); // old methodology
+			final Model_URLList theListModel = ApplicationController.getInstance().getRetrieveModel().getURLList();
+			if( theListModel == null ){ sbError.append("internal error: retrieve model does not exist"); return false; }
 			final Panel_URLList theListPanel = new Panel_URLList_JList( theListModel );
 			theListModel.setControl( theListPanel );
-			model.setURLList( theListModel );
 
 			// Remove all selected data sets
 			JButton jbuttonRemoveSelected = new JButton("Remove Selected");
@@ -86,14 +85,34 @@ public class Panel_Retrieve_SelectedDatasets extends JPanel {
 
 			javax.swing.ImageIcon imageInternet = Utility.imageiconLoadResource("icons/internet-connection-icon.gif");
 
+			boolean zReadOnly = ConfigurationManager.getInstance().getProperty_MODE_ReadOnly();
+
+			// layout button panel
+			JPanel panelRetrieveButtons = new JPanel();
+			panelRetrieveButtons.setLayout(new javax.swing.BoxLayout(panelRetrieveButtons, BoxLayout.X_AXIS));
+			panelRetrieveButtons.add(jbuttonRemoveSelected);
+			panelRetrieveButtons.add(jbuttonRemoveAll);
+			if( zReadOnly ){
+				// do not allow saving to favorites
+			} else {
+				panelRetrieveButtons.add(jbuttonFavorite);
+			}
+
 			// layout list panel
 			mPanel_List = new JPanel();
+			mPanel_List.setLayout(new BorderLayout());
+			mPanel_List.add(theListPanel, BorderLayout.CENTER);
+			mPanel_List.add(panelRetrieveButtons, BorderLayout.SOUTH);
+
+			// layout list panel - grid method not working for some reason
+/*			mPanel_List = new JPanel();
 			mPanel_List.setLayout(new java.awt.GridBagLayout());
+			mPanel_List.setBorder(Styles.BORDER_Blue);
 			java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
 			gbc.fill = java.awt.GridBagConstraints.BOTH;
 			gbc.gridx = 0;
 			gbc.gridy = 0;
-			gbc.gridwidth = 4;
+			gbc.gridwidth = zReadOnly ? 2 : 3;
 			gbc.weightx = 1;
 			gbc.weighty = .99;
 			mPanel_List.add(theListPanel, gbc);
@@ -105,12 +124,13 @@ public class Panel_Retrieve_SelectedDatasets extends JPanel {
 			mPanel_List.add(jbuttonRemoveSelected, gbc);
 			gbc.gridx = 1;
 			mPanel_List.add(jbuttonRemoveAll, gbc);
-			if( ConfigurationManager.getInstance().getProperty_MODE_ReadOnly() ){
+			if( zReadOnly ){
 				// do not allow saving to favorites
 			} else {
 				gbc.gridx = 2;
 				mPanel_List.add(jbuttonFavorite, gbc);
 			}
+*/
 
 			// Directory Panel
 			mPanel_Directory = new Panel_Retrieve_Directory();

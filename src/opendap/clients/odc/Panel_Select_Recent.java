@@ -35,7 +35,7 @@ public class Panel_Select_Recent extends SearchInterface {
 			this.setLayout(new java.awt.BorderLayout());
 
 			// Create and intialize the Recents list
-			mListModel = new Model_URLList( true );
+			mListModel = new Model_URLList( false ); // do not do type checking
 			mListPanel = new Panel_URLList_JList( mListModel );
 			mListModel.setControl( mListPanel );
 			// TODO

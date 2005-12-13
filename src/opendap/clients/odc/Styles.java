@@ -12,6 +12,7 @@ package opendap.clients.odc;
 import java.awt.Font;
 import java.awt.Color;
 import javax.swing.JComponent;
+import javax.swing.border.Border;
 
 public class Styles {
     public final static int STYLE_NetworkAction = 1;
@@ -32,6 +33,8 @@ public class Styles {
 	public final static Color colorNeutralYellow1 = new Color(0xFFEBCD);
 	public final static Color colorLightGray = new Color(0xD3D3D3);
 	public final static Color colorCyanHighlight = new Color(0x8040FF);
+	public final static Border BORDER_Blue = new javax.swing.border.LineBorder(Color.blue);
+
     public Styles(){}
     public static void vApply( int STYLE, JComponent component ){
         switch( STYLE ){

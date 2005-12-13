@@ -782,11 +782,11 @@ public class OutputEngine implements ByteCounter {
 				return;
 			}
 			try {
-				Enumeration enum = datadds.getVariables();
+				Enumeration enumVariables = datadds.getVariables();
 				int xVariable = 0;
-				while( enum.hasMoreElements() ){
+				while( enumVariables.hasMoreElements() ){
 					xVariable++;
-					BaseType basetype = (BaseType)enum.nextElement();
+					BaseType basetype = (BaseType)enumVariables.nextElement();
 					if( !zOutput_FormattedVariable( null, basetype, os, sbError ) ){
 						ApplicationController.vShowError("Error outputting variable " + xVariable + ": " + sbError);
 						continue;
@@ -816,11 +816,11 @@ public class OutputEngine implements ByteCounter {
 				}
 				else if(basetype instanceof DStructure ) {
 					DStructure dstructure = (DStructure)basetype;
-					Enumeration enum = dstructure.getVariables();
+					Enumeration enumVariables = dstructure.getVariables();
 					int xVariable = 0;
-					while( enum.hasMoreElements() ){
+					while( enumVariables.hasMoreElements() ){
 						xVariable++;
-						BaseType btElement = (BaseType)enum.nextElement();
+						BaseType btElement = (BaseType)enumVariables.nextElement();
 						if( !zOutput_FormattedVariable( sVariableName, btElement, os, sbError ) ){
 							ApplicationController.vShowError("Error outputting structure " + sVariableName + "." + xVariable + ": " + sbError);
 							continue;

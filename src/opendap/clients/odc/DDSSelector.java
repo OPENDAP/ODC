@@ -66,27 +66,27 @@ public class DDSSelector extends JPanel {
 			}
 
 			// create variable entry
-			Enumeration enum;
+			Enumeration enumVariables;
 		    if( bt instanceof DGrid ){
 				listQualifiedNames.add(sQualifiedName);
 				listBaseTypes.add(bt); // add variable as leaf
 				return true;
 			} else if( bt instanceof DConstructor ){
 				DConstructor dconstructor = (DConstructor)bt;
-				enum = dconstructor.getVariables();
+				enumVariables = dconstructor.getVariables();
 			} else if( bt instanceof DStructure ){
 				DStructure dstructure = (DStructure)bt;
-				enum = dstructure.getVariables();
+				enumVariables = dstructure.getVariables();
 			} else if( bt instanceof DSequence ){
 				DSequence dsequence = (DSequence)bt;
-				enum = dsequence.getVariables();
+				enumVariables = dsequence.getVariables();
 			} else {
 				listQualifiedNames.add(sQualifiedName);
 				listBaseTypes.add(bt); // add variable as leaf
 				return true;
 			}
-			while( enum.hasMoreElements() ){
-				Object o = enum.nextElement();
+			while( enumVariables.hasMoreElements() ){
+				Object o = enumVariables.nextElement();
 				BaseType btChild = (BaseType)o;
 				if( !zAddBaseType( btChild, sQualifiedName, listBaseTypes, listQualifiedNames, iLevel + 1, sbError ) ){
 					return false;
@@ -164,9 +164,9 @@ public class DDSSelector extends JPanel {
 		boolean zShowDescriptions = mGenerator.zShowDescriptions();
 		mpanelGlobalDAS.setVisible( zShowDescriptions );
 		ArrayList listGlobalNames = new ArrayList();
-		Enumeration enum = das.getNames();
-		while( enum.hasMoreElements() ){
-			String sAttributeName = (String)enum.nextElement();
+		Enumeration enumNames = das.getNames();
+		while( enumNames.hasMoreElements() ){
+			String sAttributeName = (String)enumNames.nextElement();
 			if( sAttributeName == null ) continue;
 			int ctVariables = listVariables.size();
 		    if( ctVariables == 0 ) return;
@@ -257,9 +257,9 @@ public class DDSSelector extends JPanel {
 				if( sVariableName.equals( at.getName() ) ){
 					return getDescription( at );
 				} else {
-					Enumeration enum = at.getNames();
-					while( enum.hasMoreElements() ){
-						String sName = (String)enum.nextElement();
+					Enumeration enumNames = at.getNames();
+					while( enumNames.hasMoreElements() ){
+						String sName = (String)enumNames.nextElement();
 						Attribute attribute = at.getAttribute(sName);
 						if( attribute == null ){
 							continue;

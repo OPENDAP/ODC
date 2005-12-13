@@ -1764,6 +1764,46 @@ ScanForStartOfMatch:
 		}
 	}
 
+	final public static String sGetDODSError( String sPageText ){
+		int posError = sPageText.indexOf( "Error {" );
+		int posMessage = sPageText.indexOf( "message = \"" );
+	 	int posTermination = sPageText.indexOf( "\";\n};" );
+		if( posError == -1 || posMessage == -1 || posTermination == -1 ) return null;
+		if( ! ( posError < posMessage && posMessage < posTermination ) ) return null;
+		posMessage = posMessage + 11; /* move start past initial quote */
+		int iMessageLength = posTermination - posMessage;
+		String sMessage = sPageText.substring( posMessage, posMessage + iMessageLength );
+		return sMessage;
+	}
+
+	static Java2Clipboard mClipboardOwner;
+	final public static void vCopyToClipboard( String sText ){
+		if( mClipboardOwner == null ) mClipboardOwner = new Java2Clipboard();
+		mClipboardOwner.vCopy( sText );
+	}
+}
+
+class Java2Clipboard implements java.awt.datatransfer.ClipboardOwner {
+
+    public void vCopy( String sText ) {
+		SecurityManager sm = System.getSecurityManager();
+		if (sm != null) {
+			try {
+				sm.checkSystemClipboardAccess();
+			} catch ( Exception e ) {
+				ApplicationController.vShowError( "unable to access clipboard (may be in browser or in an operating system with no clipboard or a protected clipboard" );
+				return;
+			}
+        }
+		java.awt.Toolkit toolkit = java.awt.Toolkit.getDefaultToolkit();
+		java.awt.datatransfer.Clipboard clipboard = toolkit.getSystemClipboard();
+		java.awt.datatransfer.StringSelection string_selection = new java.awt.datatransfer.StringSelection( sText );
+		clipboard.setContents( string_selection, this );
+    }
+
+    public void lostOwnership( java.awt.datatransfer.Clipboard clip, java.awt.datatransfer.Transferable tr ){
+		// do nothing
+    }
 }
 
 class FavoritesFilter implements FilenameFilter {

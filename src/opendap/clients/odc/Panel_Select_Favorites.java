@@ -37,7 +37,7 @@ public class Panel_Select_Favorites extends SearchInterface {
 
 			// Create and intialize the favorites list
 			jscrollpaneList = new JScrollPane();
-			mListModel = new Model_URLList( true );
+			mListModel = new Model_URLList( false ); // do not do type checking
 			mListPanel = new Panel_URLList_JList( mListModel );
 			mListModel.setControl( mListPanel );
 // TODO

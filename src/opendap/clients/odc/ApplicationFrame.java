@@ -62,7 +62,7 @@ public class ApplicationFrame extends JFrame {
 				sbError.insert(0, "failed to create interface: ");
 				return false;
 			}
-			this.add(jtpMain, java.awt.BorderLayout.CENTER);
+			this.add( jtpMain, java.awt.BorderLayout.CENTER );
 
 			// status bar
 			ApplicationController.getInstance().vShowStartupMessage("creating status bar");
@@ -71,7 +71,7 @@ public class ApplicationFrame extends JFrame {
 				sbError.insert(0, "Failed to initialize status bar: ");
 				return false;
 			}
-			this.add(mStatusBar, java.awt.BorderLayout.SOUTH);
+			this.add( mStatusBar, java.awt.BorderLayout.SOUTH );
 
 			vSizeDisplay();
 
@@ -81,9 +81,9 @@ public class ApplicationFrame extends JFrame {
 					ApplicationController.vForceExit();
 				}
 			};
-			this.addWindowListener(listenerCloser);
+			this.addWindowListener( listenerCloser );
 
-			this.addKeyListener(klMaster);
+			this.addKeyListener( klMaster );
 			return true;
 
 		} catch(Exception ex) {
@@ -149,12 +149,12 @@ public class ApplicationFrame extends JFrame {
 		}
 		ApplicationController.getInstance().vShowStartupMessage("creating retrieval panel");
 		jpanelRetrieve = new Panel_Retrieve();
-		if( !jpanelRetrieve.zInitialize(sbError) ){
-			sbError.insert(0, "Failed to initialize retrieval panel: ");
+		if( !ApplicationController.getInstance().getRetrieveModel().zInitialize( jpanelRetrieve, sbError ) ){
+			sbError.insert(0, "Failed to initialize retrieval model: ");
 			return false;
 		}
-		if( !ApplicationController.getInstance().getRetrieveModel().zInitialize(jpanelRetrieve, sbError) ){
-			sbError.insert(0, "Failed to initialize retrieval model: ");
+		if( !jpanelRetrieve.zInitialize(sbError) ){
+			sbError.insert(0, "Failed to initialize retrieval panel: ");
 			return false;
 		}
 		ApplicationController.getInstance().vShowStartupMessage("creating feedback panel");
@@ -342,6 +342,8 @@ public class ApplicationFrame extends JFrame {
 	}
 
 	Panel_Select_Recent getPanel_Recent(){ return this.panelRecent; }
+
+	Panel_Retrieve getPanel_Retrieve(){ return jpanelRetrieve; }
 
 	void vUpdateFavorites(){
 		panelFavorites.vRefreshFavoritesList();
