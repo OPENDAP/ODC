@@ -67,16 +67,22 @@ public class Utility {
 			String sIconPath;
 			String sIconSize = ConfigurationManager.getInstance().getProperty_DISPLAY_IconSize();
 			if( sIconSize.equals("16") ){
-				sIconPath = "icons/icon-16.gif";
+				sIconPath = "/icons/icon-16.gif";
 			} else if( sIconSize.equals("24") ){
-				sIconPath = "icons/icon-24.gif";
+				sIconPath = "/icons/icon-24.gif";
 			} else if( sIconSize.equals("32") ){
-				sIconPath = "icons/icon-32.gif";
+				sIconPath = "/icons/icon-32.gif";
 			} else {
-				sIconPath = "icons/icon-32.gif";
+				sIconPath = "/icons/icon-32.gif";
 				ApplicationController.getInstance().vShowError("Unknown icon size [" + sIconSize + "]. Supported sizes are \"16\", \"24\" and \"32\".");
 			}
-			theFrame.setIconImage(Utility.imageiconLoadResource(sIconPath).getImage());
+			StringBuffer sbError = new StringBuffer();
+			javax.swing.ImageIcon icon = Utility.imageiconLoadResource( sIconPath, sbError );
+			if( icon == null ){
+				ApplicationController.getInstance().vShowError("failed to load icon " + sIconPath + ": " +sbError);
+				return;
+			}
+			theFrame.setIconImage(icon.getImage());
 		} catch(Exception ex) {
 			ApplicationController.getInstance().vShowError("Unexpected error setting up icon. Default icon will appear.");
 		}
@@ -89,14 +95,44 @@ public class Utility {
 	static Image imageIndicator_Image;
 	static Image imageConstrained;
 	public static boolean zLoadIcons(StringBuffer sbError){
-		String sPath = "icons/";
+		String sPath = "/icons/";
 		try {
-			imageIndicator_Granule = Utility.imageiconLoadResource(sPath + "dataset-granule.gif").getImage();
-			imageIndicator_Directory = Utility.imageiconLoadResource(sPath + "dataset-directory.gif").getImage();
-			imageIndicator_Catalog = Utility.imageiconLoadResource(sPath + "dataset-catalog.gif").getImage();
-			imageIndicator_Binary = Utility.imageiconLoadResource(sPath + "dataset-binary.gif").getImage();
-			imageIndicator_Image = Utility.imageiconLoadResource(sPath + "dataset-image.gif").getImage();
-			imageConstrained = Utility.imageiconLoadResource(sPath + "constrained.gif").getImage();
+			javax.swing.ImageIcon image = Utility.imageiconLoadResource(sPath + "dataset-granule.gif", sbError);
+			imageIndicator_Granule = image.getImage();
+			if( imageIndicator_Granule == null ){
+				sbError.insert( 0, "icon " + sPath + "dataset-granule.gif" + " not found: " );
+				return false;
+			}
+			image = Utility.imageiconLoadResource(sPath + "dataset-directory.gif", sbError);
+			imageIndicator_Directory = image.getImage();
+			if( imageIndicator_Granule == null ){
+				sbError.insert( 0, "icon " + sPath + "dataset-directory.gif" + " not found: " );
+				return false;
+			}
+			image = Utility.imageiconLoadResource(sPath + "dataset-catalog.gif", sbError);
+			imageIndicator_Catalog = image.getImage();
+			if( imageIndicator_Granule == null ){
+				sbError.insert( 0, "icon " + sPath + "dataset-catalog.gif" + " not found: " );
+				return false;
+			}
+			image = Utility.imageiconLoadResource(sPath + "dataset-binary.gif", sbError);
+			imageIndicator_Binary = image.getImage();
+			if( imageIndicator_Granule == null ){
+				sbError.insert( 0, "icon " + sPath + "dataset-binary.gif" + " not found: " );
+				return false;
+			}
+			image = Utility.imageiconLoadResource(sPath + "dataset-image.gif", sbError);
+			imageIndicator_Image = image.getImage();
+			if( imageIndicator_Granule == null ){
+				sbError.insert( 0, "icon " + sPath + "dataset-image.gif" + " not found: " );
+				return false;
+			}
+			image = Utility.imageiconLoadResource(sPath + "constrained.gif", sbError);
+			imageConstrained = image.getImage();
+			if( imageIndicator_Granule == null ){
+				sbError.insert( 0, "icon " + sPath + "constrained.gif" + " not found: " );
+				return false;
+			}
 			return true;
 		} catch(Exception ex) {
 			sbError.append("Icons not found in path " + sPath);
@@ -383,22 +419,22 @@ ScanForStartOfMatch:
 		return sURL.substring(0, posSeparator).trim().toUpperCase();
 	}
 
-	public static javax.swing.ImageIcon imageiconLoadResource( String sResourcePath ){
-		java.awt.Image image = imageLoadResource(sResourcePath);
+	public static javax.swing.ImageIcon imageiconLoadResource( String sResourcePath, StringBuffer sbError ){
+		java.awt.Image image = imageLoadResource( sResourcePath, sbError );
 		if( image == null ) return null;
 		return new javax.swing.ImageIcon(image);
 	}
 
-	public static java.awt.Image imageLoadResource( String sResourcePath ){
+	public static java.awt.Image imageLoadResource( String sResourcePath, StringBuffer sbError ){
 		try {
 			java.net.URL url = ApplicationController.getInstance().getClass().getResource(sResourcePath);
 			if( url == null ){
-				ApplicationController.vShowError("resource not found: " + sResourcePath + " (this resource was missing from the class path or jar file)");
+				sbError.append("resource not found: " + sResourcePath + " (this resource was missing from the class path or jar file)");
 				return null;
 			}
 			Object oContent = url.getContent();
 			if( oContent == null ){
-				ApplicationController.vShowError("resource content not available: " + sResourcePath);
+				sbError.append("resource content not available: " + sResourcePath);
 				return null;
 			}
 			java.awt.image.ImageProducer image_producer = (java.awt.image.ImageProducer)oContent;
@@ -406,7 +442,7 @@ ScanForStartOfMatch:
 				if( oContent instanceof java.awt.Image ){
 					return (java.awt.Image)oContent;
 				} else {
-					ApplicationController.vShowError("failed to load image: " + sResourcePath + " unknown resource type: " + oContent.getClass().getName());
+					sbError.append("failed to load image: " + sResourcePath + " unknown resource type: " + oContent.getClass().getName());
 					return null;
 				}
 			} else {
@@ -441,7 +477,7 @@ ScanForStartOfMatch:
 			java.awt.Image image = tk.createImage(abImage);
 */
 		} catch( Exception ex ) {
-			ApplicationController.vShowError("failed to load image: " + sResourcePath + " error: " + ex);
+			sbError.append("failed to load image: " + sResourcePath + " error: " + ex);
 			return null;
 		}
 	}

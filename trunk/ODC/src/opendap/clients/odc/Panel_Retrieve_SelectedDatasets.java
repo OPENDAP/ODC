@@ -83,7 +83,8 @@ public class Panel_Retrieve_SelectedDatasets extends JPanel {
 				}
 			);
 
-			javax.swing.ImageIcon imageInternet = Utility.imageiconLoadResource("icons/internet-connection-icon.gif");
+			javax.swing.ImageIcon imageInternet = Utility.imageiconLoadResource(Resources.ICONS_InternetConnection, sbError);
+			if( imageInternet == null ) return false;
 
 			boolean zReadOnly = ConfigurationManager.getInstance().getProperty_MODE_ReadOnly();
 
