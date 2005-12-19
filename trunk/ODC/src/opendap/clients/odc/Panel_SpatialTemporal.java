@@ -147,9 +147,9 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 			toolArray[0].setRange_Y(lo,hi);
 			YConvert.setRange(lo, hi);
 
-			Image mMapImage = Utility.imageLoadResource(RESOURCE_PATH_WorldMap);
+			Image mMapImage = Utility.imageLoadResource( RESOURCE_PATH_WorldMap, sbError );
 			if( mMapImage == null ){
-				sbError.append("failed to load map " + RESOURCE_PATH_WorldMap);
+				sbError.append("failed to load map " + RESOURCE_PATH_WorldMap + ": " + sbError);
 				return false;
 			}
 			mMapCanvas = new MapCanvas(mMapImage, IMAGE_SIZE_X, IMAGE_SIZE_Y, toolArray, grid);
@@ -1159,9 +1159,10 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 			ApplicationController.getInstance().vShowError("Unable to set spatial image, null input");
 			return;
 		} else {
-			Image image = Utility.imageLoadResource(sResourcePath);
+			StringBuffer sbError = new StringBuffer();
+			Image image = Utility.imageLoadResource( sResourcePath, sbError );
 			if( image == null ){
-				ApplicationController.vShowError("failed to load map " + sResourcePath);
+				ApplicationController.vShowError( "failed to load map " + sResourcePath + ": " + sbError );
 				return;
 			}
 			mMapImage = image;
