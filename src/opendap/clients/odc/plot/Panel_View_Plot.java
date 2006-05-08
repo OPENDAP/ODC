@@ -286,6 +286,10 @@ public class Panel_View_Plot extends JPanel {
 
 			vSetupSourceSelector();
 
+			if( mjpanelDatasets == null ){ sbError.append("dataset panel does not exist"); return false; }
+			if( panelCommand == null ){ sbError.append("command panel does not exist"); return false; }
+			if( mDefinitionPanel == null ){ sbError.append("definition panel does not exist"); return false; }
+
 			JPanel jpanelNorth = new JPanel();
 			jpanelNorth.setLayout(new BoxLayout(jpanelNorth, BoxLayout.Y_AXIS));
 			jpanelNorth.add(mjpanelDatasets);
@@ -465,7 +469,7 @@ public class Panel_View_Plot extends JPanel {
 		StringBuffer sbError = new StringBuffer();
 		javax.swing.ImageIcon imageInternet = Utility.imageiconLoadResource(Resources.ICONS_InternetConnection, sbError);
 		if( imageInternet == null ){
-			ApplicationController.getInstance().vShowError( "failed to load internet icon while setting up source selector: " + sbError );
+			ApplicationController.getInstance().vShowError( "failed to load the internet icon while setting up source selector: " + sbError );
 			return;
 		}
 		buttonSelectAll.addActionListener(
