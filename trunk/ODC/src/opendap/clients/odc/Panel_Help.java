@@ -13,8 +13,6 @@ import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.io.*;
-import java.util.ArrayList;
 
 public class Panel_Help extends JPanel {
 

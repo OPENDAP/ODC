@@ -6,13 +6,12 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2004
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.57
+ * @version      2.59
  */
 
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
-import java.io.*;
 
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -51,7 +50,7 @@ public class Panel_Feedback_Email extends JPanel {
 			// User email address panel
 			JPanel panelUserEmail = new JPanel();
 			panelUserEmail.setLayout(new BoxLayout(panelUserEmail, BoxLayout.X_AXIS));
-			panelUserEmail.add(new JLabel("Email Address: "));
+			panelUserEmail.add(new JLabel("Your Email Address: "));
 			panelUserEmail.add(jtfUserEmail);
 			String sUserEmail = ConfigurationManager.getInstance().getProperty_FEEDBACK_EmailUserAddress();
 			if( sUserEmail != null && sUserEmail.trim().length() > 0 ) jtfUserEmail.setText(sUserEmail);
@@ -162,6 +161,8 @@ public class Panel_Feedback_Email extends JPanel {
 
 class PostOffice {
 
+	private final static String DEFAULT_MailUser = "feedback";
+
 	PostOffice(){}
 
 	boolean zInitialize(String sMailHost, StringBuffer sbError){
@@ -190,7 +191,11 @@ class PostOffice {
 //mail..port 	int 	The port number of the mail server for the specified protocol. If not specified the protocol's default port number is used.
 //mail..user
 
-	boolean zSendEmail(String sRecipientAddress, String sFromAddress, String sReturnAddress, String sSubject, String sMessageContent, StringBuffer sbError){
+	boolean zSendEmail( String sRecipientAddress, String sFromAddress, String sReturnAddress, String sSubject, String sMessageContent, StringBuffer sbError ){
+		return zSendEmail( DEFAULT_MailUser, sRecipientAddress, sFromAddress, sReturnAddress, sSubject, sMessageContent, sbError );
+	}
+
+	boolean zSendEmail( String sMailUser, String sRecipientAddress, String sFromAddress, String sReturnAddress, String sSubject, String sMessageContent, StringBuffer sbError){
 		try {
 			String sMailServerHost = getMailHost();
 			if (sMailServerHost == null) {
@@ -202,6 +207,7 @@ class PostOffice {
 			mail_props.put("mail.transport.protocol", "smtp");
 			mail_props.put("mail.smtp.host", sMailServerHost);
 			mail_props.put("mail.smtp.port", Integer.toString(iMailServerPort));
+			if( sMailUser != null ) mail_props.put("mail.user", sMailUser);
 			javax.mail.Session theJavaMailSession = javax.mail.Session.getInstance(mail_props, null);
 //			theJavaMailSession.setDebug(true);
 			if(theJavaMailSession==null){

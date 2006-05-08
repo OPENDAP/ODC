@@ -40,7 +40,7 @@ public class ConfigurationManager {
 	private static final String DIR_Default_Plots = "plots";
 	private static final String DIR_Default_Coastline = "coastline";
 
-	private static final String FEEDBACK_Default_MailHost = "dcz.opendap.org";
+	private static final String FEEDBACK_Default_MailHost = "dev1.opendap.org";
 	private static final String FEEDBACK_Default_MailPort = "20041";
 	private static final String FEEDBACK_Default_EmailAddress = "feedback@opendap.org";
 	private static final String FEEDBACK_Default_BugHost = "dodsdev.gso.uri.edu";

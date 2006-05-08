@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-2004
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.51
+ * @version      2.59
  */
 
 import java.io.*;
@@ -76,6 +76,7 @@ public class Utility {
 				sIconPath = "/icons/icon-32.gif";
 				ApplicationController.getInstance().vShowError("Unknown icon size [" + sIconSize + "]. Supported sizes are \"16\", \"24\" and \"32\".");
 			}
+			sIconPath = "/opendap/clients/odc/" + sIconPath;
 			StringBuffer sbError = new StringBuffer();
 			javax.swing.ImageIcon icon = Utility.imageiconLoadResource( sIconPath, sbError );
 			if( icon == null ){
@@ -95,7 +96,7 @@ public class Utility {
 	static Image imageIndicator_Image;
 	static Image imageConstrained;
 	public static boolean zLoadIcons(StringBuffer sbError){
-		String sPath = "/icons/";
+		String sPath = "/opendap/clients/odc/icons/";
 		try {
 			javax.swing.ImageIcon image = Utility.imageiconLoadResource(sPath + "dataset-granule.gif", sbError);
 			imageIndicator_Granule = image.getImage();
