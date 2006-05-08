@@ -12,7 +12,6 @@ package opendap.clients.odc;
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
-import java.io.*;
 import java.util.ArrayList;
 
 public class Panel_Feedback_Bug extends JPanel {
@@ -583,3 +582,241 @@ public class Panel_Feedback_Bug extends JPanel {
 // ----------------------------------------------------------
 //
 
+
+// http://scm.opendap.org:8090/trac/login
+//
+// GET /trac/login HTTP/1.1
+// Host: scm.opendap.org:8090
+// User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1
+// Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+// Accept-Language: en-us,en;q=0.5
+// Accept-Encoding: gzip,deflate
+// Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+// Keep-Alive: 300
+// Connection: keep-alive
+// Referer: http://scm.opendap.org:8090/trac/report
+// Cookie: trac_session=7b3e7bcc2147856d91b233a0; trac_auth=07de33e72226614b34064d97848d2db2
+// Authorization: Basic amNoYW1iZXI6ZWR5dnU3OFl1
+//
+// HTTP/1.x 302 OK
+// Date: Fri, 05 May 2006 18:31:23 GMT
+// Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+// Pragma: no-cache
+// Cache-Control: no-cache
+// Expires: Fri, 01 Jan 1999 00:00:00 GMT
+// Set-Cookie: trac_auth=765e50fde47ec92cef30edb55374b8c1; Path=/trac;
+// Location: http://scm.opendap.org:8090/trac/report
+// Keep-Alive: timeout=15, max=98
+// Connection: Keep-Alive
+// Transfer-Encoding: chunked
+// Content-Type: text/plain
+// ----------------------------------------------------------
+// http://scm.opendap.org:8090/trac/report
+//
+// GET /trac/report HTTP/1.1
+// Host: scm.opendap.org:8090
+// User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1
+// Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+// Accept-Language: en-us,en;q=0.5
+// Accept-Encoding: gzip,deflate
+// Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+// Keep-Alive: 300
+// Connection: keep-alive
+// Referer: http://scm.opendap.org:8090/trac/report
+// Cookie: trac_session=7b3e7bcc2147856d91b233a0; trac_auth=765e50fde47ec92cef30edb55374b8c1
+// Authorization: Basic amNoYW1iZXI6ZWR5dnU3OFl1
+//
+// HTTP/1.x 200 OK
+// Date: Fri, 05 May 2006 18:31:24 GMT
+// Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+// Cache-Control: no-cache
+// Expires: Fri, 01 Jan 1999 00:00:00 GMT
+// Set-Cookie: trac_session=7b3e7bcc2147856d91b233a0; expires=Mon, 26-Aug-2019 21:11:24 GMT; Path=/trac;
+// Content-Length: 10136
+// Keep-Alive: timeout=15, max=100
+// Connection: Keep-Alive
+// Content-Type: text/html;charset=utf-8
+// ----------------------------------------------------------
+// http://scm.opendap.org:8090/trac/newticket
+//
+// GET /trac/newticket HTTP/1.1
+// Host: scm.opendap.org:8090
+// User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1
+// Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+// Accept-Language: en-us,en;q=0.5
+// Accept-Encoding: gzip,deflate
+// Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+// Keep-Alive: 300
+// Connection: keep-alive
+// Referer: http://scm.opendap.org:8090/trac/report
+// Cookie: trac_session=7b3e7bcc2147856d91b233a0; trac_auth=765e50fde47ec92cef30edb55374b8c1
+// Authorization: Basic amNoYW1iZXI6ZWR5dnU3OFl1
+//
+// HTTP/1.x 200 OK
+// Date: Fri, 05 May 2006 18:31:48 GMT
+// Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+// Cache-Control: no-cache
+// Expires: Fri, 01 Jan 1999 00:00:00 GMT
+// Set-Cookie: trac_session=7b3e7bcc2147856d91b233a0; expires=Mon, 26-Aug-2019 21:11:48 GMT; Path=/trac;
+// Content-Length: 8206
+// Keep-Alive: timeout=15, max=100
+// Connection: Keep-Alive
+// Content-Type: text/html;charset=utf-8
+// ----------------------------------------------------------
+// http://scm.opendap.org:8090/static-trac/css/ticket.css
+//
+// GET /static-trac/css/ticket.css HTTP/1.1
+// Host: scm.opendap.org:8090
+// User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1
+// Accept: text/css,*/*;q=0.1
+// Accept-Language: en-us,en;q=0.5
+// Accept-Encoding: gzip,deflate
+// Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+// Keep-Alive: 300
+// Connection: keep-alive
+// Referer: http://scm.opendap.org:8090/trac/newticket
+//
+// HTTP/1.x 200 OK
+// Date: Fri, 05 May 2006 18:31:48 GMT
+// Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+// Last-Modified: Fri, 18 Mar 2005 15:43:21 GMT
+// Etag: "c290d-81e-3ce93840"
+// Accept-Ranges: bytes
+// Content-Length: 2078
+// Keep-Alive: timeout=15, max=100
+// Connection: Keep-Alive
+// Content-Type: text/css
+// ----------------------------------------------------------
+// http://scm.opendap.org:8090/static-trac/edit_toolbar.png
+//
+// GET /static-trac/edit_toolbar.png HTTP/1.1
+// Host: scm.opendap.org:8090
+// User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1
+// Accept: image/png,*/*;q=0.5
+// Accept-Language: en-us,en;q=0.5
+// Accept-Encoding: gzip,deflate
+// Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+// Keep-Alive: 300
+// Connection: keep-alive
+// Referer: http://scm.opendap.org:8090/static-trac/css/trac.css
+//
+// HTTP/1.x 200 OK
+// Date: Fri, 05 May 2006 18:31:48 GMT
+// Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+// Last-Modified: Fri, 18 Mar 2005 15:43:21 GMT
+// Etag: "f6102-3d1-3ce93840"
+// Accept-Ranges: bytes
+// Content-Length: 977
+// Keep-Alive: timeout=15, max=99
+// Connection: Keep-Alive
+// Content-Type: image/png
+// ----------------------------------------------------------
+// http://scm.opendap.org:8090/trac#preview
+//
+// POST /trac HTTP/1.1
+// Host: scm.opendap.org:8090
+// User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1
+// Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+// Accept-Language: en-us,en;q=0.5
+// Accept-Encoding: gzip,deflate
+// Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+// Keep-Alive: 300
+// Connection: keep-alive
+// Referer: http://scm.opendap.org:8090/trac/newticket
+// Cookie: trac_session=7b3e7bcc2147856d91b233a0; trac_auth=765e50fde47ec92cef30edb55374b8c1
+// Content-Type: application/x-www-form-urlencoded
+// Content-Length: 407
+// reporter=jchamber&summary=Coastline+outline+have+horizontal+lines&description=The+coastline%27s+sometimes+have+horizontal+lines+apparently+caused+by+the+renderer+not+knowing+the+correct+location+of+the+meridian.&mode=newticket&action=create&status=new&component=ODC&version=&severity=normal&keywords=&priority=normal&milestone=Java-OPeNDAP+Release&owner=jchamber&cc=&custom_category=Bug&create=Submit+ticket
+// HTTP/1.x 302 OK
+// Date: Fri, 05 May 2006 19:01:13 GMT
+// Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+// Pragma: no-cache
+// Cache-Control: no-cache
+// Expires: Fri, 01 Jan 1999 00:00:00 GMT
+// Set-Cookie: trac_session=7b3e7bcc2147856d91b233a0; expires=Mon, 26-Aug-2019 21:41:13 GMT; Path=/trac;
+// Location: /trac/ticket/369
+// Keep-Alive: timeout=15, max=100
+// Connection: Keep-Alive
+// Transfer-Encoding: chunked
+// Content-Type: text/plain
+// ----------------------------------------------------------
+// http://scm.opendap.org:8090/trac/ticket/369#preview
+//
+// GET /trac/ticket/369 HTTP/1.1
+// Host: scm.opendap.org:8090
+// User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1
+// Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+// Accept-Language: en-us,en;q=0.5
+// Accept-Encoding: gzip,deflate
+// Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+// Keep-Alive: 300
+// Connection: keep-alive
+// Referer: http://scm.opendap.org:8090/trac/newticket
+// Cookie: trac_session=7b3e7bcc2147856d91b233a0; trac_auth=765e50fde47ec92cef30edb55374b8c1
+// Authorization: Basic amNoYW1iZXI6ZWR5dnU3OFl1
+//
+// HTTP/1.x 200 OK
+// Date: Fri, 05 May 2006 19:01:13 GMT
+// Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+// Cache-Control: no-cache
+// Expires: Fri, 01 Jan 1999 00:00:00 GMT
+// Set-Cookie: trac_session=7b3e7bcc2147856d91b233a0; expires=Mon, 26-Aug-2019 21:41:13 GMT; Path=/trac;
+// Content-Length: 12201
+// Keep-Alive: timeout=15, max=99
+// Connection: Keep-Alive
+// Content-Type: text/html;charset=utf-8
+// ----------------------------------------------------------
+// http://scm.opendap.org:8090/trac#preview
+//
+// POST /trac HTTP/1.1
+// Host: scm.opendap.org:8090
+// User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1
+// Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+// Accept-Language: en-us,en;q=0.5
+// Accept-Encoding: gzip,deflate
+// Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+// Keep-Alive: 300
+// Connection: keep-alive
+// Referer: http://scm.opendap.org:8090/trac/ticket/369
+// Cookie: trac_session=7b3e7bcc2147856d91b233a0; trac_auth=765e50fde47ec92cef30edb55374b8c1
+// Content-Type: application/x-www-form-urlencoded
+// Content-Length: 388
+// mode=ticket&id=369&author=jchamber&comment=&summary=Coastline+outline+have+horizontal+lines&description=The+coastline%27s+sometimes+have+horizontal+lines+apparently+caused+by+the+renderer+not+knowing+the+correct+location+of+the+meridian.&reporter=jchamber&component=ODC&version=&severity=normal&keywords=&priority=normal&milestone=Java-OPeNDAP+Release&cc=&custom_category=Bug&action=leave
+// HTTP/1.x 302 OK
+// Date: Fri, 05 May 2006 19:02:06 GMT
+// Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+// Pragma: no-cache
+// Cache-Control: no-cache
+// Expires: Fri, 01 Jan 1999 00:00:00 GMT
+// Set-Cookie: trac_session=7b3e7bcc2147856d91b233a0; expires=Mon, 26-Aug-2019 21:42:06 GMT; Path=/trac;
+// Location: /trac/ticket/369
+// Keep-Alive: timeout=15, max=100
+// Connection: Keep-Alive
+// Transfer-Encoding: chunked
+// Content-Type: text/plain
+// ----------------------------------------------------------
+// http://scm.opendap.org:8090/trac/ticket/369#preview
+//
+// GET /trac/ticket/369 HTTP/1.1
+// Host: scm.opendap.org:8090
+// User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1
+// Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+// Accept-Language: en-us,en;q=0.5
+// Accept-Encoding: gzip,deflate
+// Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+// Keep-Alive: 300
+// Connection: keep-alive
+// Referer: http://scm.opendap.org:8090/trac/ticket/369
+// Cookie: trac_session=7b3e7bcc2147856d91b233a0; trac_auth=765e50fde47ec92cef30edb55374b8c1
+// Authorization: Basic amNoYW1iZXI6ZWR5dnU3OFl1
+//
+// HTTP/1.x 200 OK
+// Date: Fri, 05 May 2006 19:02:06 GMT
+// Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+// Cache-Control: no-cache
+// Expires: Fri, 01 Jan 1999 00:00:00 GMT
+// Set-Cookie: trac_session=7b3e7bcc2147856d91b233a0; expires=Mon, 26-Aug-2019 21:42:06 GMT; Path=/trac;
+// Content-Length: 12201
+// Keep-Alive: timeout=15, max=100
+// Connection: Keep-Alive
+// Content-Type: text/html;charset=utf-8
