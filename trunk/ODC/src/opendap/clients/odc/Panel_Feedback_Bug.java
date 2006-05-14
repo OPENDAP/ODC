@@ -582,7 +582,6 @@ public class Panel_Feedback_Bug extends JPanel {
 // ----------------------------------------------------------
 //
 
-
 // http://scm.opendap.org:8090/trac/login
 //
 // GET /trac/login HTTP/1.1
