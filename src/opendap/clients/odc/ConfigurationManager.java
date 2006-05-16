@@ -43,8 +43,9 @@ public class ConfigurationManager {
 	private static final String FEEDBACK_Default_MailHost = "dev1.opendap.org";
 	private static final String FEEDBACK_Default_MailPort = "20041";
 	private static final String FEEDBACK_Default_EmailAddress = "feedback@opendap.org";
-	private static final String FEEDBACK_Default_BugHost = "dodsdev.gso.uri.edu";
-	private static final String FEEDBACK_Default_BugzillaRoot = "/bugzilla";
+	private static final String FEEDBACK_Default_BugHost = "scm.opendap.org";
+	private static final String FEEDBACK_Default_BugPort = "8090";
+	private static final String FEEDBACK_Default_BugRoot = "/trac";
 
 	ArrayList mlistProperties;
 
@@ -67,7 +68,8 @@ public class ConfigurationManager {
 	public static final String PROPERTY_FEEDBACK_EmailAddress = "feedback.EmailAddress";
 	public static final String PROPERTY_FEEDBACK_EmailUserAddress = "feedback.EmailUserAddress";
 	public static final String PROPERTY_FEEDBACK_BugHost = "feedback.BugHost";
-	public static final String PROPERTY_FEEDBACK_BugzillaRoot = "feedback.BugzillaRoot";
+	public static final String PROPERTY_FEEDBACK_BugPort = "feedback.BugPort";
+	public static final String PROPERTY_FEEDBACK_BugRoot = "feedback.BugRoot";
 	public static final String PROPERTY_INTERPROCESS_SERVER_Port = "InterprocessServer.port";
 	public static final String PROPERTY_INTERPROCESS_SERVER_On = "InterprocessServer.on";
 	public static final String PROPERTY_DISPLAY_IconSize = "display.IconSize";
@@ -301,7 +303,8 @@ public class ConfigurationManager {
 		mlistProperties.add( PROPERTY_FEEDBACK_EmailAddress );
 		mlistProperties.add( PROPERTY_FEEDBACK_EmailUserAddress );
 		mlistProperties.add( PROPERTY_FEEDBACK_BugHost );
-		mlistProperties.add( PROPERTY_FEEDBACK_BugzillaRoot );
+		mlistProperties.add( PROPERTY_FEEDBACK_BugPort );
+		mlistProperties.add( PROPERTY_FEEDBACK_BugRoot );
 		mlistProperties.add( PROPERTY_INTERPROCESS_SERVER_Port );
 		mlistProperties.add( PROPERTY_INTERPROCESS_SERVER_On );
 		mlistProperties.add( PROPERTY_DISPLAY_IconSize );
@@ -580,8 +583,18 @@ public class ConfigurationManager {
 	public String getProperty_FEEDBACK_BugHost(){
 		return getInstance().getOption(PROPERTY_FEEDBACK_BugHost, FEEDBACK_Default_BugHost);
 	}
-	public String getProperty_FEEDBACK_BugzillaRoot(){
-		return getInstance().getOption(PROPERTY_FEEDBACK_BugzillaRoot, FEEDBACK_Default_BugzillaRoot);
+	public int getProperty_FEEDBACK_BugPort(){
+		String sPort = getInstance().getOption(PROPERTY_FEEDBACK_BugPort, FEEDBACK_Default_BugPort);
+		int iBugPort = 8090;
+		try {
+			iBugPort = Integer.parseInt(sPort);
+		} catch(Exception ex) {
+			ApplicationController.getInstance().vShowWarning("Invalid bug server port setting [" + sPort + "]. Must be an integer.");
+		}
+		return iBugPort;
+	}
+	public String getProperty_FEEDBACK_BugRoot(){
+		return getInstance().getOption(PROPERTY_FEEDBACK_BugRoot, FEEDBACK_Default_BugRoot);
 	}
 	public int getProperty_InterprocessServerPort(){
 		String sInterprocessServerPort = this.getInstance().getOption(PROPERTY_INTERPROCESS_SERVER_Port, "31870");
@@ -770,7 +783,8 @@ public class ConfigurationManager {
 		sb.append(PROPERTY_FEEDBACK_EmailAddress + " = " + (this.getProperty_FEEDBACK_EmailAddress()==null ? "[none (default is " + FEEDBACK_Default_EmailAddress + ")]" : this.getProperty_FEEDBACK_EmailAddress()) + "\n" );
 		sb.append(PROPERTY_FEEDBACK_EmailUserAddress + " = " + (this.getProperty_FEEDBACK_EmailUserAddress()==null ? "[none]" : this.getProperty_FEEDBACK_EmailAddress()) + "\n" );
 		sb.append(PROPERTY_FEEDBACK_BugHost + " = " + (this.getProperty_FEEDBACK_BugHost()==null ? "[none (default is " + FEEDBACK_Default_BugHost + ")]" : this.getProperty_FEEDBACK_BugHost()) + "\n" );
-		sb.append(PROPERTY_FEEDBACK_BugzillaRoot + " = " + (this.getProperty_FEEDBACK_BugzillaRoot()==null ? "[none (default is " + FEEDBACK_Default_BugzillaRoot + ")]" : this.getProperty_FEEDBACK_BugzillaRoot()) + "\n" );
+		sb.append(PROPERTY_FEEDBACK_BugPort + " = " + (this.getProperty_FEEDBACK_BugPort() < 0 ? "[none (default is " + FEEDBACK_Default_BugPort + ")]" : "" + this.getProperty_FEEDBACK_BugPort()) + "\n" );
+		sb.append(PROPERTY_FEEDBACK_BugRoot + " = " + (this.getProperty_FEEDBACK_BugRoot()==null ? "[none (default is " + FEEDBACK_Default_BugRoot + ")]" : this.getProperty_FEEDBACK_BugRoot()) + "\n" );
 		sb.append(PROPERTY_INTERPROCESS_SERVER_Port + " = " + this.getProperty_InterprocessServerPort() + "\n" );
 		sb.append(PROPERTY_INTERPROCESS_SERVER_On + " = " + (this.getProperty_InterprocessServerOn() ? "Yes" : "No") + "\n" );
 		sb.append(PROPERTY_DISPLAY_IconSize + " = " + this.getProperty_DISPLAY_IconSize() + "\n" );
@@ -836,7 +850,8 @@ public class ConfigurationManager {
 		    mProperties.setProperty( PROPERTY_MAIL_Port, FEEDBACK_Default_MailPort );
 		    mProperties.setProperty( PROPERTY_FEEDBACK_EmailAddress, FEEDBACK_Default_EmailAddress );
 		    mProperties.setProperty( PROPERTY_FEEDBACK_BugHost, FEEDBACK_Default_BugHost );
-			mProperties.setProperty( PROPERTY_FEEDBACK_BugzillaRoot, FEEDBACK_Default_BugzillaRoot );
+		    mProperties.setProperty( PROPERTY_FEEDBACK_BugPort, FEEDBACK_Default_BugPort );
+			mProperties.setProperty( PROPERTY_FEEDBACK_BugRoot, FEEDBACK_Default_BugRoot );
 			mProperties.setProperty( PROPERTY_INTERPROCESS_SERVER_Port, "31870");
 			mProperties.setProperty( PROPERTY_INTERPROCESS_SERVER_On, "Yes");
 			mProperties.setProperty( PROPERTY_DISPLAY_ShowStandardOut, this.getDefault_DISPLAY_ShowStandardOut() ? "Yes" : "No" );

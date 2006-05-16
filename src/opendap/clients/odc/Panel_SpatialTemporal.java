@@ -147,7 +147,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 			toolArray[0].setRange_Y(lo,hi);
 			YConvert.setRange(lo, hi);
 
-			Image mMapImage = Utility.imageLoadResource( RESOURCE_PATH_WorldMap, sbError );
+			Image mMapImage = Resources.imageLoadResource( RESOURCE_PATH_WorldMap, sbError );
 			if( mMapImage == null ){
 				sbError.append("failed to load map " + RESOURCE_PATH_WorldMap + ": " + sbError);
 				return false;
@@ -1160,7 +1160,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 			return;
 		} else {
 			StringBuffer sbError = new StringBuffer();
-			Image image = Utility.imageLoadResource( sResourcePath, sbError );
+			Image image = Resources.imageLoadResource( sResourcePath, sbError );
 			if( image == null ){
 				ApplicationController.vShowError( "failed to load map " + sResourcePath + ": " + sbError );
 				return;

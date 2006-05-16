@@ -575,6 +575,8 @@ public class Model_Retrieve {
 			} else if( matcherKansasFiles.find() ){
 //System.out.println("kansas file");
 				vFetchDirectoryTree_KansasFile( node, sPageHTML, iDepth, zRecurse, matcherKansasFiles );
+			} else if( sPageHTML.indexOf("<catalogRef xlink") > 0 ){
+				vFetchDirectoryTree_THREDDS_XML( node, sPageHTML, iDepth, zRecurse, activity );
 			} else {
 //System.out.println("dods dir");
 				vFetchDirectoryTree_DodsDir( node, sPageHTML, iDepth, zRecurse, activity );
@@ -760,6 +762,150 @@ public class Model_Retrieve {
 
 	void vFetchDirectoryTree_DodsDir( DirectoryTreeNode node, String sPageHTML, int iDepth, boolean zRecurse, Activity activity ){
 		try {
+
+	    	// determine how many files and directories there are
+			int ctFile = 0;
+			int ctDirectory = 0;
+// old method
+//			int startIndex = sPageHTML.indexOf("<HR>", 0); // advance past horizontal rule todo validation
+			int startIndex = sPageHTML.indexOf("Parent Directory"); // new method
+			String[] eggURL = new String[1];
+			String[] eggLabel = new String[1];
+			int[] eggURLposition = new int[1];
+			while(true){
+				eggURL[0] = null;
+				eggLabel[0] = null;
+				if( !zGetNextDirectoryEntry( sPageHTML, startIndex, eggURL, eggLabel, eggURLposition, sbNodeError ) ){
+					node.setError("page scan error during count at " + startIndex + ": " + sbNodeError);
+					return;
+				}
+				if( eggURLposition[0] == -1 ) break; // done scanning
+				if( eggLabel[0].toUpperCase().indexOf("PARENT DIRECTORY") == -1 ){
+					if( eggURL[0].endsWith(".html") || Utility.isImage(eggURL[0]) ) ctFile++;
+					else if( eggURL[0].endsWith("/") ) ctDirectory++;
+				}
+				startIndex = eggURLposition[0] + eggURL[0].length() + 1; // plus one makes sure we keep going if the URL is blank
+			}
+
+			if( ctDirectory == 0 ) node.setTerminal(true);
+
+			// apply file restriction
+			if( miCurrentDirectoryFiles >= miMaxDirectoryFiles ){
+				ctFile = 0; // no more files permitted
+			} else {
+				if( miCurrentDirectoryFiles + ctFile > miMaxDirectoryFiles ){
+					ctFile = miMaxDirectoryFiles - miCurrentDirectoryFiles;
+				}
+			}
+
+			// load files
+			String[] asFiles = new String[ctFile+1]; // one-based array
+			String[] asHREF = new String[ctFile+1]; // one-based array
+			int endIndex;
+			if( ctFile > 0 ){
+				int xFile = 0;
+//				startIndex = sPageHTML.indexOf("<HR>", 0); // advance past horizontal rule todo validation
+				startIndex = sPageHTML.indexOf("Parent Directory", 0); // new method
+				while(true){
+					eggURL[0] = null;
+					eggLabel[0] = null;
+					if( !zGetNextDirectoryEntry( sPageHTML, startIndex, eggURL, eggLabel, eggURLposition, sbNodeError ) ){
+						node.setError("page scan error during file load at " + startIndex + ": " + sbNodeError);
+						return;
+					}
+					if( eggURLposition[0] == -1 ) break; // done scanning
+					String sURL = eggURL[0];
+					if( sURL == null ){
+						node.setError("internal error, URL null at " + startIndex + ": " + sbNodeError);
+						return;
+					}
+					if( eggLabel[0].toUpperCase().indexOf("PARENT DIRECTORY") == -1 ){
+						if( sURL.endsWith(".html") ){
+							xFile++;
+							asHREF[xFile] = sURL.substring(0, sURL.length() - 5);
+							int offLastSlash = sURL.lastIndexOf("/");
+							int lenFileName = (offLastSlash == -1) ? sURL.length() : sURL.length() - offLastSlash - 1;
+							asFiles[xFile] = sURL.substring(sURL.length() - lenFileName, sURL.length()-5); // chop off the .html
+						} else if( Utility.isImage(sURL) ){
+							xFile++;
+							asHREF[xFile] = sURL;
+							int offLastSlash = sURL.lastIndexOf("/");
+							int lenFileName = (offLastSlash == -1) ? sURL.length() : sURL.length() - offLastSlash - 1;
+							asFiles[xFile] = eggURL[0].substring(sURL.length() - lenFileName, sURL.length());
+						}
+
+					}
+					startIndex = eggURLposition[0] + eggURL[0].length() + 1; // plus one makes sure we keep going if the URL is blank
+				}
+			}
+			node.setFileList(asFiles);
+			node.setHREFList(asHREF);
+
+			// load directories
+			String[] asDirectoryPath = new String[ctDirectory+1]; // one-based array
+			String[] asDirectoryName = new String[ctDirectory+1]; // one-based array
+			String[] asDirectoryLabel = new String[ctDirectory+1]; // one-based array
+			if( ctDirectory > 0 ){
+				int xDirectory = 0;
+				startIndex = sPageHTML.indexOf("<HR>", 0); // advance past horizontal rule todo validation
+				while(true){
+					eggURL[0] = null;
+					eggLabel[0] = null;
+					if( !zGetNextDirectoryEntry( sPageHTML, startIndex, eggURL, eggLabel, eggURLposition, sbNodeError ) ){
+						node.setError("page scan error during directory load at " + startIndex + ": " + sbNodeError);
+						return;
+					}
+					if( eggURLposition[0] == -1 ) break; // done scanning
+					if( eggLabel[0].toUpperCase().indexOf("PARENT DIRECTORY") == -1 ){
+						if( eggURL[0].endsWith("/") ){
+							xDirectory++;
+							if( xDirectory > ctDirectory ){
+								node.setError("internal error, inconsistent directory count " + xDirectory + " of " + ctDirectory);
+								return;
+							}
+							asDirectoryPath[xDirectory] = eggURL[0];
+							String sURLNoSlash = eggURL[0].substring(0, eggURL[0].length()-1);
+							int lenURLNoSlash = sURLNoSlash.length();
+							int offNameStart = sURLNoSlash.lastIndexOf('/', lenURLNoSlash);
+							String sDirectoryName;
+							if( offNameStart == -1 ){
+								sDirectoryName = sURLNoSlash.substring(0, lenURLNoSlash);
+							} else {
+								sDirectoryName = sURLNoSlash.substring(offNameStart+1, lenURLNoSlash);
+							}
+							asDirectoryName[xDirectory] = sDirectoryName;
+							asDirectoryLabel[xDirectory] = eggLabel[0];
+						}
+					}
+					startIndex = eggURLposition[0] + eggURL[0].length() + 1; // plus one makes sure we keep going if the URL is blank
+				}
+			}
+
+			// create new nodes for each directory and recurse them if required
+			for( int xDirectory = 1; xDirectory <= ctDirectory; xDirectory++ ){
+				if( asDirectoryName[xDirectory] == null ) continue;
+				DirectoryTreeNode nodeNew = new DirectoryTreeNode();
+				nodeNew.setName(asDirectoryName[xDirectory]);
+				nodeNew.setUserObject(asDirectoryLabel[xDirectory]);
+				node.add(nodeNew);
+				if( zRecurse )
+		    		vFetchDirectoryTree_LoadNode(nodeNew, asDirectoryPath[xDirectory], iDepth+1, zRecurse, activity);
+			}
+			node.setDiscovered(true); // we now know the content of the node
+			node.setError(null); // no errors found
+			return;
+		} catch(Exception ex) {
+			Utility.vUnexpectedError(ex, sbNodeError);
+			node.setError("page unavailable: " + sbNodeError);
+			return;
+		}
+    }
+
+	void vFetchDirectoryTree_THREDDS_XML( DirectoryTreeNode node, String sXML, int iDepth, boolean zRecurse, Activity activity ){
+		try {
+
+			// parse xml
+			String sPageHTML = null;
 
 	    	// determine how many files and directories there are
 			int ctFile = 0;

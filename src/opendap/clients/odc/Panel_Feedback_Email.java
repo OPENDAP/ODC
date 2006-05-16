@@ -161,7 +161,7 @@ public class Panel_Feedback_Email extends JPanel {
 
 class PostOffice {
 
-	private final static String DEFAULT_MailUser = "feedback";
+	private final static String DEFAULT_MailUser = "ODC_Feedback";
 
 	PostOffice(){}
 
@@ -197,6 +197,10 @@ class PostOffice {
 
 	boolean zSendEmail( String sMailUser, String sRecipientAddress, String sFromAddress, String sReturnAddress, String sSubject, String sMessageContent, StringBuffer sbError){
 		try {
+System.out.println("sMailUser: " + sMailUser);
+System.out.println("sFromAddress: " + sFromAddress);
+System.out.println("sRecipientAddress: " + sRecipientAddress);
+System.out.println("sReturnAddress: " + sReturnAddress);
 			String sMailServerHost = getMailHost();
 			if (sMailServerHost == null) {
 				sbError.append("no mail host defined");
@@ -244,6 +248,7 @@ class PostOffice {
 
 			// define message parameters and content
 			// set return address todo
+System.out.println("from msg: " + addressFrom.toString());
 			msg.setFrom(addressFrom);
 			msg.setRecipient(javax.mail.Message.RecipientType.TO, addressRecipient);
 			msg.setSubject(sSubject);

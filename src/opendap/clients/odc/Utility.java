@@ -11,7 +11,6 @@ package opendap.clients.odc;
 
 import java.io.*;
 import java.net.*;
-import java.awt.Image;
 import java.util.*;
 
 public class Utility {
@@ -60,85 +59,6 @@ public class Utility {
 			cOrder = 'G';
 		}
 		return Utility.sFixedWidth(Integer.toString(intSz), 3, '0', Utility.ALIGNMENT_RIGHT) + cOrder;
-	}
-
-	public static void iconAdd( javax.swing.JFrame theFrame ){
-		try {
-			String sIconPath;
-			String sIconSize = ConfigurationManager.getInstance().getProperty_DISPLAY_IconSize();
-			if( sIconSize.equals("16") ){
-				sIconPath = "/icons/icon-16.gif";
-			} else if( sIconSize.equals("24") ){
-				sIconPath = "/icons/icon-24.gif";
-			} else if( sIconSize.equals("32") ){
-				sIconPath = "/icons/icon-32.gif";
-			} else {
-				sIconPath = "/icons/icon-32.gif";
-				ApplicationController.getInstance().vShowError("Unknown icon size [" + sIconSize + "]. Supported sizes are \"16\", \"24\" and \"32\".");
-			}
-			sIconPath = "/opendap/clients/odc/" + sIconPath;
-			StringBuffer sbError = new StringBuffer();
-			javax.swing.ImageIcon icon = Utility.imageiconLoadResource( sIconPath, sbError );
-			if( icon == null ){
-				ApplicationController.getInstance().vShowError("failed to load icon " + sIconPath + ": " +sbError);
-				return;
-			}
-			theFrame.setIconImage(icon.getImage());
-		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowError("Unexpected error setting up icon. Default icon will appear.");
-		}
-	}
-
-	static Image imageIndicator_Granule;
-	static Image imageIndicator_Directory;
-	static Image imageIndicator_Catalog;
-	static Image imageIndicator_Binary;
-	static Image imageIndicator_Image;
-	static Image imageConstrained;
-	public static boolean zLoadIcons(StringBuffer sbError){
-		String sPath = "/opendap/clients/odc/icons/";
-		try {
-			javax.swing.ImageIcon image = Utility.imageiconLoadResource(sPath + "dataset-granule.gif", sbError);
-			imageIndicator_Granule = image.getImage();
-			if( imageIndicator_Granule == null ){
-				sbError.insert( 0, "icon " + sPath + "dataset-granule.gif" + " not found: " );
-				return false;
-			}
-			image = Utility.imageiconLoadResource(sPath + "dataset-directory.gif", sbError);
-			imageIndicator_Directory = image.getImage();
-			if( imageIndicator_Granule == null ){
-				sbError.insert( 0, "icon " + sPath + "dataset-directory.gif" + " not found: " );
-				return false;
-			}
-			image = Utility.imageiconLoadResource(sPath + "dataset-catalog.gif", sbError);
-			imageIndicator_Catalog = image.getImage();
-			if( imageIndicator_Granule == null ){
-				sbError.insert( 0, "icon " + sPath + "dataset-catalog.gif" + " not found: " );
-				return false;
-			}
-			image = Utility.imageiconLoadResource(sPath + "dataset-binary.gif", sbError);
-			imageIndicator_Binary = image.getImage();
-			if( imageIndicator_Granule == null ){
-				sbError.insert( 0, "icon " + sPath + "dataset-binary.gif" + " not found: " );
-				return false;
-			}
-			image = Utility.imageiconLoadResource(sPath + "dataset-image.gif", sbError);
-			imageIndicator_Image = image.getImage();
-			if( imageIndicator_Granule == null ){
-				sbError.insert( 0, "icon " + sPath + "dataset-image.gif" + " not found: " );
-				return false;
-			}
-			image = Utility.imageiconLoadResource(sPath + "constrained.gif", sbError);
-			imageConstrained = image.getImage();
-			if( imageIndicator_Granule == null ){
-				sbError.insert( 0, "icon " + sPath + "constrained.gif" + " not found: " );
-				return false;
-			}
-			return true;
-		} catch(Exception ex) {
-			sbError.append("Icons not found in path " + sPath);
-			return false;
-		}
 	}
 
 	public static String  getFileSeparator(){
@@ -418,69 +338,6 @@ ScanForStartOfMatch:
 		int posSeparator = sURL.indexOf(':');
 		if( posSeparator < 0 ) return null;
 		return sURL.substring(0, posSeparator).trim().toUpperCase();
-	}
-
-	public static javax.swing.ImageIcon imageiconLoadResource( String sResourcePath, StringBuffer sbError ){
-		java.awt.Image image = imageLoadResource( sResourcePath, sbError );
-		if( image == null ) return null;
-		return new javax.swing.ImageIcon(image);
-	}
-
-	public static java.awt.Image imageLoadResource( String sResourcePath, StringBuffer sbError ){
-		try {
-			java.net.URL url = ApplicationController.getInstance().getClass().getResource(sResourcePath);
-			if( url == null ){
-				sbError.append("resource not found: " + sResourcePath + " (this resource was missing from the class path or jar file)");
-				return null;
-			}
-			Object oContent = url.getContent();
-			if( oContent == null ){
-				sbError.append("resource content not available: " + sResourcePath);
-				return null;
-			}
-			java.awt.image.ImageProducer image_producer = (java.awt.image.ImageProducer)oContent;
-			if( image_producer == null ){
-				if( oContent instanceof java.awt.Image ){
-					return (java.awt.Image)oContent;
-				} else {
-					sbError.append("failed to load image: " + sResourcePath + " unknown resource type: " + oContent.getClass().getName());
-					return null;
-				}
-			} else {
-				java.awt.Toolkit tk = java.awt.Toolkit.getDefaultToolkit();
-				java.awt.Image image = tk.createImage(image_producer);
-				return image;
-			}
-/* does not work for zip files for some reason:
-			java.io.InputStream inputstreamImage = url.openStream();
-			int iChunkSize = inputstreamImage.available();
-			int iPreviousChunkSize = 0;
-			byte[] abImage = new byte[0];
-			byte[] abImage_buffer;
-			int nChunk = 0;
-			while( iChunkSize > 0 ){
-				nChunk++;
-				byte[] abImage_chunk = new byte[iChunkSize];
-				inputstreamImage.read(abImage_chunk, 0, iChunkSize);
-				abImage_buffer = new byte[abImage.length + iChunkSize];
-				System.arraycopy(abImage, 0, abImage_buffer, 0, abImage.length);
-				System.arraycopy(abImage_chunk, 0, abImage_buffer, abImage.length, abImage_chunk.length);
-				abImage = abImage_buffer;
-				iPreviousChunkSize = iChunkSize;
-				iChunkSize = inputstreamImage.available();
-
-// there appears to be a bug in the zip loader for windows that causes
-// the available count not to go to 0 when it is done--it sets starts at
-// the full size of the file and stays there
-				if ( nChunk > 10 || (iChunkSize == iPreviousChunkSize) ) break; // emergency protection
-			}
-			java.awt.Toolkit tk = java.awt.Toolkit.getDefaultToolkit();
-			java.awt.Image image = tk.createImage(abImage);
-*/
-		} catch( Exception ex ) {
-			sbError.append("failed to load image: " + sResourcePath + " error: " + ex);
-			return null;
-		}
 	}
 
 	static void vAddFavorite( DodsURL url ){

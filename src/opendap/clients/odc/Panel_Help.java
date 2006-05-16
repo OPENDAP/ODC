@@ -88,10 +88,10 @@ public class Panel_Help extends JPanel {
 
 	boolean zLoadHelp(StringBuffer sbError){
 		StringBuffer sbContent = new StringBuffer(5000);
-		if( Utility.zLoadStringResource(Resources.HelpText, sbContent, sbError) ){
+		if( Utility.zLoadStringResource(Resources.pathHelpText, sbContent, sbError) ){
 			// help successfully loaded
 		} else {
-			sbError.insert(0, "Failed to find help file [" + Resources.HelpText + "]: ");
+			sbError.insert(0, "Failed to find help file [" + Resources.pathHelpText + "]: ");
 			return false;
 		}
 		int ctTopic = 0;

@@ -55,12 +55,12 @@ class DatasetListRenderer extends JLabel implements ListCellRenderer, TableCellR
 		macolorScheme[12] = Color.lightGray;
 	}
 	public void vInitialize(int iSize, boolean zShowUndiscoveredAsRed){
-		imageIndicator_Granule = Utility.imageIndicator_Granule;
-		imageIndicator_Directory = Utility.imageIndicator_Directory;
-		imageIndicator_Catalog = Utility.imageIndicator_Catalog;
-		imageIndicator_Binary = Utility.imageIndicator_Binary;
-		imageIndicator_Image = Utility.imageIndicator_Image;
-		imageConstrained = Utility.imageConstrained;
+		imageIndicator_Granule = Resources.imageIndicator_Granule;
+		imageIndicator_Directory = Resources.imageIndicator_Directory;
+		imageIndicator_Catalog = Resources.imageIndicator_Catalog;
+		imageIndicator_Binary = Resources.imageIndicator_Binary;
+		imageIndicator_Image = Resources.imageIndicator_Image;
+		imageConstrained = Resources.imageConstrained;
 		setOpaque(true);
 		this.setMinimumSize(new Dimension(80, 20));
 		this.setPreferredSize(new Dimension(400, 20));

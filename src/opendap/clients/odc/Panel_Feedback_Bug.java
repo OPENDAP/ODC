@@ -3,7 +3,7 @@ package opendap.clients.odc;
 /**
  * Title:        Panel_Feedback_Bug
  * Description:  Output text area which displays messages and data
- * Copyright:    Copyright (c) 2004
+ * Copyright:    Copyright (c) 2004-6
  * Company:      University of Rhode Island, Graduate School of Oceanography
  * @author       John Chamberlain
  * @version      2.57
@@ -17,6 +17,8 @@ import java.util.ArrayList;
 public class Panel_Feedback_Bug extends JPanel {
 
     public Panel_Feedback_Bug() {}
+
+	public final static String WIKI_LineBreak = "[[BR]]";
 
 	public final static String[] CHOICE_OS = {
 		"Windows XP/Milennium",
@@ -126,6 +128,7 @@ public class Panel_Feedback_Bug extends JPanel {
 		"splash screen",
 		"program window frame",
 		"interprocess server",
+		"feedback",
 		"help",
 		"documentation",
 		"copy and paste",
@@ -298,6 +301,14 @@ public class Panel_Feedback_Bug extends JPanel {
 			// Create description/log panel
 			JPanel panelText = new JPanel();
 			panelText.setLayout(new BoxLayout(panelText, BoxLayout.Y_AXIS));
+
+			// the bug summary is not used because the developer is supposed to review
+			// user submitted bugs and retitle them appropriately
+//			JLabel labelSummary = new JLabel("  Summary (bug title or one-line summary phrase):");
+//			labelSummary.setAlignmentX(Component.LEFT_ALIGNMENT);
+//			jtfShortDescription.setMaximumSize(new Dimension(1600, 20));
+//			panelText.add(labelSummary);
+//			panelText.add(jtfShortDescription);
 			JLabel labelFullDescription = new JLabel("  Description (include steps to reproduce if relevant):");
 			labelFullDescription.setAlignmentX(Component.LEFT_ALIGNMENT);
 			panelText.add(labelFullDescription);
@@ -385,33 +396,102 @@ public class Panel_Feedback_Bug extends JPanel {
 	}
 
 	void vClearDisplay(){
+		jtfShortDescription.setText("");
 		jtaFullDescription.setText("");
+		jtaSystemLog.setText("");
 	}
 
 	void vSendBug(){
 
 		// get parameters
-		String sBugzillaHost = ConfigurationManager.getInstance().getProperty_FEEDBACK_BugHost();
-		String sBugzillaRoot = ConfigurationManager.getInstance().getProperty_FEEDBACK_BugzillaRoot();
+		String sBugHost = ConfigurationManager.getInstance().getProperty_FEEDBACK_BugHost();
+		String sBugRoot = ConfigurationManager.getInstance().getProperty_FEEDBACK_BugRoot();
+		int iBugPort    = ConfigurationManager.getInstance().getProperty_FEEDBACK_BugPort();
 
-		// login and get session cookies
+		// request parameters
 		String sCommand = "GET";
-		int iPort = 80;
-		String sPath = sBugzillaRoot + "/enter_bug.cgi";
-		String sQuery = "Bugzilla_login=j.chamberlain%40opendap.org&Bugzilla_password=empty&product=DODS+clients&GoAheadAndLogIn=Login";
+		int iPort = iBugPort;
+		String sPath;
+		String sQuery = null;
 		String sProtocol = "HTTP/1.1";
 		String sContentType = null;
 		String sContent = null;
 		String sReferer = null;
-		ArrayList listClientCookies = null;
+		String sBasicAuthentication = "amNoYW1iZXI6ZWR5dnU3OFl1";
+		String[] eggLocation = new String[1];
+		ArrayList listClientCookies = new ArrayList();
 		ArrayList listServerCookies = new ArrayList();
 		ByteCounter bc = null;
 		Activity activity = null;
 		StringBuffer sbError = new StringBuffer(80);
-		String sPageReturn = IO.getStaticContent(sCommand, sBugzillaHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, bc, activity, sbError);
+		String sPageReturn;
+
+		// start session
+		// http://scm.opendap.org:8090/trac
+		sPath = sBugRoot;
+		sPageReturn = IO.getStaticContent( sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, sbError );
 		if( sPageReturn == null ){
-			ApplicationController.vShowError("Failed to initiate bugzilla session: " + sbError);
+			ApplicationController.vShowError("Failed to contact bug server: " + sbError);
 			return;
+		}
+
+		// make sure a session cookie has been obtained
+		int xServerCookie = 1;
+		while( true ){
+			if( xServerCookie > listServerCookies.size() ){
+				ApplicationController.vShowError("Bug server did not return expected session cookie");
+				return;
+			}
+			Object oServerCookie = listServerCookies.get(xServerCookie-1);
+			if( oServerCookie == null ){
+				System.out.println("cookie " +  xServerCookie + " was null");
+			} else {
+				Cookie theCookie = IO.parseCookie( oServerCookie.toString(), sbError );
+				if( theCookie == null ){
+					ApplicationController.vShowError("Error parsing cookie " +  xServerCookie + ": " + sbError );
+					return;
+				}
+				if( theCookie.sName.equalsIgnoreCase("trac_session") ){
+					listClientCookies.add( theCookie.getClientCookie() ); // add authorization cookie
+					System.out.println("added session cookie: " + oServerCookie);
+					break;
+				}
+			}
+			xServerCookie++;
+		}
+
+		// login
+		// http://scm.opendap.org:8090/trac/login
+		sPath = sBugRoot + "/login";
+		sPageReturn = IO.getStaticContent( sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, sbError );
+		if( sPageReturn == null ){
+			ApplicationController.vShowError("Failed to login: " + sbError);
+			return;
+		}
+
+		// make sure authorization cookie is there
+		xServerCookie = 1;
+		while( true ){
+			if( xServerCookie > listServerCookies.size() ){
+				ApplicationController.vShowError("Bug server did not return expected authorization cookie after login");
+				return;
+			}
+			Object oServerCookie = listServerCookies.get(xServerCookie-1);
+			if( oServerCookie == null ){
+				System.out.println("cookie " +  xServerCookie + " was null");
+			} else {
+				Cookie theCookie = IO.parseCookie( oServerCookie.toString(), sbError );
+				if( theCookie == null ){
+					ApplicationController.vShowError("Error parsing cookie " +  xServerCookie + ": " + sbError );
+					return;
+				}
+				if( theCookie.sName.equalsIgnoreCase("trac_auth") ){
+					listClientCookies.add( theCookie.getClientCookie() ); // add authorization cookie
+					System.out.println("added authorization cookie: " + oServerCookie);
+					break;
+				}
+			}
+			xServerCookie++;
 		}
 
 		// Store User Email
@@ -423,7 +503,17 @@ public class Panel_Feedback_Bug extends JPanel {
 			}
 		}
 
-		// Assemble Bug Description
+		// Get Bug Summary
+		String sBugSummary = "[user-submitted bug]";
+		String sBugSummary_encoded = null;
+		try {
+			sBugSummary_encoded = java.net.URLEncoder.encode( sBugSummary, "UTF-8" );
+		} catch( Throwable t ) {
+			ApplicationController.vShowError("Failed to encode the bug summary: " + sBugSummary );
+			return;
+		}
+
+		// Assemble Detailed Bug Description
 		String sOperatingSystem = jcbOperatingSystem.getSelectedItem().toString();
 		String sNatureOfBug = jcbNatureOfBug.getSelectedItem().toString(); // not used
 		String sKindOfProblem = jcbKindOfProblem.getSelectedItem().toString();
@@ -445,17 +535,17 @@ public class Panel_Feedback_Bug extends JPanel {
 			sAreaOfProblem = "[none]";
 		}
 		StringBuffer sbBugDescription = new StringBuffer(2500);
-		sbBugDescription.append("OPeNDAP Data Connector: User Feedback Bug" + "\n");
-		sbBugDescription.append("Version: " + ApplicationController.getInstance().getVersionString() + "\n");
-		sbBugDescription.append("Operating System: " + sOperatingSystem + "\n");
-		sbBugDescription.append("Kind of Problem: " + sKindOfProblem + "\n");
-		if( jtabAreaOfProblem.isVisible() ) sbBugDescription.append(sAreaOfProblem).append("\n");
+		sbBugDescription.append("OPeNDAP Data Connector: User Feedback Bug" + WIKI_LineBreak);
+		sbBugDescription.append("Version: " + ApplicationController.getInstance().getVersionString() + WIKI_LineBreak);
+		sbBugDescription.append("Operating System: " + sOperatingSystem + WIKI_LineBreak);
+		sbBugDescription.append("Kind of Problem: " + sKindOfProblem + WIKI_LineBreak);
+		if( jtabAreaOfProblem.isVisible() ) sbBugDescription.append("Area of Problem: ").append(sAreaOfProblem).append(WIKI_LineBreak);
 		if( sUserEmail.trim().length() == 0 ) sUserEmail = "[none provided]";
-		sbBugDescription.append("\n**************** USER EMAIL ********************\n");
+		sbBugDescription.append(WIKI_LineBreak + WIKI_LineBreak + "**************** USER EMAIL *******************" + WIKI_LineBreak);
 		sbBugDescription.append(sUserEmail);
-		sbBugDescription.append("\n\n**************** USER BUG DESCRIPTION ********************\n");
+		sbBugDescription.append(WIKI_LineBreak + WIKI_LineBreak + "**************** USER BUG DESCRIPTION ********************" + WIKI_LineBreak);
 		sbBugDescription.append(jtaFullDescription.getText());
-		sbBugDescription.append("\n\n**************** SYSTEM LOG ********************\n");
+		sbBugDescription.append(WIKI_LineBreak + WIKI_LineBreak + "**************** SYSTEM LOG ********************" + WIKI_LineBreak);
 		sbBugDescription.append(jtaSystemLog.getText());
 		String sBugDescription_encoded;
 		try {
@@ -465,64 +555,56 @@ public class Panel_Feedback_Bug extends JPanel {
 			return;
 		}
 
+		String sBugCategory = "Bug";
+		if( sNatureOfBug.equalsIgnoreCase( "New feature request" ) ){ sBugCategory = "Feature"; }
+
 		// Assemble Posting
+		// EXAMPLE // reporter=jchamber&summary=Coastline+outline+have+horizontal+lines&description=The+coastline%27s+sometimes+have+horizontal+lines+apparently+caused+by+the+renderer+not+knowing+the+correct+location+of+the+meridian.&mode=newticket&action=create&status=new&component=ODC&version=&severity=normal&keywords=&priority=normal&milestone=Java-OPeNDAP+Release&owner=jchamber&cc=&custom_category=Bug&create=Submit+ticket
 		StringBuffer sbContent = new StringBuffer(1000);
-		sbContent.append("reporter=j.chamberlain%40opendap.org").append('&');
-		sbContent.append("product=DODS+clients").append('&');
-		sbContent.append("version=3.1.x").append('&');
+		sbContent.append("reporter=jchamber").append('&');
+		sbContent.append("summary=").append(sBugSummary_encoded).append('&');
+		sbContent.append("description=").append(sBugDescription_encoded).append('&');
+		sbContent.append("mode=newticket").append('&');
+		sbContent.append("action=create").append('&');
+		sbContent.append("status=new").append('&');
 		sbContent.append("component=ODC").append('&');
-		sbContent.append("rep_platform=PC").append('&');
-		sbContent.append("op_sys=Windows+2000").append('&');
-		sbContent.append("priority=P1").append('&');
-		sbContent.append("bug_severity=normal").append('&');
-	    sbContent.append("assigned_to=").append('&'); // defaults to component owner
+		sbContent.append("version=").append('&'); // todo try using version string
+		sbContent.append("severity=normal").append('&');
+	    sbContent.append("keywords=").append('&');
+		sbContent.append("priority=normal").append('&');
+		sbContent.append("milestone=Java-OPeNDAP+Release").append('&');
+		sbContent.append("owner=jchamber").append('&');
 		sbContent.append("cc=").append('&');
-		sbContent.append("bug_file_loc=http%3A%2F%2Fnone").append('&');
-		sbContent.append("short_desc=%5Buser+bug%5D").append('&');
-		sbContent.append("comment=").append(sBugDescription_encoded).append('&');
-		sbContent.append("bit-256=0").append('&');
-		sbContent.append("bit-512=0").append('&');
-		sbContent.append("form_name=enter_bug");
+		sbContent.append("custom_category=" + sBugCategory).append('&');
+		sbContent.append("create=Submit+ticket");
+
+		// Prepend Content Length // todo
+		// EXAMPLE // Content-Length: 407
+		// int iContentLength = sbContent.toString().length();
 
 // test posting
 //		sbContent.append("reporter=j.chamberlain%40opendap.org&product=DODS+clients&version=3.1.x&component=ODC&rep_platform=PC&op_sys=Windows+2000&priority=P1&bug_severity=normal&assigned_to=&cc=&bug_file_loc=http%3A%2F%2Fnone2&short_desc=test+bug+for+ODC+feedback+%232&comment=content+description+for+%232%0D%0Asecond+line+for+description+%232&bit-256=0&bit-512=0&form_name=enter_bug");
 
-		// Assemble Cookies
-		listClientCookies = new ArrayList();
-		if( listServerCookies.size() > 0 ){
-			for( int xCookie = 1; xCookie <= listServerCookies.size(); xCookie++ ){
-				String sCookie = (String)listServerCookies.get(xCookie-1);
-				int posEndValue = sCookie.indexOf(';');
-				if( posEndValue < 1 ) continue;
-				int posStartValue = sCookie.indexOf('=');
-				if( posStartValue < 1 ) continue;
-				String sClientCookie = sCookie.substring(0, posEndValue).trim();
-				String sCookieValue = sCookie.substring(posStartValue + 1, posEndValue).trim();
-				if( sCookieValue.length() < 1 ) continue; // ignore any cookies without value
-				listClientCookies.add(sClientCookie);
-			}
-		}
-
 		// make posting
 		sCommand = "POST";
-		sPath = sBugzillaRoot + "/post_bug.cgi";
+		sPath = sBugRoot;
 		sQuery = null;
 		sProtocol = "HTTP/1.1";
-		sReferer = "http://" + sBugzillaHost + sBugzillaRoot + "/enter_bug.cgi?Bugzilla_login=j.chamberlain%40opendap.org&Bugzilla_password=empty&product=DODS+clients&GoAheadAndLogIn=Login";
+		sReferer = "http://" + sBugHost + sBugRoot + "/newticket"; // Referer: http://scm.opendap.org:8090/trac/newticket
 		sContentType = "application/x-www-form-urlencoded";
 		sContent = sbContent.toString();
 		listServerCookies.clear();
-		sPageReturn = IO.getStaticContent(sCommand, sBugzillaHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, bc, activity, sbError);
+		sPageReturn = IO.getStaticContent(sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, sbError);
 		if( sPageReturn == null ){
-			ApplicationController.vShowError("Failed to post bug/feature, HTTP failure: " + sbError);
+			ApplicationController.vShowError("Failed to post bug/feature to " + sBugHost + ":" + iPort + sPath + ", HTTP failure: " + sbError);
 			return;
 		} else {
-			String sSuccessSnippet = "<TITLE>Posting Bug -- Please wait</TITLE>";
-			if( sPageReturn.indexOf(sSuccessSnippet) >= 0 ){
-				ApplicationController.vShowStatus("Bug/Feature report posted.");
-				ApplicationController.getInstance().vShowErrorDialog("Bug/Feature report posted. Thanks for your feedback.");
+			if( eggLocation[0] != null && eggLocation[0].startsWith("/trac/ticket/") ){
+				String sTicketNumber = eggLocation[0].substring(13);
+				ApplicationController.vShowStatus("Bug/Feature report posted as ticket #" + sTicketNumber);
+				ApplicationController.getInstance().vShowErrorDialog("Bug/Feature report posted as ticket #" + sTicketNumber + ". Thanks for your feedback.");
 			} else {
-				ApplicationController.vShowError("Failed to post bug/feature, Bugzilla failure (check system.err)");
+				ApplicationController.vShowError("May have failed to post bug/feature, bug system returned unexpected response (check system.err)");
 				System.err.println("page: " + sPageReturn);
 				return;
 			}
@@ -532,56 +614,106 @@ public class Panel_Feedback_Bug extends JPanel {
 
 }
 
-// GET /bugzilla/enter_bug.cgi?Bugzilla_login=j.chamberlain%40opendap.org&Bugzilla_password=empty&product=DODS+clients&GoAheadAndLogIn=Login HTTP/1.1
-// Host: dodsdev.gso.uri.edu
-// User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7) Gecko/20040707 Firefox/0.9.2
-// Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
-// Accept-Language: en-us,en;q=0.5
-// Accept-Encoding: gzip,deflate
-// Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
-// Keep-Alive: 300
-// Connection: keep-alive
-// Cookie: Bugzilla_login=j.chamberlain@opendap.org; Bugzilla_logincookie=396
+//http://scm.opendap.org:8090/trac/
 //
-// HTTP/1.x 200 OK
-// Date: Mon, 12 Jul 2004 17:37:06 GMT
-// Server: Apache/2.0.40 (Red Hat Linux)
-// Set-Cookie: Bugzilla_login=j.chamberlain@opendap.org ; path=/; expires=Sun, 30-Jun-2029 00:00:00 GMT
-// Set-Cookie: Bugzilla_logincookie=399 ; path=/; expires=Sun, 30-Jun-2029 00:00:00 GMT
-// Set-Cookie: Bugzilla_password= ; path=/; expires=Sun, 30-Jun-80 00:00:00 GMT
-// Connection: close
-// Transfer-Encoding: chunked
-// Content-Type: text/html; charset=ISO-8859-1
-// ----------------------------------------------------------
-// http://dodsdev.gso.uri.edu/bugzilla/post_bug.cgi
+//GET /trac/ HTTP/1.1
+//Host: scm.opendap.org:8090
+//User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.8) Gecko/20050511 Firefox/1.0.4
+//Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+//Accept-Language: en-us,en;q=0.5
+//Accept-Encoding: gzip,deflate
+//Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+//Keep-Alive: 300
+//Connection: keep-alive
 //
-// POST /bugzilla/post_bug.cgi HTTP/1.1
-// Host: dodsdev.gso.uri.edu
-// User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7) Gecko/20040707 Firefox/0.9.2
-// Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
-// Accept-Language: en-us,en;q=0.5
-// Accept-Encoding: gzip,deflate
-// Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
-// Keep-Alive: 300
-// Connection: keep-alive
-// Referer: http://dodsdev.gso.uri.edu/bugzilla/enter_bug.cgi?Bugzilla_login=j.chamberlain%40opendap.org&Bugzilla_password=empty&product=DODS+clients&GoAheadAndLogIn=Login
-// Cookie: Bugzilla_login=j.chamberlain@opendap.org; Bugzilla_logincookie=399
-// Content-Type: application/x-www-form-urlencoded
-// Content-Length: 359
-// reporter=j.chamberlain%40opendap.org&product=DODS+clients&version=3.1.x&component=ODC&rep_platform=PC&op_sys=Windows+2000&priority=P1&bug_severity=normal&assigned_to=&cc=&bug_file_loc=http%3A%2F%2Fnone2&short_desc=test+bug+for+ODC+feedback+%232&comment=content+description+for+%232%0D%0Asecond+line+for+description+%232&bit-256=0&bit-512=0&form_name=enter_bug
-
+//HTTP/1.x 200 OK
+//Date: Sun, 14 May 2006 23:50:37 GMT
+//Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+//Cache-Control: no-cache
+//Expires: Fri, 01 Jan 1999 00:00:00 GMT
+//Set-Cookie: trac_session=1be443bdb7392f575344e139; expires=Thu, 05-Sep-2019 02:30:38 GMT; Path=/trac;
+//Content-Length: 8688
+//Keep-Alive: timeout=15, max=100
+//Connection: Keep-Alive
+//Content-Type: text/html;charset=utf-8
+//----------------------------------------------------------
+//http://scm.opendap.org:8090/trac/login
 //
-// HTTP/1.x 200 OK
-// Date: Mon, 12 Jul 2004 17:37:46 GMT
-// Server: Apache/2.0.40 (Red Hat Linux)
-// Set-Cookie: PLATFORM=DODS clients ; path=/ ; expires=Sun, 30-Jun-2029 00:00:00 GMT
-// Set-Cookie: VERSION-DODS clients=3.1.x ; path=/ ; expires=Sun, 30-Jun-2029 00:00:00 GMT
-// Connection: close
-// Transfer-Encoding: chunked
-// Content-Type: text/html; charset=ISO-8859-1
-// ----------------------------------------------------------
+//GET /trac/login HTTP/1.1
+//Host: scm.opendap.org:8090
+//User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.8) Gecko/20050511 Firefox/1.0.4
+//Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+//Accept-Language: en-us,en;q=0.5
+//Accept-Encoding: gzip,deflate
+//Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+//Keep-Alive: 300
+//Connection: keep-alive
+//Referer: http://scm.opendap.org:8090/trac/
+//Cookie: trac_session=1be443bdb7392f575344e139
 //
-
+//HTTP/1.x 401 Authorization Required
+//Date: Sun, 14 May 2006 23:51:08 GMT
+//Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+//WWW-Authenticate: Basic realm="Trac"
+//Content-Length: 498
+//Keep-Alive: timeout=15, max=100
+//Connection: Keep-Alive
+//Content-Type: text/html; charset=iso-8859-1
+//----------------------------------------------------------
+//http://scm.opendap.org:8090/trac/login
+//
+//GET /trac/login HTTP/1.1
+//Host: scm.opendap.org:8090
+//User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.8) Gecko/20050511 Firefox/1.0.4
+//Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+//Accept-Language: en-us,en;q=0.5
+//Accept-Encoding: gzip,deflate
+//Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+//Keep-Alive: 300
+//Connection: keep-alive
+//Referer: http://scm.opendap.org:8090/trac/
+//Cookie: trac_session=1be443bdb7392f575344e139
+//Authorization: Basic amNoYW1iZXI6ZWR5dnU3OFl1
+//
+//HTTP/1.x 302 OK
+//Date: Sun, 14 May 2006 23:51:22 GMT
+//Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+//Pragma: no-cache
+//Cache-Control: no-cache
+//Expires: Fri, 01 Jan 1999 00:00:00 GMT
+//Set-Cookie: trac_auth=d00c4ea3a8bb1834e51586063a6ef0ed; Path=/trac;
+//Location: http://scm.opendap.org:8090/trac/
+//Keep-Alive: timeout=15, max=99
+//Connection: Keep-Alive
+//Transfer-Encoding: chunked
+//Content-Type: text/plain
+//----------------------------------------------------------
+//http://scm.opendap.org:8090/trac/
+//
+//GET /trac/ HTTP/1.1
+//Host: scm.opendap.org:8090
+//User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.8) Gecko/20050511 Firefox/1.0.4
+//Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+//Accept-Language: en-us,en;q=0.5
+//Accept-Encoding: gzip,deflate
+//Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+//Keep-Alive: 300
+//Connection: keep-alive
+//Referer: http://scm.opendap.org:8090/trac/
+//Cookie: trac_session=1be443bdb7392f575344e139; trac_auth=d00c4ea3a8bb1834e51586063a6ef0ed
+//Authorization: Basic amNoYW1iZXI6ZWR5dnU3OFl1
+//
+//HTTP/1.x 200 OK
+//Date: Sun, 14 May 2006 23:51:23 GMT
+//Server: Apache/2.0.54 (Unix) DAV/2 SVN/1.2.0
+//Cache-Control: no-cache
+//Expires: Fri, 01 Jan 1999 00:00:00 GMT
+//Set-Cookie: trac_session=1be443bdb7392f575344e139; expires=Thu, 05-Sep-2019 02:31:23 GMT; Path=/trac;
+//Content-Length: 9687
+//Keep-Alive: timeout=15, max=100
+//Connection: Keep-Alive
+//Content-Type: text/html;charset=utf-8
+//
 // http://scm.opendap.org:8090/trac/login
 //
 // GET /trac/login HTTP/1.1
