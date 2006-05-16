@@ -2357,7 +2357,7 @@ class Panel_MissingValues extends JPanel {
 		mOwner = owner;
 		setOpaque(false);
 		checkUseMissing.setOpaque(false);
-		ImageIcon iiCalculator = Utility.imageiconLoadResource("icons/calculator.gif");
+		ImageIcon iiCalculator = Resources.imageiconCalculator;
 		if( iiCalculator == null ){
 			buttonCalculateMissingValues = new JButton("calc");
 		} else {
