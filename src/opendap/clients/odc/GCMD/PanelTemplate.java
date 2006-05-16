@@ -554,9 +554,9 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 		public void Do(){
 			handler = new DifHandler();
 			SAXParserFactory factory = SAXParserFactory.newInstance();
+			String sQueryURL = null;
 			try {
 				URL urlQuery;
-				String sQueryURL;
 			    sQueryURL = msGCMD_URL + "/getdifs.py?query=";
 //			    if( msQueryString.length() > 0 ) sQueryURL += URLEncoder.encode(msQueryString, ENCODING); 1.4.1 only
 			    if( msQueryString.length() > 0 ) sQueryURL += URLEncoder.encode(msQueryString);
@@ -570,6 +570,7 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 				}
 				SAXParser saxParser = factory.newSAXParser();
 				saxParser.parse( mis, handler );
+
 
 				// If the request has been canceled, drawTable will be false at this point.
 				if(mzDrawTable) {
@@ -597,7 +598,7 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 					mModel.setData(ids);
 				}
 			} catch(Throwable ex) {
-				StringBuffer sbError = new StringBuffer("while executing GCMD search thread");
+				StringBuffer sbError = new StringBuffer("while executing GCMD search thread for query [" + sQueryURL + "]");
 				Utility.vUnexpectedError(ex, sbError);
 				ApplicationController.getInstance().vShowError(sbError.toString());
 			}

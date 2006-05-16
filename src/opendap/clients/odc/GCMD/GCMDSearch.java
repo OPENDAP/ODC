@@ -42,11 +42,10 @@ public class GCMDSearch extends JPanel {
 		jbuttonAccessGCMD.setMaximumSize(new Dimension(250, 100));
 		jbuttonAccessGCMD.setPreferredSize(new Dimension(250, 100));
 		StringBuffer sbError = new StringBuffer();
-		javax.swing.ImageIcon iiInternetConnectionIcon = Utility.imageiconLoadResource(Resources.ICONS_InternetConnection, sbError);
-		if( iiInternetConnectionIcon == null ){
+		if( Resources.imageiconInternet == null ){
 			// do not use an icon
 		} else {
-			jbuttonAccessGCMD.setIcon(iiInternetConnectionIcon);
+			jbuttonAccessGCMD.setIcon(Resources.imageiconInternet);
 		}
 		final ActionListener action =
 			new ActionListener(){
