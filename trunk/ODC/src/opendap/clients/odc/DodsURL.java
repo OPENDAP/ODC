@@ -119,8 +119,8 @@ public class DodsURL implements java.io.Serializable {
 
 	public String getInfo(){
 		StringBuffer sbInfo = new StringBuffer(1000);
-		sbInfo.append(this.getTitle() + '\n');
-		sbInfo.append(this.getFullURL() + '\n');
+		sbInfo.append("Title: " + this.getTitle() + '\n');
+		sbInfo.append("Full URL: " + this.getFullURL() + '\n');
 		sbInfo.append("URL type: " + this.getTypeString() + '\n' );
 		if( this.isUnreachable() ) sbInfo.append("URL is unreachable: " + this.getError() + "\n");
 		String sBaseURL = this.getBaseURL();

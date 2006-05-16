@@ -48,9 +48,6 @@ public class Panel_Retrieve_Output extends JPanel {
 			final JPanel panelTarget = new JPanel();
 			panelFileSpec.setVisible(false);
 
-			javax.swing.ImageIcon imageInternet = Utility.imageiconLoadResource(Resources.ICONS_InternetConnection, sbError );
-			if( imageInternet == null ) return false;
-
 			String[] asTargets_Blank = { "[no selection]" };
 			String[] asTargets_Text = { "Text View", "File", "Standard Out", "Clipboard" };
 			String[] asTargets_Image = { "Image Viewer" };
@@ -78,7 +75,7 @@ public class Panel_Retrieve_Output extends JPanel {
 			final JButton buttonOutput = new JButton();
 			Styles.vApply( Styles.STYLE_NetworkAction, buttonOutput );
 			buttonOutput.setText("Output to");
-			buttonOutput.setIcon(imageInternet);
+			buttonOutput.setIcon(Resources.imageiconInternet);
 			final JButton buttonTarget = null; // no longer allow canceling on this button because of reset failure bug todo
 			final ActionListener actionSend =
 				new ActionListener(){

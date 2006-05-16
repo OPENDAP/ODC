@@ -68,18 +68,18 @@ public class ApplicationController {
 				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
 			}
 
+			if( !Resources.zLoadIcons( sbError ) ){
+				ApplicationController.vShowStartupDialog("Failed to start: " + sbError);
+				System.out.println("Failed to start: " + sbError);
+				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
+			}
+
 			boolean zShowSplashScreen = ConfigurationManager.getInstance().getProperty_DISPLAY_ShowSplashScreen();
 			if( zShowSplashScreen ) thisInstance.vShowSplashScreen();
 			thisInstance.vShowStartupMessage("preloading classes");
 			thisInstance.vClassPreLoad();
 			thisInstance.vShowStartupMessage("determining available fonts");
 			Utility.getFontFamilies();
-			thisInstance.vShowStartupMessage("loading icons");
-			if( !Utility.zLoadIcons(sbError) ){
-				ApplicationController.vShowStartupDialog("Failed to start: " + sbError);
-				System.out.println("Failed to start: " + sbError);
-				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
-			}
 			thisInstance.vShowStartupMessage("creating main frame");
 			thisInstance.appframe = new ApplicationFrame();
 			if( ConfigurationManager.getInstance().getProperty_InterprocessServerOn() )
@@ -177,23 +177,19 @@ public class ApplicationController {
 
 	private static javax.swing.JWindow windowSplash = null;
 	private static javax.swing.JLabel labelSplash = null;
-	private static ImageIcon imageiconSplash;
 	void vShowSplashScreen(){
 		try {
-			StringBuffer sbError = new StringBuffer();
-			imageiconSplash = Utility.imageiconLoadResource(Resources.SplashScreen, sbError);
-			if( imageiconSplash == null ){
-				System.err.println("splash screen [" + Resources.SplashScreen + "] missing from classpath (" + sbError + ")");
+			if( Resources.imageiconSplash == null ){
 				javax.swing.JOptionPane.showMessageDialog(null, "startup screen unavailable");
 				return;
 			}
-			labelSplash = new javax.swing.JLabel(imageiconSplash);
+			labelSplash = new javax.swing.JLabel(Resources.imageiconSplash);
 			final javax.swing.JWindow windowSplash_final = new javax.swing.JWindow(); // todo try assigning an owner to avoid hidden window phenomenon
 			windowSplash = windowSplash_final;
 			windowSplash_final.getContentPane().add(labelSplash, java.awt.BorderLayout.CENTER);
 			java.awt.Dimension dimScreenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-			final int iImageWidth = imageiconSplash.getIconWidth();
-			final int iImageHeight = imageiconSplash.getIconHeight();
+			final int iImageWidth = Resources.imageiconSplash.getIconWidth();
+			final int iImageHeight = Resources.imageiconSplash.getIconHeight();
 			windowSplash_final.pack();
 			windowSplash_final.setLocation(dimScreenSize.width/2 - (iImageWidth/2), dimScreenSize.height/2 - (iImageHeight/2));
 			windowSplash_final.addMouseListener(

@@ -52,7 +52,7 @@ public class ApplicationFrame extends JFrame {
 
 			this.setTitle(' ' + sTitle);
 
-			Utility.iconAdd(this);
+			Resources.iconAdd(this);
 
 			this.getContentPane().setLayout(new java.awt.BorderLayout());
 

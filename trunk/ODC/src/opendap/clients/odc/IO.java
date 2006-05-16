@@ -61,6 +61,12 @@ public class IO {
 		return getStaticContent(sCommand, sHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, bc, activity, sbError);
 	}
 
+	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList listClientCookies, ArrayList listServerCookies, ByteCounter bc, Activity activity, StringBuffer sbError) {
+		String sBasicAuthentication = null;
+		String[] eggLocation = null;
+		return getStaticContent( sCommand, sHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, sbError );
+	}
+
     /**
      * Open a connection to a server.
      * @param sHost (like gso.uri.edu or 127.0.0.1)
@@ -73,11 +79,13 @@ public class IO {
      * @param sContent supply additional content if desired (for example if this is a post) [content length will automatically be calculated]
 	 * @param listClientCookies supply an ArrayList of cookies you want to send to server
 	 * @param listServerCookies supply an ArrayList if you want the cookie strings back from server
+	 * @param sBasicAuthentication Optional the Base64 encoded username:password required for HTTP Basic Authentication scheme if any
+	 * @param eggLocation Optional the 1-member array to accept a redirect location, if non-null then a redirect occurred
      * @param bc Optional ByteCounter object to get progress feedback, supply null if unwanted
      * @param sbError Buffer to write any error message to.
      * @return the content of the return as a String or null in the case of an error.
      */
-	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList listClientCookies, ArrayList listServerCookies, ByteCounter bc, Activity activity, StringBuffer sbError) {
+	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList listClientCookies, ArrayList listServerCookies, String sBasicAuthentication, String[] eggLocation, ByteCounter bc, Activity activity, StringBuffer sbError) {
 
 		if( sHost == null ){
 			sbError.append("host missing");
@@ -108,6 +116,9 @@ public class IO {
 				sbCookieText.append((String)listClientCookies.get(xCookie - 1));
 			}
 			if( sbCookieText.length() > 0 ) sRequest += "Cookie: " + sbCookieText  + "\r\n";
+		}
+		if( sBasicAuthentication != null ){
+			sRequest += "Authorization: Basic " + sBasicAuthentication + "\r\n";
 		}
 		if( sContent != null ){
 			if( sContentType != null ) sRequest += "Content-Type: " + sContentType  + "\r\n";
@@ -165,6 +176,8 @@ public class IO {
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
+			String sLocation = 	getHeaderField( sHeader, "Location" );
+			if( eggLocation != null ) eggLocation[0] = sLocation;
 			String sResponseCode = null;
 			for( int xResponseField = 1; xResponseField <= asHTTPResponse.length - 1; xResponseField++ ){
 				if( asHTTPResponse[xResponseField] != null && asHTTPResponse[xResponseField].length() > 0 ){
@@ -177,7 +190,7 @@ public class IO {
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
-			if( !sResponseCode.equals("200") ){
+			if( !sResponseCode.equals("200") && !sResponseCode.equals("302") ){ // todo better handling of response codes
 				sbError.append("server returned HTTP error code: " + Utility.sSafeSubstring(sHTTP_Response, 0, 500));
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
@@ -563,6 +576,40 @@ ReadHeader:
 		return socket_channel;
 	}
 
+	public static final Cookie parseCookie( String sServerCookie, StringBuffer sbError ){
+		if( sServerCookie == null ){ sbError.append("cookie was null"); return null; }
+		if( sServerCookie.trim().length() == 0 ){ sbError.append("cookie was blank"); return null; }
+		String[] asCookieFields = Utility.split( sServerCookie, ';' );
+
+		// the first field must have the name=value pair
+		if( asCookieFields[0].trim().length() == 0 ){ sbError.append("cookie name/value field was blank"); return null; }
+		String[] asNameField = Utility.split( asCookieFields[0], '=' );
+		if( asNameField[0].trim().length() == 0 ){ sbError.append("cookie name field was blank"); return null; }
+		if( asNameField[1].trim().length() == 0 ){ sbError.append("cookie value field was blank"); return null; }
+		Cookie theCookie = new Cookie();
+		theCookie.sName = asNameField[0].trim();
+		theCookie.sValue = asNameField[1].trim();
+
+		for( int xField = 2; xField <= asCookieFields.length; xField++ ){
+			String[] asParam = Utility.split( asCookieFields[xField - 1], '=' );
+			if( asParam[0].trim().equalsIgnoreCase("expires") ){
+				theCookie.sExpires = asParam[1].trim();
+			}
+			if( asParam[0].trim().equalsIgnoreCase("path") ){
+				theCookie.sPath = asParam[1].trim();
+			}
+		}
+		return theCookie;
+	}
+
+}
+
+class Cookie {
+	String sName;
+	String sValue;
+	String sExpires;
+	String sPath;
+	public String getClientCookie(){ return sName + '=' + sValue; }
 }
 
 /**
