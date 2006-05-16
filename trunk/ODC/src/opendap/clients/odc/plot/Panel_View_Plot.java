@@ -467,11 +467,6 @@ public class Panel_View_Plot extends JPanel {
 
 		// buttons
 		StringBuffer sbError = new StringBuffer();
-		javax.swing.ImageIcon imageInternet = Utility.imageiconLoadResource(Resources.ICONS_InternetConnection, sbError);
-		if( imageInternet == null ){
-			ApplicationController.getInstance().vShowError( "failed to load the internet icon while setting up source selector: " + sbError );
-			return;
-		}
 		buttonSelectAll.addActionListener(
 			new ActionListener(){
 	    		public void actionPerformed(ActionEvent event) {
@@ -811,7 +806,7 @@ public class Panel_View_Plot extends JPanel {
 				sbInfo.append(urlEntry.getInfo());
 			}
 			JFrame frame = new JFrame();
-			Utility.iconAdd(frame);
+			Resources.iconAdd(frame);
 			frame.setTitle("Dataset Info for " + urlEntry.getTitle());
 			Dimension dimScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
 			frame.setSize((dimScreenSize.width/2), (dimScreenSize.height/2));

@@ -89,7 +89,7 @@ public class Output_ToPlot {
 
 			// Create external plot frame
 			mPlotFrame = new javax.swing.JFrame();
-			Utility.iconAdd(mPlotFrame);
+			Resources.iconAdd(mPlotFrame);
 			Dimension dimScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
 			mPlotFrame.setSize(EXTERNAL_WINDOW_Width, EXTERNAL_WINDOW_Height);
 			mPlotFrame.getContentPane().setLayout(new java.awt.BorderLayout());
@@ -665,7 +665,7 @@ System.out.println("sCaption_axis_Y: " + sCaption_axis_Y);
 								fr.dispose();
 							}
 						});
-						Utility.iconAdd(frame);
+						Resources.iconAdd(frame);
 					}
 					JComponent compToAdd;
 					scale = panelPlot.getPlotScale();
