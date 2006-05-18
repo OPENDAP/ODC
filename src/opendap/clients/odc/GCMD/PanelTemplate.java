@@ -558,8 +558,7 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 			try {
 				URL urlQuery;
 			    sQueryURL = msGCMD_URL + "/getdifs.py?query=";
-//			    if( msQueryString.length() > 0 ) sQueryURL += URLEncoder.encode(msQueryString, ENCODING); 1.4.1 only
-			    if( msQueryString.length() > 0 ) sQueryURL += URLEncoder.encode(msQueryString);
+			    if( msQueryString.length() > 0 ) sQueryURL += URLEncoder.encode(msQueryString, ENCODING); // 1.4.1+ only
 				urlQuery = new URL(sQueryURL);
 				ApplicationController.getInstance().vShowStatus("Opening GCMD query: " + sQueryURL);
 				try {
