@@ -76,7 +76,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 	}
 
 	// gets the currently user-selected URLs
-	public DodsURL[] getSelectedURLs( StringBuffer sbError ){ // zero-based
+	public DodsURL[] getSelectedURLs_NamedList( StringBuffer sbError ){ // zero-based
 		if( madodsurlDisplay == null ) return null;
 		if( mpanelList == null ){
 			sbError.append("internal error, model has no control");
@@ -351,7 +351,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 
 	void vApplyCE(String sConstraintExpression, int iDigest){
 		StringBuffer sbError = new StringBuffer(80);
-		DodsURL[] urls = getSelectedURLs(sbError);
+		DodsURL[] urls = getSelectedURLs( sbError );
 		if( urls == null ){
 			ApplicationController.vShowWarning("nothing selected: " + sbError);
 			return;
@@ -417,6 +417,118 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 				Utility.vUnexpectedError( ex, "Unexpected error determing dataset types" );
 			}
 		}
+	}
+
+	public DodsURL[] getSelectedURLs( StringBuffer sbError ){ // zero-based
+		DodsURL[] aurlNamedSelections = getSelectedURLs_NamedList( sbError );
+		if( aurlNamedSelections == null ) return null;
+		return getSubSelectedURLs( aurlNamedSelections, sbError );
+	}
+
+	// zero-based
+	DodsURL[] getSubSelectedURLs( DodsURL[] aurlSelected, StringBuffer sbError ){
+		if( aurlSelected == null ) return null;
+		int ctDataURLs = 0;
+		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
+			if( aurlSelected[xURL].getType() == DodsURL.TYPE_Data || aurlSelected[xURL].getType() == DodsURL.TYPE_Image )
+			    ctDataURLs++;
+		}
+		int ctDirectoryURLs = 0;
+		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
+			if( aurlSelected[xURL].getType() == DodsURL.TYPE_Directory ){
+				Model_DirectoryTree tree = aurlSelected[xURL].getDirectoryTree();
+                if( tree == null ) continue;
+				DirectoryTreeNode nodeRoot = (DirectoryTreeNode)tree.getRoot();
+				ctDirectoryURLs += getSubSelectedURLs_RecursiveCount(nodeRoot);
+				String sDirTitle = aurlSelected[xURL].getTitle();
+				String sBaseURL = aurlSelected[xURL].getBaseURL();
+				String sCE = aurlSelected[xURL].getConstraintExpression_Encoded();
+				DodsURL[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
+			}
+		}
+		DodsURL[] aurlCumulative = new DodsURL[ctDataURLs + ctDirectoryURLs];
+		int xDataURL = -1;
+		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
+			if( aurlSelected[xURL].getType() == DodsURL.TYPE_Data  || aurlSelected[xURL].getType() == DodsURL.TYPE_Image ){
+				xDataURL++;
+				aurlCumulative[xDataURL] = aurlSelected[xURL];
+			}
+		}
+		int xDirectoryURL = -1;
+		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
+			if( aurlSelected[xURL].getType() == DodsURL.TYPE_Directory ){
+				Model_DirectoryTree tree = aurlSelected[xURL].getDirectoryTree();
+                if( tree == null ) continue;
+				DirectoryTreeNode nodeRoot = (DirectoryTreeNode)tree.getRoot();
+				String sDirTitle = aurlSelected[xURL].getTitle();
+				String sBaseURL = aurlSelected[xURL].getBaseURL();
+				String sCE = aurlSelected[xURL].getConstraintExpression_Encoded();
+				DodsURL[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
+				if( aDirectoryURLs == null ) continue;
+				for( int xCurrentDirectory = 0; xCurrentDirectory < aDirectoryURLs.length; xCurrentDirectory++ ){
+					xDirectoryURL++;
+                    int xCumulative = (xDataURL+1) + xDirectoryURL;
+                    if( xCumulative >= aurlCumulative.length ){
+                        ApplicationController.vShowError("internal error; inconsistent selection tree count");
+                        break;
+                    }
+					aurlCumulative[xCumulative] = aDirectoryURLs[xDirectoryURL];
+				}
+			}
+		}
+		return aurlCumulative;
+	}
+	private int getSubSelectedURLs_RecursiveCount(DirectoryTreeNode node){
+		if( node == null ) return 0;
+		int ctSelectedFiles = 0;
+		if( node.isSelected() ) ctSelectedFiles += node.getFileList_SelectedCount();
+		for( int xChild = 0; xChild < node.getChildCount(); xChild++ ){
+			DirectoryTreeNode nodeChild = node.getChild(xChild);
+			ctSelectedFiles += getSubSelectedURLs_RecursiveCount(nodeChild);
+		}
+		return ctSelectedFiles;
+	}
+	private DodsURL[] getSubSelectedURLs_Recursive( String sDirTitle, String sBaseURL, DirectoryTreeNode node, String sCE){
+		if( node == null ) return null;
+		int ctSelectedFiles = 0;
+		if( node.isSelected() ) ctSelectedFiles += node.getFileList_SelectedCount();
+		DodsURL[] aURLselected = null;
+		if( ctSelectedFiles > 0 ){
+			aURLselected = new DodsURL[ctSelectedFiles];
+			String[] asSelectedFiles = node.getFileList_Selected(); // one-based
+			String[] asSelectedHREFs = node.getHREFList_Selected(); // one-based
+			for( int xFile = 1; xFile <= ctSelectedFiles; xFile++ ){
+				String sDirectory = Utility.sConnectPaths(sBaseURL, "/", node.getPathString());
+				String sURL = asSelectedHREFs[xFile]; // if it is an image we allow for an out-of-path reference
+				if( !sURL.toUpperCase().startsWith("HTTP://") ){ // if URL is relative or bad then construct it
+					sURL = Utility.sConnectPaths(sDirectory, "/", asSelectedFiles[xFile]);
+				}
+				if( Utility.isImage( sURL ) ){
+					aURLselected[xFile-1] = new DodsURL(sURL, DodsURL.TYPE_Image);
+					aURLselected[xFile-1].setTitle(asSelectedFiles[xFile]);
+				} else {
+					aURLselected[xFile-1] = new DodsURL(sURL, DodsURL.TYPE_Data);
+					aURLselected[xFile-1].setTitle(sDirTitle + " " + asSelectedFiles[xFile] + " " + sCE);
+					aURLselected[xFile-1].setConstraintExpression(sCE);
+				}
+			}
+		}
+		for( int xChild = 0; xChild < node.getChildCount(); xChild++ ){
+			DirectoryTreeNode nodeChild = node.getChild(xChild);
+			DodsURL[] aURLsubselected = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeChild, sCE);
+			if( aURLsubselected != null ){
+				if( aURLselected == null ){
+					aURLselected = aURLsubselected;
+				} else {
+					int ctTotalURLs = aURLselected.length + aURLsubselected.length;
+					DodsURL[] aurlBuffer = new DodsURL[ctTotalURLs];
+					System.arraycopy(aURLselected, 0, aurlBuffer, 0, aURLselected.length);
+					System.arraycopy(aURLsubselected, 0, aurlBuffer, aURLselected.length, aURLsubselected.length);
+					aURLselected = aurlBuffer;
+				}
+			}
+		}
+		return aURLselected;
 	}
 
 }
