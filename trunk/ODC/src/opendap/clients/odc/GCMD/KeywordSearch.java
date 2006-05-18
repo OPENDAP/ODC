@@ -25,8 +25,8 @@ public class KeywordSearch extends PanelTemplate {
 			//xml = new File("http://gcmd.nasa.gov/servlets/md/get_valids.py?type=parametersvalid");
 			//xml = new File("get_valids.py");
 			// convert a file to a JDOM Document
-			DOMBuilder domBuilder = new DOMBuilder(false);
-			outXMLDoc = domBuilder.build(new URL("http://gcmd.nasa.gov/servlets/md/get_valids.py?type=parametersvalid"));
+			SAXBuilder domBuilder = new SAXBuilder();
+			outXMLDoc = domBuilder.build( new URL("http://gcmd.nasa.gov/servlets/md/get_valids.py?type=parametersvalid") );
 
 // causes out of memory error:
 //			SAXBuilder saxBuilder = new SAXBuilder(false);
