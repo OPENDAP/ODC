@@ -12,7 +12,7 @@ package opendap.clients.odc;
 /**
  *  This is FormLayout. In general it is comparable to the GridLayout with the difference
  *  that the concept of a label-control pair is supported. Unlike the GridLayout components
- *  it cannot be overlapped nor can multiple elements span multiple rows. In all other
+ *  in it cannot be overlapped nor can multiple elements span multiple rows. In all other
  *  respects however you will probably find that FormLayout is simpler and more powerful
  *  to use than GridLayout.
  *
@@ -60,7 +60,7 @@ package opendap.clients.odc;
  *  You can either set alignment by column or by element. Element alignment must be left, center or right.
  *  Only columns can be label or control aligned. Label alignment means every label in the column will
  *  be right-aligned. Control alignment means every control in the column will be left-aligned. The difference
- *  between the two is that if the  column is label-aligned then if separations are different on different
+ *  between the two is that if the column is label-aligned then if separations are different on different
  *  rows then the controls will be indented (not lined up), and vice versa.  Element alignment overrides
  *  column alignment so if an element has its own alignment it will ignore the boundaries of the column.
  *
