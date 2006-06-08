@@ -15,9 +15,15 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
-import java.net.*;
-import java.io.*;
 import opendap.dap.*;
+
+// This class creates the interface which allows the user to select which variable(s) they
+// want to plot out of a dataset. A dataset may have many variables in it. Note that the list of
+// variables is held in the Panel_View_Plot class which also has the main control buttons such as
+// as the "Plot" button. When the user selects a dataset ultimately that causes zShowDataDDS in
+// this class to be called. This method determines every variable in the dataset that can be
+// plotted using the selected plot type (ie, histogram, pseudocolor etc) and updates the
+// variable selector VSelector_Plot_Schematic to show the variable choices and their parameters.
 
 public class Panel_Variables extends JPanel {
 	VSelector_Plot_Schematic mvselector;
@@ -47,30 +53,21 @@ public class Panel_Variables extends JPanel {
 			}
 		} else {
 
-			/* old way -- todo terminate
-			VSelector_Plot_Schematic vselector_new = new VSelector_Plot_Schematic();
-			if( !vselector_new.zInitialize(ePlotType, ddds, das, po, sbError) ){
+			// this method will determine all the valid variables in the DataDDS for the
+			// selected plot type, create VariableSpecifications for those variables, and
+			// update the selector so that it lists them; a VariableSpecification is an
+			// object that stores information about where a variable is inside of a DataDDS
+			// as well as ancillary information about the variable
+			if( !mvselector.zShowVariableChoices(ePlotType, ddds, das, po, sbError) ){
 				sbError.insert(0, "failed to initialize variable selector: ");
 				return false;
 			}
-			mvselector = vselector_new;
-			removeAll();
-			add(mvselector, BorderLayout.CENTER);
-			if( mvselector.getVariableCount() == 0 ) return false;
-		    */
-
-		   // new way
-			if( !mvselector.zInitialize(ePlotType, ddds, das, po, sbError) ){
-				sbError.insert(0, "failed to initialize variable selector: ");
-				return false;
-			}
-
 		}
 		return true;
 	}
 
 	VariableDataset getDataset( StringBuffer sbError ){
-		return mvselector.getDataset(sbError);
+		return mvselector.getDataset( sbError );
 	}
 
 	String[] masLabels1_buffer;
@@ -259,15 +256,16 @@ public class Panel_Variables extends JPanel {
 class VSelector_Plot_Schematic extends JPanel {
 
 	// data
-	int mePLOT_TYPE;
+	private int mePLOT_TYPE;
 	PlotVariables mPlotVariables;
-	Model_Variables mVariablesModel;
+	private Model_Variables mVariablesModel =  new Model_Variables();
 
 	// components
 	JPanel mpanelY, mpanelX, mpanelV;
 	JPanel mpanelValue;
 	VSelector_Plot_Values mvarpanelValues1;
 	VSelector_Plot_Values mvarpanelValues2;
+	boolean mzUsingSecondVariable;
 	VSelector_Plot_Axis mvarpanelXAxis;
 	VSelector_Plot_Axis mvarpanelYAxis;
 	VSelector_Plot_Schematic(){}
@@ -289,7 +287,6 @@ class VSelector_Plot_Schematic extends JPanel {
 			// calculate y-axis bar
 			int y_YPanelRight = mpanelY.getX() + mpanelY.getWidth();
 			int value_begin = mpanelV.getX();
-			int pxPanelHeight = getHeight();
 			int y_Margin = 20;
 			int y_ValuePanelBottom = mpanelV.getY() + mpanelV.getHeight();
 			int pxXAxisSpacing = mpanelX.getY() - y_ValuePanelBottom;
@@ -298,7 +295,6 @@ class VSelector_Plot_Schematic extends JPanel {
 			int x_YAxisLine = y_YPanelRight + ( pxYAxisSpacing - pxWidth)/3;
 
 			// calculate x-axis bar
-			int pxPanelWidth = getWidth();
 			int x_XAxis_width = mpanelV.getWidth() + pxYAxisSpacing;
 			int y_XAxis = y_Margin + pxYAxisHeight;
 			int x_XAxis_right = x_YAxisLine + x_XAxis_width;
@@ -332,9 +328,11 @@ class VSelector_Plot_Schematic extends JPanel {
 		}
 	}
 
+	Model_Variables getModel(){ return this.mVariablesModel; }
+
 	boolean setData( DataDDS ddds, DAS das, int ePlotType, StringBuffer sbError ){
 		if( mPlotVariables == null ) mPlotVariables = new PlotVariables();
-		return mPlotVariables.zLoadVariables(ddds, das, ePlotType, 0, sbError);
+		return mPlotVariables.zLoadVariables( ddds, das, ePlotType, 0, sbError );
 	}
 
 	int getVariableCount(){ return mPlotVariables.getVariableCount(); }
@@ -343,11 +341,11 @@ class VSelector_Plot_Schematic extends JPanel {
 		return mPlotVariables.getVariable1( index );
 	}
 
-	boolean zInitialize( int ePLOT_TYPE, DataDDS ddds, DAS das, final PlotOptions po, StringBuffer sbError ){
+	// Determines the style of the interface and populates it with the possible variables.
+	// There are three modes or styles or interface: 0-dimensional, 1-dimensional or 2-dimensional.
+	// For example, histogram uses a 0-dimensional style wheras a pseudocolor uses a 2D one.
+	boolean zShowVariableChoices( int ePLOT_TYPE, DataDDS ddds, DAS das, final PlotOptions po, StringBuffer sbError ){
 		try {
-
-			mVariablesModel = new Model_Variables();
-			mVariablesModel.vClear();
 
 			mePLOT_TYPE = ePLOT_TYPE;
 			if( !setData( ddds, das, ePLOT_TYPE, sbError ) ){
@@ -361,7 +359,7 @@ class VSelector_Plot_Schematic extends JPanel {
 			if( ePLOT_TYPE != Output_ToPlot.PLOT_TYPE_Histogram ){
 
 				// x-axis
-				mvarpanelXAxis = new VSelector_Plot_Axis(this);
+				mvarpanelXAxis = new VSelector_Plot_Axis( this, this.getModel().getModel_Axis_X() );
 				String sLabelX = ""; // old label: "X-Axis:"
 				if( !mvarpanelXAxis.zInitialize(sLabelX, null, null, true, sbError) ){
 					sbError.insert(0, "failed to initialize x-axis panel: ");
@@ -369,7 +367,7 @@ class VSelector_Plot_Schematic extends JPanel {
 				}
 
 				// y-axis
-				mvarpanelYAxis = new VSelector_Plot_Axis(this);
+				mvarpanelYAxis = new VSelector_Plot_Axis( this, this.getModel().getModel_Axis_Y() );
 				String sLabelY = ""; // old label: "Y-Axis:"
 				if( !mvarpanelYAxis.zInitialize(sLabelY, null, null, true, sbError) ){
 					sbError.insert(0, "failed to initialize y-axis panel: ");
@@ -379,8 +377,6 @@ class VSelector_Plot_Schematic extends JPanel {
 			}
 
 			// determine mode
-			boolean zZeroDimensional = false;
-			boolean zOneDimensional = false;
 			int ctDimensions;
 			if( ePLOT_TYPE == Output_ToPlot.PLOT_TYPE_Histogram ){
 				ctDimensions = 0;
@@ -391,7 +387,7 @@ class VSelector_Plot_Schematic extends JPanel {
 			}
 
 			// value panel 1
-			mvarpanelValues1 = new VSelector_Plot_Values(this);
+			mvarpanelValues1 = new VSelector_Plot_Values( this, this.getModel().getModel_Variable1() );
 //			masLabels1 = masLabels1_buffer;
 //			maVariables1 = maVariables1_buffer;
 			String sLabel = "Choose Values:";
@@ -415,7 +411,7 @@ class VSelector_Plot_Schematic extends JPanel {
 			}
 
 			// value panel 2
-			mvarpanelValues2 = new VSelector_Plot_Values(this);
+			mvarpanelValues2 = new VSelector_Plot_Values( this, this.getModel().getModel_Variable2() );
 			boolean zUseVariable2 = false;
 InitializeValuePanel2:
 		    {
@@ -445,6 +441,7 @@ InitializeValuePanel2:
 					return false;
 				}
 			}
+			mzUsingSecondVariable = zUseVariable2;
 
 			// determine what variables should be selected to start with
 			// it's important to try to select a compatible pair
@@ -671,10 +668,33 @@ InitializeValuePanel2:
 	}
 
 	VariableDataset getDataset( StringBuffer sbError ){
+
+		// load the model with the selected variables
+		try {
+//			this.mvarpanelValues1.getSelectedVS() );
+//			mVariablesModel.setVariable1( modelVariable1 );
+//			if( this.mzUsingSecondVariable ){
+//				Model_Variable modelVariable2 = new Model_Variable( this.mvarpanelValues2.getSelectedVS() );
+//				mVariablesModel.setVariable1( modelVariable2 );
+//			}
+		} catch( Throwable t ) {
+			sbError.insert(0, "while loading model: ");
+			Utility.vUnexpectedError( t, sbError );
+			return null;
+		}
+
 		try {
 
-			int ctValues1 = mVariablesModel.getCount_Variable1();
-			int ctValues2 = mVariablesModel.getCount_Variable2();
+			int ctValues1 = mVariablesModel.getCount_Variable1( sbError );
+			if( ctValues1 == - 1 ){
+				sbError.insert(0, "unable to determine variable 1 value count: ");
+				return null;
+			}
+			int ctValues2 = mVariablesModel.getCount_Variable2( sbError );
+			if( ctValues2 == - 1 ){
+				sbError.insert(0, "unable to determine variable 2 value count: ");
+				return null;
+			}
 
 			// verify that there is something to plot
 			if( ctValues1 == 0 ){
@@ -693,7 +713,7 @@ InitializeValuePanel2:
 			// collect primary dimensions
 			Model_Variable var1_model = mVariablesModel.getModel_Variable1();
 			Model_Variable var2_model = mVariablesModel.getModel_Variable2();
-			VariableInfo[] list1 = var1_model.getVariableInfo(sbError);
+			VariableInfo[] list1 = var1_model.getVariableInfo( sbError );
 			if( list1 == null ){
 				sbError.insert(0, "failed to resolve variable: ");
 				return null;
@@ -704,7 +724,6 @@ InitializeValuePanel2:
 			}
 			VariableInfo variable_info_1 = list1[1];
 			int ctDimensions = variable_info_1.getDimensionCount();
-	    	int xDimX, xDimY;
 
 			// todo validate dimensions for each set
 
@@ -1490,6 +1509,7 @@ InitializeValuePanel2:
 
 class VSelector_Plot_Values extends JPanel {
 	VSelector_Plot_Schematic myParent;
+	private Model_Variable mVariableModel;
 	String msTitle;
 	JComboBox jcbValue;
 	//VariableSpecification[] maVariables1;
@@ -1508,10 +1528,11 @@ class VSelector_Plot_Values extends JPanel {
 	boolean mzXonly = false;
 	boolean mzYonly = false;
 	DAS mDAS;
-	VSelector_Plot_Values( VSelector_Plot_Schematic parent ){
+	VSelector_Plot_Values( VSelector_Plot_Schematic parent, Model_Variable model ){
 		myParent = parent;
+		this.mVariableModel = model;
 	}
-	boolean zInitialize( String sTitle, String[] asLabels1, DAS das, final boolean zShowTransforms, final int ctDimensions, final boolean zAllowCaptions, final boolean zNoneAreIndexes, final boolean zXonly, final boolean zYonly, StringBuffer sbError ){
+	boolean zInitialize( String sTitle, String[] asVariableLabels1, DAS das, final boolean zShowTransforms, final int ctDimensions, final boolean zAllowCaptions, final boolean zNoneAreIndexes, final boolean zXonly, final boolean zYonly, StringBuffer sbError ){
 
 		try {
 			setOpaque(false);
@@ -1522,16 +1543,16 @@ class VSelector_Plot_Values extends JPanel {
 			mzNoneAreIndexes  = zNoneAreIndexes;
 			mzXonly = zXonly;
 			mzYonly = zYonly;
-			if( asLabels1 == null ){ asLabels1 = new String[1]; }
-			asLabels1[0] = "[none]";
+			if( asVariableLabels1 == null ){ asVariableLabels1 = new String[1]; }
+			asVariableLabels1[0] = "[none]";
 			mDAS = das;
-			masVariableName1 = asLabels1;
+			masVariableName1 = asVariableLabels1;
 			JLabel jlabelTitle = new JLabel(msTitle);
 			jlabelTitle.setFont(Styles.fontSansSerifBold12);
 			jcbValue = new JComboBox();
 			cbmValues = new DefaultComboBoxModel();
 			panelMissingValues = new Panel_MissingValues(this);
-			setValueLabels(asLabels1);
+			setValueLabels(asVariableLabels1);
 			jcbValue.setModel(cbmValues);
 			jcbValue.setOpaque(false);
 			setLayout(new GridBagLayout());
@@ -1588,6 +1609,8 @@ class VSelector_Plot_Values extends JPanel {
 			return false;
 		}
 	}
+
+	Model_Variable getModel(){ return this.mVariableModel; }
 
 	// todo review this functionality
 	boolean zUseEntireVariable(){ return mctDimensions == 0; }
@@ -1679,7 +1702,10 @@ class VSelector_Plot_Values extends JPanel {
 		int lenY = 1;
 		for( int xDim = 1; xDim <= ctDims; xDim++ ){
 			Panel_Dimension dim = (Panel_Dimension)listDims.get(xDim-1);
-			if( dim.com_jrbX.isSelected() ) lenX = dim.getModel().getSize();
+			if( dim.com_jrbX.isSelected() ){
+
+				lenX = dim.getModel().getSize();
+			}
 			if( dim.com_jrbY.isSelected() ) lenY = dim.getModel().getSize();
 		}
 		Panel_PlotScale panel_scale = Panel_View_Plot.getPanel_PlotScale();
@@ -1707,6 +1733,11 @@ class VSelector_Plot_Values extends JPanel {
 		gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 9;
 		panelDims.add(jtaInfo, gbc);
 		VariableSpecification vs = getSelectedVS();
+		if( this.getModel() == null ){
+			Thread.dumpStack();
+		} else {
+			this.getModel().setSpecification(vs);
+		}
 		if( vs == null ){
 			jtaInfo.setText("nothing selected");
 			panelMissingValues.setEnabled(false);
@@ -2100,16 +2131,18 @@ class VSelector_Plot_Values extends JPanel {
 
 class VSelector_Plot_Axis extends JPanel {
 	VSelector_Plot_Schematic myParent;
-	PlotVariables mPlotVariables;
+	private Model_Variable mVariableModel;
 	String msTitle;
 	JComboBox jcbMapVector;
 	JCheckBox jcheckReverse;
 	JTextArea jtaInfo;
 	VariableSpecification[] avsMapVectors;
 	DefaultComboBoxModel cbmMapVectors;
-	VSelector_Plot_Axis( VSelector_Plot_Schematic parent ){
+	VSelector_Plot_Axis( VSelector_Plot_Schematic parent, Model_Variable model ){
 		myParent = parent;
+		this.mVariableModel = model;
 	}
+	Model_Variable getModel(){ return this.mVariableModel; }
 	boolean zInitialize( String sTitle, String[] asLabels1, VariableSpecification[] aVariables1, final boolean zShowTransforms, StringBuffer sbError ){
 		try {
 			setOpaque(false);
@@ -2273,13 +2306,13 @@ class VSelector_Plot_Axis extends JPanel {
 	 *  calls this function to do that.
 	 */
 	boolean zSetData( DataDDS ddds, DAS das, int size, StringBuffer sbError ){
-		if( mPlotVariables == null ) mPlotVariables = new PlotVariables();
-		if( !mPlotVariables.zLoadVariables(ddds, das, size, sbError) ){
+		if( myParent.mPlotVariables == null ) myParent.mPlotVariables = new PlotVariables();
+		if( !myParent.mPlotVariables.zLoadVariables(ddds, das, size, sbError) ){
 			sbError.insert(0, "failed to load variables");
 			return false;
 		}
-		String[] asLabels1 = mPlotVariables.getLabels();
-		VariableSpecification[] aVariables1 = mPlotVariables.getVariableSpecifications();
+		String[] asLabels1 = myParent.mPlotVariables.getLabels();
+		VariableSpecification[] aVariables1 = myParent.mPlotVariables.getVariableSpecifications();
 		if( asLabels1 == null ){ sbError.append("labels missing"); return false; }
 		if( aVariables1 == null ){ sbError.append("variables missing"); return false; }
 		if( asLabels1.length != aVariables1.length ){ sbError.append("input arrays not the same size"); return false; }

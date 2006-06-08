@@ -9,8 +9,6 @@ package opendap.clients.odc.plot;
  * @version 2.58
  */
 
-import java.util.ArrayList;
-import java.util.Vector;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.DAP;
@@ -19,35 +17,21 @@ import opendap.dap.*;
 /** The value lists must have the same number of values */
 public class Model_Variables {
     public Model_Variables() {}
-	private Model_Variable mVar1 = null;
-	private Model_Variable mVar2 = null;
-	private Model_Variable mAxis_X;
-	private Model_Variable mAxis_Y;
-	void vClear(){
-		mVar1   = null;
-		mVar2   = null;
-		mAxis_X = null;
-		mAxis_Y = null;
-	}
-	void setVariable1( Model_Variable model ){ mVar1 = model; }
-	void setVariable2( Model_Variable model ){ mVar2 = model; }
-	void setX( Model_Variable model ){
-		mAxis_X = model;
-	}
-	void setY( Model_Variable model ){
-		mAxis_Y = model;
-	}
+	private Model_Variable mVar1 = new Model_Variable();
+	private Model_Variable mVar2 = new Model_Variable();
+	private Model_Variable mAxis_X = new Model_Variable();
+	private Model_Variable mAxis_Y = new Model_Variable();
 	Model_Variable getModel_Variable1(){ return mVar1; }
 	Model_Variable getModel_Variable2(){ return mVar2; }
 	Model_Variable getModel_Axis_X(){ return mAxis_X; }
 	Model_Variable getModel_Axis_Y(){ return mAxis_Y; }
-	int getCount_Variable1(){
+	int getCount_Variable1( StringBuffer sbError ){
 		if( mVar1 == null ) return 0;
-		return mVar1.getVariableCount();
+		return mVar1.getVariableCount( sbError );
 	}
-	int getCount_Variable2(){
+	int getCount_Variable2( StringBuffer sbError ){
 		if( mVar2 == null ) return 0;
-		return mVar2.getVariableCount();
+		return mVar2.getVariableCount( sbError );
 	}
 }
 
@@ -64,7 +48,13 @@ class Model_Variable {
 	private String[][] masSliceCaptions;
 	private boolean mzReversedX, mzReversedY, mzReversedZ;
 
-	Model_Variable( VariableSpecification vs ){ theVariableSpecification = vs; }
+	public Model_Variable(){}
+
+	// if the variable specification is set to be null, then the model is considered empty
+	void setSpecification( VariableSpecification vs ){
+		theVariableSpecification = vs;
+		return;
+	}
 
 	void setUseEntireVariable( boolean z ){ mzUseEntireVariable = z; }
 	boolean getUseEntireVariable(){ return mzUseEntireVariable; }
@@ -81,9 +71,11 @@ class Model_Variable {
 	boolean getReversedY(){ return mzReversedY; }
 	boolean getReversedZ(){ return mzReversedZ; }
 
-	int getVariableCount(){
-		if( maVariableInfo == null ) return 0;
-		return maVariableInfo.length - 1;
+	// return -1 if there is an error
+	int getVariableCount( StringBuffer sbError ){
+		VariableInfo[] aVariableInfo = this.getVariableInfo( sbError );
+		if( aVariableInfo == null ) return -1;
+		return aVariableInfo.length - 1;
 	}
 
 	VariableSpecification getVariableSpecification(){ return theVariableSpecification; }
@@ -623,3 +615,5 @@ class Model_Variable {
 	}
 
 }
+
+

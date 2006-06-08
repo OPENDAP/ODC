@@ -1,7 +1,6 @@
 package opendap.clients.odc.plot;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
 
 import opendap.clients.odc.*;
@@ -19,7 +18,6 @@ public class Model_Dimension {
 	Model_Dimension(){
 		maiIndex1 = new int[2];
 		maiIndex1[1] = 0; // default slice is 0
-
 	}
 
 	void setName( String s ){ msName = s; }
