@@ -12,8 +12,6 @@ package opendap.clients.odc.plot;
 import opendap.clients.odc.*;
 
 import java.util.*;
-import java.net.*;
-import java.io.*;
 import opendap.dap.*;
 
 /** The plot types have the following requirements:
@@ -613,6 +611,14 @@ class VariableInfo {
 		return sb.toString();
 	}
 }
+
+// VARIABLE SPECIFICATION
+// the variable specification holds the actual OPeNDAP BaseType (raw data structure)
+// and specifies a path to the variable in the base type which is used
+
+// the variable specification class also has the utility methods which can flatten
+// the specified variable; since most plotting methods requires a plain array the
+// flattener converts sequences to flat arrays
 
 // the path is used in the case of a sequence
 // for a sequence only the top-most basetype is recorded and desired vector is specified

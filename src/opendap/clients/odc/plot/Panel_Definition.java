@@ -4,12 +4,14 @@ import opendap.dap.*;
 import opendap.clients.odc.*;
 import javax.swing.JPanel;
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.border.*;
-import java.io.*;
-import java.util.*;
+
+// The definition panel has the controls which allow the user to define what is plotted.
+//
+// It has tabs for variables, colors, scale, text etc. The most important sub panel is the
+// one for defining which variable or variables from the dataset are to be used. For details
+// on this panel see the Panel_Variables class.
 
 public class Panel_Definition extends JPanel {
 
@@ -234,8 +236,8 @@ class Panel_VariableTab extends JPanel {
 			return null;
 		}
 		if( mPlottingDefinition_active == mDefinition_DataDDS ){
-			VariableDataset variable_dataset = mpanelVariableSelector.getDataset(sbError);
-			return getPlottingData( variable_dataset, sbError );
+			VariableDataset variable_dataset = mpanelVariableSelector.getDataset( sbError );
+			return getNormalizedPlottingData( variable_dataset, sbError );
 		} else {
 			sbError.append("table definitions not supported");
 			return null;
@@ -290,10 +292,10 @@ class Panel_VariableTab extends JPanel {
 		mPlottingDefinition_active = pd;
 	}
 
-	private PlottingData getPlottingData( VariableDataset dataset, StringBuffer sbError ){
+	private PlottingData getNormalizedPlottingData( VariableDataset dataset, StringBuffer sbError ){
 		try {
 			if( dataset == null ){
-				sbError.insert(0, "error acquiring dataset: ");
+				sbError.insert(0, "error acquiring raw dataset: ");
 				return null;
 			}
 			int ctSlices = dataset.getValueCount();

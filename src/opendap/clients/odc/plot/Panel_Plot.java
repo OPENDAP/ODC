@@ -20,8 +20,6 @@ import java.awt.image.*;
 import java.awt.geom.AffineTransform;
 import java.awt.print.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.io.*;
 
 abstract class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotionListener {
 
