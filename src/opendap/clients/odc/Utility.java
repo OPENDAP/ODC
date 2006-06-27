@@ -16,7 +16,7 @@ import java.util.*;
 public class Utility {
 
 	private static final String SYSTEM_PROPERTY_FileSeparator = "file.separator";
-	private static String msFileSeparator = System.getProperty(SYSTEM_PROPERTY_FileSeparator);
+	private static String msFileSeparator = System.getProperty( SYSTEM_PROPERTY_FileSeparator );
 
     public Utility() {}
 

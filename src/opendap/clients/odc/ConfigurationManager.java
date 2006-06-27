@@ -33,15 +33,17 @@ public class ConfigurationManager {
 	private static final String FILE_NAME_Gazetteer = "gazetteer.txt";
 
 	private static final String URL_Default_DatasetList = "http://xml.opendap.org/datasets/datasets.xml";
-	private static final String URL_Default_GCMD = "http://gcmd.nasa.gov/servlets/md/";
+	private static final String URL_Default_GCMD = "http://gcmd.nasa.gov/OpenAPI/";
+	private static final String URL_Default_GCMD_old = "http://gcmd.nasa.gov/servlets/md/";
 
 	private static final String DIR_Default_ImageCache = "ImageCache";
 	private static final String DIR_Default_DataCache = "DataCache";
 	private static final String DIR_Default_Plots = "plots";
 	private static final String DIR_Default_Coastline = "coastline";
 
+	private static final String FEEDBACK_Default_EmailRelayURL = "/odc_relay.pl";
 	private static final String FEEDBACK_Default_MailHost = "dev1.opendap.org";
-	private static final String FEEDBACK_Default_MailPort = "20041";
+	private static final String FEEDBACK_Default_MailPort = "80";
 	private static final String FEEDBACK_Default_EmailAddress = "feedback@opendap.org";
 	private static final String FEEDBACK_Default_BugHost = "scm.opendap.org";
 	private static final String FEEDBACK_Default_BugPort = "8090";
@@ -65,6 +67,7 @@ public class ConfigurationManager {
 	public static final String PROPERTY_PROXY_Port = "proxy.Port";
 	public static final String PROPERTY_MAIL_Host = "mail.Host";
 	public static final String PROPERTY_MAIL_Port = "mail.Port";
+	public static final String PROPERTY_FEEDBACK_EmailRelayURL = "feedback.EmailRelayURL";
 	public static final String PROPERTY_FEEDBACK_EmailAddress = "feedback.EmailAddress";
 	public static final String PROPERTY_FEEDBACK_EmailUserAddress = "feedback.EmailUserAddress";
 	public static final String PROPERTY_FEEDBACK_BugHost = "feedback.BugHost";
@@ -300,6 +303,7 @@ public class ConfigurationManager {
 		mlistProperties.add( PROPERTY_PROXY_Port );
 		mlistProperties.add( PROPERTY_MAIL_Host );
 		mlistProperties.add( PROPERTY_MAIL_Port );
+		mlistProperties.add( PROPERTY_FEEDBACK_EmailRelayURL );
 		mlistProperties.add( PROPERTY_FEEDBACK_EmailAddress );
 		mlistProperties.add( PROPERTY_FEEDBACK_EmailUserAddress );
 		mlistProperties.add( PROPERTY_FEEDBACK_BugHost );
@@ -338,7 +342,15 @@ public class ConfigurationManager {
 		return msBaseDirectoryPath;
 	}
 	public boolean getIsMacEnvironment(){ return mzMacEnvironment; }
-	public String getProperty_URL_GCMD(){ return this.getInstance().getOption(PROPERTY_URL_GCMD, getDefault_URL_GCMD()); }
+	public String getProperty_URL_GCMD(){
+		String sGCMD_URL = this.getInstance().getOption(PROPERTY_URL_GCMD, getDefault_URL_GCMD());
+		if( sGCMD_URL.equalsIgnoreCase( ConfigurationManager.URL_Default_GCMD_old ) ){
+			this.getInstance().setOption( PROPERTY_URL_GCMD, ConfigurationManager.URL_Default_GCMD );
+			return ConfigurationManager.URL_Default_GCMD; // default URL changed
+		} else {
+			return sGCMD_URL;
+		}
+	}
 	public String getProperty_URL_ECHO(){ return this.getInstance().getOption(PROPERTY_URL_ECHO, getDefault_URL_ECHO()); }
 	public String getProperty_URL_XML(){ return this.getInstance().getOption(PROPERTY_URL_XML, getDefault_URL_DatasetList()); }
 	public String getProperty_PATH_XML_Cache(){ return this.getInstance().getOption(PROPERTY_PATH_XML_Cache, this.getDefault_PATH_XML()); }
@@ -574,6 +586,9 @@ public class ConfigurationManager {
 		}
 		return iMailServerPort;
 	}
+	public String getProperty_FEEDBACK_EmailRelayURL(){
+		return getInstance().getOption(PROPERTY_FEEDBACK_EmailRelayURL, FEEDBACK_Default_EmailRelayURL);
+	}
 	public String getProperty_FEEDBACK_EmailAddress(){
 		return getInstance().getOption(PROPERTY_FEEDBACK_EmailAddress, FEEDBACK_Default_EmailAddress);
 	}
@@ -780,6 +795,7 @@ public class ConfigurationManager {
 		sb.append(PROPERTY_PROXY_Port + " = " + (this.getProperty_ProxyPort()==null ? "[none]" : this.getProperty_ProxyPort()) + "\n" );
 		sb.append(PROPERTY_MAIL_Host + " = " + (getProperty_MailHost()==null ? "[none]" : getProperty_MailHost()) + "\n" );
 		sb.append(PROPERTY_MAIL_Port + " = " + (getProperty_MailPort() < 0 ? "[none]" : Integer.toString(getProperty_MailPort())) + "\n" );
+		sb.append(PROPERTY_FEEDBACK_EmailRelayURL + " = " + (this.getProperty_FEEDBACK_EmailRelayURL()==null ? "[none (default is " + FEEDBACK_Default_EmailRelayURL + ")]" : this.getProperty_FEEDBACK_EmailRelayURL()) + "\n" );
 		sb.append(PROPERTY_FEEDBACK_EmailAddress + " = " + (this.getProperty_FEEDBACK_EmailAddress()==null ? "[none (default is " + FEEDBACK_Default_EmailAddress + ")]" : this.getProperty_FEEDBACK_EmailAddress()) + "\n" );
 		sb.append(PROPERTY_FEEDBACK_EmailUserAddress + " = " + (this.getProperty_FEEDBACK_EmailUserAddress()==null ? "[none]" : this.getProperty_FEEDBACK_EmailAddress()) + "\n" );
 		sb.append(PROPERTY_FEEDBACK_BugHost + " = " + (this.getProperty_FEEDBACK_BugHost()==null ? "[none (default is " + FEEDBACK_Default_BugHost + ")]" : this.getProperty_FEEDBACK_BugHost()) + "\n" );

@@ -23,7 +23,7 @@ public class ApplicationController {
 
     private static final String msAppName = "OPeNDAP Data Connector";
     private static final String msAppVersion = "2.59";
-    private static final String msAppReleaseDate = "12 December 2005"; // todo create ANT substitution
+    private static final String msAppReleaseDate = "19 June 2006"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	String getAppName(){ return msAppName; }
@@ -55,6 +55,17 @@ public class ApplicationController {
 
 			StringBuffer sbError = new StringBuffer(256);
 
+			// validate Java version
+			String sJavaVersion = System.getProperty("java.version");
+			if( zCheckJavaVersion( sJavaVersion ) ){
+				vShowStatus( "Java version: " + sJavaVersion );
+			} else {
+				String sJavaVersionError = "Startup failure, system Java version " + sJavaVersion + " is incompatible. ODC requires 1.4.1 or later.";
+				System.out.println(sJavaVersionError);
+				ApplicationController.vShowStartupDialog(sJavaVersionError);
+				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
+			}
+
 			// get configuration manager going
 			String sBaseDirectory = null;
 			if( args != null ){
@@ -63,14 +74,14 @@ public class ApplicationController {
 				}
 			}
 			if( !ConfigurationManager.zInitializeConfigurationManager(sBaseDirectory, sbError) ){
-				ApplicationController.vShowStartupDialog("Configuration failure: " + sbError);
 				System.out.println("Configuration failure: " + sbError);
+				ApplicationController.vShowStartupDialog("Configuration failure: " + sbError);
 				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
 			}
 
 			if( !Resources.zLoadIcons( sbError ) ){
-				ApplicationController.vShowStartupDialog("Failed to start: " + sbError);
 				System.out.println("Failed to start: " + sbError);
+				ApplicationController.vShowStartupDialog("Failed to start: " + sbError);
 				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
 			}
 
@@ -110,6 +121,16 @@ public class ApplicationController {
             System.exit(1);
         }
     }
+
+	static boolean zCheckJavaVersion( String sJavaVersion ){
+		if( sJavaVersion == null ) return false;
+		if( sJavaVersion.startsWith( "1.4.0") ) return false;
+		if( sJavaVersion.startsWith( "1.3." ) ) return false;
+		if( sJavaVersion.startsWith( "1.2." ) ) return false;
+		if( sJavaVersion.startsWith( "1.1." ) ) return false;
+		if( sJavaVersion.startsWith( "1.0." ) ) return false;
+		return true;
+	}
 
 	void vActivate(){
 		thisSingleton.appframe.vActivate();
@@ -585,13 +606,7 @@ public class ApplicationController {
 
 	opendap.clients.odc.GCMD.GCMDSearch getGCMDSearch(){
 		if( mSearch_GCMD == null ){
-			String urlGCMD = ConfigurationManager.getInstance().getOption("url.GCMD");
-			if( urlGCMD == null ){
-				this.vShowError("Failed to initialize retrieve GCMD url from configuration file");
-				return null;
-			} else {
-				mSearch_GCMD = new opendap.clients.odc.GCMD.GCMDSearch(urlGCMD);
-			}
+			mSearch_GCMD = new opendap.clients.odc.GCMD.GCMDSearch();
 		}
 		return mSearch_GCMD;
 	}
