@@ -6,7 +6,7 @@ package opendap.clients.odc.plot;
  * Copyright:    Copyright (c) 2003-4
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.48
+ * @version      2.59
  */
 
 import opendap.clients.odc.*;
@@ -568,10 +568,11 @@ InitializeValuePanel2:
 
 	StringBuffer msbError = new StringBuffer(); // throwaway buffer
 	void vRecalcAxes(){
+System.out.println("recalcing axes");
 		try {
 			if( mvarpanelXAxis == null || mvarpanelYAxis == null ) return;
-			VariableSpecification vs = mvarpanelValues1.getSelectedVS();
-			if( vs == null ){
+			VariableSpecification vs1 = mvarpanelValues1.getSelectedVS();
+			if( vs1 == null ){
 				mvarpanelXAxis.vSetBlank();
 				mvarpanelYAxis.vSetBlank();
 				return;
@@ -589,7 +590,7 @@ InitializeValuePanel2:
 			if( xDimY == 0 ) mvarpanelYAxis.vSetBlank();
 
 			// see if we can get axes automatically
-			ArrayTable at = vs.getArrayTable(msbError);
+			ArrayTable at = vs1.getArrayTable(msbError);
 			BaseType btParent = at.bt.getParent();
 			if( btParent != null && btParent instanceof DGrid ){
 				DGrid gridParent = (DGrid)btParent;
@@ -648,8 +649,42 @@ InitializeValuePanel2:
 				ApplicationController.vShowError("Failed to set variables for y-axis: " + sbError);
 				sbError.setLength(0);
 			}
+
 		} catch(Throwable ex) {
 			Utility.vUnexpectedError(ex, "Error updating axes: ");
+		}
+	}
+
+	void vUpdateModels(){
+		if( this.getModel() == null ){
+			Thread.dumpStack();
+		} else {
+			System.out.println("updating info for model " + this.getModel());
+			int ctDims = mvarpanelValues1.getDimCount();
+			int xDimX = mvarpanelValues1.getDimX();
+			int xDimY = mvarpanelValues1.getDimY();
+			boolean zReversedX = mvarpanelXAxis.zReversed();
+			boolean zReversedY = mvarpanelYAxis.zReversed();
+			boolean zReversedZ = false; // no z-axis support currently
+			this.getModel().getModel_Variable1().setValues( xDimX, xDimY, zReversedX, zReversedY, zReversedZ );
+			this.getModel().getModel_Variable2().setValues( xDimX, xDimY, zReversedX, zReversedY, zReversedZ );
+
+			int[][] aSliceIndexes_1 = new int[ctDims + 1][];
+			String[][] aSliceCaptions_1 = new String[ctDims + 1][];
+			for( int xDim = 1; xDim <= ctDims; xDim++ ){
+				aSliceIndexes_1[xDim] = mvarpanelValues1.getSliceIndex( xDim );
+			}
+			this.getModel().getModel_Variable1().setSlices( aSliceIndexes_1, aSliceCaptions_1 );
+
+			if( mvarpanelValues2.getDimCount() > 0 ){
+				int[][] aSliceIndexes_2 = new int[ctDims + 1][];
+				String[][] aSliceCaptions_2 = new String[ctDims + 1][];
+				for( int xDim = 1; xDim <= ctDims; xDim++ ){
+					aSliceIndexes_2[xDim] = mvarpanelValues2.getSliceIndex( xDim );
+				}
+				this.getModel().getModel_Variable2().setSlices( aSliceIndexes_2, aSliceCaptions_2 );
+			}
+//			System.out.println("model info: " +  this.getModel().getModel_Variable1().sDump());
 		}
 	}
 
@@ -682,7 +717,6 @@ InitializeValuePanel2:
 			Utility.vUnexpectedError( t, sbError );
 			return null;
 		}
-
 		try {
 
 			int ctValues1 = mVariablesModel.getCount_Variable1( sbError );
@@ -1602,6 +1636,7 @@ class VSelector_Plot_Values extends JPanel {
 				    public void actionPerformed(ActionEvent e) {
 						vUpdateInfo();
 						myParent.vRecalcAxes();
+						myParent.vUpdateModels();
 					}});
 			return true;
 		} catch( Exception ex ) {
@@ -1692,6 +1727,7 @@ class VSelector_Plot_Values extends JPanel {
 			dim.com_jtfConstraint.invalidate();
 		}
 		myParent.vRecalcAxes();
+		myParent.vUpdateModels();
 		revalidate();
 		vUpdateOutputDimensions();
 	}
@@ -1733,11 +1769,7 @@ class VSelector_Plot_Values extends JPanel {
 		gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 9;
 		panelDims.add(jtaInfo, gbc);
 		VariableSpecification vs = getSelectedVS();
-		if( this.getModel() == null ){
-			Thread.dumpStack();
-		} else {
-			this.getModel().setSpecification(vs);
-		}
+		this.getModel().setVariableSpecfication( vs );
 		if( vs == null ){
 			jtaInfo.setText("nothing selected");
 			panelMissingValues.setEnabled(false);
@@ -2119,11 +2151,11 @@ class VSelector_Plot_Values extends JPanel {
 		}
 	}
 	int getDimCount(){ return listDims.size(); }
-	int[] getSliceIndex(int xDim1){
+	int[] getSliceIndex( int xDim1 ){
 		Panel_Dimension dim = ((Panel_Dimension)listDims.get(xDim1 - 1));
 		return dim.getModel().getSliceIndexes1();
 	}
-	String getSliceCaption(int xDim1, int xSlice1){
+	String getSliceCaption( int xDim1, int xSlice1 ){
 		Panel_Dimension dim = ((Panel_Dimension)listDims.get(xDim1 - 1));
 		return dim.getModel().getSliceCaption(xSlice1);
 	}

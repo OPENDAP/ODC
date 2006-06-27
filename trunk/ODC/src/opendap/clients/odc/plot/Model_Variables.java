@@ -6,7 +6,7 @@ package opendap.clients.odc.plot;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Company: OPeNDAP</p>
  * @author John Chamberlain
- * @version 2.58
+ * @version 2.59
  */
 
 import opendap.clients.odc.ApplicationController;
@@ -50,19 +50,38 @@ class Model_Variable {
 
 	public Model_Variable(){}
 
-	// if the variable specification is set to be null, then the model is considered empty
-	void setSpecification( VariableSpecification vs ){
+	void setVariableSpecfication( VariableSpecification vs ){
 		theVariableSpecification = vs;
+	}
+
+	// if the variable specification is set to be null, then the model is considered empty
+	void setValues( int xDimX, int xDimY, boolean zReversedX, boolean zReversedY, boolean zReversedZ ){
+		mxDimX = xDimX; // this is the number of the dimension selected for the x-axis in a 2D plot
+		mxDimY = xDimY; // this is the number of the dimension selected for the y-axis in a 2D plot
+		mzReversedX = zReversedX;
+		mzReversedY = zReversedY;
+		mzReversedZ = zReversedZ;
 		return;
+	}
+
+	void setSlices( int[][] aSliceIndexes, String[][] aSliceCaptions ){
+		maSliceIndexes = aSliceIndexes;
+		masSliceCaptions = aSliceCaptions;
+	}
+
+	String sDump(){
+//		StringBuffer sbSlices = new StringBuffer();
+//		if( maSliceIndexes == null )
+//		for( int xSlices
+		return
+			"DimX: " + mxDimX + "\n" +
+			"DimY: " + mxDimY + "\n" +
+			"ReversedX: " + mxDimY + "\n" +
+			"ReversedY: " + mxDimY + "\n";
 	}
 
 	void setUseEntireVariable( boolean z ){ mzUseEntireVariable = z; }
 	boolean getUseEntireVariable(){ return mzUseEntireVariable; }
-	void setDimX( int xIndex ){ mxDimX = xIndex; } // this is the number of the dimension selected for the x-axis in a 2D plot
-	void setDimY( int xIndex ){ mxDimY = xIndex; } // this is the number of the dimension selected for the y-axis in a 2D plot
-	void setReversedX( boolean z ){ mzReversedX = z; }
-	void setReversedY( boolean z ){ mzReversedY = z; }
-	void setReversedZ( boolean z ){ mzReversedZ = z; }
 	String getName(){ if( theVariableSpecification == null ) return null; else return theVariableSpecification.getName(); }
 	int getDimX(){ return mxDimX; } // this is the number of the dimension selected for the x-axis in a 2D plot
 	int getDimY(){ return mxDimY; } // this is the number of the dimension selected for the y-axis in a 2D plot
@@ -73,6 +92,7 @@ class Model_Variable {
 
 	// return -1 if there is an error
 	int getVariableCount( StringBuffer sbError ){
+		if( theVariableSpecification == null ) return 0;
 		VariableInfo[] aVariableInfo = this.getVariableInfo( sbError );
 		if( aVariableInfo == null ) return -1;
 		return aVariableInfo.length - 1;
@@ -80,7 +100,7 @@ class Model_Variable {
 
 	VariableSpecification getVariableSpecification(){ return theVariableSpecification; }
 
-	/** Returns a one-based list of VariableInfo objects. There will only be more than one object
+	/*  Returns a one-based list of VariableInfo objects. There will only be more than one object
 	 *  in the list if the user has asked for multiple slices of the data.
 	 */
 	VariableInfo[] getVariableInfo( StringBuffer sbError ){
@@ -155,6 +175,8 @@ class Model_Variable {
 			int xDimY = getDimY();
 			int ctUsedDimensions = ((xDimX > 0) ? 1 : 0) + ((xDimY > 0) ? 1 : 0);
 			if( ctUsedDimensions ==  0 ){
+				System.out.println("model: " + this);
+				System.out.println("model info: " + sDump());
 				sbError.append("No dimensions defined for model. There must be at least an X- or Y-dimension.");
 				return null;
 			}
@@ -163,13 +185,13 @@ class Model_Variable {
 			int xDim = 0;
 			int xExtraDim = 0;
 			int xMultiSliceDim = 0;
-			int[] axMultiSlice = null;
+			int[] axMultiSlice = null; // the user-desired index numbers of the multislice dimension
 			int ctMultiSlice = 1;
 			while(true){
 				xDim++;
 				if( xDim > ctDimensions ) break;
 				if( xDim == xDimX || xDim == xDimY ) continue;
-				int[] axSlices = maSliceIndexes[xDim];
+				int[] axSlices = maSliceIndexes[xDim]; // used to be: var_panel.getSliceIndex(xDim);
 				if( axSlices == null ){
 					sbError.append("unable to get slice indexes for dim " + xDim);
 					return null;
@@ -222,7 +244,10 @@ class Model_Variable {
 
 				String[] masDimCaption = new String[ctDimensions + 1]; // new String[ctDimensions_extra + 1];
 				for( xDim = 1; xDim <= ctDimensions; xDim++ ){
-					String sDimCaption = masSliceCaptions[xDim][xSlice];
+					String sDimCaption = null;
+					if( masSliceCaptions != null ){
+						sDimCaption = masSliceCaptions[xDim][xSlice];
+					}
 					masDimCaption[xDim] = sDimCaption; // not used
 					if( xDim == xDimX || xDim == xDimY ){
 						axSliceIndex1_current[xDim] = 0;
