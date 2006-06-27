@@ -1,6 +1,5 @@
 package opendap.clients.odc.GCMD;
 
-import opendap.clients.odc.*;
 import java.util.Vector;
 import java.awt.Dimension;
 import javax.swing.*;
@@ -14,8 +13,8 @@ public class FreeTextSearch extends PanelTemplate {
 	JComboBox logicTypeBox;
     private Vector vectorSearchPanels;
 
-    public FreeTextSearch(String sBaseURL, GCMDSearch parent) {
-		super(sBaseURL, parent);
+    public FreeTextSearch( GCMDSearch parent ) {
+		super( parent );
 		initFreeTextGUI();
     }
 

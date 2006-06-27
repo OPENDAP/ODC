@@ -147,62 +147,65 @@ public class DifHandler extends DefaultHandler {
 	    = false;
 
 	//System.out.println("start: qName = " + qName);
-	if(qName.equals("DIF"))
+	if(qName.equals("DIF")){
+//System.out.println("created new dif");
 	    dif = new Dif();
-	else if(qName.equals("Entry_ID"))
-	    insideID = true;
-	else if(qName.equals("Entry_Title"))
-	    insideTitle = true;
-	else if(qName.equals("URL"))
-	    insideURL = true;
-	else if(qName.equals("URL_Content_Type"))
-	    insideContentType = true;
-	else if(qName.equals("Summary"))
-	    insideSummary = true;
-	else if(qName.equals("Role"))
-	    insideRole = true;
-	else if(qName.equals("First_Name"))
-	    insideFirstName = true;
-	else if(qName.equals("Middle_Name"))
-	    insideMiddleName = true;
-	else if(qName.equals("Last_Name"))
-	    insideLastName = true;
-	else if(qName.equals("Email"))
-	    insideEmail = true;
-	else if(qName.equals("Phone"))
-	    insidePhone = true;
-	else if(qName.equals("Fax"))
-	    insideFax = true;
-	else if(qName.equals("Address"))
-	    insideAddress = true;
-	else if(qName.equals("Southernmost_Latitude"))
-	    insideSouthernmost = true;
-	else if(qName.equals("Northernmost_Latitude"))
-	    insideNorthernmost = true;
-	else if(qName.equals("Westernmost_Longitude"))
-	    insideWesternmost = true;
-	else if(qName.equals("Easternmost_Longitude"))
-	    insideEasternmost = true;
-	else if(qName.equals("Category"))
-	    insideCategory = true;
-	else if(qName.equals("Topic"))
-	    insideTopic = true;
-	else if(qName.equals("Term"))
-	    insideTerm = true;
-	else if(qName.equals("Variable"))
-	    insideVariable = true;
-	else if(qName.equals("Start_Date"))
-	    insideStartDate = true;
-	else if(qName.equals("Stop_Date"))
-	    insideStopDate = true;
-	else if(qName.equals("Latitude_Resolution"))
-	    insideLatResolution = true;
-	else if(qName.equals("Longitude_Resolution"))
-	    insideLongResolution = true;
-	else if(qName.equals("Temporal_Resolution"))
-	    insideTemporalResolution = true;
+	} else {
+//System.out.println("received qName: " + qName);
+		if(qName.equals("Entry_ID"))
+			insideID = true;
+		else if(qName.equals("Entry_Title"))
+			insideTitle = true;
+		else if(qName.equals("URL"))
+			insideURL = true;
+		else if(qName.equals("URL_Content_Type"))
+			insideContentType = true;
+		else if(qName.equals("Summary"))
+			insideSummary = true;
+		else if(qName.equals("Role"))
+			insideRole = true;
+		else if(qName.equals("First_Name"))
+			insideFirstName = true;
+		else if(qName.equals("Middle_Name"))
+			insideMiddleName = true;
+		else if(qName.equals("Last_Name"))
+			insideLastName = true;
+		else if(qName.equals("Email"))
+			insideEmail = true;
+		else if(qName.equals("Phone"))
+			insidePhone = true;
+		else if(qName.equals("Fax"))
+			insideFax = true;
+		else if(qName.equals("Address"))
+			insideAddress = true;
+		else if(qName.equals("Southernmost_Latitude"))
+			insideSouthernmost = true;
+		else if(qName.equals("Northernmost_Latitude"))
+			insideNorthernmost = true;
+		else if(qName.equals("Westernmost_Longitude"))
+			insideWesternmost = true;
+		else if(qName.equals("Easternmost_Longitude"))
+			insideEasternmost = true;
+		else if(qName.equals("Category"))
+			insideCategory = true;
+		else if(qName.equals("Topic"))
+			insideTopic = true;
+		else if(qName.equals("Term"))
+			insideTerm = true;
+		else if(qName.equals("Variable"))
+			insideVariable = true;
+		else if(qName.equals("Start_Date"))
+			insideStartDate = true;
+		else if(qName.equals("Stop_Date"))
+			insideStopDate = true;
+		else if(qName.equals("Latitude_Resolution"))
+			insideLatResolution = true;
+		else if(qName.equals("Longitude_Resolution"))
+			insideLongResolution = true;
+		else if(qName.equals("Temporal_Resolution"))
+			insideTemporalResolution = true;
+		}
     }
-
 
     public void endElement(String namespaceURI,
 			   String sName, // simple name
@@ -225,7 +228,7 @@ public class DifHandler extends DefaultHandler {
 	    = insideLongResolution = insideTemporalResolution
 	    = false;
 
-	//System.out.println("end: qName = " + qName);
+//System.out.println("end: qName = " + qName);
 	if(qName.equals("DIF"))
 	    difs.addElement(dif);
 	else if(qName.equals("Related_URL")) {

@@ -7,9 +7,7 @@ import javax.swing.event.*;
 import java.net.URL;
 import java.util.Vector;
 import org.jdom.*;
-import org.jdom.output.XMLOutputter;
 import org.jdom.input.*;
-import org.jdom.input.DOMBuilder;
 
 public class KeywordSearch extends PanelTemplate {
 
@@ -19,14 +17,16 @@ public class KeywordSearch extends PanelTemplate {
     JList jlistTerms;
     Document outXMLDoc;
 
-    public KeywordSearch(String sBaseURL, GCMDSearch parent) {
-		super(sBaseURL, parent);
+    public KeywordSearch( GCMDSearch parent ) {
+		super(parent);
 		try {
 			//xml = new File("http://gcmd.nasa.gov/servlets/md/get_valids.py?type=parametersvalid");
 			//xml = new File("get_valids.py");
 			// convert a file to a JDOM Document
+			String sBaseURL = opendap.clients.odc.ConfigurationManager.getInstance().getProperty_URL_GCMD();
 			SAXBuilder domBuilder = new SAXBuilder();
-			outXMLDoc = domBuilder.build( new URL("http://gcmd.nasa.gov/servlets/md/get_valids.py?type=parametersvalid") );
+			String sValidsQuery = opendap.clients.odc.Utility.sConnectPaths( sBaseURL, "/", "/get_valids.py?type=parametersvalid" );
+			outXMLDoc = domBuilder.build( new URL( sValidsQuery ) );
 
 // causes out of memory error:
 //			SAXBuilder saxBuilder = new SAXBuilder(false);
