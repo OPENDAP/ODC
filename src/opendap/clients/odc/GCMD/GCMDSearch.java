@@ -1,13 +1,9 @@
 package opendap.clients.odc.GCMD;
 
 import opendap.clients.odc.*;
-import opendap.clients.odc.ECHO.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-import org.jdom.*;
-import org.jdom.output.XMLOutputter;
 
 /**
  * Displays a window for GCMD search
@@ -24,7 +20,7 @@ public class GCMDSearch extends JPanel {
     /**
      * Create a new <code>GCMDSearch</code>
      */
-    public GCMDSearch( final String baseURL ) {
+    public GCMDSearch() {
 		//super("ECHO Search Wizard");
 		//actionListeners = new Vector();
 
@@ -58,7 +54,7 @@ public class GCMDSearch extends JPanel {
 								add(tabbedPane, BorderLayout.CENTER);
 								tabbedPane.removeAll();
                                 try {
-                                    freeTextSearch = new FreeTextSearch(baseURL, GCMDSearch.this);
+                                    freeTextSearch = new FreeTextSearch( GCMDSearch.this );
                                     tabbedPane.addTab("Free Text", freeTextSearch);
                                 } catch(Exception ex){
                                     StringBuffer sb = new StringBuffer(80);
@@ -66,7 +62,7 @@ public class GCMDSearch extends JPanel {
                                     ApplicationController.getInstance().vShowError("Error creating free text search panel: " + sb);
                                 }
                                 try {
-                                    keywordSearch = new KeywordSearch(baseURL, GCMDSearch.this);
+                                    keywordSearch = new KeywordSearch( GCMDSearch.this );
                                     tabbedPane.addTab("Keyword", keywordSearch);
                                 } catch(Exception ex){
                                     StringBuffer sb = new StringBuffer(80);
@@ -94,7 +90,7 @@ public class GCMDSearch extends JPanel {
 
     public static void main(String args[]) {
 		JFrame frame = new JFrame("GCMD");
-		frame.getContentPane().add(new GCMDSearch("http://128.183.164.60/servlets/md/"));
+		frame.getContentPane().add(new GCMDSearch());
 		frame.pack();
 		frame.setVisible(true);
     }

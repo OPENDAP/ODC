@@ -11,9 +11,7 @@ import java.io.*;
 import java.net.*;
 import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
-import javax.swing.table.*;
 
 /**
  * This class searches the GCMD database for datasets.
@@ -22,17 +20,12 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 
 	private final static String ENCODING = "UTF-8";
 
-	private String msGCMD_URL;
-
     private DefaultHandler handler;
-    private Hashtable difs;
-    private Hashtable hashDifPanels;
 
     private final JTable jtableURLs = new JTable();
 	private final GCMDTableModel mModel = new GCMDTableModel();
 
     private JScrollPane jscrollURLs;
-    private JScrollPane jscrollTop;
 
 	private Button_Select jbuttonSelect;
     private JButton jbuttonSearch;
@@ -45,19 +38,12 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
     private JPanel panelDatasetList;
 
     private JPanel panelInfo;
-	private JPanel panelInfoText;
 	private JScrollPane scrollInfo;
 	private JTextArea jtaInfo;
 
-	private GCMDSearch myParent;
-
 	private Panel_SpatialTemporal panelSpatial;
 
-    public PanelTemplate(String sBaseURL, GCMDSearch parent) {
-		myParent = parent;
-		msGCMD_URL = sBaseURL;
-		difs = new Hashtable();
-		hashDifPanels = new Hashtable();
+    public PanelTemplate( GCMDSearch parent ) {
 		handler = new DifHandler();
 		panelSpatial = new Panel_SpatialTemporal();
 		initGUI();
@@ -557,7 +543,8 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 			String sQueryURL = null;
 			try {
 				URL urlQuery;
-			    sQueryURL = msGCMD_URL + "/getdifs.py?query=";
+				String sGCMD_URL = opendap.clients.odc.ConfigurationManager.getInstance().getProperty_URL_GCMD();
+			    sQueryURL = opendap.clients.odc.Utility.sConnectPaths( sGCMD_URL, "/", "/getdifs.py?query=" );
 			    if( msQueryString.length() > 0 ) sQueryURL += URLEncoder.encode(msQueryString, ENCODING); // 1.4.1+ only
 				urlQuery = new URL(sQueryURL);
 				ApplicationController.getInstance().vShowStatus("Opening GCMD query: " + sQueryURL);
@@ -570,20 +557,24 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 				SAXParser saxParser = factory.newSAXParser();
 				saxParser.parse( mis, handler );
 
-
 				// If the request has been canceled, drawTable will be false at this point.
-				if(mzDrawTable) {
+				if( mzDrawTable ) {
 					Vector idVector = ((DifHandler)handler).getDifs();
+System.out.println("# difs: " + idVector.size());
 					if( idVector.size() == 0 ){
 						ApplicationController.getInstance().vShowStatus("Search returned no matches");
 					}
 
 					// remove any results lacking a DODS URL
+					int ctResults = 0;
 					StringBuffer sbError = new StringBuffer(80);
 					for( int xDIF = idVector.size()-1; xDIF >= 0; xDIF-- ){
 						Dif difCurrent = (Dif)idVector.get(xDIF);
-						if( difCurrent.getDodsURL(sbError) == null ){
+						if( difCurrent.getDodsURL( sbError ) == null ){
+System.out.println("dif had no url: " + sbError);
 							idVector.remove(xDIF);
+						} else {
+							ctResults++;
 						}
 					}
 
@@ -595,6 +586,8 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 					}
 
 					mModel.setData(ids);
+
+					opendap.clients.odc.ApplicationController.vShowStatus( "GCMD returned " + ctResults + " results" );
 				}
 			} catch(Throwable ex) {
 				StringBuffer sbError = new StringBuffer("while executing GCMD search thread for query [" + sQueryURL + "]");

@@ -30,15 +30,15 @@ public class Dif {
     DataResolution dataResolution;
 
     public Dif() {
-	entryID = "";
-	urls = new Vector();
-	contentTypes = new Vector();
-	personnels = new Vector();
-	parameters = new Vector();
-	summary = "";
-	spatialCoverage = new SpatialCoverage();
-	temporalCoverage = new TemporalCoverage();
-	dataResolution = new DataResolution();
+		entryID = "";
+		urls = new Vector();
+		contentTypes = new Vector();
+		personnels = new Vector();
+		parameters = new Vector();
+		summary = "";
+		spatialCoverage = new SpatialCoverage();
+		temporalCoverage = new TemporalCoverage();
+		dataResolution = new DataResolution();
     }
 
     /**
