@@ -564,6 +564,9 @@ ReadHeader:
 			ApplicationController.vClearStatus();
 		} catch( java.lang.InterruptedException ex ) { // the user has cancelled the action
 			return null;
+		} catch( java.nio.channels.UnresolvedAddressException uae ) {
+			sbError.append("error resolving network address (" + sConnection_Host + ":" + iConnection_Port + "). Your network or domain name servers may be down or innaccessible.");
+			return null;
 		} catch( java.net.ConnectException ex ) {
 			sbError.append("error connecting to " + (zUseProxy ? "proxy" : "remote host") + " (" + sConnection_Host + ":" + iConnection_Port + "): " + ex);
 			return null;

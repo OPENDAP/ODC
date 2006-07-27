@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-4
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.57
+ * @version      2.59
  */
 
 import opendap.clients.odc.plot.*;
@@ -126,22 +126,25 @@ public class ApplicationFrame extends JFrame {
 			}
 		}
 
-		ApplicationController.getInstance().vShowStartupMessage("creating data viewers");
+		ApplicationController.getInstance().vShowStartupMessage("creating text viewer");
 		panelTextView = new Panel_View_Text();
 		if( !panelTextView.zInitialize(sbError) ){
 			sbError.insert(0, "Failed to initialize text view panel: ");
 			return false;
 		}
+		ApplicationController.getInstance().vShowStartupMessage("creating table viewer");
 		panelTableView = new Panel_View_Table();
-		if( !panelTableView.zInitialize(sbError) ){
+		if( !panelTableView.zInitialize( sbError ) ){
 			sbError.insert(0, "Failed to initialize table view panel: ");
 			return false;
 		}
+		ApplicationController.getInstance().vShowStartupMessage("creating image viewer");
 		panelImageView = new Panel_View_Image();
 		if( !panelImageView.zInitialize(sbError) ){
 			ApplicationController.vShowWarning("Failed to initialize image view panel: " + sbError);
 			sbError.setLength(0);
 		}
+		ApplicationController.getInstance().vShowStartupMessage("creating plotter");
 		panelPlotter = new opendap.clients.odc.plot.Panel_View_Plot();
 		if( !panelPlotter.zInitialize(sbError) ){
 			ApplicationController.vShowWarning("Failed to initialize plotter: " + sbError);
