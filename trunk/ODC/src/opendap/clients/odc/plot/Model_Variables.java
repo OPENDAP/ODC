@@ -246,7 +246,15 @@ class Model_Variable {
 				for( xDim = 1; xDim <= ctDimensions; xDim++ ){
 					String sDimCaption = null;
 					if( masSliceCaptions != null ){
-						sDimCaption = masSliceCaptions[xDim][xSlice];
+						if( masSliceCaptions.length <= xDim ){
+							ApplicationController.getInstance().vShowWarning( "invalid caption dim index " + xDim );
+						} else if( masSliceCaptions[xDim] == null ){
+							ApplicationController.getInstance().vShowWarning( "slice captions for dim " + xDim + " are missing" );
+						} else if( masSliceCaptions[xDim].length <= xSlice ){
+							ApplicationController.getInstance().vShowWarning( "invalid slice index " + xSlice );
+						} else {
+							sDimCaption = masSliceCaptions[xDim][xSlice];
+						}
 					}
 					masDimCaption[xDim] = sDimCaption; // not used
 					if( xDim == xDimX || xDim == xDimY ){
