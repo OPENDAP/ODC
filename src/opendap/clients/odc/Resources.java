@@ -41,7 +41,7 @@ public class Resources {
 		try {
 			java.net.URL url = ApplicationController.getInstance().getClass().getResource(sResourcePath);
 			if( url == null ){
-				sbError.append("resource not found: " + sResourcePath + " (this resource was missing from the class path or jar file)");
+				sbError.append("image resource not found (was missing from the class path or jar file)");
 				return null;
 			}
 			Object oContent = url.getContent();
@@ -106,18 +106,19 @@ public class Resources {
 				sIconPath = "/icons/icon-32.gif";
 			} else {
 				sIconPath = "/icons/icon-32.gif";
-				ApplicationController.getInstance().vShowError("Unknown icon size [" + sIconSize + "]. Supported sizes are \"16\", \"24\" and \"32\".");
+				ApplicationController.getInstance().vShowWarning("Unknown icon size [" + sIconSize + "]. Supported sizes are \"16\", \"24\" and \"32\".");
+				return;
 			}
-			sIconPath = "/opendap/clients/odc/" + sIconPath;
+			sIconPath = Utility.sConnectPaths("/opendap/clients/odc", "/", sIconPath);
 			StringBuffer sbError = new StringBuffer();
 			javax.swing.ImageIcon icon = imageiconLoadResource( sIconPath, sbError );
 			if( icon == null ){
-				ApplicationController.getInstance().vShowError("failed to load icon " + sIconPath + ": " +sbError);
+				ApplicationController.getInstance().vShowWarning("failed to load icon " + sIconPath + ": " +sbError);
 				return;
 			}
 			theFrame.setIconImage(icon.getImage());
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowError("Unexpected error setting up icon. Default icon will appear.");
+			ApplicationController.getInstance().vShowWarning("Unexpected error setting up icon. Default icon will appear.");
 		}
 	}
 

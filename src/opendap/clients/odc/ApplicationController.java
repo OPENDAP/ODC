@@ -23,7 +23,7 @@ public class ApplicationController {
 
     private static final String msAppName = "OPeNDAP Data Connector";
     private static final String msAppVersion = "2.59";
-    private static final String msAppReleaseDate = "19 June 2006"; // todo create ANT substitution
+    private static final String msAppReleaseDate = "10 July 2006"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	String getAppName(){ return msAppName; }
@@ -114,8 +114,8 @@ public class ApplicationController {
 			} else {
 				thisInstance.vActivate();
 			}
-        } catch(Exception ex){
-			String sStackTrace = ApplicationController.extractStackTrace(ex);
+        } catch( Throwable t ) {
+			String sStackTrace = ApplicationController.extractStackTrace( t );
             System.out.println("Unexpected error starting application: " + sStackTrace);
 			ApplicationController.vShowStartupDialog("Failed to initialize: " + sStackTrace);
             System.exit(1);
@@ -235,14 +235,14 @@ public class ApplicationController {
 	final public void vShowStartupMessage( final String sMessage ){
 		if( windowSplash != null ){
 			try {
-				javax.swing.SwingUtilities.invokeAndWait(
+				javax.swing.SwingUtilities.invokeLater(
 					new Runnable() {
 						public void run() {
 							labelSplash.repaint();
 						}
 					}
 				);
-				javax.swing.SwingUtilities.invokeAndWait(
+				javax.swing.SwingUtilities.invokeLater(
 					new Runnable() {
 						public void run() {
 							if (sMessage != null) {

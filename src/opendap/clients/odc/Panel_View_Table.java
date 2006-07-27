@@ -19,16 +19,22 @@ import opendap.dap.*;
 
 public class Panel_View_Table extends JPanel {
 
-    public Panel_View_Table() {}
+    public Panel_View_Table() {
+ApplicationController.getInstance().vShowStartupMessage("table constructor start");
+		maData0 = new String[1][1];
+		mCurrentRow = 0; // always next one past existing info
+		mjtfCount_Rows = new JTextField(4);
+		mjtfCount_Cols = new JTextField(4);
+ApplicationController.getInstance().vShowStartupMessage("table constructor end");
+	}
 
-	private final JScrollPane jspDisplay = new JScrollPane();
 	private JTable mjtDisplay;
 	public Model_DataTable theModel;
 
-	private String[][] maData0 = new String[1][1];
-	private int mCurrentRow = 0; // always next one past existing info
-	private final JTextField mjtfCount_Rows = new JTextField(4);
-	private final JTextField mjtfCount_Cols = new JTextField(4);
+	private String[][] maData0;
+	private int mCurrentRow; // always next one past existing info
+	private JTextField mjtfCount_Rows;
+	private JTextField mjtfCount_Cols;
 
 	public String[] getColumn1( int iColumn, int iFromRow, int iToRow, StringBuffer sbError ){
 		if( iFromRow < 1 || iFromRow > maData0.length ){
@@ -212,6 +218,7 @@ public class Panel_View_Table extends JPanel {
 	public boolean zInitialize(StringBuffer sbError){
 
         try {
+ApplicationController.getInstance().vShowStartupMessage("1");
 
 			javax.swing.border.Border borderStandard = BorderFactory.createEtchedBorder();
 			this.setBorder(borderStandard);

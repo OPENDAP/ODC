@@ -77,7 +77,7 @@ public class Panel_Feedback_Email extends JPanel {
 			jbuttonSendEmail.addActionListener(
 				new ActionListener(){
 				    public void actionPerformed(ActionEvent event) {
-					    Panel_Feedback_Email.this.vSendEmail();
+					    Panel_Feedback_Email.this.vSendEmail_Relay();
 					}
 				}
 			);
@@ -111,14 +111,81 @@ public class Panel_Feedback_Email extends JPanel {
 		jtaDisplay.setText("");
 	}
 
-	void vSendEmail(){
+	// sends mail via a web-server based relay
+	// the relay is a perl script on the server (see src/clients/odc/cgi)
+	void vSendEmail_Relay(){
+		StringBuffer sbError = new StringBuffer(250);
+		String sMailRelayURL = ConfigurationManager.getInstance().getProperty_FEEDBACK_EmailRelayURL();
+		if( sMailRelayURL == null ){
+			ApplicationController.vShowError("Unable to obtain mail relay URL from configuration manager.");
+			return;
+		}
+		String sToAddress = "feedback@opendap.org";
+		String sFromAddress = jtfUserEmail.getText();
+		String sReturnAddress = jtfUserEmail.getText(); // same as from address
+		String sSubject = "[ODC feedback]";
+
+		// determine message content
+		String sDisplayText = jtaDisplay.getText().trim();
+		StringBuffer sbMessage = new StringBuffer(jtaDisplay.getText().length() + 250);
+		sbMessage.append( (sDisplayText.length() == 0 ? "[no message]" : sDisplayText) );
+		sbMessage.append( "[add me to mailing list: " + (jcheckIncludeMe.isSelected() ? "yes]" : "no]") );
+		sbMessage.append( "[can we contact you: " + (jcheckCanWeContactYou.isSelected() ? "yes]" : "no]") );
+		String sMessageContent = sbMessage.toString();
+
+		String sSubject_encoded, sContent_encoded;
+		try {
+			sSubject_encoded = java.net.URLEncoder.encode(sSubject, "UTF-8");
+			sContent_encoded = java.net.URLEncoder.encode(sMessageContent, "UTF-8");
+		} catch( Exception ex ) {
+			ApplicationController.vShowError("Failed to construct mail message because of an encoding failure: " + ex);
+			return;
+		}
+
+		// assemble post content
+		StringBuffer sbContent = new StringBuffer(1000);
+		sbContent.append("send_to=").append(sToAddress).append('&');
+		sbContent.append("reply_to=").append(sReturnAddress).append('&');
+		sbContent.append("subject=").append(sSubject_encoded).append('&');
+		sbContent.append("content=").append(sContent_encoded);
+
+		// make posting
+		String sCommand = "POST";
+		String sMailHost = ConfigurationManager.getInstance().getProperty_MailHost();
+		int iPort = 80;
+		String sQuery = null;
+		String sProtocol = "HTTP/1.1";
+		String sReferer = null;
+		String sContentType = "application/x-www-form-urlencoded";
+		String sContent = sbContent.toString();
+		java.util.ArrayList listServerCookies = null;
+		java.util.ArrayList listClientCookies = null;
+		String sPageReturn = IO.getStaticContent(sCommand, sMailHost, iPort, sMailRelayURL, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, null, null, sbError);
+		String sHostAddress = sMailHost + ":" + iPort + sMailRelayURL;
+		if( sPageReturn == null ){
+			ApplicationController.vShowError("Failed to email to " + sHostAddress + ":" + iPort + sMailRelayURL + ", HTTP failure: " + sbError);
+			return;
+		} else {
+			if( sPageReturn.toUpperCase().startsWith("MAIL SENT") ){
+				jtaDisplay.setText(""); // clear the display
+				ApplicationController.getInstance().vShowErrorDialog("Comment emailed. Thanks for your feedback.");
+			} if( sPageReturn.toUpperCase().startsWith("ERROR:") ){
+				ApplicationController.vShowError("Feedback email attempt to " + sHostAddress + " failed: " + sPageReturn);
+			} else {
+				ApplicationController.vShowError("Feedback email attempt to " + sHostAddress + " had unexpected result: " + sPageReturn);
+			}
+		}
+
+	}
+
+	void vSendEmail_Direct(){
 
 		StringBuffer sbError = new StringBuffer(250);
 
 		// Initialize Post Office
 		String sMailHost = ConfigurationManager.getInstance().getProperty_MailHost();
 		if( !mPostOffice.zInitialize(sMailHost, sbError) ){
-			sbError.insert(0 , "Failed to initialize post office: ");
+			ApplicationController.vShowError("Failed to initialize post office: " + sbError);
 			return;
 		}
 
