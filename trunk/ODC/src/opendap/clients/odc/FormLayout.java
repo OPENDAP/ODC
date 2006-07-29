@@ -37,7 +37,7 @@ package opendap.clients.odc;
  *  setFill_Vertical method. In this case all other components will be vertically sized to their
  *  preferred size and the row containing the fill element will take all remaining vertical space.
  *
- *  Horizontal Fill: You can specify a horizontal fill element(s) for each row using
+ *  Horizontal Fill: You can specify a horizontal fill element or elements for each row using
  *  the setFill_Horizontal method. Fill settings only apply to the control part of the element.
  *  Labels and all the remaining elements in the row will be sized to their preferred size.
  *  If you wish to weight fill elements you can do so using the the setHorizontalWeight method.
@@ -93,6 +93,9 @@ package opendap.clients.odc;
 
 import java.awt.*;
 import java.util.ArrayList;
+
+// imports for test panel
+import javax.swing.*;
 
 //layout manager interface:
 //	public void invalidateLayout( Container target ){}
@@ -390,9 +393,9 @@ public class FormLayout implements LayoutManager2 {
 				iWeighting_total += (element.miWeighting == 0) ? 1 : element.miWeighting;
 			}
 
-
 			int pxPreferredWidth_CurrentRow = apxWidth_preferred_row[xRow];
 			int pxFillWidth_CurrentRow = pxFormWidth - pxPreferredWidth_CurrentRow;
+			if( pxFillWidth_CurrentRow < 0 ) pxFillWidth_CurrentRow = 0;
 
 			// first size the static elements to their weighted preference
 //			int iWeighting_total = 0;
@@ -632,4 +635,29 @@ class FormElement {
 	int iBounds_control_y;
 	int iBounds_control_width;
 	int iBounds_control_height;
+}
+
+class FormTestPanel extends JPanel {
+	JPanel panelControls = new JPanel();
+	JPanel panelDisplay = new JPanel();
+	FormTestPanel(){
+		this.setLayout( new java.awt.BorderLayout() );
+		this.add( panelControls, java.awt.BorderLayout.NORTH );
+		this.add( panelDisplay, java.awt.BorderLayout.CENTER );
+		panelDisplay.setLayout( new FormLayout(panelDisplay) );
+		panelDisplay.add( new JLabel("label 1") );
+		panelDisplay.add( new JTextField("text field 1") );
+		panelDisplay.add( new JLabel("label 2") );
+		panelDisplay.add( new JTextField("text field 2") );
+		panelDisplay.add( new JLabel("label 3") );
+		panelDisplay.add( new JTextField("text field 3") );
+		panelDisplay.add( new JLabel("label 4") );
+		panelDisplay.add( new JTextField("text field 4") );
+		panelDisplay.add( new JLabel("label 5") );
+		panelDisplay.add( new JTextField("text field 5") );
+		panelDisplay.add( new JLabel("label 6") );
+		panelDisplay.add( new JTextField("text field 6") );
+	}
+
+
 }
