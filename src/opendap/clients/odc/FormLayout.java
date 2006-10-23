@@ -43,10 +43,13 @@ package opendap.clients.odc;
  *  If you wish to weight fill elements you can do so using the the setHorizontalWeight method.
  *  Elements that do not have a weight specified default to a weighting of 1 (the lowest weighting).
  *  For example, if there are three elements in a row, A, B and C, and B is weighted to 2 and C is
- *  weighted to 1 then A will be set to its preferred size, B will be set to double C's size.
+ *  weighted to 3 then B will be set to double A's size and C will be triple A's size. Min/Max
+ *  settings have precedence over weightings.
  *
  *  Weightings: weightings can be specified for elements that are set to fill. In this case
- *  preferred sizes are ignored and the elements are scaled to their weighting.
+ *  preferred sizes are ignored and the elements are scaled to their weighting. If an element
+ *  is not set to fill its weighting is ignored. Weightings must be positive integers. If a negative
+ *  weighting is supplied, then the absolute value of the weighting will be used.
  *
  *  Global Fill: you can put the form into global fill mode to fill all available space using the
  *  the global fill property. When global fill is true all alignment and other fill settings are
@@ -160,6 +163,8 @@ public class FormLayout implements LayoutManager2 {
 		}
 
 		int ctElement = listDefinedElements.size();
+
+// TODO the mappings must be improved to take into account alignments
 
 		// establish the row mapping
 		int[] aiRowMapping = new int[ctElement + 1]; // maps elements to rows (one-based)
@@ -369,6 +374,9 @@ public class FormLayout implements LayoutManager2 {
 			if( pxMaximumWidth_CurrentRow > pxMaximumWidth ) pxMaximumWidth = pxMaximumWidth_CurrentRow;
 		}
 
+		// adjust the guide sizes to account for alignments
+		// TODO
+
 		// determine the form size ( widths )
 		int mpxMinimumWidth = pxMinimumWidth;
 		int mpxPreferredWidth = pxPreferredWidth;
@@ -385,49 +393,133 @@ public class FormLayout implements LayoutManager2 {
 		// determine component realized size ( width )
 		for( int xRow = 1; xRow <= ctRows; xRow++ ){
 
-			// determine the used width of the non-fill components and empty columns
-			int iWeighting_total = 0;
-			for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
-				FormElement element = aMapping[xColumn][xRow];
-				if( element == null ) continue;
-				iWeighting_total += (element.miWeighting == 0) ? 1 : element.miWeighting;
-			}
-
 			int pxPreferredWidth_CurrentRow = apxWidth_preferred_row[xRow];
 			int pxFillWidth_CurrentRow = pxFormWidth - pxPreferredWidth_CurrentRow;
 			if( pxFillWidth_CurrentRow < 0 ) pxFillWidth_CurrentRow = 0;
 
-			// first size the static elements to their weighted preference
-//			int iWeighting_total = 0;
-//			for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
-//				FormElement element = aMapping[xColumn][xRow];
-//				if( element == null ) continue;
-//				iWeighting_total += (element.miWeighting == 0) ? 1 : element.miWeighting;
-//			}
-			float fWeightUnit = pxFillWidth_CurrentRow / iWeighting_total;
-			for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
-				FormElement element = aMapping[xColumn][xRow];
-				if( element == null || element.mzFill ) continue;
-				element.iBounds_width_total = element.iBounds_preferred_width + (int)(element.miWeighting * fWeightUnit);
+			FormElement elementLastInRow = null;
+			int psTotalWidthUsed = 0;
+			if( pxFillWidth_CurrentRow == 0 ){ // all elements will be their min/preferred size
+
+				// in the first pass determine all the items at minimum size
+				int pxPreferredWidth_non_minimums = 0;
+				int pxTotalWidth_minimums = 0;
+				float fScaleDown = 1 - pxFormWidth / pxPreferredWidth_CurrentRow;
+				for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
+					FormElement element = aMapping[xColumn][xRow];
+					if( element == null ) continue;
+					if( element.iBounds_minimum_width > element.iBounds_preferred_width * fScaleDown ){
+						element.iBounds_control_width = element.iBounds_minimum_width;
+						pxTotalWidth_minimums += element.iBounds_control_width;
+						psTotalWidthUsed += element.iBounds_control_width;
+						elementLastInRow = element;
+					} else {
+						pxPreferredWidth_non_minimums += element.iBounds_preferred_width;
+					}
+				}
+
+				// second pass: scale down all items that are above minimum size
+				float fPreferredScaleDown = 1 - (pxFormWidth - pxTotalWidth_minimums)/pxPreferredWidth_non_minimums;
+				int pxTotalWidth_scaled = 0;
+				for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
+					FormElement element = aMapping[xColumn][xRow];
+					if( element == null ) continue;
+					if( element.iBounds_minimum_width > element.iBounds_preferred_width * fScaleDown ){
+						// these items were sized to minimum in the first pass
+					} else {
+						element.iBounds_control_width = Math.round( element.iBounds_preferred_width * fPreferredScaleDown );
+						pxTotalWidth_scaled += element.iBounds_control_width;
+						psTotalWidthUsed += element.iBounds_control_width;
+						elementLastInRow = element;
+					}
+				}
+
+			} else { // non-fill items will be preferred size and fill items will stretch
+
+				// non-fill items are their preferred sizes
+				for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
+					FormElement element = aMapping[xColumn][xRow];
+					if( element == null ) continue;
+					if( ! element.mzFill ){
+						element.iBounds_control_width = element.iBounds_preferred_width;
+						psTotalWidthUsed += element.iBounds_control_width;
+					}
+				}
+
+				// calculate the total weighting and number of stretchable items
+				int iWeighting_total = 0;
+				int ctFillElements = 0;
+				for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
+					FormElement element = aMapping[xColumn][xRow];
+					if( element == null || !element.mzFill ) continue;
+					ctFillElements++;
+					iWeighting_total += (element.miWeighting == 0) ? 1 : element.miWeighting;
+				}
+
+				// first pass: determine all the fill items at minimum size
+				int pxTotalWidth_minimums = 0;
+				for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
+					FormElement element = aMapping[xColumn][xRow];
+					if( !element.mzFill || element == null ) continue;
+					if( element.iBounds_minimum_width > pxFillWidth_CurrentRow * element.miWeighting / iWeighting_total ){
+						element.iBounds_control_width = element.iBounds_minimum_width;
+						pxTotalWidth_minimums += element.iBounds_minimum_width;
+						psTotalWidthUsed += element.iBounds_control_width;
+						elementLastInRow = element;
+					}
+				}
+
+				// second pass: determine all the fill items at maximum size
+				int pxTotalWidth_maximums = 0;
+				for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
+					FormElement element = aMapping[xColumn][xRow];
+					if( !element.mzFill || element == null ) continue;
+					if( element.iBounds_minimum_width > pxFillWidth_CurrentRow * element.miWeighting / iWeighting_total ){
+						// these items were sized in the first pass
+					} else if( element.iBounds_maximum_width < (pxFillWidth_CurrentRow - pxTotalWidth_minimums) * element.miWeighting / iWeighting_total ){
+						element.iBounds_control_width = element.iBounds_maximum_width;
+						pxTotalWidth_maximums += element.iBounds_control_width ;
+						psTotalWidthUsed += element.iBounds_control_width;
+						elementLastInRow = element;
+					}
+				}
+
+				// third pass: scale remaining items
+				int pxTotalWidth_filled = 0;
+				for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
+					FormElement element = aMapping[xColumn][xRow];
+					if( element == null ) continue;
+					if( element.iBounds_minimum_width > pxFillWidth_CurrentRow * element.miWeighting / iWeighting_total ){
+						// these items were sized to minimum in the first pass
+					} else if( element.iBounds_maximum_width < (pxFillWidth_CurrentRow - pxTotalWidth_minimums) * element.miWeighting / iWeighting_total ){
+						// these items were sized to maximum in the second pass
+					} else {
+						int pxRemainingSpace = pxFillWidth_CurrentRow - pxTotalWidth_minimums - pxTotalWidth_maximums;
+						element.iBounds_control_width = Math.round( pxRemainingSpace * element.miWeighting / iWeighting_total );
+						pxTotalWidth_filled += element.iBounds_control_width;
+						psTotalWidthUsed += element.iBounds_control_width;
+						elementLastInRow = element;
+					}
+				}
 			}
 
-			// the above still isn't right:
-			// todo only fill elements can be weighted
-			// change the above and change set methods appropriately
+			// adjust the last item for rounding so that that total width matches form width
+			if( psTotalWidthUsed != pxFormWidth && elementLastInRow != null ){
+				elementLastInRow.iBounds_control_width += pxFormWidth - psTotalWidthUsed;
+			}
 
-			// size any fill elements according to their relative weightings
+			// TODO the spacing for null elements must be calculated and used
+			// because there may be gaps
 
 		}
 
-
-
-		// determine the component locations
+		// determine the element locations
 		int px_x = 0;
 		int px_y = 0;
+		px_y = insetsContainer.top + MARGIN_top;
 		for( int xRow = 1; xRow <= ctRows; xRow++ ){
 			px_x = insetsContainer.left + MARGIN_left;
 			for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
-				px_y = insetsContainer.top + MARGIN_top;
 				// if( xRow > aiColumnElementCount[xColumn] || xColumn > aiRowElementCount[xRow] ) continue;
 			}
 		}
@@ -576,6 +668,7 @@ public class FormLayout implements LayoutManager2 {
 	public void setWeighting( Component component, int weight ){
 		FormElement element = getFormElement( component );
 		if( element == null ) return;
+		if( weight < 0 ) weight = weight * -1;
 		element.miWeighting = weight ;
 	}
 	public void setAlignment( Component component, int ALIGNMENT ){
@@ -621,6 +714,7 @@ class FormElement {
 	int miWeighting;
 	int miAlignment;
 	boolean mzFill = false;
+	boolean mzSpacer = false; // spacer elements are used where there would be a blank space in the grid
 
 	int iBounds_minimum_width;
 	int iBounds_preferred_width;

@@ -79,6 +79,9 @@ public class Panel_URLList_JList extends Panel_URLList {
 								retrieve_model.vShowDDS( urlSelected, null );
 							}
 						} else {
+							if( urlSelected.getType() == DodsURL.TYPE_Data ){
+								retrieve_model.getRetrievePanel().vShowDirectory( false );
+							}
 							retrieve_model.vShowURL( urlSelected, null );
 						}
 					}
