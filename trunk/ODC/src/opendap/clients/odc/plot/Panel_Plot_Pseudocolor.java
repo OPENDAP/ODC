@@ -13,12 +13,10 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.DodsURL;
 
-import java.awt.event.*;
-import java.awt.*;
-import java.awt.image.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.io.*;
+import java.awt.Graphics2D;
+import java.awt.Color;
+import javax.swing.JOptionPane;
+import javax.swing.JDialog;
 
 class Panel_Plot_Pseudocolor extends Panel_Plot {
 
