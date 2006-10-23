@@ -1,7 +1,6 @@
 package opendap.clients.odc;
 
 import java.util.regex.*;
-import javax.swing.SwingUtilities;
 
 public class Model_Retrieve {
 
@@ -21,6 +20,8 @@ public class Model_Retrieve {
 		return true;
 	}
 
+	public Panel_Retrieve getRetrievePanel(){ return retrieve_panel; }
+
 	public void vShowURL( DodsURL url, Activity activity ){
 		if( url.getType() == DodsURL.TYPE_Data ){
 			vShowConstraintEditor( url, activity );
@@ -29,7 +30,6 @@ public class Model_Retrieve {
 			vShowDirectory( url, activity );
 		} else if( url.getType() == DodsURL.TYPE_Catalog ){
 			vShowMessage( "[catalogs not currently supported]" );
-			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Blank();
 		} else if( url.getType() == DodsURL.TYPE_HTML ||
 				   url.getType() == DodsURL.TYPE_Text
 				  ){

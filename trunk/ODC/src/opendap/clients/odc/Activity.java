@@ -42,7 +42,7 @@ public class Activity extends Thread {
 		SwingUtilities.invokeLater(
 			new Runnable(){
 				public void run(){
-					jtaMessage.setText( msStatusMessage + "\n" + sStatusUpdate + "\n\t(click to cancel)" );
+					jtaMessage.setText( "\t(CLICK TO CANCEL)" + "\n" + msStatusMessage + "\n" + sStatusUpdate );
 				}
 			}
 		);
@@ -134,6 +134,7 @@ public class Activity extends Thread {
 			if( con_first == null ){
 				ApplicationController.vShowError("Internal Error, no continuation");
 			} else {
+				ApplicationController.getInstance().getAppFrame().setCursor( new Cursor(Cursor.WAIT_CURSOR) );
 				SwingUtilities.invokeLater(
 					new Runnable(){
 						public void run(){
@@ -193,6 +194,7 @@ public class Activity extends Thread {
 					);
 				}
 				ApplicationController.getInstance().vActivity_Remove(this);
+				ApplicationController.getInstance().getAppFrame().setCursor( new Cursor(Cursor.DEFAULT_CURSOR) );
 			} catch(Exception ex) {
 				ApplicationController.vShowError("Unexpected error finalizing activity " + mID + ": " + ex);
 			}
