@@ -201,6 +201,8 @@ public class DatasetList extends SearchInterface {
 						for( int iListIndex = 0; iListIndex < modelURLList.getSize(); iListIndex++ ){
 							if( modelURLList.get( iListIndex ) == urlFirst ){
 								panelList.vSelectIndex(iListIndex);
+								if( urlFirst.getType() == DodsURL.TYPE_Data )
+									ApplicationController.getInstance().getRetrieveModel().getRetrievePanel().vShowDirectory( false ); // data URLs do not have directories
 								ApplicationController.getInstance().getRetrieveModel().vShowURL( urlFirst, null );
 							}
 						}
@@ -420,6 +422,9 @@ public class DatasetList extends SearchInterface {
 			fcCache.truncate(bbXML.limit());
 			fcCache.position(0);
 			fcCache.write(bbXML);
+		} catch( java.io.FileNotFoundException fnf ) {
+			sbError.append("error creating/opening file; this problem may be caused by a bug in MacOS 10.3, if you are using a Macintosh make sure it is 10.4 or later");
+			return false;
 		} catch( Throwable t ) {
 			Utility.vUnexpectedError(t, sbError);
 			return false;
