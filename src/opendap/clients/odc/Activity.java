@@ -204,8 +204,13 @@ public class Activity extends Thread {
 
 class ProgressManager extends Thread {
 	private static final int SLEEP_INTERVAL_MS = 200;
-    private static final ProgressManager thisSingleton = new ProgressManager();
-    static ProgressManager getInstance(){return thisSingleton;}
+    private static ProgressManager thisSingleton = null;
+    static ProgressManager getInstance(){
+		if( thisSingleton == null ){
+			thisSingleton = new ProgressManager();
+		}
+		return thisSingleton;
+	}
 	private StatusBar mStatusBar;
 	ProgressManager(){
 		mStatusBar = ApplicationController.getInstance().getAppFrame().getStatusBar();
@@ -238,6 +243,7 @@ class ProgressManager extends Thread {
 				break; // and exit
 			}
 		}
+		thisSingleton = null;
 	}
 }
 
