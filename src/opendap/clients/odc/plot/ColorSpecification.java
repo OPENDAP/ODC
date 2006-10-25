@@ -738,6 +738,7 @@ class ColorSpecification extends AbstractListModel {
 		}
 	}
 	String getDataFromS(int index1){
+		int iOrder;
 		switch( miDataType ){
 			case DATA_TYPE_Byte:
 			case DATA_TYPE_Int16:
@@ -748,13 +749,16 @@ class ColorSpecification extends AbstractListModel {
 			case DATA_TYPE_UInt32:
 				return "" + anDataFrom[index1];
 			case DATA_TYPE_Float32:
-				return "" + afDataFrom[index1];
+				iOrder = iDetermineDataRangeOrder();
+				return "" + Utility.round( (double)afDataFrom[index1], iOrder - 2 );
 			case DATA_TYPE_Float64:
-				return "" + adDataFrom[index1];
+				iOrder = iDetermineDataRangeOrder();
+				return "" + Utility.round( adDataFrom[index1], iOrder - 2 );
 			default: return "?";
 		}
 	}
 	String getDataToS(int index1){
+		int iOrder;
 		switch( miDataType ){
 			case DATA_TYPE_Byte:
 			case DATA_TYPE_Int16:
@@ -765,12 +769,84 @@ class ColorSpecification extends AbstractListModel {
 			case DATA_TYPE_UInt32:
 				return "" + anDataTo[index1];
 			case DATA_TYPE_Float32:
-			    return "" + afDataTo[index1];
+				iOrder = iDetermineDataRangeOrder();
+			    return "" + Utility.round( (double)afDataTo[index1], iOrder - 2 );
 			case DATA_TYPE_Float64:
-				return "" + adDataTo[index1];
+				iOrder = iDetermineDataRangeOrder();
+				return "" + Utility.round( adDataTo[index1], iOrder - 2 );
 			default: return "?";
 		}
 	}
+
+	/* the data range order is the order of magnitude of the range of the data
+	 * where order 2 is 100, order 3 is 1000, order -2 is .01 etc
+	 */
+	int iDetermineDataRangeOrder(){
+		long nMinimum = Long.MAX_VALUE;
+		long nMaximum = Long.MIN_VALUE;
+		double dMinimum = Double.MAX_VALUE;
+		double dMaximum = Double.MIN_VALUE;
+		for( int xRange = 1; xRange <= this.mctRanges; xRange++ ){
+			switch (miDataType) {
+				case DATA_TYPE_Byte:
+				case DATA_TYPE_Int16:
+					if( ashDataTo[xRange] < nMinimum ) nMinimum = ashDataTo[xRange];
+					if( ashDataTo[xRange] > nMaximum ) nMaximum = ashDataTo[xRange];
+					if( ashDataFrom[xRange] < nMinimum ) nMinimum = ashDataFrom[xRange];
+					if( ashDataFrom[xRange] > nMaximum ) nMaximum = ashDataFrom[xRange];
+					break;
+				case DATA_TYPE_UInt16:
+				case DATA_TYPE_Int32:
+					if( aiDataTo[xRange] < nMinimum ) nMinimum = aiDataTo[xRange];
+					if( aiDataTo[xRange] > nMaximum ) nMaximum = aiDataTo[xRange];
+					if( aiDataFrom[xRange] < nMinimum ) nMinimum = aiDataFrom[xRange];
+					if( aiDataFrom[xRange] > nMaximum ) nMaximum = aiDataFrom[xRange];
+					break;
+				case DATA_TYPE_UInt32:
+					if( anDataTo[xRange] < nMinimum ) nMinimum = anDataTo[xRange];
+					if( anDataTo[xRange] > nMaximum ) nMaximum = anDataTo[xRange];
+					if( anDataFrom[xRange] < nMinimum ) nMinimum = anDataFrom[xRange];
+					if( anDataFrom[xRange] > nMaximum ) nMaximum = anDataFrom[xRange];
+					break;
+				case DATA_TYPE_Float32:
+					if( afDataTo[xRange] < dMinimum ) dMinimum = afDataTo[xRange];
+					if( afDataTo[xRange] > dMaximum ) dMaximum = afDataTo[xRange];
+					if( afDataFrom[xRange] < dMinimum ) dMinimum = afDataFrom[xRange];
+					if( afDataFrom[xRange] > dMaximum ) dMaximum = afDataFrom[xRange];
+					break;
+				case DATA_TYPE_Float64:
+					if( adDataTo[xRange] < dMinimum ) dMinimum = adDataTo[xRange];
+					if( adDataTo[xRange] > dMaximum ) dMaximum = adDataTo[xRange];
+					if( adDataFrom[xRange] < dMinimum ) dMinimum = adDataFrom[xRange];
+					if( adDataFrom[xRange] > dMaximum ) dMaximum = adDataFrom[xRange];
+					break;
+				default:
+					return 0;
+			}
+		}
+		switch (miDataType) {
+			case DATA_TYPE_Byte:
+			case DATA_TYPE_Int16:
+			case DATA_TYPE_UInt16:
+			case DATA_TYPE_Int32:
+			case DATA_TYPE_UInt32:
+				long nRangeMagnitude = nMaximum - nMinimum;
+				String sRange = Long.toString( nRangeMagnitude );
+				if( nRangeMagnitude < 0 ){
+					return sRange.length() - 1;
+				} else {
+					return sRange.length();
+				}
+			case DATA_TYPE_Float32:
+			case DATA_TYPE_Float64:
+				double dRangeMagnitude = dMaximum - dMinimum;
+				long nClosestLong = Math.round( Math.log10(dRangeMagnitude) );
+				return (int)nClosestLong;
+			default:
+				return 0;
+		}
+	}
+
 	int getColorMissingHSB(){
 		return miMissingColor;
 	}
