@@ -885,11 +885,6 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			} else {
 				alongSwatch = alongColorBar + (ctRanges - xRange) * iSwatchLength;
 			}
-//			if( zColorsAscending ){
-//				alongSwatch = alongColorBar + (xRange - 1) * iSwatchLength;
-//			} else {
-//				alongSwatch = alongColorBar + (ctRanges - xRange) * iSwatchLength;
-//			}
 			if( zColorBarHorizontal ){
 				g2.drawImage(imageSwatch, alongSwatch, acrossSwatch, pxSwatchWidth, pxSwatchHeight, null);
 			} else {
@@ -900,17 +895,19 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			if( sFrom == null ) sFrom = "";
 			if( sTo == null ) sTo = "";
 			int pxAscent = iLabelAscent / 2;
-			if( mColors.getColorFromHSB(xRange) == mColors.getColorToHSB(xRange) ){
+			int iLabelWidth = 0;
+			if( mColors.getColorFromHSB(xRange) == mColors.getColorToHSB(xRange) ){ // banded range
 				String sSwatchLabel = null;
 				if( sFrom.equals(sTo) ){
 					sSwatchLabel = sFrom;
 				} else {
-					sSwatchLabel = sFrom + "-" + sTo;
+					sSwatchLabel = sFrom + " - " + sTo;
 				}
-				int iLabelWidth = fontmetrics.stringWidth(sSwatchLabel);
+				iLabelWidth = fontmetrics.stringWidth(sSwatchLabel);
+				System.out.println("label width is: " + iLabelWidth);
 				double dRotate = 0d;
 				int alongLabel;
-				if( iLabelWidth < iSwatchLength ){ // make labels parallel to colorbar
+				if( (iLabelWidth + 6) < iSwatchLength ){ // make labels parallel to colorbar
 					if( zColorBarHorizontal ){
 						alongLabel = alongSwatch + (int)(0.5 * iSwatchLength);
 					} else {
@@ -962,7 +959,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 						int x_tick, y_tick, pxLabelLeft, pxLabelTop;
 						String sTickLabel = asScaleLabels[xTick];
 						if( sTickLabel == null ) sTickLabel = "~";
-						int iLabelWidth = fontmetrics.stringWidth(sTickLabel);
+						iLabelWidth = fontmetrics.stringWidth(sTickLabel);
 						if( zColorBarHorizontal ){
 							x_tick = alongSwatch + pxTick_Along;
 							y_tick = acrossSwatch + iSwatchThickness;
