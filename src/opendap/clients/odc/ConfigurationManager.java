@@ -12,6 +12,7 @@ package opendap.clients.odc;
 import java.io.File;
 import java.util.Properties;
 import java.util.ArrayList;
+import java.io.FilenameFilter;
 
 public class ConfigurationManager {
 
@@ -910,6 +911,23 @@ public class ConfigurationManager {
 		}
 		try { if( fos != null ) fos.close(); } catch( Exception ex ){}
 	}
+
+	static File[] getPreferencesFiles(FilenameFilter filter){
+		String sPreferencesDirectory = ConfigurationManager.getInstance().getProperty_PreferencesDirectory();
+		File filePreferencesDirectory = new File(sPreferencesDirectory);
+		if( filePreferencesDirectory == null ){
+			filePreferencesDirectory.mkdirs();
+		}
+		if( !filePreferencesDirectory.exists() ){
+			filePreferencesDirectory.mkdirs();
+		}
+		if (filePreferencesDirectory.isDirectory()) {
+			return filePreferencesDirectory.listFiles(filter);
+		} else {
+			return null;
+		}
+	}
+
 }
 
 

@@ -13,6 +13,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 
 public class Panel_Select_Recent extends SearchInterface {
 
@@ -103,7 +104,7 @@ public class Panel_Select_Recent extends SearchInterface {
 	}
 
 	void vRefreshRecentList(){
-		maURLs = Utility.getPreferenceURLs_Recent();
+		maURLs = DodsURL.getPreferenceURLs_Recent();
 		mListModel.vDatasets_DeleteAll();
 		mListModel.vDatasets_Add(maURLs, false);
 		return;
@@ -133,6 +134,71 @@ public class Panel_Select_Recent extends SearchInterface {
 			if( url.getBaseURL().equals(maURLs[xURL].getBaseURL()) ) return xURL;
 		}
 		return -1;
+	}
+
+	static void vAddRecent( DodsURL url ){
+		StringBuffer sbError = new StringBuffer();
+		int iRecentCount = ConfigurationManager.getInstance().getProperty_RecentCount();
+		if( iRecentCount < 1 ) return; // no recents at all
+		RecentFilter filter = new RecentFilter();
+		File[] afile = ConfigurationManager.getPreferencesFiles(filter);
+		if( afile == null ){
+			ApplicationController.getInstance().vShowError("error adding recent: directory list unexpectedly null");
+			return;
+		}
+
+		// see if the URL is already present
+		Panel_Select_Recent panelRecent = ApplicationController.getInstance().getAppFrame().getPanel_Recent();
+		if( panelRecent == null ){
+			ApplicationController.getInstance().vShowWarning("error adding recent: recent panel unavailable");
+			return;
+		}
+		int xFileToDelete = panelRecent.xIndexOfMatchingBaseURL(url);
+		if( xFileToDelete != - 1 ){ // already in there (replace existing object)
+			String sFilename = afile[xFileToDelete].getName();
+			if( !Utility.zDeletePreferenceObject(sFilename, sbError) ){
+				ApplicationController.getInstance().vShowWarning("failed to delete matching recent: " + sbError);
+				return;
+			}
+		}
+
+		// delete any additional recents necessary to bring list down to recent count
+		if( afile.length > iRecentCount-1 ){
+			java.util.Arrays.sort(afile);
+			int ctToDelete = afile.length - iRecentCount + 1;
+			for( xFileToDelete = 0; xFileToDelete < ctToDelete; xFileToDelete++ ){
+				String sFilename = afile[xFileToDelete].getName();
+				if( !Utility.zDeletePreferenceObject(sFilename, sbError) ){
+					ApplicationController.getInstance().vShowWarning("failed to delete extra recent: " + sbError);
+				}
+			}
+		}
+
+		String sFilename;
+		if( afile == null ){
+			sFilename = "recent-0000001.ser";
+		} else {
+			if( afile.length < 1 ) {
+				sFilename = "recent-0000001.ser";
+			} else {
+				int iMaxFavoriteNumber = 0;
+				for( int xFile = 0; xFile < afile.length; xFile++ ){
+					File fileRecent = afile[xFile];
+					String sNumber = fileRecent.getName().substring(7, 14); // make more robust
+					try {
+						int iCurrentNumber = Integer.parseInt(sNumber);
+						if( iCurrentNumber > iMaxFavoriteNumber ) iMaxFavoriteNumber = iCurrentNumber;
+					} catch(Exception ex) {
+						// do nothing
+					}
+				}
+				String sNumberNew = Utility.sFixedWidth(Integer.toString(iMaxFavoriteNumber+1), 7, '0', Utility.ALIGNMENT_RIGHT);
+				sFilename = "recent-" + sNumberNew + ".ser";
+			}
+		}
+		if( !Utility.zStorePreferenceObject(url, sFilename, sbError) ){
+			ApplicationController.vShowError("Failed to store recent: " + sbError);
+		}
 	}
 
 }

@@ -158,7 +158,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 				// do not add recent files
 			} else {
 				for( int xURL = 0; xURL < aURLsToAdd0.length; xURL++ ){
-					Utility.vAddRecent(aURLsToAdd0[xURL]);
+					Panel_Select_Recent.vAddRecent(aURLsToAdd0[xURL]);
 					ApplicationController.getInstance().getAppFrame().vUpdateRecent();
 				}
 			}
@@ -257,7 +257,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		}
 		int ctURLs = aURLsToAdd.length;
 		for( int xSelection = 0; xSelection < ctURLs; xSelection++ ){
-			Utility.vAddFavorite( aURLsToAdd[xSelection] );
+			Panel_Select_Favorites.vAddFavorite( aURLsToAdd[xSelection] );
 		}
 		ApplicationController.getInstance().getAppFrame().vUpdateFavorites();
 	}
@@ -273,7 +273,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 	}
 
 	void vAddToFavorites( DodsURL url ){
-		Utility.vAddFavorite(url);
+		Panel_Select_Favorites.vAddFavorite(url);
 		ApplicationController.getInstance().getAppFrame().vUpdateFavorites();
 	}
 

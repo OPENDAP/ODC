@@ -12,6 +12,8 @@ package opendap.clients.odc;
 
 import opendap.dap.*;
 import java.util.Enumeration;
+import java.io.FilenameFilter;
+import java.io.File;
 
 public class DodsURL implements java.io.Serializable {
 
@@ -492,6 +494,57 @@ public class DodsURL implements java.io.Serializable {
 			return nCount;
 		} catch( Exception ex ) {
 			return 0;
+		}
+	}
+
+	static DodsURL[] getPreferenceURLs_Favorites(){
+		FilenameFilter filter = new FavoritesFilter();
+		return getPreferenceURLs(filter, Utility.SORT_descending);
+	}
+
+	static DodsURL[] getPreferenceURLs_Recent(){
+		FilenameFilter filter = new RecentFilter();
+		return getPreferenceURLs(filter, Utility.SORT_descending);
+	}
+
+	static DodsURL[] getPreferenceURLs(FilenameFilter filter, int eSORT){
+		String sFileName = null, sPath = null;
+		try {
+			File[] afile = ConfigurationManager.getPreferencesFiles(filter);
+			if( afile == null ) return null;
+			Utility.sortFiles( afile, eSORT );
+			DodsURL[] aURLs = new DodsURL[afile.length];
+			StringBuffer sbError = new StringBuffer(80);
+			int xDodsURL = 0;
+			for( int xURL = 0; xURL < afile.length; xURL++ ){
+				sPath = afile[xURL].getAbsolutePath();
+				sFileName = afile[xURL].getName();
+				String sNumber = sFileName.substring(9, 16); // make more robust
+				int iNumber;
+				try {
+					iNumber = Integer.parseInt(sNumber);
+				} catch(Exception ex) {
+					iNumber = 0;
+				}
+				Object oURL = Utility.oLoadObject(sPath, sbError);
+				if( oURL == null ){
+					ApplicationController.vShowError("Failed to load preference " + iNumber + " [" + sPath + "]: " + sbError);
+				} else {
+					xDodsURL++;
+					aURLs[xDodsURL-1] = (DodsURL)oURL;
+					aURLs[xDodsURL-1].setID(iNumber);
+				}
+			}
+			if( xDodsURL > 0 ){
+				return aURLs;
+			} else {
+				return null;
+			}
+		} catch(Exception ex) {
+			StringBuffer sbError = new StringBuffer("Unexpected error loading preferences (filename: " + sFileName + " path: " + sPath + "): ");
+			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vShowError(sbError.toString());
+			return null;
 		}
 	}
 
