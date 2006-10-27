@@ -13,6 +13,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 
 public class Panel_Select_Favorites extends SearchInterface {
 
@@ -130,7 +131,7 @@ public class Panel_Select_Favorites extends SearchInterface {
 	}
 
 	void vRefreshFavoritesList(){
-		DodsURL[] maURLs = Utility.getPreferenceURLs_Favorites();
+		DodsURL[] maURLs = DodsURL.getPreferenceURLs_Favorites();
 		mListModel.vDatasets_DeleteAll();
 		if( maURLs != null && maURLs.length > 0 ) mListModel.vDatasets_Add(maURLs, false);
 		mListPanel.repaint();
@@ -161,7 +162,7 @@ public class Panel_Select_Favorites extends SearchInterface {
 				ApplicationController.vShowWarning("element at " + xSelected + " had no ID");
 				continue;
 			}
-			if( Utility.zDeleteFavorite(iID, sbError) ){
+			if( zDeleteFavorite(iID, sbError) ){
 				ApplicationController.vShowStatus("Deleted favorite ID number " + iID);
 			} else {
 				ApplicationController.vShowError("Error deleting favorite ID number " + iID + ": " + sbError);
@@ -178,6 +179,48 @@ public class Panel_Select_Favorites extends SearchInterface {
 	void vShowInfo( String sInfo ){
 		mjtaInfo.setText(sInfo);
 		mjscrollInfo.scrollRectToVisible(new Rectangle(0,0, 1,1));
+	}
+
+	static void vAddFavorite( DodsURL url ){
+		FavoritesFilter filter = new FavoritesFilter();
+		File[] afile = ConfigurationManager.getPreferencesFiles(filter);
+		String sFilename;
+		if( afile == null ){
+			sFilename = "favorite-0000001.ser";
+		} else {
+			if( afile.length < 1 ) {
+				sFilename = "favorite-0000001.ser";
+			} else {
+				int iMaxFavoriteNumber = 0;
+				for( int xFile = 0; xFile < afile.length; xFile++ ){
+					File fileFavorite = afile[xFile];
+					String sNumber = fileFavorite.getName().substring(9, 16); // make more robust
+					try {
+						int iCurrentNumber = Integer.parseInt(sNumber);
+						if( iCurrentNumber > iMaxFavoriteNumber ) iMaxFavoriteNumber = iCurrentNumber;
+					} catch(Exception ex) {
+						// do nothing
+					}
+				}
+				String sNumberNew = Utility.sFixedWidth(Integer.toString(iMaxFavoriteNumber+1), 7, '0', Utility.ALIGNMENT_RIGHT);
+				sFilename = "favorite-" + sNumberNew + ".ser";
+			}
+		}
+		StringBuffer sbError = new StringBuffer();
+		if( !Utility.zStorePreferenceObject(url, sFilename, sbError) ){
+			ApplicationController.vShowError("Failed to store favorite: " + sbError);
+		}
+	}
+
+	static boolean zDeleteFavorite( int iID, StringBuffer sbError ){
+		try {
+			String sNumber = Utility.sFixedWidth(Integer.toString(iID), 7, '0', Utility.ALIGNMENT_RIGHT);
+			String sFilename = "favorite-" + sNumber + ".ser";
+			return Utility.zDeletePreferenceObject(sFilename, sbError);
+		} catch(Exception ex) {
+			Utility.vUnexpectedError(ex, sbError);
+			return false;
+		}
 	}
 
 }

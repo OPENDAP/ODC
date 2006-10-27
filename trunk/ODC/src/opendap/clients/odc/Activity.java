@@ -17,18 +17,44 @@ public class Activity extends Thread {
 	public final static LayoutManager layoutGB = new GridBagLayout();
 	public final static GridBagConstraints constraintGB = new GridBagConstraints();
 	public static Dimension dimMax;
+
+	final static JPanel jpanelGlassPane = (JPanel)ApplicationController.getInstance().getAppFrame().getGlassPane();
+	final static JButton jbuttonCancelActivity = new JButton("Cancel");
+	static MouseAdapter mmouseadapterPopupCancel;
+
 	static {
 		Dimension dimScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		double dScreenHeight = dimScreenSize.getHeight();
 		double dScreenWidth  = dimScreenSize.getWidth();
 		dimMax = new Dimension((int)(dScreenWidth * 0.80d), 200);
-		jtaMessage.setOpaque(true);
+		jtaMessage.setOpaque(false);
 		jtaMessage.setEditable(false);
 		jtaMessage.setFont(fontMessage);
-		jtaMessage.setBackground(java.awt.Color.yellow);
-		jtaMessage.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, Color.lightGray, Color.darkGray));
+		/* jtaMessage.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, Color.lightGray, Color.darkGray)); */
 		jtaMessage.setMargin(new Insets(10, 10, 10, 10));
 		jtaMessage.setMaximumSize(new Dimension((int)(dScreenWidth * 0.80d), (int)(dScreenHeight * 0.80d) ));
+
+		String sTitle = "Busy...";
+		boolean zResizable = false;
+		boolean zClosable = false;
+		boolean zMaximizable = false;
+		boolean zIconifiable = false;
+
+		jpanelGlassPane.setLayout(layoutGB);
+
+		JPanel jpanelActivityDialog = new JPanel();
+
+		jpanelActivityDialog.setLayout( new BoxLayout(jpanelActivityDialog, BoxLayout.Y_AXIS) );
+		jpanelActivityDialog.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, Color.lightGray, Color.darkGray));
+
+		jpanelActivityDialog.add( jtaMessage );
+		jpanelActivityDialog.add( Box.createVerticalStrut(15) );
+		jpanelActivityDialog.add( jbuttonCancelActivity );
+
+		jpanelGlassPane.add(jpanelActivityDialog, constraintGB);
+		jtaMessage.addMouseListener(mmouseadapterPopupCancel);
+
+
 	}
 	static int mctCurrentActivities = 0;
 	private long mID = System.currentTimeMillis();
@@ -42,7 +68,7 @@ public class Activity extends Thread {
 		SwingUtilities.invokeLater(
 			new Runnable(){
 				public void run(){
-					jtaMessage.setText( "\t(CLICK TO CANCEL)" + "\n" + msStatusMessage + "\n" + sStatusUpdate );
+					jtaMessage.setText( msStatusMessage + "\n" + sStatusUpdate );
 				}
 			}
 		);
@@ -50,7 +76,6 @@ public class Activity extends Thread {
 	public void setMode( int eMODE ){ meMODE = eMODE; }
 	public void setSocket( Socket socket ){ mSocket = socket; }
 	ArrayList listContinuations = new ArrayList();
-	MouseAdapter mmouseadapterPopupCancel;
 	javax.swing.JButton mjbuttonActivator;
 	java.awt.event.ActionListener mactionDo;
 	java.awt.event.ActionListener mactionCancel;
@@ -98,7 +123,6 @@ public class Activity extends Thread {
 		mctCurrentActivities++;
 		ApplicationController.getInstance().vActivity_Add(this);
 		String sActivatorText = "";
-		final JPanel jpanelGlassPane = (JPanel)ApplicationController.getInstance().getAppFrame().getGlassPane();
 		if( mjbuttonActivator != null ){
 			sActivatorText = mjbuttonActivator.getText();
 		}
@@ -116,12 +140,6 @@ public class Activity extends Thread {
 										vCancelActivity();
 									}
 								 };
-							jpanelGlassPane.setLayout(layoutGB);
-							jpanelGlassPane.add(jtaMessage, constraintGB);
-							if( msStatusMessage.length() > 80 ){
-								jpanelGlassPane.setSize(dimMax);
-							}
-							jtaMessage.addMouseListener(mmouseadapterPopupCancel);
 							jpanelGlassPane.setVisible(true);
 						}
 					}
@@ -148,6 +166,14 @@ public class Activity extends Thread {
 									}
 								};
 								mjbuttonActivator.addActionListener(mactionCancel);
+							}
+							if( jbuttonCancelActivity != null ){
+								mactionCancel = new ActionListener(){
+									public void actionPerformed(ActionEvent event) {
+										Activity.this.vCancelActivity();
+									}
+								};
+								jbuttonCancelActivity.addActionListener(mactionCancel);
 							}
 						}
 					}

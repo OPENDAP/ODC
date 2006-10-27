@@ -169,7 +169,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 				// do not add recent files
 			} else {
 				for( int xURL = 0; xURL < aURLsToAdd.length; xURL++ ){
-					Utility.vAddRecent(aURLsToAdd[xURL]);
+					Panel_Select_Recent.vAddRecent(aURLsToAdd[xURL]);
 					ApplicationController.getInstance().getAppFrame().vUpdateRecent();
 				}
 			}
@@ -250,13 +250,13 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 
 	void vAddToFavorites(int[] aiIndicesToAdd){
 		for( int xSelection = 0; xSelection < aiIndicesToAdd.length; xSelection++ ){
-			Utility.vAddFavorite(madodsurlSelected[aiIndicesToAdd[xSelection]]);
+			Panel_Select_Favorites.vAddFavorite(madodsurlSelected[aiIndicesToAdd[xSelection]]);
 		}
 		ApplicationController.getInstance().getAppFrame().vUpdateFavorites();
 	}
 
 	void vAddToFavorites( DodsURL url ){
-		Utility.vAddFavorite(url);
+		Panel_Select_Favorites.vAddFavorite(url);
 		ApplicationController.getInstance().getAppFrame().vUpdateFavorites();
 	}
 
