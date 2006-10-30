@@ -138,9 +138,9 @@ public class MapCanvas extends JPanel implements MapConstants, MouseListener, Mo
 	 */
 	public MapGrid grid;
 
-	public void vScrollRight(){ this.mScroller.setState(MapScroller.STATE_PanRight); }
-	public void vScrollLeft(){ this.mScroller.setState(MapScroller.STATE_PanLeft); }
-	public void vScrollStop(){ this.mScroller.setState(MapScroller.STATE_Inactive); }
+	public void vScrollRight(){ this.mScroller.setScrollerState(MapScroller.STATE_PanRight); }
+	public void vScrollLeft(){ this.mScroller.setScrollerState(MapScroller.STATE_PanLeft); }
+	public void vScrollStop(){ this.mScroller.setScrollerState(MapScroller.STATE_Inactive); }
 
 	class MapScroller extends Thread {
 
@@ -149,28 +149,38 @@ public class MapCanvas extends JPanel implements MapConstants, MouseListener, Mo
 		public static final int STATE_PanRight = 3;
 		public static final int STATE_PanLeft = 4;
 		private int sleep_milliseconds=10000;
-		private int eState = 1;
+		private java.lang.Thread.State eState = java.lang.Thread.State.BLOCKED;
+		private int eScrollerState = STATE_Inactive;
 
 		public MapScroller(){
 			this.setDaemon(true);
 		}
 
-		public int getState(){ return eState; }
+		public java.lang.Thread.State getState(){ return eState; }
 
-		public void setState( int STATE ){
-			if( STATE > 0 && STATE < 5 ){
-				eState = STATE;
-				this.interrupt();
-			}
+		public void setState( java.lang.Thread.State state ){
+			eState = state;
+			this.interrupt();
+		}
+
+		public void setScrollerState( int state ){
+			eScrollerState = state;
+			this.interrupt();
 		}
 
 		public void set_sleep_milliseconds(int milliseconds) {
 			sleep_milliseconds = milliseconds;
 		}
 
+//		java.lang.Thread.State.BLOCKED;
+//		java.lang.Thread.State.NEW;
+//		java.lang.Thread.State.RUNNABLE;
+//		java.lang.Thread.State.TERMINATED;
+//		java.lang.Thread.State.TIMED_WAITING;
+
 		public void run() {
 			while(true){
-				switch( eState ){
+				switch( eScrollerState ){
 					case STATE_Inactive:
 						try {
 							sleep(sleep_milliseconds);
