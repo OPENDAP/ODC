@@ -43,9 +43,10 @@ public class Activity extends Thread {
 		jpanelGlassPane.setLayout(layoutGB);
 
 		JPanel jpanelActivityDialog = new JPanel();
+		jpanelActivityDialog.setBorder( BorderFactory.createLineBorder(Color.BLUE) );
 
 		jpanelActivityDialog.setLayout( new BoxLayout(jpanelActivityDialog, BoxLayout.Y_AXIS) );
-		jpanelActivityDialog.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, Color.lightGray, Color.darkGray));
+		jpanelActivityDialog.setBorder( new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, Color.lightGray, Color.darkGray ));
 
 		jpanelActivityDialog.add( jtaMessage );
 		jpanelActivityDialog.add( Box.createVerticalStrut(15) );
@@ -133,7 +134,7 @@ public class Activity extends Thread {
 				SwingUtilities.invokeLater(
 					new Runnable(){
 						public void run(){
-							jtaMessage.setText( msStatusMessage + "\n(click to cancel)" );
+							jtaMessage.setText( msStatusMessage );
 							mmouseadapterPopupCancel =
 								new MouseAdapter(){
 									public void mousePressed( MouseEvent me ){

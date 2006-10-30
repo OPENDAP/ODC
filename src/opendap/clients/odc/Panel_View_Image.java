@@ -87,7 +87,10 @@ public class Panel_View_Image extends JPanel {
 			jbuttonOpen.addActionListener(
 				new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
-					Panel_View_Image.this.vAction_Open();
+					// Create and start the thread
+					Thread thread = new ThreadOpenFile( Panel_View_Image.this );
+					thread.start();
+					//Panel_View_Image.this.vAction_Open();
 				}
 			}
 			);
@@ -123,11 +126,16 @@ public class Panel_View_Image extends JPanel {
 			new MouseAdapter(){
 				public void mousePressed( MouseEvent me ){
 					if( me.getClickCount() == 1 ){
-						JList list = (JList)me.getSource();
-						int x0Item = list.locationToIndex(me.getPoint());
-						if( x0Item > -1 ){
-							Panel_View_Image.this.vAction_LoadCacheItem( x0Item );
-						}
+						final JList list = (JList)me.getSource();
+						final int xOItem = list.locationToIndex(me.getPoint());
+						if( xOItem == -1 ) return;
+						SwingUtilities.invokeLater(
+							new Runnable(){
+								public void run(){
+									Panel_View_Image.this.vAction_LoadCacheItem( xOItem );
+								}
+							}
+						);
 					}
 				}
 			}
@@ -163,8 +171,14 @@ public class Panel_View_Image extends JPanel {
 		JButton jbuttonClearCache = new JButton("Clear Cache");
 		jbuttonClearCache.addActionListener(
 			new ActionListener(){
-			public void actionPerformed(ActionEvent event) {
-				Panel_View_Image.this.vClearCache();
+				public void actionPerformed(ActionEvent event) {
+					SwingUtilities.invokeLater(
+						new Runnable() {
+							public void run() {
+								Panel_View_Image.this.vClearCache();
+							}
+						}
+					);
 				}
 			}
 		);
@@ -174,7 +188,13 @@ public class Panel_View_Image extends JPanel {
 		jbuttonRefresh.addActionListener(
 			new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
-					Panel_View_Image.this.vRefreshImageList();
+					SwingUtilities.invokeLater(
+						new Runnable() {
+							public void run() {
+								Panel_View_Image.this.vRefreshImageList();
+							}
+						}
+					);
 				}
 			}
 		);
@@ -277,12 +297,11 @@ public class Panel_View_Image extends JPanel {
 	void vAction_Ruler_ColorAdvance(){
 	}
 
-	JFileChooser jfc = null;
 	void vAction_Open(){
 
 		// determine file path
-		if( jfc == null ) jfc = new JFileChooser();
-		int iState = jfc.showDialog(null, "Select File Location");
+		JFileChooser jfc = new JFileChooser();
+		int iState = jfc.showDialog( this, "Select File Location" );
 		File file = jfc.getSelectedFile();
 		if( iState != JFileChooser.APPROVE_OPTION ) return;
 		if( file == null ) return;
@@ -586,7 +605,13 @@ class ImageRuler extends JPanel {
 		jcheckRuler.addActionListener(
 			new ActionListener(){
 			    public void actionPerformed(ActionEvent event) {
-				    ImageRuler.this.setShowRuler( jcheckRuler.isSelected() );
+					SwingUtilities.invokeLater(
+						new Runnable() {
+							public void run() {
+								ImageRuler.this.setShowRuler( jcheckRuler.isSelected() );
+							}
+						}
+					);
 				}
 			}
 		);
@@ -595,7 +620,13 @@ class ImageRuler extends JPanel {
 		jcheckRuler.addActionListener(
 			new ActionListener(){
 			    public void actionPerformed(ActionEvent event) {
-				    ImageRuler.this.setShowGrid( jcheckGrid.isSelected() );
+					SwingUtilities.invokeLater(
+						new Runnable() {
+							public void run() {
+								ImageRuler.this.setShowGrid( jcheckGrid.isSelected() );
+							}
+						}
+					);
 				}
 			}
 		);
@@ -604,7 +635,13 @@ class ImageRuler extends JPanel {
 		jbuttonRulerColorAdvance.addActionListener(
 			new ActionListener(){
 			    public void actionPerformed(ActionEvent event) {
-				    ImageRuler.this.setColorAdvance();
+					SwingUtilities.invokeLater(
+						new Runnable() {
+							public void run() {
+								ImageRuler.this.setColorAdvance();
+							}
+						}
+					);
 				}
 			}
 		);
@@ -633,4 +670,12 @@ class ImageRuler extends JPanel {
 	void setColor(Color c){ colorRuler = c; }
 }
 
-
+class ThreadOpenFile extends Thread {
+	Panel_View_Image mPanel;
+	public ThreadOpenFile( Panel_View_Image the_panel ){
+		mPanel = the_panel;
+	}
+	public void run() {
+		mPanel.vAction_Open();
+	}
+}

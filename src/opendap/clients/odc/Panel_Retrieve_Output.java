@@ -59,6 +59,7 @@ public class Panel_Retrieve_Output extends JPanel {
 			modelCombo_Data = new DefaultComboBoxModel( asTargets_Data );
 
 			jcbTarget = new JComboBox();
+			jcbTarget.setMinimumSize( new Dimension(80, 15) );
 			jcbTarget.setModel( modelCombo_Blank );
 			final ActionListener actionActivateFileSpec =
 				new ActionListener(){
@@ -93,11 +94,11 @@ public class Panel_Retrieve_Output extends JPanel {
 						String sSelection = model.getSelectedItem().toString();
 						if( sSelection == null ){
 							ApplicationController.vShowWarning("output selection model was unexpectedly missing");
-						} else if( sSelection.equalsIgnoreCase("plotter") ){
+						} else if( sSelection.equalsIgnoreCase("Plotter") ){
 							if( !ApplicationController.getInstance().getOutputEngine().zOutputToPlotter(aURLs, buttonTarget, this, sbError) ){
 								ApplicationController.vShowError("Failed to output to plotter: " + sbError);
 							}
-						} else if( sSelection.equalsIgnoreCase("text") ){
+						} else if( sSelection.equalsIgnoreCase("Text View") ){
 							if( model == modelCombo_Text ){
 								OutputStream os = ApplicationController.getInstance().getAppFrame().getTextViewerOS();
 								String sRetrievePanelText = ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getPanelDDX().getRetrieveMessage();
@@ -111,7 +112,7 @@ public class Panel_Retrieve_Output extends JPanel {
 									ApplicationController.vShowError("Failed to output to text view: " + sbError);
 								}
 							}
-						} else if( sSelection.equalsIgnoreCase("table") ){
+						} else if( sSelection.equalsIgnoreCase("Table View") ){
 							if( !ApplicationController.getInstance().getOutputEngine().zOutputToTableView(aURLs, buttonTarget, this, sbError) ){
 								ApplicationController.vShowError("Failed to output to table view: " + sbError);
 							}
