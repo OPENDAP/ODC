@@ -136,6 +136,17 @@ public class Dif {
      * @param contentType The type of URL, usually from the <ContentType>
      *                    tag.
      */
+	/*
+	 <Related_URL>
+		   <URL_Content_Type>
+			  <Type>GET DATA</Type>
+		   </URL_Content_Type>
+		   <URL>http://ingrid.ldgo.columbia.edu/SOURCES/.IGOSS/.nmc/.monthly/.sst/</URL>
+		   <Description>
+			  NMC SST Monthly data and analyses
+		   </Description>
+   </Related_URL>
+	*/
     public void addRelatedURL(String url, String contentType) {
 		urls.addElement(url);
 		contentTypes.addElement(contentType);
@@ -187,9 +198,9 @@ public class Dif {
 		DodsURL dodsURL;
 		int index = 1;
 
-		//for(int i=0;i<contentTypes.size();i++) {
-		//    System.out.println(contentTypes.elementAt(i));
-		//}
+		for(int i=0;i<contentTypes.size();i++) {
+		    System.out.println(contentTypes.elementAt(i));
+		}
 
 // file servers no longer supported
 //		if( (index = contentTypes.indexOf("DODS_FILESERVER")) != -1) {
@@ -213,6 +224,9 @@ public class Dif {
 			url = url.substring(0,url.length() - 5);
 			dodsURL = new DodsURL(url, DodsURL.TYPE_Data);
 		} else if( (index = contentTypes.indexOf("DODS_DIR")) != -1) {
+			url = (String)urls.elementAt(index);
+			dodsURL = new DodsURL(url, DodsURL.TYPE_Directory);
+		} else if( (index = contentTypes.indexOf("GET DATA")) != -1) {
 			url = (String)urls.elementAt(index);
 			dodsURL = new DodsURL(url, DodsURL.TYPE_Directory);
 		}

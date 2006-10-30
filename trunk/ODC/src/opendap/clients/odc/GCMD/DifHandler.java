@@ -78,6 +78,31 @@ public class DifHandler extends DefaultHandler {
     Vector difs;
     Dif dif;
 
+	/*
+	<Related_URL>
+			  <URL_Content_Type>
+				 <Type>GET DATA</Type>
+			  </URL_Content_Type>
+			  <URL>http://ingrid.ldgo.columbia.edu/SOURCES/.IGOSS/.nmc/.monthly/.sst/</URL>
+			  <Description>
+				 NMC SST Monthly data and analyses
+			  </Description>
+	  </Related_URL>
+	*/
+	public static final int STATE_Undefined = 0;
+	public static final int STATE_InRelatedURL = 1;
+	public static final int STATE_InRelatedInformation = 2;
+	public static final int STATE_InContentType = 3;
+	public static final int STATE_InType = 4;
+	public static final int STATE_InDataURL = 5;
+	public static final int STATE_InURL = 6;
+	public static final int STATE_InURLDescription = 7;
+	int miCurrentState = STATE_Undefined;
+
+	String sURL_type;
+	String sURL_text;
+	String sURL_description;
+
     /**
      * Create a new <code>DifHandler</code>.
      * @param id The Entry_ID of the Dif.
@@ -123,7 +148,6 @@ public class DifHandler extends DefaultHandler {
 	longResolution = "";
 	temporalResolution = "";
     }
-
     public void startElement(String namespaceURI,
 			     String lName, // local name
 			     String qName, // qualified name
@@ -152,6 +176,31 @@ public class DifHandler extends DefaultHandler {
 	    dif = new Dif();
 	} else {
 //System.out.println("received qName: " + qName);
+
+		if( qName.equals("Related_URL") ){
+			miCurrentState = this.STATE_InRelatedURL;
+		} else if( qName.equals("URL_Content_Type") ){
+			miCurrentState = STATE_InContentType;
+		} else if(qName.equals("Type")){
+			if( miCurrentState == this.STATE_InContentType ){
+				miCurrentState = this.STATE_InType;
+			} else {
+				miCurrentState = this.STATE_Undefined;
+			}
+		} else if( qName.equals("URL") ){
+			if( miCurrentState == this.STATE_InRelatedURL ){
+				miCurrentState = this.STATE_InURL;
+			} else {
+				miCurrentState = this.STATE_Undefined;
+			}
+		} else if( qName.equals("Description") ){
+			if( miCurrentState == this.STATE_InRelatedURL ){
+				miCurrentState = this.STATE_InURLDescription;
+			} else {
+				miCurrentState = this.STATE_Undefined;
+			}
+		}
+
 		if(qName.equals("Entry_ID"))
 			insideID = true;
 		else if(qName.equals("Entry_Title"))
@@ -228,12 +277,41 @@ public class DifHandler extends DefaultHandler {
 	    = insideLongResolution = insideTemporalResolution
 	    = false;
 
-//System.out.println("end: qName = " + qName);
+	switch( miCurrentState ){
+		case STATE_InContentType:
+			miCurrentState = this.STATE_InRelatedURL;
+			break;
+		case STATE_InDataURL:
+			miCurrentState = this.STATE_InRelatedURL;
+			break;
+		case STATE_InRelatedInformation:
+			miCurrentState = this.STATE_InRelatedURL;
+			break;
+		case STATE_InRelatedURL:
+			miCurrentState = this.STATE_Undefined;
+			break;
+		case STATE_InType:
+			miCurrentState = this.STATE_InContentType;
+			break;
+		case STATE_InURL:
+			miCurrentState = this.STATE_InRelatedURL;
+			break;
+		case STATE_InURLDescription:
+			miCurrentState = this.STATE_InRelatedURL;
+			break;
+	}
+
+System.out.println("end: qName = " + qName);
 	if(qName.equals("DIF"))
 	    difs.addElement(dif);
 	else if(qName.equals("Related_URL")) {
-	    dif.addRelatedURL(relatedURL, contentType);
+		System.out.println("state is " + miCurrentState + " adding url: " + sURL_text + " " + sURL_type);
+	    dif.addRelatedURL( sURL_text, sURL_type );
 	    relatedURL = contentType = "";
+		sURL_type = "";
+		sURL_text = "";
+		sURL_description = "";
+		miCurrentState = this.STATE_Undefined;
 	}
 	else if(qName.equals("Summary")) {
 	    dif.setSummary(summary);
@@ -275,6 +353,14 @@ public class DifHandler extends DefaultHandler {
     {
 	String s = new String(buf, offset, len);
 	//System.out.println("buf " + buf + ", offset " + offset + ", len" + len);
+	if( miCurrentState == this.STATE_InType ){
+		sURL_type = s;
+	} else if( miCurrentState == this.STATE_InURL ) {
+		sURL_text = s;
+	} else if( miCurrentState == this.STATE_InURLDescription ) {
+		sURL_description = s;
+	}
+
 	if(insideTitle)
 	    dif.setTitle(s);
 	else if(insideID)
