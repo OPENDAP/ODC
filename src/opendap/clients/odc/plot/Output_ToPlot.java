@@ -468,7 +468,7 @@ System.out.println("sCaption_axis_Y: " + sCaption_axis_Y);
 
 			// set data
 			Object[] eggData = pv.getDataEgg();
-			if( !panelPC.setData(eDATA_TYPE, eggData, null, null, null, iWidth, iHeight, sbError) ){
+			if( !panelPC.setPlotData(eDATA_TYPE, eggData, null, null, null, iWidth, iHeight, sbError) ){
 				sbError.insert(0, "Failed to set pseudocolor data (type " + DAP.getType_String(eDATA_TYPE) + ") with width " + iWidth + " and height " + iHeight + ": ");
 				return false;
 			}
@@ -565,7 +565,7 @@ System.out.println("sCaption_axis_Y: " + sCaption_axis_Y);
 			Object[] eggDataV = pv2.getDataEgg();
 			Object[] eggMissingU = pv.getMissingEgg();
 			Object[] eggMissingV = pv2.getMissingEgg();
-			if( !panelVector.setData(eDATA_TYPE, eggDataU, eggMissingU, eggDataV, eggMissingV, iWidth, iHeight, sbError) ){
+			if( !panelVector.setPlotData(eDATA_TYPE, eggDataU, eggMissingU, eggDataV, eggMissingV, iWidth, iHeight, sbError) ){
 				sbError.insert(0, "Failed to set data type " + DAP.getType_String(eDATA_TYPE) + " with width " + iWidth + " and height " + iHeight + " for vector plot: ");
 				return false;
 			}

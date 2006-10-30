@@ -331,7 +331,7 @@ class Panel_VariableTab extends JPanel {
 				String sSliceCaption1    = null;
 				String sVarUnits1        = null;
 				if( var1 != null ){
-					eggData1 = var1.getValueEgg();
+					eggData1 = var1.getValueEgg().clone();
 					eggMissing_var1 = dataset.getMissingEgg_Var1();
 					String sVarName1 = var1.getName();
 					String sVarLongName1 = var1.getLongName();

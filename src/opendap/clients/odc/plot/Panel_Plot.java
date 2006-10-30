@@ -338,7 +338,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		return 0;
 	}
 
-	boolean setData( int eTYPE, Object[] eggData, Object[] eggMissing, Object[] eggData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+	boolean setPlotData( int eTYPE, Object[] eggData, Object[] eggMissing, Object[] eggData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
 		if( iWidth <= 0 || iHeight <= 0 ){
 			sbError.append("Width " + iWidth + " and Height " + iHeight + " cannot be zero or negative.");
 			return false;
@@ -354,16 +354,16 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			switch( eTYPE ){
 				case DATA_TYPE_Byte:
 				case DATA_TYPE_Int16:
-					return setData( eTYPE, (short[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					return setTypedPlotData( eTYPE, (short[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
 				case DATA_TYPE_UInt16:
 				case DATA_TYPE_Int32:
-					return setData( eTYPE, (int[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					return setTypedPlotData( eTYPE, (int[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
 				case DATA_TYPE_UInt32:
-					return setData( (long[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					return setTypedPlotData( (long[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
 				case DATA_TYPE_Float32:
-					return setData( (float[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					return setTypedPlotData( (float[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
 				case DATA_TYPE_Float64:
-					return setData( (double[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					return setTypedPlotData( (double[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
 				default:
 					sbError.append("Data type " + eTYPE + " not supported by pseudocolor plotter");
 					return false;
@@ -372,16 +372,16 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			switch( eTYPE ){
 				case DATA_TYPE_Byte:
 				case DATA_TYPE_Int16:
-					return setData( eTYPE, (short[])eggData[0], eggMissing, (short[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					return setTypedPlotData( eTYPE, (short[])eggData[0], eggMissing, (short[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
 				case DATA_TYPE_UInt16:
 				case DATA_TYPE_Int32:
-					return setData( eTYPE, (int[])eggData[0], eggMissing, (int[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					return setTypedPlotData( eTYPE, (int[])eggData[0], eggMissing, (int[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
 				case DATA_TYPE_UInt32:
-					return setData( (long[])eggData[0], eggMissing, (long[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					return setTypedPlotData( (long[])eggData[0], eggMissing, (long[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
 				case DATA_TYPE_Float32:
-					return setData( (float[])eggData[0], eggMissing, (float[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					return setTypedPlotData( (float[])eggData[0], eggMissing, (float[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
 				case DATA_TYPE_Float64:
-					return setData( (double[])eggData[0], eggMissing, (double[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					return setTypedPlotData( (double[])eggData[0], eggMissing, (double[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
 				default:
 					sbError.append("Data type " + eTYPE + " not supported by pseudocolor plotter");
 					return false;
@@ -400,7 +400,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		return true;
 	}
 
-	boolean setData( int eTYPE, short[] ashortData, Object[] eggMissing, short[] ashortData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+	boolean setTypedPlotData( int eTYPE, short[] ashortData, Object[] eggMissing, short[] ashortData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
 		miDataType = eTYPE;
 		mashData = ashortData;
 		mashData2 = ashortData2;
@@ -412,9 +412,9 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			mashMissing2 = (short[])eggMissing2[0];
 			mctMissing2 = mashMissing2.length - 1;
 		}
-		return setData( iWidth, iHeight, sbError );
+		return setPlotDimensions( iWidth, iHeight, sbError );
 	}
-	boolean setData( int eTYPE, int[] aiData, Object[] eggMissing, int[] aiData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+	boolean setTypedPlotData( int eTYPE, int[] aiData, Object[] eggMissing, int[] aiData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
 		miDataType = eTYPE;
 		maiData = aiData;
 		maiData2 = aiData2;
@@ -426,9 +426,9 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			maiMissing2 = (int[])eggMissing2[0];
 			mctMissing2 = maiMissing2.length - 1;
 		}
-		return setData( iWidth, iHeight, sbError );
+		return setPlotDimensions( iWidth, iHeight, sbError );
 	}
-	boolean setData( long[] anData, Object[] eggMissing, long[] anData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+	boolean setTypedPlotData( long[] anData, Object[] eggMissing, long[] anData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
 		miDataType = DATA_TYPE_UInt32;
 		manData = anData;
 		manData2 = anData2;
@@ -440,9 +440,9 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			manMissing2 = (long[])eggMissing2[0];
 			mctMissing2 = manMissing2.length - 1;
 		}
-		return setData( iWidth, iHeight, sbError );
+		return setPlotDimensions( iWidth, iHeight, sbError );
 	}
-	boolean setData( float[] afData, Object[] eggMissing, float[] afData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+	boolean setTypedPlotData( float[] afData, Object[] eggMissing, float[] afData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
 		miDataType = DATA_TYPE_Float32;
 		mafData = afData;
 		mafData2 = afData2;
@@ -454,9 +454,9 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			mafMissing2 = (float[])eggMissing2[0];
 			mctMissing2 = mafMissing2.length - 1;
 		}
-		return setData( iWidth, iHeight, sbError );
+		return setPlotDimensions( iWidth, iHeight, sbError );
 	}
-	boolean setData( double[] adData, Object[] eggMissing, double[] adData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+	boolean setTypedPlotData( double[] adData, Object[] eggMissing, double[] adData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
 		miDataType = DATA_TYPE_Float64;
 		madData = adData;
 		madData2 = adData2;
@@ -468,9 +468,9 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			madMissing2 = (double[])eggMissing2[0];
 			mctMissing2 = madMissing2.length - 1;
 		}
-		return setData( iWidth, iHeight, sbError );
+		return setPlotDimensions( iWidth, iHeight, sbError );
 	}
-	boolean setData( int iWidth, int iHeight, StringBuffer sbError ){
+	boolean setPlotDimensions( int iWidth, int iHeight, StringBuffer sbError ){
 		try {
 			mDataDim_Width = iWidth;
 			mDataDim_Height = iHeight;
