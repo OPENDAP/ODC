@@ -481,6 +481,55 @@ class VariableInfo {
 
 	VariableInfo(){}
 
+	public VariableInfo clone(){
+		VariableInfo clone = new VariableInfo();
+
+		clone.mbt = mbt;
+
+		clone.meDataType = meDataType;
+		clone.meDimType = meDimType;
+		clone.mzIsReversed = mzIsReversed;
+		clone.mzUseIndex = mzUseIndex;
+
+		if( mashValues0 != null ){
+			clone.mashValues0 = new short[mashValues0.length];
+			System.arraycopy(mashValues0, 0, clone.mashValues0, 0, mashValues0.length);
+		}
+		if( maiValues0 != null ){
+			clone.maiValues0 = new int[maiValues0.length];
+			System.arraycopy(maiValues0, 0, clone.maiValues0, 0, maiValues0.length);
+		}
+		if( manValues0 != null ){
+			clone.manValues0 = new long[manValues0.length];
+			System.arraycopy(manValues0, 0, clone.manValues0, 0, manValues0.length);
+		}
+		if( mafValues0 != null ){
+			clone.mafValues0 = new float[mafValues0.length];
+			System.arraycopy(mafValues0, 0, clone.mafValues0, 0, mafValues0.length);
+		}
+		if( madValues0 != null ){
+			clone.madValues0 = new double[madValues0.length];
+			System.arraycopy(madValues0, 0, clone.madValues0, 0, madValues0.length);
+		}
+		if( masValues0 != null ){
+			clone.masValues0 = new String[masValues0.length];
+			for( int xString = 0; xString < masValues0.length; xString++ ){
+				if( masValues0[xString] == null ){
+					clone.masValues0[xString] = null;
+				} else {
+					clone.masValues0[xString] = new String( masValues0[xString] );
+				}
+			}
+		}
+		System.arraycopy(maiDimLengths, 0, clone.maiDimLengths, 0, maiDimLengths.length);
+		if( msVariableName != null ) clone.msVariableName = new String( msVariableName );
+		if( msVariableLongName != null ) clone.msVariableLongName = new String( msVariableLongName );
+		if( msVariableUserCaption != null ) clone.msVariableUserCaption = new String( msVariableUserCaption );
+		if( msUnits != null ) clone.msUnits = new String( msUnits );
+		if( msSliceCaption != null ) clone.msSliceCaption = new String( msSliceCaption );
+		return clone;
+	}
+
 	VariableInfo( BaseType bt, String sName, String sLongName, String sUserCaption, String sSliceCaption, String sUnits ){
 		mbt = bt;
 		msVariableName = sName;
