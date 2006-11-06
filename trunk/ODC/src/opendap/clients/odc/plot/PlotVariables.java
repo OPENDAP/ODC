@@ -481,7 +481,7 @@ class VariableInfo {
 
 	VariableInfo(){}
 
-	public VariableInfo clone(){
+	public VariableInfo cloneVariableInfo(){
 		VariableInfo clone = new VariableInfo();
 
 		clone.mbt = mbt;
