@@ -56,7 +56,6 @@
             >
             
             <include name="opendap/clients/odc/**/*.java"/>
-            <include name="tmap_30/**/*.java"/>
             <exclude name="dods/clients/importwizard/IPSClient/**"/>
             <classpath refid="compile.classpath" />
         </javac>
