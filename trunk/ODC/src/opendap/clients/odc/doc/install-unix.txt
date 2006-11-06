@@ -1,6 +1,6 @@
 OPeNDAP Data Connector Installation and Execution (Unix Platform)
-Version 2.54
-13 August 2004
+Version 2.59
+6 November 2006
 
 http://opendap.org/ODC/
 odc-help@opendap.org
@@ -11,9 +11,9 @@ This program is the OPeNDAP Data Connector (ODC). Using the ODC's graphical inte
 
 --- Installation ---
 
-You can run the ODC from the CD (read-only mode) or from your hard drive. To install it on your hard drive move the folder ODC-2.54 to the location you desire on your hard drive. If you have downloaded the tar from the web site (rather than gotten the CD), change to the directory where you wish to install it and untar it. The typical command to do this is:
+You can run the ODC from the CD (read-only mode) or from your hard drive. To install it on your hard drive move the folder ODC-2.59 to the location you desire on your hard drive. If you have downloaded the tar from the web site (rather than gotten the CD), change to the directory where you wish to install it and untar it. The typical command to do this is:
 
-tar -zxvf ODC-2.54-unix.tar.gz
+tar -zxvf ODC-2.59-unix.tar.gz
 
 The distribution of the ODC requires a Java 1.4.0 later runtime to be installed on the machine (see Java Runtime below).
 
