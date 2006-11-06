@@ -14,7 +14,6 @@ public class Activity extends Thread {
 	public final static String BUTTON_TEXT_ACTION_CANCEL = "Cancel...";
 	public final static javax.swing.JTextArea jtaMessage = new javax.swing.JTextArea("[activity popup]");
 	public final static Font fontMessage = new java.awt.Font("SansSerif", Font.BOLD, 12);
-	public final static LayoutManager layoutGB = new GridBagLayout();
 	public final static GridBagConstraints constraintGB = new GridBagConstraints();
 	public static Dimension dimMax;
 
@@ -40,7 +39,7 @@ public class Activity extends Thread {
 		boolean zMaximizable = false;
 		boolean zIconifiable = false;
 
-		jpanelGlassPane.setLayout(layoutGB);
+		jpanelGlassPane.setLayout( new BorderLayout() );
 
 		JPanel jpanelActivityDialog = new JPanel();
 		jpanelActivityDialog.setBorder( BorderFactory.createLineBorder(Color.BLUE) );
@@ -52,9 +51,12 @@ public class Activity extends Thread {
 		jpanelActivityDialog.add( Box.createVerticalStrut(15) );
 		jpanelActivityDialog.add( jbuttonCancelActivity );
 
-		jpanelGlassPane.add(jpanelActivityDialog, constraintGB);
+		jpanelGlassPane.add(jpanelActivityDialog, BorderLayout.CENTER);
+		jpanelGlassPane.add(Box.createVerticalStrut(200), BorderLayout.NORTH);
+		jpanelGlassPane.add(Box.createGlue(), BorderLayout.WEST);
+		jpanelGlassPane.add(Box.createGlue(), BorderLayout.EAST);
+		jpanelGlassPane.add(Box.createGlue(), BorderLayout.SOUTH);
 		jtaMessage.addMouseListener(mmouseadapterPopupCancel);
-
 
 	}
 	static int mctCurrentActivities = 0;
