@@ -1,3 +1,8 @@
+OPeNDAP Data Connector
+NEWS
+Historical Release Notes
+
+----------------------------------------------------------------------------------------
 ODC 2.59
 6 November 2006
 
@@ -29,4 +34,18 @@ Internal Enhancements
 
 - retrieve panel changed to a list format (used to be table)
 - URL storage and management now uses an MVC design
+
+----------------------------------------------------------------------------------------
+ODC 2.57
+Release Notes
+
+Two new options for screen size have been added (screen height/width) in addition to the bottom margin setting.
+
+The directory parser has been updated to handle the latest incarnation of Apache's directory output.
+
+The read-only mode used when running off a CD-ROM has had corrections.
+
+A possible threading problem has possibly been corrected.
+
+The bug feedback page now remembers the user's email address.
 
