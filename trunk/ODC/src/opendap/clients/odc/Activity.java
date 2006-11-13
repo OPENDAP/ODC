@@ -12,7 +12,7 @@ public class Activity extends Thread {
 	public final static int MODE_BlockedOnSocket = 3;
 	public final static int MODE_Stopped = 4;
 	public final static String BUTTON_TEXT_ACTION_CANCEL = "Cancel...";
-	public final static javax.swing.JTextArea jtaMessage = new javax.swing.JTextArea("[activity popup]");
+	private final static javax.swing.JTextArea jtaMessage = new javax.swing.JTextArea("[activity popup]");
 	public final static Font fontMessage = new java.awt.Font("SansSerif", Font.BOLD, 12);
 	public final static GridBagConstraints constraintGB = new GridBagConstraints();
 	public static Dimension dimMax;
@@ -20,6 +20,7 @@ public class Activity extends Thread {
 	final static JPanel jpanelGlassPane = (JPanel)ApplicationController.getInstance().getAppFrame().getGlassPane();
 	final static JButton jbuttonCancelActivity = new JButton("Cancel");
 	static MouseAdapter mmouseadapterPopupCancel;
+	static JPanel jpanelActivityDialog = new JPanel();
 
 	static {
 		Dimension dimScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -39,13 +40,14 @@ public class Activity extends Thread {
 		boolean zMaximizable = false;
 		boolean zIconifiable = false;
 
-		jpanelGlassPane.setLayout( new BorderLayout() );
+		jpanelGlassPane.setLayout( null );
 
-		JPanel jpanelActivityDialog = new JPanel();
 		jpanelActivityDialog.setBorder( BorderFactory.createLineBorder(Color.BLUE) );
 
 		jpanelActivityDialog.setLayout( new BoxLayout(jpanelActivityDialog, BoxLayout.Y_AXIS) );
 		jpanelActivityDialog.setBorder( new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, Color.lightGray, Color.darkGray ));
+
+		jpanelActivityDialog.setSize( new Dimension(400, 200) );
 
 		jpanelActivityDialog.add( jtaMessage );
 		jpanelActivityDialog.add( Box.createVerticalStrut(15) );
@@ -64,6 +66,32 @@ public class Activity extends Thread {
 	private int meMODE = MODE_Created;
 	private boolean mzCancelled = false;
 
+	public void setMessageText( String sText ){
+		Dimension dimScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		double dScreenHeight = dimScreenSize.getHeight();
+		double dScreenWidth  = dimScreenSize.getWidth();
+		FontMetrics fm = jpanelActivityDialog.getGraphics().getFontMetrics( fontMessage );
+		int len = fm.stringWidth( sText );
+		int iDialogWidth;
+		int iDialogHeight;
+		iDialogWidth = (int) (dScreenWidth * 0.80 + 50d);
+		System.out.println("screen width: " + dScreenWidth);
+		System.out.println("len: " + len);
+		if( len < dScreenWidth * 0.80 ){
+			iDialogHeight = 80;
+		} else if( len < dScreenWidth * 4 ) {
+			iDialogHeight = 120;
+		} else if( len < dScreenWidth * 10 ) {
+			iDialogHeight = 200;
+		} else {
+			iDialogHeight = 400;
+		}
+		System.out.println("height: " + iDialogHeight);
+		jpanelActivityDialog.setMaximumSize( new Dimension( iDialogWidth, iDialogHeight) );
+		jpanelActivityDialog.setLocation( 200, 200 );
+		jtaMessage.setText( sText );
+	}
+
 	public Activity(){
 		setDaemon(true);
 	}
@@ -71,7 +99,7 @@ public class Activity extends Thread {
 		SwingUtilities.invokeLater(
 			new Runnable(){
 				public void run(){
-					jtaMessage.setText( msStatusMessage + "\n" + sStatusUpdate );
+					setMessageText( msStatusMessage + "\n" + sStatusUpdate );
 				}
 			}
 		);
@@ -136,7 +164,7 @@ public class Activity extends Thread {
 				SwingUtilities.invokeLater(
 					new Runnable(){
 						public void run(){
-							jtaMessage.setText( msStatusMessage );
+							setMessageText( msStatusMessage );
 							mmouseadapterPopupCancel =
 								new MouseAdapter(){
 									public void mousePressed( MouseEvent me ){
