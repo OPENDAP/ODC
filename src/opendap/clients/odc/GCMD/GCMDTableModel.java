@@ -1,7 +1,5 @@
 package opendap.clients.odc.GCMD;
 
-import opendap.clients.odc.*;
-import javax.swing.*;
 import javax.swing.table.*;
 import java.lang.*;
 
@@ -17,7 +15,6 @@ public class GCMDTableModel extends AbstractTableModel {
 			data = null;
 		} else {
 			data = new Object[id.length][1];
-System.out.println("setting model data of length " + data.length);
 			for(int i=0;i<id.length;i++) {
 				data[i][0] = id[i];
 			}

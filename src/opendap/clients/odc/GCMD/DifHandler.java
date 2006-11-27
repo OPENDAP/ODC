@@ -1,13 +1,8 @@
 package opendap.clients.odc.GCMD;
 
-import opendap.clients.odc.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
 import java.util.*;
-import java.io.*;
 
 /**
  * This class is used by the SAX Parser to create a <code>Dif</code> from
@@ -301,11 +296,10 @@ public class DifHandler extends DefaultHandler {
 			break;
 	}
 
-System.out.println("end: qName = " + qName);
 	if(qName.equals("DIF"))
 	    difs.addElement(dif);
 	else if(qName.equals("Related_URL")) {
-		System.out.println("state is " + miCurrentState + " adding url: " + sURL_text + " " + sURL_type);
+//		System.out.println("state is " + miCurrentState + " adding url: " + sURL_text + " " + sURL_type);
 	    dif.addRelatedURL( sURL_text, sURL_type );
 	    relatedURL = contentType = "";
 		sURL_type = "";

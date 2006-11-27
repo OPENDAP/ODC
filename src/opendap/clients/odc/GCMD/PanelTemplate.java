@@ -560,7 +560,7 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 				// If the request has been canceled, drawTable will be false at this point.
 				if( mzDrawTable ) {
 					Vector idVector = ((DifHandler)handler).getDifs();
-System.out.println("# difs: " + idVector.size());
+//System.out.println("# difs: " + idVector.size());
 					if( idVector.size() == 0 ){
 						ApplicationController.getInstance().vShowStatus("Search returned no matches");
 					}
@@ -571,7 +571,7 @@ System.out.println("# difs: " + idVector.size());
 					for( int xDIF = idVector.size()-1; xDIF >= 0; xDIF-- ){
 						Dif difCurrent = (Dif)idVector.get(xDIF);
 						if( difCurrent.getDodsURL( sbError ) == null ){
-System.out.println("dif had no url: " + sbError);
+//System.out.println("dif had no url: " + sbError);
 							idVector.remove(xDIF);
 						} else {
 							ctResults++;

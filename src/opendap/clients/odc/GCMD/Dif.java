@@ -198,9 +198,9 @@ public class Dif {
 		DodsURL dodsURL;
 		int index = 1;
 
-		for(int i=0;i<contentTypes.size();i++) {
-		    System.out.println(contentTypes.elementAt(i));
-		}
+//		for(int i=0;i<contentTypes.size();i++) {
+//		    System.out.println(contentTypes.elementAt(i));
+//		}
 
 // file servers no longer supported
 //		if( (index = contentTypes.indexOf("DODS_FILESERVER")) != -1) {
