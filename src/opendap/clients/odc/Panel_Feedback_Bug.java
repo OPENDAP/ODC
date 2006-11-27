@@ -587,7 +587,7 @@ public class Panel_Feedback_Bug extends JPanel {
 
 		// make posting
 		sCommand = "POST";
-		sPath = sBugRoot;
+		sPath = sBugRoot + "/newticket";
 		sQuery = null;
 		sProtocol = "HTTP/1.1";
 		sReferer = "http://" + sBugHost + sBugRoot + "/newticket"; // Referer: http://scm.opendap.org:8090/trac/newticket
@@ -599,14 +599,27 @@ public class Panel_Feedback_Bug extends JPanel {
 			ApplicationController.vShowError("Failed to post bug/feature to " + sBugHost + ":" + iPort + sPath + ", HTTP failure: " + sbError);
 			return;
 		} else {
-			if( eggLocation[0] != null && eggLocation[0].startsWith("/trac/ticket/") ){
-				String sTicketNumber = eggLocation[0].substring(13);
-				ApplicationController.vShowStatus("Bug/Feature report posted as ticket #" + sTicketNumber);
-				ApplicationController.getInstance().vShowErrorDialog("Bug/Feature report posted as ticket #" + sTicketNumber + ". Thanks for your feedback.");
-			} else {
-				ApplicationController.vShowError("May have failed to post bug/feature, bug system returned unexpected response (check system.err)");
+			if( eggLocation[0] == null ){
+				ApplicationController.vShowError("May have failed to post bug/feature, failed to obtain response page location (check system.err)");
 				System.err.println("page: " + sPageReturn);
 				return;
+			} else {
+				String sLocation = eggLocation[0];
+				String sTicketKey = "/trac/ticket/";
+				int iTicketKey = sLocation.indexOf( sTicketKey );
+				if( iTicketKey >= 0 ){
+					String sTicketNumber = eggLocation[0].substring( iTicketKey + sTicketKey.length() );
+					int iPreviewBookmark = sTicketNumber.indexOf( "#preview" );
+					if( iPreviewBookmark > 0 ){
+						sTicketNumber = sTicketNumber.substring( 0, iPreviewBookmark );
+					}
+					ApplicationController.vShowStatus("Bug/Feature report posted as ticket #" + sTicketNumber);
+					ApplicationController.getInstance().vShowErrorDialog("Bug/Feature report posted as ticket #" + sTicketNumber + ". Thanks for your feedback.");
+				} else {
+					ApplicationController.vShowError("May have failed to post bug/feature, bug system returned unexpected response (check system.err)");
+					System.err.println("page: " + sPageReturn);
+					return;
+				}
 			}
 		}
 
