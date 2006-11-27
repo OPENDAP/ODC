@@ -21,7 +21,6 @@
 			<include name="xerces-2.5.0_xercesImpl.jar"/>
 			<include name="xerces-2.5.0_xml-apis.jar"/>
 			<include name="jdom-b9.jar"/>
-			<include name="echosoap.jar"/>
 			<include name="activation.jar"/>
 			<include name="mail.jar"/>
 			<include name="imap.jar"/>
@@ -126,7 +125,6 @@
 		<copy file="${lib.dir}/xerces-2.5.0_xercesImpl.jar"     tofile="${dist.dir}/ODC-${DSTAMP}/lib/xerces-2.5.0_xercesImpl.jar"/>
 		<copy file="${lib.dir}/xerces-2.5.0_xml-apis.jar"  tofile="${dist.dir}/ODC-${DSTAMP}/lib/xerces-2.5.0_xml-apis.jar"/>
 		<copy file="${lib.dir}/jdom-b9.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/jdom-b9.jar"/>
-		<copy file="${lib.dir}/echosoap.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/echosoap.jar" />
 		<copy file="${lib.dir}/activation.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/activation.jar" />
 		<copy file="${lib.dir}/mail.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/mail.jar" />
 		<copy file="${lib.dir}/imap.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/imap.jar" />
