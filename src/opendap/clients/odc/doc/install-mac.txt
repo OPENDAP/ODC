@@ -1,0 +1,16 @@
+OPeNDAP Data Connector Installation and Execution (Windows Platform)
+Version 2.59
+27 November 2006
+
+http://opendap.org/ODC/
+
+--- Introduction ---
+
+This program is the OPeNDAP Data Connector (ODC). Using the ODC's graphical interface you can search for and retrieve datasets published by OPeNDAP data servers. 
+
+--- Installation ---
+
+Drag the ODC-2.59 application to your Applications folder.
+
+Double click on the application icon to start the program.
+
