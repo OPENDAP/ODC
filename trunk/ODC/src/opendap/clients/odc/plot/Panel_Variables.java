@@ -337,8 +337,8 @@ class VSelector_Plot_Schematic extends JPanel {
 
 	int getVariableCount(){ return mPlotVariables.getVariableCount(); }
 
-	VariableSpecification getVariable1( int index ){
-		return mPlotVariables.getVariable1( index );
+	VariableSpecification getVariable1( int index, StringBuffer sbError ){
+		return mPlotVariables.getVariable1( index, sbError );
 	}
 
 	// Determines the style of the interface and populates it with the possible variables.
@@ -568,11 +568,15 @@ InitializeValuePanel2:
 
 	StringBuffer msbError = new StringBuffer(); // throwaway buffer
 	void vRecalcAxes(){
-System.out.println("recalcing axes");
 		try {
+			StringBuffer sbError = new StringBuffer();
 			if( mvarpanelXAxis == null || mvarpanelYAxis == null ) return;
-			VariableSpecification vs1 = mvarpanelValues1.getSelectedVS();
+			VariableSpecification vs1 = mvarpanelValues1.getSelectedVS( sbError );
 			if( vs1 == null ){
+				if( sbError.length() > 0 ){
+					ApplicationController.vShowError("Error in variable 1: " + sbError);
+					sbError.setLength(0);
+				}
 				mvarpanelXAxis.vSetBlank();
 				mvarpanelYAxis.vSetBlank();
 				return;
@@ -606,7 +610,6 @@ System.out.println("recalcing axes");
 					String sCaptionX = DAP.getAttributeValue( das, sNameX, "long_name", msbError);
 					String sUnitsX = DAP.getAttributeValue( das, sNameX, "units", msbError);
                     if( sCaptionX == null ) sCaptionX = sNameX;
-					StringBuffer sbError = new StringBuffer();
 					VariableSpecification vsX = new VariableSpecification();
 					if( !vsX.zInitialize(btX, sNameX, sCaptionX, sUnitsX, sbError) ){
 						sbError.insert(0, "Error creating variable specification for x-axis: ");
@@ -621,7 +624,6 @@ System.out.println("recalcing axes");
 					String sUnitsY = DAP.getAttributeValue(das, sNameY, "units", msbError);
                     if( sCaptionY == null ) sCaptionY = sNameY;
 					VariableSpecification vsY = new VariableSpecification();
-					StringBuffer sbError = new StringBuffer();
 					if( !vsY.zInitialize(btY, sNameY, sCaptionY, sUnitsY, sbError) ){
 						sbError.insert(0, "Error creating variable specification for y-axis: ");
 						return;
@@ -634,7 +636,6 @@ System.out.println("recalcing axes");
 
 			// automatic did not work, determine possibilities for valid map arrays
 			// x-axis discovery
-			StringBuffer sbError = new StringBuffer(80);
 			if( mvarpanelXAxis.zSetData( mPlotVariables.getDDDS(), mPlotVariables.getDAS(), lenDimX, sbError) ){
 				// x-axis ok
 			} else {
@@ -659,7 +660,6 @@ System.out.println("recalcing axes");
 		if( this.getModel() == null ){
 			Thread.dumpStack();
 		} else {
-			System.out.println("updating info for model " + this.getModel());
 			int ctDims = mvarpanelValues1.getDimCount();
 			int xDimX = mvarpanelValues1.getDimX();
 			int xDimY = mvarpanelValues1.getDimY();
@@ -1764,13 +1764,18 @@ class VSelector_Plot_Values extends JPanel {
 	String msLastVariableName = "";
 	final GridBagConstraints gbc = new GridBagConstraints();
 	void vUpdateInfo(){
+		StringBuffer sbError = new StringBuffer();
 		panelDims.removeAll();
 		gbc.fill = gbc.BOTH;
 		gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 9;
 		panelDims.add(jtaInfo, gbc);
-		VariableSpecification vs = getSelectedVS();
+		VariableSpecification vs = getSelectedVS( sbError );
 		this.getModel().setVariableSpecfication( vs );
 		if( vs == null ){
+			if( sbError.length() > 0 ){
+				ApplicationController.getInstance().vShowError("Error updating info: " + sbError);
+				sbError.setLength(0);
+			}
 			jtaInfo.setText("nothing selected");
 			panelMissingValues.setEnabled(false);
 			return;
@@ -2007,7 +2012,8 @@ class VSelector_Plot_Values extends JPanel {
 
 	StringBuffer sbError = new StringBuffer(80);
 	void vUpdateDataParameters(){
-		VariableSpecification vs = getSelectedVS();
+		StringBuffer sbError = new StringBuffer();
+		VariableSpecification vs = getSelectedVS( sbError );
 		if( vs == null ) return;
 		ArrayTable at = vs.getArrayTable(sbError);
 		if( at == null ){
@@ -2060,7 +2066,8 @@ class VSelector_Plot_Values extends JPanel {
 		jcbValue.setSelectedIndex(index0);
 	}
 	Object[] getMissingEgg(){
-		VariableSpecification vs = getSelectedVS();
+		StringBuffer sbError = new StringBuffer();
+		VariableSpecification vs = getSelectedVS( sbError );
 		if( vs == null ) return null;
 		ArrayTable at = vs.getArrayTable(sbError);
 		if( at == null ) return null;
@@ -2081,12 +2088,20 @@ class VSelector_Plot_Values extends JPanel {
 		}
 		return panelMissingValues.getMissingEgg(eTYPE);
 	}
-	VariableSpecification getSelectedVS(){
-		if( jcbValue == null ) return null;
+	VariableSpecification getSelectedVS( StringBuffer sbError ){
+		if( jcbValue == null ){
+			sbError.append( "internal error, variable combo box does not exist" );
+			return null;
+		}
 		int indexSelected = jcbValue.getSelectedIndex();
-		if( indexSelected == -1 ) return null;
-		if( indexSelected == 0 ) return null;
-		return myParent.getVariable1(indexSelected);
+		if( indexSelected == -1 ){
+			sbError.append( "variable combo box is unitialized" );
+			return null;
+		}
+		if( indexSelected == 0 ){
+			return null;
+		}
+		return myParent.getVariable1( indexSelected, sbError );
 	}
 	String getSelectedVariableName(){
 		if( jcbValue == null ) return null;
@@ -2338,13 +2353,15 @@ class VSelector_Plot_Axis extends JPanel {
 	 *  calls this function to do that.
 	 */
 	boolean zSetData( DataDDS ddds, DAS das, int size, StringBuffer sbError ){
-		if( myParent.mPlotVariables == null ) myParent.mPlotVariables = new PlotVariables();
-		if( !myParent.mPlotVariables.zLoadVariables(ddds, das, size, sbError) ){
-			sbError.insert(0, "failed to load variables");
-			return false;
+		if( myParent.mPlotVariables == null ){
+			myParent.mPlotVariables = new PlotVariables();
+			if( !myParent.mPlotVariables.zLoadVariables(ddds, das, size, sbError) ){
+				sbError.insert(0, "failed to load variables");
+				return false;
+			}
 		}
 		String[] asLabels1 = myParent.mPlotVariables.getLabels();
-		VariableSpecification[] aVariables1 = myParent.mPlotVariables.getVariableSpecifications();
+		VariableSpecification[] aVariables1 = myParent.mPlotVariables.getAllVariableSpecifications();
 		if( asLabels1 == null ){ sbError.append("labels missing"); return false; }
 		if( aVariables1 == null ){ sbError.append("variables missing"); return false; }
 		if( asLabels1.length != aVariables1.length ){ sbError.append("input arrays not the same size"); return false; }
@@ -2464,7 +2481,7 @@ class Panel_MissingValues extends JPanel {
 			new ActionListener(){
 				public void actionPerformed(ActionEvent e) {
 					StringBuffer sbError = new StringBuffer(80);
-					VariableSpecification vs = mOwner.getSelectedVS();
+					VariableSpecification vs = mOwner.getSelectedVS( sbError );
 					if( vs == null ) return;
 					ArrayTable at = vs.getArrayTable(sbError);
 					if( at == null ) return;

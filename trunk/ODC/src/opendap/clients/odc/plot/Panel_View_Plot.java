@@ -131,6 +131,7 @@ public class Panel_View_Plot extends JPanel {
 			final JComboBox jcbPlotType = new JComboBox(Output_ToPlot.asPLOT_TYPES);
 			jcbPlotType.setSelectedIndex(0); // default to first item
 			Border borderInset = javax.swing.BorderFactory.createLoweredBevelBorder();
+			jcbPlotType.setBorder( borderInset );
 			jcbPlotType.addActionListener(
 				new ActionListener(){
 					public void actionPerformed(ActionEvent event) {

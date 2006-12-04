@@ -42,6 +42,11 @@ line:
 /** represents a valid set of variables for a given plot type
  *  in other words given a DataDDS and a plot type what are the possible variables that
  *  can be arranged to generate the plot and how should they be labeled
+ *
+ *  note that the number of variables available may be much larger than the
+ *  the number of variables used for a given plot; this class contains all
+ *  the variables the user will see in the combo box that lets them select
+ *  a variable to plot
  */
 public class PlotVariables {
 
@@ -55,15 +60,30 @@ public class PlotVariables {
 	DataDDS getDDDS(){ return mddds; }
 	DAS getDAS(){ return mdas; }
 	String[] getLabels(){ return masLabels1; }
-	VariableSpecification[] getVariableSpecifications(){ return maVariables1; }
 
-	VariableSpecification getVariable1( int index ){
+	VariableSpecification[] getAllVariableSpecifications(){ return maVariables1; }
+
+	/* not needed; normally all the variables are loaded once
+	void setVariableSpecification( VariableSpecification vs, int xIndex1 ){
+		if( maVariables1.length <= xIndex1 ){
+			VariableSpecification[] new_array = new VariableSpecification[xIndex1 + 1];
+			for( int xVS = 0; xVS < xIndex1; xVS++ ){
+				new_array[xVS] = maVariables1[xVS];
+			}
+			maVariables1 = new_array;
+		}
+		maVariables1[xIndex1] = vs;
+	}
+	*/
+
+	VariableSpecification getVariable1( int index, StringBuffer sbError ){
 		if( maVariables1 == null ){
-			ApplicationController.vShowWarning("internal error, variable array does not exist");
+			sbError.append( "internal error, variable array does not exist" );
 			return null;
 		}
 		if( index < 1 || index >= maVariables1.length ){
-			ApplicationController.vShowWarning("internal error, invalid variable index " + index);
+Thread.dumpStack();
+			sbError.append( "internal error, invalid variable index " + index );
 			return null;
 		}
 		return maVariables1[index];
