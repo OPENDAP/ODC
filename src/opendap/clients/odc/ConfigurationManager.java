@@ -152,12 +152,21 @@ public class ConfigurationManager {
 
 	boolean zResolveBaseDirectory( String sBaseDirectoryPath, StringBuffer sbError ){
 
-		// default to working directory if necessary
+		// default to working directory if no base directory is specified by the user
 		if( sBaseDirectoryPath == null || sBaseDirectoryPath.length() == 0){ // use the working directory
 			sBaseDirectoryPath = System.getProperty("user.dir");
 			if( sBaseDirectoryPath == null ){
 				sbError.append("no base directory path supplied or working directory available");
 				return false;
+			}
+		} else { // there is a directory specified by the user
+
+			// validate base directory specified by the user
+			if( sBaseDirectoryPath != null && sBaseDirectoryPath.length() > 0 ){
+				StringBuffer sbValidationError = new StringBuffer(250);
+				if( ! Utility.zDirectoryValidate( sBaseDirectoryPath, sbValidationError ) ){
+					ApplicationController.getInstance().vShowWarning("Invalid command line-supplied base directory: " + sbValidationError);
+				}
 			}
 		}
 
