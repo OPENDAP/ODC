@@ -596,7 +596,7 @@ public class Panel_Feedback_Bug extends JPanel {
 		listServerCookies.clear();
 		sPageReturn = IO.getStaticContent(sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, sbError);
 		if( sPageReturn == null ){
-			ApplicationController.vShowError("Failed to post bug/feature to " + sBugHost + ":" + iPort + sPath + ", HTTP failure: " + sbError);
+			ApplicationController.vShowError("Failed to post bug/feature to " + sBugHost + ":" + iPort + sPath + ", Note: if this is a timeout error you may have to increase your timeout settings; HTTP failure: " + sbError);
 			return;
 		} else {
 			if( eggLocation[0] == null ){
