@@ -238,7 +238,7 @@ public class Activity extends Thread {
 				);
 				con_first.Do();
 			}
-		} catch(Exception ex) {
+		} catch( Throwable t ) {
 			if( this.isInterrupted() ){
 				try {
 					ApplicationController.vShowStatus("Activity " + mID + " '" + msStatusMessage + "' interrupted");
@@ -247,7 +247,7 @@ public class Activity extends Thread {
 				}
 			} else {
 				StringBuffer sbError = new StringBuffer("Unexpected error running activity " + mID + ": ");
-				Utility.vUnexpectedError(ex, sbError);
+				Utility.vUnexpectedError( t, sbError);
 				ApplicationController.vShowError(sbError.toString());
 			}
 		} finally {
