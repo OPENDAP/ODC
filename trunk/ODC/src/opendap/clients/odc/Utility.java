@@ -1420,6 +1420,36 @@ ScanForStartOfMatch:
 		return sb.toString();
 	}
 
+	public static boolean zDirectoryValidate( String sPath, StringBuffer sbError ){
+		File fileDirectory;
+		String sCanonicalPath;
+		try {
+		    fileDirectory = new File( sPath );
+		} catch(Exception ex) {
+			sbError.append("directory string could not be interpreted as a path (" + Utility.sSafeSubstring(sPath, 0, 80) + ")");
+			return false;
+		}
+		try {
+		    sCanonicalPath = fileDirectory.getCanonicalPath();
+			if( sCanonicalPath == null || sCanonicalPath.length() == 0 ){
+			   sbError.append("could not obtain canonical path for base directory (" + Utility.sSafeSubstring(sPath, 0, 80) + ")");
+			   return false;
+			}
+		} catch(Exception ex) {
+			sbError.append("error obtaining canonical path for directory (" + Utility.sSafeSubstring(sPath, 0, 80) + "): " + ex);
+			return false;
+		}
+		if( !fileDirectory.isDirectory() ){
+			sbError.append("path does not resolve to a directory: " + sCanonicalPath);
+			return false;
+		}
+		if( !fileDirectory.exists() ){
+			sbError.append("directory does not exist: " + sCanonicalPath);
+			return false;
+		}
+		return true;
+	}
+
 	/** this is located here because it can be a time-consuming action to determine the fonts */
 	static String[] AS_System_Fonts = null;
 	public static String[] getFontFamilies(){
