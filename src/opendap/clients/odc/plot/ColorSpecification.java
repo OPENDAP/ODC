@@ -641,7 +641,7 @@ class ColorSpecification extends AbstractListModel {
 			return;
 		}
 		if( meType != miDataType ){
-			ApplicationController.vShowWarning("internal error, missing type mismatch in color specification");
+			ApplicationController.vShowWarning("internal error, missing type in mismatch color specification");
 			return;
 		}
 		switch( miDataType ){

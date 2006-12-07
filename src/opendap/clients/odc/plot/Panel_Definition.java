@@ -237,6 +237,7 @@ class Panel_VariableTab extends JPanel {
 		}
 		if( mPlottingDefinition_active == mDefinition_DataDDS ){
 			VariableDataset variable_dataset = mpanelVariableSelector.getDataset( sbError );
+			if( variable_dataset == null ) return null;
 			return getNormalizedPlottingData( variable_dataset, sbError );
 		} else {
 			sbError.append("table definitions not supported");
@@ -295,12 +296,12 @@ class Panel_VariableTab extends JPanel {
 	private PlottingData getNormalizedPlottingData( VariableDataset dataset, StringBuffer sbError ){
 		try {
 			if( dataset == null ){
-				sbError.insert(0, "error acquiring raw dataset: ");
+				sbError.insert(0, "internal error, no dataset provided to normalize");
 				return null;
 			}
 			int ctSlices = dataset.getValueCount();
 			if( ctSlices < 1 ){
-				sbError.append("no selected variables.");
+				sbError.append("no selected variables");
 				return null;
 			}
 

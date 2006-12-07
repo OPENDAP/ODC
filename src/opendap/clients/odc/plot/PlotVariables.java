@@ -633,8 +633,7 @@ class VariableInfo {
 	int getDimLength( int index1 ){ return maiDimLengths[index1]; }
 	void setValues( short[] ashData0, int eType, int ctDimensions, int lenD1, int lenD2 ){
 		mashValues0 = ashData0;
-		if( eType == DAP.DATA_TYPE_Int16 ) meDataType = DAP.DATA_TYPE_Int16;
-		else meDataType = DAP.DATA_TYPE_Byte;
+		meDataType = ( eType == DAP.DATA_TYPE_Int16 ) ? DAP.DATA_TYPE_Int16 : DAP.DATA_TYPE_Byte;
 		setDims( ctDimensions, lenD1, lenD2 );
 	}
 	void setValues( int[] aiData0, int eType, int ctDimensions, int lenD1, int lenD2 ){

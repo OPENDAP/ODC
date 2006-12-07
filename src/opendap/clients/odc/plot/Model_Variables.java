@@ -16,11 +16,18 @@ import opendap.dap.*;
 
 /** The value lists must have the same number of values */
 public class Model_Variables {
-    public Model_Variables() {}
-	private Model_Variable mVar1 = new Model_Variable();
-	private Model_Variable mVar2 = new Model_Variable();
-	private Model_Variable mAxis_X = new Model_Variable();
-	private Model_Variable mAxis_Y = new Model_Variable();
+	private Model_Variable mVar1 = null;
+	private Model_Variable mVar2 = null;
+	private Model_Variable mAxis_X = null;
+	private Model_Variable mAxis_Y = null;
+    public Model_Variables( boolean zUseVariable2, boolean zUseAxes ) {
+		mVar1 = new Model_Variable();
+		if( zUseVariable2 ) mVar2 = new Model_Variable();
+		if( zUseAxes ){
+			mAxis_X = new Model_Variable();
+			mAxis_Y = new Model_Variable();
+		}
+	}
 	Model_Variable getModel_Variable1(){ return mVar1; }
 	Model_Variable getModel_Variable2(){ return mVar2; }
 	Model_Variable getModel_Axis_X(){ return mAxis_X; }
@@ -41,7 +48,7 @@ public class Model_Variables {
 class Model_Variable {
 	private VariableInfo[] maVariableInfo = null;
 	private VariableSpecification theVariableSpecification = null;
-	private boolean mzUseEntireVariable = false; // true for histogram currently
+	private boolean mzUseEntireVariable = false; // true for histogram currently (no slices)
 	private int mxDimX = 0;
 	private int mxDimY = 0;
 	private int[][] maSliceIndexes; // mSliceIndexes[dim index][0] = count of slices, mSliceIndexes[dim index][xSlice] = array index of slice
@@ -74,6 +81,7 @@ class Model_Variable {
 //		if( maSliceIndexes == null )
 //		for( int xSlices
 		return
+			"UseEntireVariable: " + mzUseEntireVariable + "\n" +
 			"DimX: " + mxDimX + "\n" +
 			"DimY: " + mxDimY + "\n" +
 			"ReversedX: " + mxDimY + "\n" +
@@ -106,7 +114,7 @@ class Model_Variable {
 	VariableInfo[] getVariableInfo( StringBuffer sbError ){
 		try {
 
-			if( maVariableInfo != null ) return maVariableInfo; /* the variable info is cached */
+//			if( maVariableInfo != null ) return maVariableInfo; /* the variable info is cached */
 
 			if( theVariableSpecification == null ){
 				sbError.append("variable specification does not exist");
@@ -175,8 +183,6 @@ class Model_Variable {
 			int xDimY = getDimY();
 			int ctUsedDimensions = ((xDimX > 0) ? 1 : 0) + ((xDimY > 0) ? 1 : 0);
 			if( ctUsedDimensions ==  0 ){
-				System.out.println("model: " + this);
-				System.out.println("model info: " + sDump());
 				sbError.append("No dimensions defined for model. There must be at least an X- or Y-dimension.");
 				return null;
 			}
@@ -291,7 +297,7 @@ class Model_Variable {
 				// primary values (or U-Component)
 				VariableInfo infoValues = zCreateVariable_FromDArray( btValues, xDimX, xDimY, ctDimensions, aiDimSizes, axSliceIndex1_current, sbError);
 				if( infoValues == null ){
-					sbError.insert(0, "error creating value variable info " + xSlice + ": ");
+					sbError.insert(0, "error creating value variable info for slice " + xSlice + " in base type " + btValues.getName() + ": ");
 					return null;
 				} else {
 					infoValues.setName( sVariableName );
@@ -490,12 +496,20 @@ class Model_Variable {
 			sbError.append("internal error, no dim sizes");
 			return null;
 		}
-		if( xDimX < 0 || xDimX >= aiDimSizes.length ){
-			sbError.append("internal error, invalid dimX index");
+		if( xDimX < 0 ){
+			sbError.append( "internal error, negative dimension index X: " + xDimX);
 			return null;
 		}
-		if( xDimY < 0 || xDimY >= aiDimSizes.length ){
-			sbError.append("internal error, invalid dimY index");
+		if( xDimY < 0 ){
+			sbError.append( "internal error, negative dimension index Y: " + xDimX);
+			return null;
+		}
+		if( xDimX >= aiDimSizes.length ){
+			sbError.append("internal error, supplied dimX index was " + xDimX + " but array indices only go to " + aiDimSizes.length);
+			return null;
+		}
+		if( xDimY >= aiDimSizes.length ){
+			sbError.append("internal error, supplied dimY index was " + xDimY + " but array indices only go to " + aiDimSizes.length);
 			return null;
 		}
 		int lenX = aiDimSizes[xDimX];

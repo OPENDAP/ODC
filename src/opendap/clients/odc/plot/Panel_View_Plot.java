@@ -161,7 +161,7 @@ public class Panel_View_Plot extends JPanel {
 			buttonPlot.addActionListener(
 				new ActionListener(){
 					public void actionPerformed(ActionEvent e) {
-						vPlot();
+						zPlot();
 					}
 				}
 			);
@@ -219,13 +219,13 @@ public class Panel_View_Plot extends JPanel {
 						if( scale != null ){
 							Object oSource = event.getSource();
 							if( oSource == buttonZoom_In ){
-								if( scale.zZoomIn() ) vPlot();
+								if( scale.zZoomIn() ) zPlot();
 							}
 							if( oSource == buttonZoom_Out ){
-								if( scale.zZoomOut() ) vPlot();
+								if( scale.zZoomOut() ) zPlot();
 							}
 							if( oSource == buttonZoom_Maximize ){
-								if( scale.zZoomMaximize() ) vPlot();
+								if( scale.zZoomMaximize() ) zPlot();
 							}
 						}
 					}
@@ -328,7 +328,7 @@ public class Panel_View_Plot extends JPanel {
 			DodsURL urlCurrent = (DodsURL)lmSelectedURLs.get(xListItem);
 			if( urlCurrent == urlToPlot ){
 				vActivateListItem(xListItem);
-				vPlot(eOutput);
+				zPlot(eOutput);
 				return;
 			}
 		}
@@ -337,22 +337,20 @@ public class Panel_View_Plot extends JPanel {
 
 	public static int getOutputOption(){ return thisInstance.jcbOutputOptions.getSelectedIndex() + 1; }
 
-	void vPlot(){
+	boolean zPlot(){
 		int eOutputOption = getOutputOption();
-		vPlot(eOutputOption);
+		return zPlot(eOutputOption);
 	}
 
-	void vPlot(final int eOutputOption){ // on the event loop
+	boolean zPlot(final int eOutputOption){ // on the event loop
 		try {
 
 			if( eOutputOption == Output_ToPlot.FORMAT_Thumbnail && Panel_View_Plot.getPlotType() == Output_ToPlot.PLOT_TYPE_Vector ){
 				ApplicationController.vShowError("Currently thumbnails cannot be generated for vector plots.");
-				return;
+				return false;
 			}
 
 			final StringBuffer sbError = new StringBuffer(80);
-			if( eOutputOption == Output_ToPlot.FORMAT_PreviewPane ) Panel_View_Plot.getInstance().mDefinitionPanel.vActivatePreview();
-			if( eOutputOption == Output_ToPlot.FORMAT_Thumbnail ) Panel_View_Plot.getInstance().mDefinitionPanel.vActivateThumbnails();
 			final int[] aiSelected = jlistSelectedURLs.getSelectedIndices();
 			final boolean zMultiplot = ( jrbFromSelectedURL.isSelected() && aiSelected.length > 1 );
 			try {
@@ -360,9 +358,11 @@ public class Panel_View_Plot extends JPanel {
 				PlotOptions po = defActive.getOptions();
 				if( defActive == null ){
 					ApplicationController.vShowWarning("null definition encountered during multi-plot");
-					return;
+					return false;
 				}
 				if( zMultiplot ){
+					if( eOutputOption == Output_ToPlot.FORMAT_PreviewPane ) Panel_View_Plot.getInstance().mDefinitionPanel.vActivatePreview();
+					if( eOutputOption == Output_ToPlot.FORMAT_Thumbnail ) Panel_View_Plot.getInstance().mDefinitionPanel.vActivateThumbnails();
 					vActivateListItem(aiSelected[0]);
 					final int miMultiplotDelay = po.getValue_int(PlotOptions.OPTION_MultiplotDelay);
 					final Activity activityMultiplot = new Activity();
@@ -401,21 +401,25 @@ public class Panel_View_Plot extends JPanel {
 					};
 					activityMultiplot.vDoActivity(null, null, con, null);
 				} else { // if there is only one selection then this happens, must still plot in thread because multislice can do screen updates
-					final Activity activitySinglePlot = new Activity();
-					Continuation_DoCancel con = new Continuation_DoCancel(){
-						public void Do(){
-							PlottingData pdat = Panel_View_Plot.getPanel_VariableTab().getDataset(sbError);
-							if( pdat == null ){
-								ApplicationController.vShowError_NoModal("Plotting: " + sbError);
-							} else {
-								if( !Output_ToPlot.zPlot(pdat, defActive, eOutputOption, sbError) ){
+					final PlottingData pdat = Panel_View_Plot.getPanel_VariableTab().getDataset(sbError);
+					if( pdat == null ){
+						ApplicationController.vShowError("Invalid data selection or error acquiring data: " + sbError);
+						return false;
+					} else {
+						final Activity activitySinglePlot = new Activity();
+						Continuation_DoCancel con = new Continuation_DoCancel(){
+							public void Do(){
+								if( Output_ToPlot.zPlot(pdat, defActive, eOutputOption, sbError) ){
+									if( eOutputOption == Output_ToPlot.FORMAT_PreviewPane ) Panel_View_Plot.getInstance().mDefinitionPanel.vActivatePreview();
+									if( eOutputOption == Output_ToPlot.FORMAT_Thumbnail ) Panel_View_Plot.getInstance().mDefinitionPanel.vActivateThumbnails();
+								} else {
 									ApplicationController.vShowError("Plotting error: " + sbError);
 								}
 							}
-						}
-						public void Cancel(){}
-					};
-					activitySinglePlot.vDoActivity(null, null, con, null);
+							public void Cancel(){}
+						};
+						activitySinglePlot.vDoActivity(null, null, con, null);
+					}
 				}
 		   } catch(Throwable t) {
 			   Utility.vUnexpectedError(t, "While plotting");
@@ -423,6 +427,7 @@ public class Panel_View_Plot extends JPanel {
 		} catch(Exception ex) {
 			Utility.vUnexpectedError(ex, "Error plotting: ");
 		}
+		return true;
 	}
 
 	void vShowDatasets( boolean z ){
