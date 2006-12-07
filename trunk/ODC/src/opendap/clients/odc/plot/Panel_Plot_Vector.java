@@ -13,12 +13,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.DodsURL;
 import opendap.clients.odc.Utility;
 
-import java.awt.event.*;
 import java.awt.*;
-import java.awt.image.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.io.*;
 
 class Panel_Plot_Vector extends Panel_Plot {
 
@@ -31,13 +26,13 @@ class Panel_Plot_Vector extends Panel_Plot {
 	public String getDescriptor(){ return "V"; }
 
 	final static int PX_DEFAULT_VECTOR_SIZE = 10;
-	float[] mafU = null; // generates max as a side effect
-	float[] mafV = null;
-	float[] mafMissingU = null;
-	float[] mafMissingV = null;
-	float mUmax, mVmax; // will be * PX_MAX_VECTOR squared
-	float mUavg, mVavg;
-	float mfAverageU, mfAverageV;
+	private float[] mafU = null; // generates max as a side effect
+	private float[] mafV = null;
+	private float[] mafMissingU = null;
+	private float[] mafMissingV = null;
+	private float mUmax, mVmax; // will be * PX_MAX_VECTOR squared
+	private float mUavg, mVavg;
+	private float mfAverageU, mfAverageV;
 
 	StringBuffer msbError = new StringBuffer();
 
@@ -143,11 +138,41 @@ AbortVector:
 	}
 
 	public boolean zCreateRGBArray(int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError){
-		sbError.append("internal error, rgb array creation not applicable to plot line");
+		sbError.append("internal error, rgb array creation not applicable to vector plot");
 		return false;
 	}
 
 	boolean getUV( StringBuffer sbError ){
+
+		// validate that U matches V
+		boolean zUmatchesV = false;
+		switch( miDataType ){
+			case DATA_TYPE_Byte:
+			case DATA_TYPE_Int16:
+				if( mashData.length == mashData2.length ) zUmatchesV = true;
+				break;
+			case DATA_TYPE_UInt16:
+			case DATA_TYPE_Int32:
+				if( maiData.length == maiData2.length ) zUmatchesV = true;
+				break;
+			case DATA_TYPE_UInt32:
+				if( manData.length == manData2.length ) zUmatchesV = true;
+				break;
+			case DATA_TYPE_Float32:
+				if( mafData.length == mafData2.length ) zUmatchesV = true;
+				break;
+			case DATA_TYPE_Float64:
+				if( madData.length == madData2.length ) zUmatchesV = true;
+				break;
+			default:
+				sbError.append( opendap.clients.odc.DAP.getType_String(miDataType) + " is not a valid data type for a vector plot");
+				return false;
+		}
+		if( ! zUmatchesV ){
+			sbError.append("Data selection is invalid because the U variable does not have the same dimensions as the V variable");
+			return false;
+		}
+
 		int lenData = mDataDim_Height * mDataDim_Width;
 		mUmax = Float.MIN_VALUE;
 		mVmax = Float.MIN_VALUE;
@@ -161,6 +186,9 @@ AbortVector:
 		switch(miDataType){
 			case DATA_TYPE_Byte:
 			case DATA_TYPE_Int16:
+				if( mashData.length != mashData2.length ){
+					sbError.append("Data selection is invalid because the U variable does not have the same dimensions as the V variable");
+				}
 				for( int xData = 0; xData < lenData; xData++ ){
 					int xMissing = 1;
 					while( true ){
@@ -198,6 +226,9 @@ AbortVector:
 				break;
 			case DATA_TYPE_UInt16:
 			case DATA_TYPE_Int32:
+				if( maiData.length != maiData2.length ){
+					sbError.append("Data selection is invalid because the U variable does not have the same dimensions as the V variable");
+				}
 				for( int xData = 0; xData < lenData; xData++ ){
 					int xMissing = 1;
 					while( true ){

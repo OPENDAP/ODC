@@ -47,7 +47,14 @@ public class Panel_Variables extends JPanel {
 		// this allows multiple datasets with the same DDS to be thumbnailed all at once
 		// using the same settings
  		if( mvselector != null && mvselector.zCompareData(ddds, ePlotType) ){
-			if( !mvselector.setData( ddds, das, ePlotType, sbError ) ){
+			if( mvselector.setData( ddds, das, ePlotType, sbError ) ){
+				if( mvselector.zSetModelValueSpecifications( sbError ) ){
+					mvselector.vUpdateModels();
+				} else {
+					sbError.insert(0, "failed to set model value specifications: ");
+					return false;
+				}
+			} else {
 				sbError.insert(0, "failed to load data variables into selector: ");
 				return false;
 			}
@@ -120,7 +127,7 @@ public class Panel_Variables extends JPanel {
 					DArray darray = (DArray)bt;
 					int iEffectiveDimCount = iDetermineEffectiveDimCount( darray );
 					if( iEffectiveDimCount == 0 ) continue; // ignore
-					if( size > 0 ){
+					if( size > 0 ){ // this parameter is only used for variables for axes
 						if( iEffectiveDimCount != 1 ) continue; // not a valid map array
 						if( darray.getFirstDimension().getSize() != size ) continue; // not a matching map array
 					} else {
@@ -258,7 +265,7 @@ class VSelector_Plot_Schematic extends JPanel {
 	// data
 	private int mePLOT_TYPE;
 	PlotVariables mPlotVariables;
-	private Model_Variables mVariablesModel =  new Model_Variables();
+	private Model_Variables mVariablesModel =  null;
 
 	// components
 	JPanel mpanelY, mpanelX, mpanelV;
@@ -353,6 +360,24 @@ class VSelector_Plot_Schematic extends JPanel {
 				return false;
 			}
 
+			switch( ePLOT_TYPE ){
+				case Output_ToPlot.PLOT_TYPE_Histogram:
+					this.mVariablesModel = new Model_Variables( false, false );
+					break;
+				case Output_ToPlot.PLOT_TYPE_Pseudocolor:
+					this.mVariablesModel = new Model_Variables( false, true );
+					break;
+				case Output_ToPlot.PLOT_TYPE_Vector:
+					this.mVariablesModel = new Model_Variables( true, true );
+					break;
+				case Output_ToPlot.PLOT_TYPE_XY:
+					this.mVariablesModel = new Model_Variables( true, true );
+					break;
+				default:
+					sbError.append("unknown plot type " + ePLOT_TYPE);
+					return false;
+			}
+
 			this.removeAll(); // todo re-use axes etc
 
 			// the axes need to exist before the values are initialized
@@ -411,10 +436,9 @@ class VSelector_Plot_Schematic extends JPanel {
 			}
 
 			// value panel 2
-			mvarpanelValues2 = new VSelector_Plot_Values( this, this.getModel().getModel_Variable2() );
-			boolean zUseVariable2 = false;
-InitializeValuePanel2:
-		    {
+			mzUsingSecondVariable = (this.getModel().getModel_Variable2() == null) ? false : true;
+			if( mzUsingSecondVariable ){
+				mvarpanelValues2 = new VSelector_Plot_Values( this, this.getModel().getModel_Variable2() );
 				String sLabel2;
 				switch( ePLOT_TYPE ){
 					case Output_ToPlot.PLOT_TYPE_Vector:
@@ -423,11 +447,9 @@ InitializeValuePanel2:
 						sLabel2 = "X Variable:";
 						break;
 					default:
-						break InitializeValuePanel2;
+						sLabel2 = "2nd Variable:";
+						break;
 				}
-				zUseVariable2 = true;
-//				masLabels1 = masLabels1_buffer;
-//				maVariables1 = maVariables1_buffer;
 				zShowTransforms = false;
 				zAllowCaptions  = false;
 				zNoneAreIndexes = false;
@@ -441,12 +463,11 @@ InitializeValuePanel2:
 					return false;
 				}
 			}
-			mzUsingSecondVariable = zUseVariable2;
 
 			// determine what variables should be selected to start with
 			// it's important to try to select a compatible pair
 			// unfortunately it is too complex to do this currently
-			if( zUseVariable2 ){
+			if( mzUsingSecondVariable ){
 //				VariableSpecification vs = mPlotVariables.getVariable1(1);
 //				vs.getArrayTable(sbError)
 				mvarpanelValues1.setSelection(1);
@@ -459,7 +480,7 @@ InitializeValuePanel2:
 			mpanelValue.setBackground(Color.WHITE);
 			mpanelValue.setLayout(new BoxLayout(mpanelValue, BoxLayout.X_AXIS));
 			mpanelValue.add(mvarpanelValues1);
-			if( zUseVariable2 ){
+			if( mzUsingSecondVariable ){
 				mpanelValue.add(Box.createHorizontalStrut(10));
 				mpanelValue.add(mvarpanelValues2);
 			}
@@ -656,35 +677,101 @@ InitializeValuePanel2:
 		}
 	}
 
+	boolean zSetModelValueSpecifications( StringBuffer sbError ){
+		boolean zSetVariable_1_Specification = false;
+		boolean zSetVariable_2_Specification = false;
+		switch( this.mePLOT_TYPE ){
+			case Output_ToPlot.PLOT_TYPE_Histogram:
+			case Output_ToPlot.PLOT_TYPE_Pseudocolor:
+				zSetVariable_1_Specification = true;
+				break;
+			case Output_ToPlot.PLOT_TYPE_Vector:
+			case Output_ToPlot.PLOT_TYPE_XY:
+				zSetVariable_1_Specification = true;
+				zSetVariable_2_Specification = true;
+				break;
+			default:
+				sbError.append("unknown plot type " + this.mePLOT_TYPE);
+				return false;
+		}
+		if( zSetVariable_1_Specification ){
+			VariableSpecification vs1 = this.mvarpanelValues1.getSelectedVS( sbError );
+			if( vs1 == null && sbError.length() > 0 ){
+				sbError.insert(0, "Error getting variable specification for variable 1: " + sbError);
+				return false;
+			}
+			this.getModel().getModel_Variable1().setVariableSpecfication( vs1 );
+		}
+		if( zSetVariable_2_Specification ){
+			VariableSpecification vs2 = this.mvarpanelValues2.getSelectedVS( sbError );
+			if( vs2 == null && sbError.length() > 0 ){
+				sbError.insert(0, "Error getting variable specification for variable 2: " + sbError);
+				return false;
+			}
+			this.getModel().getModel_Variable1().setVariableSpecfication( vs2 );
+		}
+		return true;
+	}
+
 	void vUpdateModels(){
 		if( this.getModel() == null ){
 			Thread.dumpStack();
+			ApplicationController.getInstance().vShowError("internal error, model update called but models do not exist");
+			return;
 		} else {
-			int ctDims = mvarpanelValues1.getDimCount();
-			int xDimX = mvarpanelValues1.getDimX();
-			int xDimY = mvarpanelValues1.getDimY();
+
+			if( this.mePLOT_TYPE == Output_ToPlot.PLOT_TYPE_Histogram ){
+				this.getModel().getModel_Variable1().setUseEntireVariable( true ); // all that needs to be done
+				return;
+			} else {
+				this.getModel().getModel_Variable1().setUseEntireVariable( false );
+				if( this.getModel().getModel_Variable2() != null ) this.getModel().getModel_Variable2().setUseEntireVariable( false );
+			}
+
 			boolean zReversedX = mvarpanelXAxis.zReversed();
 			boolean zReversedY = mvarpanelYAxis.zReversed();
 			boolean zReversedZ = false; // no z-axis support currently
-			this.getModel().getModel_Variable1().setValues( xDimX, xDimY, zReversedX, zReversedY, zReversedZ );
-			this.getModel().getModel_Variable2().setValues( xDimX, xDimY, zReversedX, zReversedY, zReversedZ );
 
-			int[][] aSliceIndexes_1 = new int[ctDims + 1][];
-			String[][] aSliceCaptions_1 = new String[ctDims + 1][];
-			for( int xDim = 1; xDim <= ctDims; xDim++ ){
+			int xDimX_1 = mvarpanelValues1.getDimX();
+			int xDimY_1 = mvarpanelValues1.getDimY();
+			this.getModel().getModel_Variable1().setValues( xDimX_1, xDimY_1, zReversedX, zReversedY, zReversedZ );
+
+			if( this.getModel().getModel_Variable2() != null ){
+				int xDimX_2 = mvarpanelValues2.getDimX();
+				int xDimY_2 = mvarpanelValues2.getDimY();
+				this.getModel().getModel_Variable2().setValues( xDimX_2, xDimY_2, zReversedX, zReversedY, zReversedZ );
+			}
+
+			int ctDims_VariableSelector1 = mvarpanelValues1.getDimCount();
+			int[][] aSliceIndexes_1 = new int[ctDims_VariableSelector1 + 1][];
+			String[][] aSliceCaptions_1 = new String[ctDims_VariableSelector1 + 1][];
+			for( int xDim = 1; xDim <= ctDims_VariableSelector1; xDim++ ){
 				aSliceIndexes_1[xDim] = mvarpanelValues1.getSliceIndex( xDim );
+				int ctSlices = mvarpanelValues1.getSliceCount( xDim );
+				aSliceCaptions_1[xDim] = new String[ctSlices + 1];
+				for( int xSlice = 1; xSlice <= ctSlices; xSlice++ ){
+					aSliceCaptions_1[xDim][xSlice] = mvarpanelValues1.getSliceCaption( xDim, xSlice );
+				}
 			}
 			this.getModel().getModel_Variable1().setSlices( aSliceIndexes_1, aSliceCaptions_1 );
 
-			if( mvarpanelValues2.getDimCount() > 0 ){
-				int[][] aSliceIndexes_2 = new int[ctDims + 1][];
-				String[][] aSliceCaptions_2 = new String[ctDims + 1][];
-				for( int xDim = 1; xDim <= ctDims; xDim++ ){
-					aSliceIndexes_2[xDim] = mvarpanelValues2.getSliceIndex( xDim );
+			if( this.getModel().getModel_Variable2() != null ){
+				if( mvarpanelValues2.getDimCount() > 0 ){
+					int ctDims_VariableSelector2 = mvarpanelValues2.getDimCount();
+					int[][] aSliceIndexes_2 = new int[ctDims_VariableSelector2 + 1][];
+					String[][] aSliceCaptions_2 = new String[ctDims_VariableSelector2 + 1][];
+					for( int xDim = 1; xDim <= ctDims_VariableSelector2; xDim++ ){
+						aSliceIndexes_2[xDim] = mvarpanelValues2.getSliceIndex( xDim );
+						int ctSlices = mvarpanelValues2.getSliceCount( xDim );
+						aSliceCaptions_2[xDim] = new String[ctSlices + 1];
+						for( int xSlice = 1; xSlice <= ctSlices; xSlice++ ){
+							aSliceCaptions_2[xDim][xSlice] = mvarpanelValues2.getSliceCaption( xDim, xSlice );
+						}
+					}
+					this.getModel().getModel_Variable2().setSlices( aSliceIndexes_2, aSliceCaptions_2 );
 				}
-				this.getModel().getModel_Variable2().setSlices( aSliceIndexes_2, aSliceCaptions_2 );
-			}
 //			System.out.println("model info: " +  this.getModel().getModel_Variable1().sDump());
+			}
 		}
 	}
 
@@ -725,9 +812,14 @@ InitializeValuePanel2:
 				return null;
 			}
 			int ctValues2 = mVariablesModel.getCount_Variable2( sbError );
+			boolean zUsingVariable2 = false;
 			if( ctValues2 == - 1 ){
 				sbError.insert(0, "unable to determine variable 2 value count: ");
 				return null;
+			} else if( ctValues2 == 0 ){
+				zUsingVariable2 = false;
+			} else {
+				zUsingVariable2 = true;
 			}
 
 			// verify that there is something to plot
@@ -737,7 +829,7 @@ InitializeValuePanel2:
 			}
 
 			// verify variable count matches
-			if( ctValues1 > 1 && ctValues2 > 1 ){
+			if( zUsingVariable2 ){
 				if( ctValues1 != ctValues2 ){
 					sbError.append("values in group 1 (" + ctValues1 + ") vary in number from values in group 2 (" + ctValues2 + ")");
 					return null;
@@ -746,7 +838,6 @@ InitializeValuePanel2:
 
 			// collect primary dimensions
 			Model_Variable var1_model = mVariablesModel.getModel_Variable1();
-			Model_Variable var2_model = mVariablesModel.getModel_Variable2();
 			VariableInfo[] list1 = var1_model.getVariableInfo( sbError );
 			if( list1 == null ){
 				sbError.insert(0, "failed to resolve variable: ");
@@ -790,18 +881,19 @@ InitializeValuePanel2:
 
 			Model_Variable varXAxis = mVariablesModel.getModel_Axis_X();
 			Model_Variable varYAxis = mVariablesModel.getModel_Axis_Y();
-			String sID_x = varXAxis == null ? null : varXAxis.getName();  // todo this will null for sequences
+			String sID_x = varXAxis == null ? null : varXAxis.getName();
 			String sID_y = varYAxis == null ? null : varYAxis.getName();
 
 			// collect missing values
 			Object[] eggMissing_var1 = mvarpanelValues1.getMissingEgg();
-			Object[] eggMissing_var2 = mvarpanelValues2.getMissingEgg();
+			Object[] eggMissing_var2 = zUsingVariable2 ? mvarpanelValues2.getMissingEgg() : null;
 
 			// determine data types
 			int eDataType_var1 = variable_info_1.getDataType();
 			int eDataType_var2 = 0; // undefined
 			VariableInfo[] list2 = null;
-			if( ctValues2 > 0 ){
+			if( zUsingVariable2 ){
+				Model_Variable var2_model = mVariablesModel.getModel_Variable2();
 				list2 = var2_model.getVariableInfo(sbError);
 				if( list2 == null ){
 					sbError.insert(0, "Variable two inaccessible: ");
@@ -818,13 +910,15 @@ InitializeValuePanel2:
 			VariableDataset dataset = new VariableDataset();
 			dataset.setID(sDatasetID);
 			dataset.setMissingEgg_Var1(eggMissing_var1);
-			dataset.setMissingEgg_Var2(eggMissing_var2);
+			if( zUsingVariable2 ) dataset.setMissingEgg_Var2(eggMissing_var2);
 			dataset.setParameters(eDataType_var1, eDataType_var2, ctDimensions, lenX, lenY, eInversion, zReversedX, zReversedY, sID_x, sID_y);
 			for( int xVar = 1; xVar <= ctValues1; xVar++ ){
 				dataset.addValue(list1[xVar]);
 			}
-			for( int xVar = 1; xVar <= ctValues2; xVar++ ){
-				dataset.addValue2(list2[xVar]);
+			if( zUsingVariable2 ){
+				for( int xVar = 1; xVar <= ctValues2; xVar++ ){
+					dataset.addValue2(list2[xVar]);
+				}
 			}
 
 			// x-axis
@@ -918,514 +1012,6 @@ InitializeValuePanel2:
 			return null;
 		}
 	}
-
-// targeted for termination - replaced by getVariableInfo in Model_Variables
-//	ArrayList getVariableList( VSelector_Plot_Values var_panel, PlotVariables pv, Model_Variables model, StringBuffer sbError ){
-//		try {
-//
-//			ArrayList listVariables = new ArrayList();
-//
-//			if( model.getValueCount() == 0 ) return listVariables; // return an empty list
-//
-//			int ctDimensions;
-//			int[] aiDimSizes;
-//			ArrayTable atValues = model.getArrayTable(pv, sbError);
-//			if( atValues == null ) return null;
-//			BaseType btValues = atValues.bt;
-//			String sVariableName = var_panel.getSelectedVariableName();
-//			if( btValues instanceof DArray ){
-//				DArray darray = (DArray)btValues;
-//				int eDataType = DAP.getDArrayType(darray);
-//				if( eDataType == 0 ){
-//					sbError.append("unrecognized data type for dataset array");
-//					return null;
-//				}
-//				ctDimensions = var_panel.getDimCount();
-//				aiDimSizes = new int[ctDimensions + 1];
-//				for( int xDim = 1; xDim <= ctDimensions; xDim++ ){
-//					aiDimSizes[xDim] = darray.getDimension(xDim-1).getSize();
-//				}
-//			} else if( btValues instanceof DSequence ){ // convert data to vectors of doubles
-//				DSequence dsequence = (DSequence)btValues;
-//				VariableInfo varSequenceVector = zCreateVariable_FromDSequence( dsequence, sVariableName, sbError );
-//				varSequenceVector.setName( vs.getName() );
-//				varSequenceVector.setLongName( vs.getAttribute_LongName() );
-//				varSequenceVector.setUserCaption( null );
-//				varSequenceVector.setUnits( vs.getAttribute_Units() );
-//				if( varSequenceVector == null ){
-//					sbError.insert(0, "Failed to form variable info for field " + sVariableName + " of sequence: ");
-//					return null;
-//				} else {
-//					listVariables.add( varSequenceVector );
-//					return listVariables;
-//				}
-//			} else {
-//				sbError.append("base type is not an array or a sequence");
-//				return null;
-//			}
-//
-//			// this is true when doing a histogram
-//			if( var_panel.zUseEntireVariable() ){
-//				VariableInfo infoValues = zCreateVariable_FromDArrayNT( btValues, sbError);
-//				if( infoValues == null ){
-//					sbError.insert(0, "error creating value variable info for histogram: ");
-//					return null;
-//				} else {
-//					infoValues.setName( vs.getName() );
-//					infoValues.setLongName( vs.getAttribute_LongName() );
-//					infoValues.setUserCaption( null );
-//					infoValues.setUnits( vs.getAttribute_Units() );
-//					infoValues.setSliceCaption("[all data]");
-//					listVariables.add(infoValues);
-//				}
-//				return listVariables;
-//			}
-//
-//			// determine slices and verify that there is at most one multi-slice dim
-//			int xDimX = var_panel.getDimX();
-//			int xDimY = var_panel.getDimY();
-//			int ctUsedDimensions = ((xDimX > 0) ? 1 : 0) + ((xDimY > 0) ? 1 : 0);
-//			if( ctUsedDimensions ==  0 ){
-//				sbError.append("No dimensions selected. There must be at least an X- or Y-dimension.");
-//				return null;
-//			}
-//			int ctDimensions_extra = ctDimensions - ctUsedDimensions;
-//			int[] axSliceIndex1 = new int[ctDimensions + 1]; // this is the slice index0 for each of the extra dimensions; if one of the extra dims has multiple slices then the value will be 0; the x and y dims will have value 0
-//			int xDim = 0;
-//			int xExtraDim = 0;
-//			int xMultiSliceDim = 0;
-//			int[] axMultiSlice = null;
-//			int ctMultiSlice = 1;
-//			while(true){
-//				xDim++;
-//				if( xDim > ctDimensions ) break;
-//				if( xDim == xDimX || xDim == xDimY ) continue;
-//				int[] axSlices = var_panel.getSliceIndex(xDim);
-//				if( axSlices == null ){
-//					sbError.append("unable to get slice indexes for dim " + xDim);
-//					return null;
-//				}
-//				int ctSlices = axSlices.length - 1;
-//				if( ctSlices < 1 ){
-//					axSliceIndex1[xDim] = 0; // default to zero index for undefined slices
-//				} else if( ctSlices == 1 ) {
-//					axSliceIndex1[xDim] = axSlices[1];
-//				} else { // multi-slice definition
-//					if( xMultiSliceDim > 0 ){
-//						sbError.append("Only one dimension can have multiple slices.");
-//						return null;
-//					} else {
-//						xMultiSliceDim = xDim;
-//						axMultiSlice = axSlices;
-//						ctMultiSlice = axMultiSlice.length - 1; // because this is a one-based array
-//					}
-//				}
-//			}
-//
-//			// iterate slices and add a value set for each one
-//			int[] axSliceIndex1_current = new int[ctDimensions + 1]; // this is the slice index0 for each of the extra dimensions; if one of the extra dims has multiple slices then the value will be the current slice index; the x and y dims will have value 0
-//
-//			StringBuffer sbSliceCaption = new StringBuffer();
-//			String sSliceCaption = null;
-//			for( int xSlice = 1; xSlice <= ctMultiSlice; xSlice++ ){
-//
-//				sSliceCaption = null;
-//				String sMultiSliceDim = "";
-//				if( xMultiSliceDim > 0 ){
-//					String sMultiSliceCaption = var_panel.getSliceCaption(xMultiSliceDim, xSlice);
-//					if( sMultiSliceCaption == null ){
-//						// no user defined caption - caption will be auto generated
-//					} else {
-//						sSliceCaption = sMultiSliceCaption;
-//					}
-//					if( btValues instanceof DArray ){
-//						DArray darray = (DArray)btValues;
-//						try {
-//							sMultiSliceDim = ((DArray)btValues).getDimension(xMultiSliceDim).getName();
-//						} catch(Exception ex) {
-//							sMultiSliceDim = "??"; // todo
-//						}
-//					} else {
-//						sMultiSliceDim = "?";
-//					}
-//				}
-//
-//				String[] masDimCaption = new String[ctDimensions + 1]; // new String[ctDimensions_extra + 1];
-//				for( xDim = 1; xDim <= ctDimensions; xDim++ ){
-//					String sDimCaption = var_panel.getSliceCaption( xDim, xSlice );
-//					masDimCaption[xDim] = sDimCaption; // not used
-//					if( xDim == xDimX || xDim == xDimY ){
-//						axSliceIndex1_current[xDim] = 0;
-//					} else if( xDim == xMultiSliceDim ) {
-//						axSliceIndex1_current[xDim] = axMultiSlice[xSlice];
-//					} else {
-//						axSliceIndex1_current[xDim] = axSliceIndex1[xDim];
-//					}
-//				}
-//
-//				if( sSliceCaption == null ){  // build caption
-//					sbSliceCaption.setLength(0);
-//					for( xDim = 1; xDim <= ctDimensions; xDim++ ){
-//						if( xDim != xDimX && xDim != xDimY ){
-//							String sConstrainedDim;
-//							if( btValues instanceof DArray ){
-//								try {
-//									sConstrainedDim = ((DArray)btValues).getDimension(xDim-1).getName();
-//								} catch(Exception ex) {
-//									sConstrainedDim = "[?]"; // todo
-//								}
-//							} else {
-//								sConstrainedDim = "[" + xDim + "]";
-//							}
-//							sbSliceCaption.append(sConstrainedDim);
-//							sbSliceCaption.append(" " + (axSliceIndex1_current[xDim] + 1)); // slice caption indexes are one-based
-//						}
-//					}
-//					sSliceCaption = sbSliceCaption.toString();
-//				}
-//				if( sSliceCaption.length() == 0 ) sSliceCaption = null;
-//
-//				// primary values (or U-Component)
-//				VariableInfo infoValues = zCreateVariable_FromDArray( btValues, xDimX, xDimY, ctDimensions, aiDimSizes, axSliceIndex1_current, sbError);
-//				if( infoValues == null ){
-//					sbError.insert(0, "error creating value variable info " + xSlice + ": ");
-//					return null;
-//				} else {
-//					infoValues.setName( vs.getName() );
-//					infoValues.setLongName( vs.getAttribute_LongName() );
-//					infoValues.setUserCaption( null );
-//					infoValues.setUnits( vs.getAttribute_Units() );
-//					infoValues.setSliceCaption( sSliceCaption );
-//					listVariables.add(infoValues);
-//				}
-//			}
-//			return listVariables;
-//		} catch( Exception ex ) {
-//			Utility.vUnexpectedError( ex, sbError );
-//			return null;
-//		}
-//	}
-
-//	private VariableInfo zCreateVariable_FromDSequence(DSequence dsequence, String sField, StringBuffer sbError){
-//		if( dsequence == null ){
-//			sbError.append("sequence was missing");
-//			return null;
-//		}
-//		if( sField == null ){
-//			sbError.append("field name was missing");
-//			return null;
-//		}
-//		int ctRows = dsequence.getRowCount();
-//		int xRow = 0;
-//		if( !Utility.zMemoryCheck(ctRows, 8, sbError) ) return null;
-//		double[] adValues = new double[ctRows];
-//		int ctErrors = 0;
-//		try {
-//			for( xRow = 0; xRow < ctRows; xRow++ ){
-//				BaseType btRow = dsequence.getVariable(xRow, sField);
-//				int eVALUE_TYPE = DAP.getType_Plot(btRow);
-//				if( eVALUE_TYPE == 0 ){
-//					sbError.append("unsupportable variable type in row " + xRow);
-//					return null;
-//				}
-//				switch( eVALUE_TYPE ){
-//					case DAP.DATA_TYPE_Byte:
-//						adValues[xRow] = (double)((int)((DByte)btRow).getValue() & 0xFF);
-//						break;
-//					case DAP.DATA_TYPE_Int16:
-//						adValues[xRow] = (double)((DInt16)btRow).getValue();
-//						break;
-//					case DAP.DATA_TYPE_UInt16:
-//						adValues[xRow] = (double)((int)((DUInt16)btRow).getValue() & 0xFFFF);
-//						break;
-//					case DAP.DATA_TYPE_Int32:
-//						adValues[xRow] = (double)((DInt32)btRow).getValue();
-//						break;
-//					case DAP.DATA_TYPE_UInt32:
-//						adValues[xRow] = (double)((long)((DUInt32)btRow).getValue() & 0xFFFFFFFF);
-//						break;
-//					case DAP.DATA_TYPE_Float32:
-//						adValues[xRow] = (double)((DFloat32)btRow).getValue();
-//						break;
-//					case DAP.DATA_TYPE_Float64:
-//						adValues[xRow] = (double)((DFloat64)btRow).getValue();
-//						break;
-//					case DAP.DATA_TYPE_String:
-//						String sValue = ((DString)btRow).getValue();
-//						try {
-//							adValues[xRow] = Double.parseDouble(sValue);
-//						} catch(Exception ex) {
-//							ctErrors++;
-//							if( ctErrors == 1 ){
-//								sbError.append("Error converting string value to double in row " + (xRow+1) + ".");
-//							}
-//						}
-//						break;
-//					default:
-//						sbError.append("unsupported data type: " + eVALUE_TYPE);
-//						return null;
-//				}
-//			}
-//			if( ctErrors > 1 ) sbError.append("There were " + ctErrors + " conversion errors.");
-//			ApplicationController.vShowWarning(sbError.toString());
-//			sbError.setLength(0);
-//		} catch(Exception ex) {
-//			sbError.append("error processing row " + (xRow+1) + " of sequence: " + ex);
-//			return null;
-//		}
-//		VariableInfo infoValues = new VariableInfo();
-//		infoValues.setValues(adValues, 1, ctRows, 1);
-//		return infoValues;
-//	}
-//
-//	// no transformations version of main routine (used when entire array is returned in bulk) for histogram
-//	private VariableInfo zCreateVariable_FromDArrayNT(BaseType btValues, StringBuffer sbError){
-//		try {
-//			VariableInfo infoValues = new VariableInfo();
-//			if( !( btValues instanceof DArray) ){
-//				sbError.append("base type is not an array");
-//				return null;
-//			}
-//			DArray darray = (DArray)btValues;
-//
-//			// execute the mapping and do any necessary type conversions
-//			int eVALUE_TYPE = DAP.getDArrayType(darray);
-//			if( eVALUE_TYPE == 0 ){
-//				sbError.append("unsupportable array type for DArray conversion");
-//				return null;
-//			}
-//			Object oValues = darray.getPrimitiveVector().getInternalStorage();
-//			byte[] abValues = null;
-//			short[] ashValues = null;
-//			int[] aiValues = null;
-//			long[] anValues = null;
-//			int xValue, ctValues;
-//			switch( eVALUE_TYPE ){
-//				case DAP.DATA_TYPE_Byte:
-//					abValues = (byte[])oValues;
-//					ctValues = abValues.length;
-//					if( !Utility.zMemoryCheck(ctValues, 2, sbError) ) return null;
-//					short[] ashTransformedValues0 = new short[ctValues];
-//					for( xValue = 0; xValue < ctValues; xValue++ ){
-//						ashTransformedValues0[xValue] = (short)((short)abValues[xValue] & 0xFF);
-//					}
-//					infoValues.setValues(ashTransformedValues0, eVALUE_TYPE, 1, ctValues, 1);
-//					break;
-//				case DAP.DATA_TYPE_Int16:
-//					ashValues = (short[])oValues;
-//					ctValues = ashValues.length;
-//					infoValues.setValues(ashValues, eVALUE_TYPE, 1, ctValues, 1);
-//					break;
-//				case DAP.DATA_TYPE_UInt16:
-//					ashValues = (short[])oValues;
-//					ctValues = ashValues.length;
-//					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return null;
-//					int[] aiTransformedValues0 = new int[ctValues];
-//					for( xValue = 0; xValue < ctValues; xValue++ ){
-//						aiTransformedValues0[xValue] = (int)((int)ashValues[xValue] & 0xFFFF);
-//					}
-//					infoValues.setValues(aiTransformedValues0, eVALUE_TYPE, 1, ctValues, 1);
-//					break;
-//				case DAP.DATA_TYPE_Int32:
-//					aiValues = (int[])oValues;
-//					ctValues = aiValues.length;
-//					infoValues.setValues(aiValues, eVALUE_TYPE, 1, ctValues, 1);
-//					break;
-//				case DAP.DATA_TYPE_UInt32:
-//					aiValues = (int[])oValues;
-//					ctValues = aiValues.length;
-//					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return null;
-//					long[] anTransformedValues0 = new long[ctValues];
-//					for( xValue = 0; xValue < ctValues; xValue++ ){
-//						anTransformedValues0[xValue] = (long)((long)aiValues[xValue] & 0xFFFFFFFF);
-//					}
-//					infoValues.setValues(anTransformedValues0, 1, ctValues, 1);
-//					break;
-//				case DAP.DATA_TYPE_Float32:
-//					float[] afValues = (float[])oValues;
-//					ctValues = afValues.length;
-//					infoValues.setValues(afValues, 1, ctValues, 1);
-//					break;
-//				case DAP.DATA_TYPE_Float64:
-//					double[] adValues = (double[])oValues;
-//					ctValues = adValues.length;
-//					infoValues.setValues(adValues, 1, ctValues, 1);
-//					break;
-//				case DAP.DATA_TYPE_String:
-//					sbError.append("cannot create variable from String data");
-//	    			return null;
-//				default:
-//					sbError.append("unknown array data type: " + eVALUE_TYPE);
-//	    			return null;
-//			}
-//			return infoValues;
-//		} catch( Exception ex ) {
-//			Utility.vUnexpectedError( ex, sbError );
-//			return null;
-//		}
-//	}
-//
-//	private VariableInfo zCreateVariable_FromDArray(BaseType btValues, int xDimX, int xDimY, int ctDimensions, int[] aiDimSizes, int[] axSliceIndex1, StringBuffer sbError){
-//		if( aiDimSizes == null ){
-//			sbError.append("internal error, no dim sizes");
-//			return null;
-//		}
-//		if( xDimX < 0 || xDimX >= aiDimSizes.length ){
-//			sbError.append("internal error, invalid dimX index");
-//			return null;
-//		}
-//		if( xDimY < 0 || xDimY >= aiDimSizes.length ){
-//			sbError.append("internal error, invalid dimY index");
-//			return null;
-//		}
-//		int lenX = aiDimSizes[xDimX];
-//		int lenY = aiDimSizes[xDimY];
-//		if( lenX == 0 ) lenX = 1; // unused dimensions are considered to be length 1
-//		if( lenY == 0 ) lenY = 1;
-//		if( ((long)lenX *(long)lenY) > (long)Integer.MAX_VALUE ){
-//			sbError.append("X (" + lenX + ") x Y (" + lenY + ") exceeds the maximum allocatable size of an array (" + Integer.MAX_VALUE + ")");
-//			return null;
-//		}
-//		int ctValues = (xDimX == 0 ? 1 : lenX) * (xDimY == 0 ? 1 : lenY);
-//		try {
-//			VariableInfo infoValues = new VariableInfo();
-//			if( !( btValues instanceof DArray) ){
-//				sbError.append("base type is not an array");
-//				return null;
-//			}
-//			DArray darray = (DArray)btValues;
-//
-//			// make a mapping for converting column-major to row-major for this variables shape
-//			// model for 2 dimensions:
-//			//   xD1*lenD2 + xD2  transforms to:
-//			//   xD1 + xD2*lenD1
-//			// model for 3 dimensions:
-//			//   xD1*lenD2*lenD3 + xD2*lenD3 + xD3  transforms to:
-//			//   xD1 + xD2*lenD1 + xD3*lenD2*lenD1
-//			// the algorithm below extrapolates this to n-dimensions
-//			int ctTransformedDimensions = (xDimX == 0 ? 0 : 1) + (xDimY == 0 ? 0 : 1);
-//			if( !Utility.zMemoryCheck(ctValues * 2, 4, sbError) ) return null;
-//			int[] axMappingCM2RM_base = new int[ctValues + 1]; // will contain mapping from base array to transformed array
-//			int[] axMappingCM2RM_transform = new int[ctValues + 1]; // will contain mapping from base array to transformed array
-//			int[] aiDimCursor = new int[ctDimensions+1];
-//			int xValue = 0;
-//			for( int x = 0; x < lenX; x++ ){
-//				for( int y = 0; y < lenY; y++ ){
-//					xValue++;
-//					int xBase_index = 0;
-//					int xTransform_index = 0;
-//					for( int xDimCursor = 1; xDimCursor <= ctDimensions; xDimCursor++ ){
-//						int indexCursor = (xDimCursor == xDimX ? x : (xDimCursor == xDimY ? y : axSliceIndex1[xDimCursor] ));
-//						int xBase_multiplier = 1;
-//						for( int xMultiplier = xDimCursor + 1; xMultiplier <= ctDimensions; xMultiplier++ )
-//							xBase_multiplier *= aiDimSizes[xMultiplier];
-//						xBase_index      += indexCursor * xBase_multiplier;
-//					}
-//					xTransform_index = x + y * lenX;
-//					axMappingCM2RM_base[xValue] = xBase_index;
-//					axMappingCM2RM_transform[xValue] = xTransform_index;
-//				}
-//			}
-//
-//			// execute the mapping and do any necessary type conversions
-//			int eVALUE_TYPE = DAP.getDArrayType(darray);
-//			if( eVALUE_TYPE == 0 ){
-//				sbError.append("unsupportable array type");
-//				return null;
-//			}
-//			Object oValues = darray.getPrimitiveVector().getInternalStorage();
-//			byte[] abValues = null;
-//			short[] ashValues = null;
-//			int[] aiValues = null;
-//			long[] anValues = null;
-//			switch( eVALUE_TYPE ){
-//				case DAP.DATA_TYPE_Byte:
-//				case DAP.DATA_TYPE_Int16:
-//
-//					// convert from column-major to row-major and to short
-//					if( eVALUE_TYPE == DAP.DATA_TYPE_Byte ){
-//						abValues = (byte[])oValues;
-//					} else {
-//						ashValues = (short[])oValues;
-//					}
-//					if( !Utility.zMemoryCheck(ctValues, 2, sbError) ) return null;
-//					short[] ashTransformedValues0 = new short[ctValues];
-//					for( xValue = 1; xValue <= ctValues; xValue++ ){
-//						if( eVALUE_TYPE == DAP.DATA_TYPE_Byte )
-//							ashTransformedValues0[axMappingCM2RM_transform[xValue]] = (short)((short)abValues[axMappingCM2RM_base[xValue]] & 0xFF);
-//						else
-//							ashTransformedValues0[axMappingCM2RM_transform[xValue]] = ashValues[axMappingCM2RM_base[xValue]];
-//					}
-//					infoValues.setValues(ashTransformedValues0, eVALUE_TYPE, ctTransformedDimensions, lenX, lenY);
-//					break;
-//
-//				case DAP.DATA_TYPE_UInt16:
-//				case DAP.DATA_TYPE_Int32:
-//
-//					// convert from column-major to row-major and to int
-//					if( eVALUE_TYPE == DAP.DATA_TYPE_UInt16 ){
-//						ashValues = (short[])oValues;
-//					} else {
-//						aiValues = (int[])oValues;
-//					}
-//					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return null;
-//					int[] aiTransformedValues0 = new int[ctValues];
-//					for( xValue = 1; xValue <= ctValues; xValue++ ){
-//						if( eVALUE_TYPE == DAP.DATA_TYPE_UInt16 )
-//							aiTransformedValues0[axMappingCM2RM_transform[xValue]] = (int)((int)ashValues[axMappingCM2RM_base[xValue]] & 0xFFFF);
-//						else
-//							aiTransformedValues0[axMappingCM2RM_transform[xValue]] = aiValues[axMappingCM2RM_base[xValue]];
-//					}
-//					infoValues.setValues(aiTransformedValues0, eVALUE_TYPE, ctTransformedDimensions, lenX, lenY);
-//					break;
-//
-//				case DAP.DATA_TYPE_UInt32:
-//
-//					// convert from column-major to row-major and to long
-//					aiValues = (int[])oValues;
-//					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return null;
-//					long[] anTransformedValues0 = new long[ctValues];
-//					for( xValue = 1; xValue <= ctValues; xValue++ ){
-//						anTransformedValues0[axMappingCM2RM_transform[xValue]] = (long)((long)aiValues[axMappingCM2RM_base[xValue]] & 0xFFFFFFFF);
-//					}
-//					infoValues.setValues(anTransformedValues0, ctTransformedDimensions, lenX, lenY);
-//					break;
-//
-//				case DAP.DATA_TYPE_Float32:
-//
-//					// convert from column-major to row-major
-//					float[] afValues = (float[])oValues;
-//					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return null;
-//					float[] afTransformedValues0 = new float[ctValues];
-//					for( xValue = 1; xValue <= ctValues; xValue++ ){
-//						afTransformedValues0[axMappingCM2RM_transform[xValue]] = afValues[axMappingCM2RM_base[xValue]];
-//					}
-//					infoValues.setValues(afTransformedValues0, ctTransformedDimensions, lenX, lenY);
-//					break;
-//				case DAP.DATA_TYPE_Float64:
-//
-//					// convert from column-major to row-major
-//					double[] adValues = (double[])oValues;
-//					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return null;
-//					double[] adTransformedValues0 = new double[ctValues];
-//					for( xValue = 1; xValue <= ctValues; xValue++ ){
-//						adTransformedValues0[axMappingCM2RM_transform[xValue]] = adValues[axMappingCM2RM_base[xValue]];
-//					}
-//					infoValues.setValues(adTransformedValues0, ctTransformedDimensions, lenX, lenY);
-//					break;
-//				default:
-//					sbError.append("unknown array data type: " + eVALUE_TYPE);
-//	    			return null;
-//			}
-//			return infoValues;
-//		} catch( Exception ex ) {
-//			Utility.vUnexpectedError( ex, sbError );
-//			return null;
-//		} catch( Throwable t ) {
-//			sbError.append("Unable to transform " + ctValues + " values: " + t);
-//			return null;
-//		}
-//	}
 
 	// note that this routine must make a duplicate array no matter what because during
 	// reversal transformation elsewhere the matrix may be modified in place so you do
@@ -1634,7 +1220,14 @@ class VSelector_Plot_Values extends JPanel {
 			jcbValue.addActionListener(
 				new ActionListener(){
 				    public void actionPerformed(ActionEvent e) {
-						vUpdateInfo();
+						StringBuffer sbError = new StringBuffer();
+						VariableSpecification vs = getSelectedVS( sbError );
+						if( vs == null && sbError.length() > 0 ){
+							ApplicationController.getInstance().vShowError("Error updating info: " + sbError);
+							sbError.setLength(0);
+						}
+						VSelector_Plot_Values.this.getModel().setVariableSpecfication( vs );
+						vUpdateInfo( vs );
 						myParent.vRecalcAxes();
 						myParent.vUpdateModels();
 					}});
@@ -1763,19 +1356,13 @@ class VSelector_Plot_Values extends JPanel {
 	BaseType mLastBaseType = null;
 	String msLastVariableName = "";
 	final GridBagConstraints gbc = new GridBagConstraints();
-	void vUpdateInfo(){
+	void vUpdateInfo( VariableSpecification vs ){
 		StringBuffer sbError = new StringBuffer();
 		panelDims.removeAll();
 		gbc.fill = gbc.BOTH;
 		gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 9;
 		panelDims.add(jtaInfo, gbc);
-		VariableSpecification vs = getSelectedVS( sbError );
-		this.getModel().setVariableSpecfication( vs );
 		if( vs == null ){
-			if( sbError.length() > 0 ){
-				ApplicationController.getInstance().vShowError("Error updating info: " + sbError);
-				sbError.setLength(0);
-			}
 			jtaInfo.setText("nothing selected");
 			panelMissingValues.setEnabled(false);
 			return;
@@ -1849,6 +1436,7 @@ class VSelector_Plot_Values extends JPanel {
 						labelName.setOpaque(false);
 						bgX.add(dim.com_jrbX);
 						bgY.add(dim.com_jrbY);
+// System.out.println("dim " + xDim + " of " + ctDim + " named " + sDimName + " in base type " + bt.getName() + " added for variable selector " + msTitle);
 						listDims.add(dim);
 						gbc.gridy = xDim*2 + 2; gbc.gridwidth = 1;
 						iGridX = 0;
@@ -2173,6 +1761,10 @@ class VSelector_Plot_Values extends JPanel {
 	String getSliceCaption( int xDim1, int xSlice1 ){
 		Panel_Dimension dim = ((Panel_Dimension)listDims.get(xDim1 - 1));
 		return dim.getModel().getSliceCaption(xSlice1);
+	}
+	int getSliceCount( int xDim1 ){
+		Panel_Dimension dim = ((Panel_Dimension)listDims.get(xDim1 - 1));
+		return dim.getModel().getSliceCount();
 	}
 }
 

@@ -348,11 +348,6 @@ public class Output_ToPlot {
 			}
 
 			// determine axis captions in the case that either x or y is dependent
-System.out.println("building captions:");
-System.out.println("sCaption_X_data: " + sCaption_X_data);
-System.out.println("sCaption_Y_data: " + sCaption_Y_data);
-System.out.println("sCaption_X_units: " + sCaption_X_units);
-System.out.println("sCaption_Y_units: " + sCaption_Y_units);
 			String sCaption_axis_Y = null;
 			String sCaption_axis_X = null;
 			if( sCaption_X_data == null && sCaption_X_units == null ){
@@ -369,8 +364,6 @@ System.out.println("sCaption_Y_units: " + sCaption_Y_units);
 			} else {
 				sCaption_axis_Y = sCaption_Y_data + " (" + sCaption_Y_units + ")";
 			}
-System.out.println("sCaption_axis_X: " + sCaption_axis_X);
-System.out.println("sCaption_axis_Y: " + sCaption_axis_Y);
 
 			// set data (will generate the line points)
 			if( !panelPL.setLineData(scale, listSeries_Y, listSeries_X, listCaptions_X, listCaptions_Y, DAP.DATA_TYPE_Float64, sCaption_axis_Y, sCaption_axis_X, sbError) ){
@@ -432,7 +425,8 @@ System.out.println("sCaption_axis_Y: " + sCaption_axis_Y);
 			if( cs == null ){
 				cs = new ColorSpecification("[system generated]", eDATA_TYPE);
 				int iDefaultMissingColor = 0xFF0000FF;
-				cs.setMissing(Panel_View_Plot.getDataParameters().getMissingEgg(), eDATA_TYPE, iDefaultMissingColor);
+				// cs.setMissing( Panel_View_Plot.getDataParameters().getMissingEgg(), eDATA_TYPE, iDefaultMissingColor );
+				cs.setMissing( pv.getMissingEgg(), eDATA_TYPE, iDefaultMissingColor );
 				if( !cs.setStandardColors(ColorSpecification.COLOR_STYLE_Default, sbError) ){
 					sbError.insert(0, "Failed to create default standard colors: ");
 					return false;
@@ -550,7 +544,9 @@ System.out.println("sCaption_axis_Y: " + sCaption_axis_Y);
 			}
 			int eDATA_TYPE = pv.getDataType();
 			if( pv2.getDataType() != eDATA_TYPE ){
-				sbError.append("two variables supplied of different types");
+				String sType1 = opendap.clients.odc.DAP.getType_String(eDATA_TYPE);
+				String sType2 = opendap.clients.odc.DAP.getType_String(pv2.getDataType());
+				sbError.append("two variables supplied of different types; variable 1 is " + sType1 + " and variable 2 is " + sType2);
 				return false;
 			}
 			int iWidth       = pv.getDimLength(1);
@@ -559,6 +555,19 @@ System.out.println("sCaption_axis_Y: " + sCaption_axis_Y);
 //				sbError.append("cannot vector plot with width " + iWidth + " and height " + iHeight + "; data must be two-dimensional");
 //				return false;
 //			}
+
+			// validate that the dimensions of the supplied plotting variables are the same
+			int ctDims = pv.getDimCount();
+			if( ctDims != pv2.getDimCount() ){
+				sbError.append("variable one has a different number of dimensions (" + ctDims + " than variable 2 (" + pv2.getDimCount() + ")");
+				return false;
+			}
+			for( int xDim = 1; xDim <= ctDims; xDim++ ){
+				if( pv.getDimLength(xDim) != pv2.getDimLength(xDim) ){
+					sbError.append("variable one dimension " + xDim + " has a different length (" + pv.getDimLength(xDim) + ") than variable 2 (" + pv2.getDimLength(xDim) + ")");
+					return false;
+				}
+			}
 
 			// set data
 			Object[] eggDataU = pv.getDataEgg();
