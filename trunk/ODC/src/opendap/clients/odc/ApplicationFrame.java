@@ -476,6 +476,7 @@ class StatusBar extends JPanel {
 		jpanelMemory.setBorder(borderInset);
 		jpanelMemory.setLayout(new BorderLayout());
 		jpbMemory = new JProgressBar();
+		jpbMemory.setToolTipText("Double-click for memory info"); // not working for unknown reason TODO
 		int iMaximumMemory = (int)(ApplicationController.getMemory_Max() / 1048576); // memory is measured in megabtyes
 		jpbMemory.setMaximum(iMaximumMemory);
 		jpbMemory.setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0));
