@@ -3,6 +3,22 @@ NEWS
 Historical Release Notes
 
 ----------------------------------------------------------------------------------------
+ODC 2.59.1
+12 December 2006
+
+Bug and Behavior Fixes and Upgrades
+
+- fixed problem with second variable (used for vector plots)
+- fixed problem with dimensions being selected correctly
+- fixed slice calculation problem
+- fixed problem with thumbnails
+
+Enhancements
+
+- if there is an error during a plot, the preview window will not usually be activated
+- improved error messages for low memory and several other types of errors
+
+----------------------------------------------------------------------------------------
 ODC 2.59
 6 November 2006
 
