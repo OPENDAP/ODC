@@ -66,6 +66,9 @@ public class ConfigurationManager {
 	public static final String PROPERTY_PROXY_Use = "proxy.Use";
 	public static final String PROPERTY_PROXY_Host = "proxy.Host";
 	public static final String PROPERTY_PROXY_Port = "proxy.Port";
+	public static final String PROPERTY_PROXY_UseBasicAuthentication = "proxy.UseBasicAuthentication";
+	public static final String PROPERTY_PROXY_Username = "proxy.Username";
+	public static final String PROPERTY_PROXY_Password = "proxy.Password";
 	public static final String PROPERTY_MAIL_Host = "mail.Host";
 	public static final String PROPERTY_MAIL_Port = "mail.Port";
 	public static final String PROPERTY_FEEDBACK_EmailRelayURL = "feedback.EmailRelayURL";
@@ -311,6 +314,9 @@ public class ConfigurationManager {
 		mlistProperties.add( PROPERTY_PROXY_Use );
 		mlistProperties.add( PROPERTY_PROXY_Host );
 		mlistProperties.add( PROPERTY_PROXY_Port );
+		mlistProperties.add( PROPERTY_PROXY_UseBasicAuthentication );
+		mlistProperties.add( PROPERTY_PROXY_Username );
+		mlistProperties.add( PROPERTY_PROXY_Password );
 		mlistProperties.add( PROPERTY_MAIL_Host );
 		mlistProperties.add( PROPERTY_MAIL_Port );
 		mlistProperties.add( PROPERTY_FEEDBACK_EmailRelayURL );
@@ -577,11 +583,25 @@ public class ConfigurationManager {
 		if( s.toUpperCase().startsWith("Y") || s.toUpperCase().equals("TRUE") ) return true;
 		return false;
 	}
+	public boolean getProperty_ProxyUseBasicAuthentication(){
+		String s = getInstance().getOption(PROPERTY_PROXY_UseBasicAuthentication);
+		if( s == null ){
+			return false; // default
+		}
+		if( s.toUpperCase().startsWith("Y") || s.toUpperCase().equals("TRUE") ) return true;
+		return false;
+	}
 	public String getProperty_ProxyHost(){
 		return getInstance().getOption(PROPERTY_PROXY_Host, null);
 	}
 	public String getProperty_ProxyPort(){
 		return getInstance().getOption(PROPERTY_PROXY_Port, null);
+	}
+	public String getProperty_ProxyUsername(){
+		return getInstance().getOption(PROPERTY_PROXY_Username, null);
+	}
+	public String getProperty_ProxyPassword(){
+		return getInstance().getOption(PROPERTY_PROXY_Password, null);
 	}
 	public String getProperty_MailHost(){
 		return getInstance().getOption(PROPERTY_MAIL_Host, FEEDBACK_Default_MailHost);
@@ -803,6 +823,9 @@ public class ConfigurationManager {
 		sb.append(PROPERTY_PROXY_Use + " = " + (this.getProperty_ProxyUse() ? "Yes" : "No") + "\n" );
 		sb.append(PROPERTY_PROXY_Host + " = " + (this.getProperty_ProxyHost()==null ? "[none]" : this.getProperty_ProxyHost()) + "\n" );
 		sb.append(PROPERTY_PROXY_Port + " = " + (this.getProperty_ProxyPort()==null ? "[none]" : this.getProperty_ProxyPort()) + "\n" );
+		sb.append(PROPERTY_PROXY_UseBasicAuthentication + " = " + (this.getProperty_ProxyUseBasicAuthentication() ? "Yes" : "No") + "\n" );
+		sb.append(PROPERTY_PROXY_Username + " = " + (this.getProperty_ProxyUsername()==null ? "[none]" : this.getProperty_ProxyUsername()) + "\n" );
+		sb.append(PROPERTY_PROXY_Password + " = " + (this.getProperty_ProxyPassword()==null ? "[none]" : this.getProperty_ProxyPassword()) + "\n" );
 		sb.append(PROPERTY_MAIL_Host + " = " + (getProperty_MailHost()==null ? "[none]" : getProperty_MailHost()) + "\n" );
 		sb.append(PROPERTY_MAIL_Port + " = " + (getProperty_MailPort() < 0 ? "[none]" : Integer.toString(getProperty_MailPort())) + "\n" );
 		sb.append(PROPERTY_FEEDBACK_EmailRelayURL + " = " + (this.getProperty_FEEDBACK_EmailRelayURL()==null ? "[none (default is " + FEEDBACK_Default_EmailRelayURL + ")]" : this.getProperty_FEEDBACK_EmailRelayURL()) + "\n" );
