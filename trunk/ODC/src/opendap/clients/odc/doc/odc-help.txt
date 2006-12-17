@@ -87,7 +87,7 @@ You may work behind a "firewall" which prevents normal access to the internet. T
 
 If you do not have a proxy server or do not need to use one then proxy.Use should be set to "No" (the default).
 
-Authenticated proxies are proxy servers that require a username and password. The ODC currently supports only Basic proxy authentication as of version 2.60. To configure your system for Basic authentication for proxies set the following properties:
+Authenticated proxies are proxy servers that require a username and password. There are four common types of proxy authentication: Basic, Digest, NTLM (proprietary Microsoft protocol) and Kerberos. The ODC currently supports only Basic proxy authentication as of version 2.60. To configure your system for Basic authentication for proxies set the following properties:
 
 proxy.UseBasicAuthentication to "Yes" or true
 proxy.Username
