@@ -1,5 +1,6 @@
 #Introduction
-(help file revised 24 September 2004)
+Version 2.60
+(help file revised 17 December 2006)
 
 This is the OPeNDAP Data Connector (ODC). Using the ODC you can search for and retrieve datasets published by OPeNDAP data servers. OPeNDAP servers (also known as DODS servers) located at major institutions around the world serve a wide variety of data including: climatic data, satellite imagery, and ocean sensor results. The ODC allows you to find these datasets, download them to your machine, save them, and import them into client applications like IDL, Matlab, SPSS, Excel, or into databases such as Access and Oracle. The ODC is your gateway to terabytes of scientific data and imagery.
 
@@ -86,7 +87,11 @@ You may work behind a "firewall" which prevents normal access to the internet. T
 
 If you do not have a proxy server or do not need to use one then proxy.Use should be set to "No" (the default).
 
-The ODC does not currently support authenticated proxies. Authenticated proxies are proxy servers that require a username and password.
+Authenticated proxies are proxy servers that require a username and password. The ODC currently supports only Basic proxy authentication as of version 2.60. To configure your system for Basic authentication for proxies set the following properties:
+
+proxy.UseBasicAuthentication to "Yes" or true
+proxy.Username
+proxy.Password
 
 To determine the host and port of your proxy either ask your administrator or look in your browser settings. For example in Netscape 4.72 the proxy settings can be found under the menu Preferences / Advanced / Proxies.
 
