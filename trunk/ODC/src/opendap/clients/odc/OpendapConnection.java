@@ -2,21 +2,15 @@ package opendap.clients.odc;
 
 import java.net.*;
 import java.io.*;
-import opendap.dap.parser.ParseException;
-import java.util.zip.InflaterInputStream;
 
 import java.nio.*;
 import java.nio.channels.*;
 
 import opendap.dap.ServerVersion;
-import opendap.dap.DODSException;
-import opendap.dap.DDSException;
-import opendap.dap.DASException;
 import opendap.dap.DAS;
 import opendap.dap.DDS;
 import opendap.dap.DataDDS;
 import opendap.dap.BaseTypeFactory;
-import opendap.dap.StatusUI;
 import opendap.dap.DefaultFactory;
 
 public class OpendapConnection {
@@ -79,9 +73,16 @@ public class OpendapConnection {
 		int    iRequest_Port           = url.getPort();
 		String sRequest_Query          = url.getQuery();
 		boolean zUseProxy = ConfigurationManager.getInstance().getProperty_ProxyUse();
+		boolean zUseBasicAuthentication = ConfigurationManager.getInstance().getProperty_ProxyUseBasicAuthentication();
 		String sRequestLocator;
+		String sBasicAuthentication = null;
 		if( zUseProxy ){
 			sRequestLocator = url.toString();
+			if( zUseBasicAuthentication ){
+				String sUsername = ConfigurationManager.getInstance().getProperty_ProxyUsername();
+				String sPassword = ConfigurationManager.getInstance().getProperty_ProxyPassword();
+				sBasicAuthentication = Base64.encode( sUsername + ":" + sPassword );
+			}
 		} else {
 			sRequestLocator = url.getPath() + (sRequest_Query == null ? "" : '?' + sRequest_Query);
 		}
@@ -99,6 +100,9 @@ public class OpendapConnection {
 		sRequest += "Host: " + sRequest_Host + "\r\n";
 		sRequest += "User-Agent: " + msUserAgent + "\r\n";
 		sRequest += "Accept: text/*\r\n";
+		if( zUseBasicAuthentication ){
+			sRequest += "Authorization: Basic " + sBasicAuthentication + "\r\n";
+		}
 		sRequest += "\r\n"; // blank line signals end of request
 
 		String sRequest_Print;
@@ -156,7 +160,22 @@ public class OpendapConnection {
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
-			if( !sResponseCode.equals("200") ){
+			if( sResponseCode.equals("200") ){
+				// connection opened successfully
+			} else if( sResponseCode.equals("401") ){ // password protected web site
+				sbError.append("server returned HTTP error code 401, authentication required");
+				try { socket_channel.close(); } catch( Throwable t_is ){}
+				return null;
+			} else if( sResponseCode.equals("407") ){ // authenticated proxy
+				String sAuthenticationHeader = getHeaderField(sHeader, "Proxy-Authenticate");
+				int xFirstSpace = sAuthenticationHeader.indexOf(' ');
+				String sAuthenticationScheme = (xFirstSpace < 1 ) ? sAuthenticationHeader : sAuthenticationHeader.substring(0, xFirstSpace - 1);
+				if( sAuthenticationScheme.equalsIgnoreCase("BASIC") ){
+					sbError.append( "proxy server requires Basic authenication; you need to set the Basic authorization username/password credentials (see help)" );
+				} else {
+					sbError.append( "proxy server requires a non-supported authentication scheme: " + sAuthenticationScheme );
+				}
+			} else {
 				sbError.append("server returned HTTP error code: " + Utility.sSafeSubstring(sHTTP_Response, 0, 250));
 //				System.out.println( getRemainder(socket_channel, 10000, iReadTimeout_seconds) );
 				try { socket_channel.close(); } catch( Throwable t_is ){}
