@@ -550,8 +550,9 @@ class VariableInfo {
 		return clone;
 	}
 
-	VariableInfo( BaseType bt, String sName, String sLongName, String sUserCaption, String sSliceCaption, String sUnits ){
+	VariableInfo( BaseType bt, boolean zIsReversed, String sName, String sLongName, String sUserCaption, String sSliceCaption, String sUnits ){
 		mbt = bt;
+		mzIsReversed = zIsReversed;
 		msVariableName = sName;
 	    msVariableLongName = sLongName;
 	    msVariableUserCaption = sUserCaption;
@@ -564,6 +565,7 @@ class VariableInfo {
 	String getUserCaption(){ return msVariableUserCaption; }
 	String getUnits(){ return msUnits; }
 	String getSliceCaption(){ return msSliceCaption; }
+	boolean getIsReversed(){ return this.mzIsReversed; }
 	boolean getUseIndex(){ return mzUseIndex; }
 	int getDataType(){ return meDataType; }
 	Object[] getValueEgg(){
@@ -657,6 +659,7 @@ class VariableInfo {
 		setDims( ctDimensions, lenD1, lenD2 );
 	}
 	void setUseIndex(){ mzUseIndex = true; }
+	void setIsReversed( boolean zIsReversed ){ mzIsReversed = zIsReversed; }
 	void setValues( String[] asData0, int ctDimensions, int lenD1, int lenD2 ){
 		masValues0 = asData0;
 		meDataType = DAP.DATA_TYPE_String;

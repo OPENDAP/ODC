@@ -35,7 +35,7 @@ public class Panel_Definition extends JPanel {
 	private final Panel_PlotScale mpanelScale = new Panel_PlotScale();
 	private final Panel_PlotText mpanelText = new Panel_PlotText();
 	private final PreviewPane mPreviewPane = new PreviewPane();
-	private final Panel_PlotAxes mpanelAxes = new Panel_PlotAxes();
+	// private final Panel_PlotAxes mpanelAxes = new Panel_PlotAxes();
 	private final Panel_ColorSpecification mpanelColors = new Panel_ColorSpecification(this);
 	private final Panel_Thumbnails mpanelThumbnails = new Panel_Thumbnails(this);
 
@@ -293,6 +293,8 @@ class Panel_VariableTab extends JPanel {
 		mPlottingDefinition_active = pd;
 	}
 
+	// note that when we do the data transformations here the tranform is done
+	// on a clone of the original data, not on the data itself
 	private PlottingData getNormalizedPlottingData( VariableDataset dataset, StringBuffer sbError ){
 		try {
 			if( dataset == null ){
@@ -379,7 +381,7 @@ class Panel_VariableTab extends JPanel {
 
 			// transform and set axes
 			if( dataset.getAxisX_Indexed() ){ // generate a variable info for the indexed axis
-				VariableInfo varAxis_X = new VariableInfo(null, "[x-index]", null, null, null, null);
+				VariableInfo varAxis_X = new VariableInfo(null, dataset.getReversed_x(), "[x-index]", null, null, null, null);
 				pdat.setAxis_X(varAxis_X, true);
 			} else {
 				VariableInfo varAxis_X = dataset.getAxisX();
@@ -392,7 +394,7 @@ class Panel_VariableTab extends JPanel {
 				pdat.setAxis_X(varAxis_X, false);
 			}
 			if( dataset.getAxisY_Indexed() ){
-				VariableInfo varAxis_Y = new VariableInfo(null, "[y-index]", null, null, null, null);
+				VariableInfo varAxis_Y = new VariableInfo(null, dataset.getReversed_y(), "[y-index]", null, null, null, null);
 				pdat.setAxis_Y(varAxis_Y, true);
 			} else {
 				VariableInfo varAxis_Y = dataset.getAxisY();
