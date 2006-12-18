@@ -320,7 +320,7 @@ public class Panel_View_Plot extends JPanel {
 
 	void vPlot(DodsURL urlToPlot){
 		int eOutputOption = getOutputOption();
-		vPlot(urlToPlot, eOutputOption);
+		vPlot( urlToPlot, eOutputOption );
 	}
 
 	void vPlot(DodsURL urlToPlot, int eOutput){
@@ -373,7 +373,7 @@ public class Panel_View_Plot extends JPanel {
 							for( int xSelection = 0; xSelection < ctSelections; xSelection++ ){
 								vActivateListItem(aiSelected[xSelection]);
 								Thread.yield(); // allow swing events to occur after activation
-								PlottingData pdat = Panel_View_Plot.getPanel_VariableTab().getDataset(sbError);
+								PlottingData pdat = Panel_View_Plot.getPanel_VariableTab().getDataset( sbError );
 								if( pdat == null ){
 									ApplicationController.vShowError_NoModal("Error plotting selection " + (xSelection+1) + " of " + ctSelections + ": " + sbError);
 									sbError.setLength(0);
