@@ -584,57 +584,40 @@ public class DAP {
 				}
 			}
 			int xValue = -1;
+			int xValue2 = -1;
 			int ctValues;
 			long[] anValues = null;
-			long[] anTransformedValues0 = null;
 			short[] ashValues = null;
-			short[] ashTransformedValues0 = null;
 			int[] aiValues = null;
-			int[] aiTransformedValues0 = null;
 			float[] afValues = null;
-			float[] afTransformedValues0 = null;
 			double[] adValues = null;
-			double[] adTransformedValues0 = null;
 			String[] asValues = null;
-			String[] asTransformedValues0 = null;
 			switch( eDataType ){
 				case DAP.DATA_TYPE_Byte:
 				case DAP.DATA_TYPE_Int16:
 					ashValues = (short[])eggData[0];
 					ctValues = ashValues.length;
-					if( !Utility.zMemoryCheck(ctValues, 2, sbError) ) return false;
-					ashTransformedValues0 = new short[ctValues];
 					break;
 				case DAP.DATA_TYPE_UInt16:
 				case DAP.DATA_TYPE_Int32:
 					aiValues = (int[])eggData[0];
 					ctValues = aiValues.length;
-					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return false;
-					aiTransformedValues0 = new int[ctValues];
 					break;
 				case DAP.DATA_TYPE_UInt32:
 					anValues = (long[])eggData[0];
 					ctValues = anValues.length;
-					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return false;
-					anTransformedValues0 = new long[ctValues];
 					break;
 				case DAP.DATA_TYPE_Float32:
 					afValues = (float[])eggData[0];
 					ctValues = afValues.length;
-					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return false;
-					afTransformedValues0 = new float[ctValues];
 					break;
 				case DAP.DATA_TYPE_Float64:
 					adValues = (double[])eggData[0];
 					ctValues = adValues.length;
-					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return false;
-					adTransformedValues0 = new double[ctValues];
 					break;
 				case DAP.DATA_TYPE_String:
 					asValues = (String[])eggData[0];
 					ctValues = asValues.length;
-					if( !Utility.zMemoryCheck(ctValues, 2, sbError) ) return false; // x2 for UNICODE
-					asTransformedValues0 = new String[ctValues];
 					break;
 				default:
 					sbError.append("unknown array data type: " + eDataType);
@@ -643,153 +626,195 @@ public class DAP {
 			switch( eDataType ){
 				case DAP.DATA_TYPE_Byte:
 				case DAP.DATA_TYPE_Int16:
-					if( zReverseD1 ){
-						xValue = -1;
+					if( zReverseD1 & !zReverseD2 ){
 						for( int xD2 = 1; xD2 <= lenD2; xD2++ ){
-							for( int xD1 = lenD1; xD1 >= 1; xD1-- ){
-								xValue++;
-								ashTransformedValues0[lenD1*(xD2-1) + xD1 - 1] = ashValues[xValue];
+							for( int xD1 = 1; xD1 <= lenD1 >> 1; xD1++ ){
+								xValue = (xD2 - 1) * lenD1 + xD1 - 1;
+								xValue2 = (xD2 - 1) * lenD1 + lenD1 - xD1;
+								short shValue1 = ashValues[xValue];
+								ashValues[xValue] = ashValues[xValue2];
+								ashValues[xValue2] = shValue1;
 							}
 						}
-						ashValues = ashTransformedValues0;
-//						System.arraycopy(ashTransformedValues0, 0, ashValues, 0, ctValues);
-					}
-					if( zReverseD2 ){
+					} else if( !zReverseD1 & zReverseD2 ){
 						xValue = -1;
-						for( int xD2 = lenD2; xD2 >= 1; xD2-- ){
+						for( int xD2 = 1; xD2 <= lenD2 >> 1; xD2++ ){
 							for( int xD1 = 1; xD1 <= lenD1; xD1++ ){
 								xValue++;
-								ashTransformedValues0[lenD1*(xD2-1) + xD1 - 1] = ashValues[xValue];
+								xValue2 = lenD1*(lenD2 - xD2) + xD1 - 1;
+								short shValue1 = ashValues[xValue];
+								ashValues[xValue] = ashValues[xValue2];
+								ashValues[xValue2] = shValue1;
 							}
 						}
-						ashValues = ashTransformedValues0;
-//						System.arraycopy(ashTransformedValues0, 0, ashValues, 0, ctValues);
+					} else if( zReverseD1 & zReverseD2 ){
+						for( xValue = 1; xValue <= ctValues >> 1; xValue++ ){
+							xValue2 = ctValues - xValue;
+							short shValue1 = ashValues[xValue];
+							ashValues[xValue] = ashValues[xValue2];
+							ashValues[xValue2] = shValue1;
+						}
 					}
 					eggData[0] = ashValues;
 					break;
 				case DAP.DATA_TYPE_UInt16:
 				case DAP.DATA_TYPE_Int32:
-					if( zReverseD1 ){
-						xValue = -1;
+					if( zReverseD1 & !zReverseD2 ){
 						for( int xD2 = 1; xD2 <= lenD2; xD2++ ){
-							for( int xD1 = lenD1; xD1 >= 1; xD1-- ){
-								xValue++;
-								aiTransformedValues0[lenD1*(xD2-1) + xD1 - 1] = aiValues[xValue];
+							for( int xD1 = 1; xD1 <= lenD1 >> 1; xD1++ ){
+								xValue = (xD2 - 1) * lenD1 + xD1 - 1;
+								xValue2 = (xD2 - 1) * lenD1 + lenD1 - xD1;
+								int iValue1 = aiValues[xValue];
+								aiValues[xValue] = aiValues[xValue2];
+								aiValues[xValue2] = iValue1;
 							}
 						}
-						aiValues = aiTransformedValues0;
-//						System.arraycopy(aiTransformedValues0, 0, aiValues, 0, ctValues);
-					}
-					if( zReverseD2 ){
+					} else if( !zReverseD1 & zReverseD2 ){
 						xValue = -1;
-						for( int xD2 = lenD2; xD2 >= 1; xD2-- ){
+						for( int xD2 = 1; xD2 <= lenD2 >> 1; xD2++ ){
 							for( int xD1 = 1; xD1 <= lenD1; xD1++ ){
 								xValue++;
-								aiTransformedValues0[lenD1*(xD2-1) + xD1 - 1] = aiValues[xValue];
+								xValue2 = lenD1*(lenD2 - xD2) + xD1 - 1;
+								int iValue1 = aiValues[xValue];
+								aiValues[xValue] = aiValues[xValue2];
+								aiValues[xValue2] = iValue1;
 							}
 						}
-//						System.arraycopy(aiTransformedValues0, 0, aiValues, 0, ctValues);
-						aiValues = aiTransformedValues0;
+					} else if( zReverseD1 & zReverseD2 ){
+						for( xValue = 1; xValue <= ctValues >> 1; xValue++ ){
+							xValue2 = ctValues - xValue;
+							int iValue1 = aiValues[xValue];
+							aiValues[xValue] = aiValues[xValue2];
+							aiValues[xValue2] = iValue1;
+						}
 					}
 					eggData[0] = aiValues;
 					break;
 				case DAP.DATA_TYPE_UInt32:
-					if( zReverseD1 ){
-						xValue = -1;
+					if( zReverseD1 & !zReverseD2 ){
 						for( int xD2 = 1; xD2 <= lenD2; xD2++ ){
-							for( int xD1 = lenD1; xD1 >= 1; xD1-- ){
-								xValue++;
-								anTransformedValues0[lenD1*(xD2-1) + xD1 - 1] = anValues[xValue];
+							for( int xD1 = 1; xD1 <= lenD1 >> 1; xD1++ ){
+								xValue = (xD2 - 1) * lenD1 + xD1 - 1;
+								xValue2 = (xD2 - 1) * lenD1 + lenD1 - xD1;
+								long nValue1 = anValues[xValue];
+								anValues[xValue] = anValues[xValue2];
+								anValues[xValue2] = nValue1;
 							}
 						}
-						anValues = anTransformedValues0;
-//						System.arraycopy(anTransformedValues0, 0, anValues, 0, ctValues);
-					}
-					if( zReverseD2 ){
+					} else if( !zReverseD1 & zReverseD2 ){
 						xValue = -1;
-						for( int xD2 = lenD2; xD2 >= 1; xD2-- ){
+						for( int xD2 = 1; xD2 <= lenD2 >> 1; xD2++ ){
 							for( int xD1 = 1; xD1 <= lenD1; xD1++ ){
 								xValue++;
-								anTransformedValues0[lenD1*(xD2-1) + xD1 - 1] = anValues[xValue];
+								xValue2 = lenD1*(lenD2 - xD2) + xD1 - 1;
+								long nValue1 = anValues[xValue];
+								anValues[xValue] = anValues[xValue2];
+								anValues[xValue2] = nValue1;
 							}
 						}
-						anValues = anTransformedValues0;
-//						System.arraycopy(anTransformedValues0, 0, anValues, 0, ctValues);
+					} else if( zReverseD1 & zReverseD2 ){
+						for( xValue = 1; xValue <= ctValues >> 1; xValue++ ){
+							xValue2 = ctValues - xValue;
+							long nValue1 = anValues[xValue];
+							anValues[xValue] = anValues[xValue2];
+							anValues[xValue2] = nValue1;
+						}
 					}
 					eggData[0] = anValues;
 					break;
 				case DAP.DATA_TYPE_Float32:
-					if( zReverseD1 ){
-						xValue = -1;
+					if( zReverseD1 & !zReverseD2 ){
 						for( int xD2 = 1; xD2 <= lenD2; xD2++ ){
-							for( int xD1 = lenD1; xD1 >= 1; xD1-- ){
-								xValue++;
-								afTransformedValues0[lenD1*(xD2-1) + xD1 - 1] = afValues[xValue];
+							for( int xD1 = 1; xD1 <= lenD1 >> 1; xD1++ ){
+								xValue = (xD2 - 1) * lenD1 + xD1 - 1;
+								xValue2 = (xD2 - 1) * lenD1 + lenD1 - xD1;
+								float fValue1 = afValues[xValue];
+								afValues[xValue] = afValues[xValue2];
+								afValues[xValue2] = fValue1;
 							}
 						}
-						afValues = afTransformedValues0;
-//						System.arraycopy(afTransformedValues0, 0, afValues, 0, ctValues);
-					}
-					if( zReverseD2 ){
+					} else if( !zReverseD1 & zReverseD2 ){
 						xValue = -1;
-						for( int xD2 = lenD2; xD2 >= 1; xD2-- ){
+						for( int xD2 = 1; xD2 <= lenD2 >> 1; xD2++ ){
 							for( int xD1 = 1; xD1 <= lenD1; xD1++ ){
 								xValue++;
-								afTransformedValues0[lenD1*(xD2-1) + xD1 - 1] = afValues[xValue];
+								xValue2 = lenD1*(lenD2 - xD2) + xD1 - 1;
+								float fValue1 = afValues[xValue];
+								afValues[xValue] = afValues[xValue2];
+								afValues[xValue2] = fValue1;
 							}
 						}
-						afValues = afTransformedValues0;
-//						System.arraycopy(afTransformedValues0, 0, afValues, 0, ctValues);
+					} else if( zReverseD1 & zReverseD2 ){
+						for( xValue = 1; xValue <= ctValues >> 1; xValue++ ){
+							xValue2 = ctValues - xValue;
+							float fValue1 = afValues[xValue];
+							afValues[xValue] = afValues[xValue2];
+							afValues[xValue2] = fValue1;
+						}
 					}
 					eggData[0] = afValues;
 					break;
 				case DAP.DATA_TYPE_Float64:
-					if( zReverseD1 ){
-						xValue = -1;
+					if( zReverseD1 & !zReverseD2 ){
 						for( int xD2 = 1; xD2 <= lenD2; xD2++ ){
-							for( int xD1 = lenD1; xD1 >= 1; xD1-- ){
-								xValue++;
-								adTransformedValues0[lenD1*(xD2-1) + xD1 - 1] = adValues[xValue];
+							for( int xD1 = 1; xD1 <= lenD1 >> 1; xD1++ ){
+								xValue = (xD2 - 1) * lenD1 + xD1 - 1;
+								xValue2 = (xD2 - 1) * lenD1 + lenD1 - xD1;
+								double dValue1 = adValues[xValue];
+								adValues[xValue] = adValues[xValue2];
+								adValues[xValue2] = dValue1;
 							}
 						}
-						adValues = adTransformedValues0;
-//						System.arraycopy(adTransformedValues0, 0, adValues, 0, ctValues);
-					}
-					if( zReverseD2 ){
+					} else if( !zReverseD1 & zReverseD2 ){
 						xValue = -1;
-						for( int xD2 = lenD2; xD2 >= 1; xD2-- ){
+						for( int xD2 = 1; xD2 <= lenD2 >> 1; xD2++ ){
 							for( int xD1 = 1; xD1 <= lenD1; xD1++ ){
 								xValue++;
-								adTransformedValues0[lenD1*(xD2-1) + xD1 - 1] = adValues[xValue];
+								xValue2 = lenD1*(lenD2 - xD2) + xD1 - 1;
+								double dValue1 = adValues[xValue];
+								adValues[xValue] = adValues[xValue2];
+								adValues[xValue2] = dValue1;
 							}
 						}
-						adValues = adTransformedValues0;
-//						System.arraycopy(adTransformedValues0, 0, adValues, 0, ctValues);
+					} else if( zReverseD1 & zReverseD2 ){
+						for( xValue = 1; xValue <= ctValues >> 1; xValue++ ){
+							xValue2 = ctValues - xValue;
+							double dValue1 = adValues[xValue];
+							adValues[xValue] = adValues[xValue2];
+							adValues[xValue2] = dValue1;
+						}
 					}
 					eggData[0] = adValues;
 					break;
-				case DAP.DATA_TYPE_String: // todo need to copy strings
-					if( zReverseD1 ){
-						xValue = -1;
+				case DAP.DATA_TYPE_String:
+					if( zReverseD1 & !zReverseD2 ){
 						for( int xD2 = 1; xD2 <= lenD2; xD2++ ){
-							for( int xD1 = lenD1; xD1 >= 1; xD1-- ){
-								xValue++;
-								asTransformedValues0[lenD1*(xD2-1) + xD1 - 1] = asValues[xValue];
+							for( int xD1 = 1; xD1 <= lenD1 >> 1; xD1++ ){
+								xValue = (xD2 - 1) * lenD1 + xD1 - 1;
+								xValue2 = (xD2 - 1) * lenD1 + lenD1 - xD1;
+								String sValue1 = asValues[xValue];
+								asValues[xValue] = asValues[xValue2];
+								asValues[xValue2] = sValue1;
 							}
 						}
-						asValues = asTransformedValues0;
-//						System.arraycopy(asTransformedValues0, 0, asValues, 0, ctValues);
-					}
-					if( zReverseD2 ){
+					} else if( !zReverseD1 & zReverseD2 ){
 						xValue = -1;
-						for( int xD2 = lenD2; xD2 >= 1; xD2-- ){
+						for( int xD2 = 1; xD2 <= lenD2 >> 1; xD2++ ){
 							for( int xD1 = 1; xD1 <= lenD1; xD1++ ){
 								xValue++;
-								asTransformedValues0[lenD1*(xD2-1) + xD1 - 1] = asValues[xValue];
+								xValue2 = lenD1*(lenD2 - xD2) + xD1 - 1;
+								String sValue1 = asValues[xValue];
+								asValues[xValue] = asValues[xValue2];
+								asValues[xValue2] = sValue1;
 							}
 						}
-						asValues = asTransformedValues0;
-//						System.arraycopy(asTransformedValues0, 0, asValues, 0, ctValues);
+					} else if( zReverseD1 & zReverseD2 ){
+						for( xValue = 1; xValue <= ctValues >> 1; xValue++ ){
+							xValue2 = ctValues - xValue;
+							String sValue1 = asValues[xValue];
+							asValues[xValue] = asValues[xValue2];
+							asValues[xValue2] = sValue1;
+						}
 					}
 					eggData[0] = asValues;
 					break;
