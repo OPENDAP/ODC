@@ -6,7 +6,7 @@ package opendap.clients.odc.plot;
  * Copyright:    Copyright (c) 2002-4
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.49
+ * @version      2.60
  */
 
 import opendap.clients.odc.ApplicationController;
@@ -21,7 +21,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.print.*;
 import javax.swing.*;
 
-abstract class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotionListener {
+abstract class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotionListener, Scrollable {
 
 	public final static boolean DEBUG_Layout = false;
 
@@ -139,10 +139,10 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 
 	// this is needed to tell any container how big the panel wants to be
 	// the preferred values should be set whenever an image is generated (see vGenerateImage)
-	int mpxPreferredWidth = 250;
-	int mpxPreferredHeight = 250;
+	protected int mpxPreferredWidth = 250;
+	protected int mpxPreferredHeight = 250;
     public Dimension getPreferredSize() {
-		return new Dimension(mpxPreferredWidth, mpxPreferredHeight);
+		return new Dimension( mpxPreferredWidth, mpxPreferredHeight );
     }
 
 	BufferedImage getImage(){ return mbi; }
@@ -259,6 +259,8 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			}
 
 			g2.setClip(pxPlotLeft, pxPlotTop, pxPlotWidth, pxPlotHeight);
+			mpxPreferredWidth = pxCanvasWidth;
+			mpxPreferredHeight = pxCanvasHeight;
 			vGenerateImage(pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
 			g2.setClip(0, 0, pxCanvasWidth, pxCanvasHeight);
 			 // todo regularize histograms
@@ -1314,6 +1316,27 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	public void mouseEntered(MouseEvent evt) { }
 	public void mouseExited(MouseEvent evt) { }
 	public void mouseClicked(MouseEvent evt){ }
+
+	// Scrollable interface
+	public Dimension getPreferredScrollableViewportSize(){
+		return getPreferredSize();
+	}
+
+	// Components that display logical rows or columns should compute the scroll increment that will completely expose one block of rows or columns, depending on the value of orientation.
+	public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction){
+		return 1;
+	}
+
+	// Return true if a viewport should always force the height of this Scrollable to match the height of the viewport.
+	public boolean getScrollableTracksViewportHeight(){ return false; }
+
+	// Return true if a viewport should always force the width of this Scrollable to match the width of the viewport.
+	public boolean getScrollableTracksViewportWidth(){ return false; }
+
+	// Components that display logical rows or columns should compute the scroll increment that will completely expose one new row or column, depending on the value of orientation.
+	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction){
+		return 1;
+	}
 
 
 }
