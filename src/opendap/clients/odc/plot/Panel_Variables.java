@@ -945,6 +945,7 @@ class VSelector_Plot_Schematic extends JPanel {
 								VariableSpecification vs = axisX.getVariableSpecification();
 								VariableInfo infoAxisX = new VariableInfo();
 								if( zCreateVariable_Axis(infoAxisX, btX, lenX, lenX, lenY, sbError) ){
+									infoAxisX.setIsReversed( mvarpanelXAxis.zReversed() );
 									infoAxisX.setName( vs.getName() );
 									infoAxisX.setLongName( vs.getAttribute_LongName() );
 									infoAxisX.setUserCaption( null );
@@ -986,6 +987,7 @@ class VSelector_Plot_Schematic extends JPanel {
 								VariableSpecification vs = axisY.getVariableSpecification();
 								VariableInfo infoAxisY = new VariableInfo();
 								if( zCreateVariable_Axis(infoAxisY, btY, lenY, lenX, lenY, sbError) ){
+									infoAxisY.setIsReversed( mvarpanelYAxis.zReversed() );
 									infoAxisY.setName( vs.getName() );
 									infoAxisY.setLongName( vs.getAttribute_LongName() );
 									infoAxisY.setUserCaption( null );
@@ -1857,30 +1859,35 @@ class VSelector_Plot_Axis extends JPanel {
 		if( axis == null ){
 			return;
 		}
-	    BaseType bt;
-		StringBuffer sbInfo = new StringBuffer(80);
 		switch( axis.getMODE() ){
 			default:
 			case AxisSpecification.MODE_None:
 				jtaInfo.setText("");
-	    		return;
+	    		break;
 			case AxisSpecification.MODE_Indexed:
 				jtaInfo.setText("");
-	    		return;
+	    		break;
 			case AxisSpecification.MODE_Vector:
-				VariableSpecification vs = axis.getVariableSpecification();
-				ArrayTable at = vs.getArrayTable(sbInfo);
-				if( at == null ){
-					jtaInfo.setText("Error constructing flat data: " + sbInfo);
-					return;
-				}
-				bt = at.bt;
-				String sName = vs.getAttribute_LongName();
-				String sUnits = vs.getAttribute_Units();
-				jtaInfo.setText(sName + (sUnits == null ? "" : " (" + sUnits + ")"));
+				jtaInfo.setText( getAxisInfo(axis) );
+				break;
 		}
+		myParent.vUpdateModels();
+	}
+
+	String getAxisInfo( AxisSpecification axis ){
+		StringBuffer sbInfo = new StringBuffer(80);
+	    BaseType bt;
+		VariableSpecification vs = axis.getVariableSpecification();
+		ArrayTable at = vs.getArrayTable(sbInfo);
+		if( at == null ){
+			return "Error constructing flat data: " + sbInfo;
+		}
+		bt = at.bt;
 		mLastBaseType = bt;
-		if(bt instanceof DArray) { // normal case
+		String sName = vs.getAttribute_LongName();
+		String sUnits = vs.getAttribute_Units();
+		sbInfo.append(sName + (sUnits == null ? "" : " (" + sUnits + ")"));
+		if( bt instanceof DArray ) { // normal case
 			try {
 				DArray array = (DArray)bt;
 				String sType = DAP.getDArrayType_String(array);
@@ -1924,9 +1931,10 @@ class VSelector_Plot_Axis extends JPanel {
 				sbInfo.append("from ").append(sValueFrom).append(" to ").append(sValueTo);
 				sbInfo.append("\nincrement: ").append(sIncrement);
 			} catch(Exception ex) { sbInfo.append("[error]"); }
-			jtaInfo.setText(sbInfo.toString());
 		}
+		return sbInfo.toString();
 	}
+
 	StringBuffer sbError = new StringBuffer(80);
 	AxisSpecification getAxisSpecification(){
 		if( jcbMapVector == null ) return null;

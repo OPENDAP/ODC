@@ -616,11 +616,11 @@ class Model_Variable {
 				case DAP.DATA_TYPE_UInt32:
 
 					// convert from column-major to row-major and to long
-					aiValues = (int[])oValues;
+					anValues = (long[])oValues;
 					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return null;
 					long[] anTransformedValues0 = new long[ctValues];
 					for( xValue = 1; xValue <= ctValues; xValue++ ){
-						anTransformedValues0[axMappingCM2RM_transform[xValue]] = (long)((long)aiValues[axMappingCM2RM_base[xValue]] & 0xFFFFFFFF);
+						anTransformedValues0[axMappingCM2RM_transform[xValue]] = (long)(anValues[axMappingCM2RM_base[xValue]] & 0xFFFFFFFF);
 					}
 					infoValues.setValues(anTransformedValues0, ctTransformedDimensions, lenX, lenY);
 					break;
