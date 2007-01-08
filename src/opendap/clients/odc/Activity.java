@@ -112,7 +112,7 @@ public class Activity extends Thread {
 		*/
 //		dialogActivity.setMaximumSize( new Dimension( iDialogWidth, iDialogHeight) );
 //		dialogActivity.setLocation( 200, 200 );
-		jtaMessage.setText( sText );
+		jtaMessage.setText( Utility.sLineBreak( sText, 120, "\n" ) );
 	}
 
 	public Activity(){
@@ -195,9 +195,10 @@ public class Activity extends Thread {
 										vCancelActivity();
 									}
 								 };
-							dialogActivity.setLocationRelativeTo(ApplicationController.getInstance().getAppFrame());
-							dialogActivity.pack();
+							// dialogActivity.setLocationRelativeTo(ApplicationController.getInstance().getAppFrame());
 							dialogActivity.setVisible(true);
+							Utility.vCenterWindow( dialogActivity );
+							dialogActivity.pack();
 							// jpanelGlassPane.setVisible(true);
 						}
 					}

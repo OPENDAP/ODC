@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-2004
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.59
+ * @version      2.60
  */
 
 import java.io.*;
@@ -1527,6 +1527,31 @@ ScanForStartOfMatch:
 		if( mClipboardOwner == null ) mClipboardOwner = new Java2Clipboard();
 		mClipboardOwner.vCopy( sText );
 	}
+
+	final public static String sLineBreak( String sInput, int ctChars, String sBreakChars ){
+		int lenInput = sInput.length();
+		StringBuffer sb = new StringBuffer( lenInput + lenInput/ctChars + 1);
+		int xLine = 1;
+		while( true ){
+			if( xLine * ctChars  > lenInput ) break;
+			sb.append( sInput.substring( (xLine-1) * ctChars, xLine * ctChars - 1) );
+			sb.append( sBreakChars );
+			xLine++;
+		}
+		sb.append( sInput.substring((xLine-1) * ctChars) );
+		return sb.toString();
+	}
+
+	public static void vCenterWindow( java.awt.Window w ) {
+
+		java.awt.Rectangle rectWindow = w.getBounds();
+        java.awt.Toolkit toolkit = w.getToolkit();
+        java.awt.Dimension dimensionScreen = toolkit.getScreenSize();
+        w.setLocation(
+            (dimensionScreen.width - rectWindow.width)/2,
+            (dimensionScreen.height - rectWindow.height)/2 );
+
+    }
 }
 
 class Java2Clipboard implements java.awt.datatransfer.ClipboardOwner {
