@@ -18,13 +18,13 @@
 
 	<path id="compile.classpath">
 		<fileset dir="${lib.dir}">
-			<include name="jdom-b9.jar"/>
+			<include name="${jdom.lib}"/>
 			<include name="activation.jar"/>
 			<include name="mail.jar"/>
 			<include name="imap.jar"/>
 			<include name="mailapi.jar"/>
 			<include name="pop3.jar"/>
-			<include name="opendap-0.0.0.jar"/>
+			<include name="${opendap.lib}"/>
 			<include name="gnu-regexp-1.1.4.jar"/>
 		</fileset>
 	</path>
@@ -119,13 +119,13 @@
 
         <!-- Copy the libraries that ODC relies on... -->
 
-		<copy file="${lib.dir}/jdom-b9.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/jdom-b9.jar"/>
+		<copy file="${lib.dir}/${jdom.lib}"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/${jdom.lib}"/>
 		<copy file="${lib.dir}/activation.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/activation.jar" />
 		<copy file="${lib.dir}/mail.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/mail.jar" />
 		<copy file="${lib.dir}/imap.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/imap.jar" />
 		<copy file="${lib.dir}/mailapi.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/mailapi.jar" />
 		<copy file="${lib.dir}/pop3.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/pop3.jar" />
-		<copy file="${lib.dir}/opendap-0.0.0.jar"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/opendap-0.0.0.jar" />
+		<copy file="${lib.dir}/${opendap.lib}"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/${opendap.lib}" />
 
 		<mkdir dir="${dist.dir}/ODC-${DSTAMP}/doc"/>
 		<copy todir="${dist.dir}/ODC-${DSTAMP}/doc" >
