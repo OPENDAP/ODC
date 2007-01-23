@@ -64,8 +64,8 @@ public class GranuleSearchPanel extends JSplitPane implements MouseListener {
 			xml = new File(xmlFile);
 
 		    // convert a file to a JDOM Document
-			DOMBuilder domBuilder = new DOMBuilder(false);
-			outXMLDoc = domBuilder.build(xml);
+			org.jdom.input.SAXBuilder saxBuilder = new org.jdom.input.SAXBuilder();
+			outXMLDoc = saxBuilder.build(xml);
 
 		    //get the desired valids
 			Element root = outXMLDoc.getRootElement();
@@ -147,8 +147,8 @@ public class GranuleSearchPanel extends JSplitPane implements MouseListener {
 			xml = new File(xmlFile);
 
 		    // convert a file to a JDOM Document
-			DOMBuilder domBuilder = new DOMBuilder(false);
-			outXMLDoc = domBuilder.build(xml);
+			org.jdom.input.SAXBuilder saxBuilder = new org.jdom.input.SAXBuilder();
+			outXMLDoc = saxBuilder.build(xml);
 
 		    //get the desired valids
 			Element root = outXMLDoc.getRootElement();
@@ -198,8 +198,8 @@ public class GranuleSearchPanel extends JSplitPane implements MouseListener {
 				writer.close();
 
 				//convert file to document
-				DOMBuilder domBuilder = new DOMBuilder(false);
-				Document result =  domBuilder.build(temp);
+				org.jdom.input.SAXBuilder saxBuilder = new org.jdom.input.SAXBuilder();
+				Document result =  saxBuilder.build(temp);
 
 				//temp.delete();
 

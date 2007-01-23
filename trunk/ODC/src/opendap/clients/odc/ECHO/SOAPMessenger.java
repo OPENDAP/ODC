@@ -41,8 +41,8 @@ import opendap.clients.odc.*;
 
 			 //convert the response to a Document object
 			 ByteArrayInputStream inputStream = new ByteArrayInputStream(response.getBytes());
-			 DOMBuilder domBuilder = new DOMBuilder(false);
-			 outXMLDoc = domBuilder.build(inputStream);
+			 org.jdom.input.SAXBuilder saxBuilder = new org.jdom.input.SAXBuilder();
+			 outXMLDoc = saxBuilder.build(inputStream);
 //		 } catch(java.net.MalformedURLException ex){
 //			 opendap.clients.odc.ApplicationController.vShowError("Bad URL: " + ex.getMessage());
 //		 } catch(EchoSOAPException ex){
