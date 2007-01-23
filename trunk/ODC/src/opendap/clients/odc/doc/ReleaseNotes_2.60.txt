@@ -1,0 +1,16 @@
+ODC 2.60
+22 January 2007
+
+Release Notes
+
+Bug and Behavior Fixes and Upgrades
+
+- new Java-OPeNDAP jar and JDOM jar
+- fixed problem with GCMD being cancelled in mid-operation (#744)
+- help file has been upgraded with more up-to-date information
+- problem with axes in plotter fixed
+
+Enhancements
+
+- the size of the window is remembered and restored on subsequent uses of the program (#748)
+
