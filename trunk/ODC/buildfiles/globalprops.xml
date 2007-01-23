@@ -1,20 +1,6 @@
-<!-- Global Properties for Java-OPeNDAP software development -->
+<!-- Global Properties for OPeNDAP Data Connector development -->
 
 
-<!-- ********************************************* -->
-<!-- Project-wide settings. All directories are    -->
-<!-- relative to the project "Basedir" directory,  -->
-<!-- which is assumed (by this file) to be set to  -->
-<!-- ".."                                          -->
-<!-- - - - - - - - - - - - - - - - - - - - - - - - -->
-
-<!-- Version Tag: Used for doing distribution builds.
-     This property should be set from the command
-     line by the distribution build script using
-     tag information from CVS.
--->
-<property name="VERSION" value="Not.A.Release"/>
-<property name="CVSTag" value="$Name:  $"/>
 
 
 <!-- Compiler Settings -->
@@ -68,63 +54,5 @@ http://ant.apache.org/manual/sysclasspath.html
 <property name="build.sysclasspath" value="ignore"/>
 
 
-
-<!-- Project directories -->
-<property name="src.dir" location="src"/>
-<property name="doc.dir" location="doc"/>
-<property name="lib.dir" location="lib"/>
-<property name="bin.dir" location="bin"/>
-<property name="dist.dir" location="dist"/>
-<property name="test.dir" location="testsuites"/>
-<property name="schema.dir" location="schema"/>
-<property name="buildfiles.dir" location="buildfiles"/>
-
-<property name="build.dir" location="build"/>
-<property name="build.classes" location="${build.dir}/classes"/>
-<property name="build.IPSClient" location="${build.dir}/IPSClient"/>
-<property name="build.doc" location="${build.dir}/doc"/>
-<property name="build.lib" location="${build.dir}/lib"/>
-<property name="build.webapps" location="${build.dir}/webapps"/>
-<property name="build.dist" location="${build.dir}/dist"/>
-
-
-
-
-<!-- Properties for web deployment -->
-<property name="webapp.name" value="opendap"/>
-<property name="webapp.path" value="/${webapp.name}"/>
-<property name="webapp.war.url" value="file://${build.webapps}/${webapp.name}.war"/>
-
-
-
-<!-- Libraries -->
-<property name="regexp.lib" value="gnu-regexp-1.1.4.jar"/>
-<property name="getopt.lib" value="gnu-getopt-1.0.6.jar"/>
-<property name="jdom.lib" value="jdom-b9.jar"/>
-<property name="servlet.lib" value="tomcat-4.1.18-servlet.jar"/>
-<property name="soap.lib" value="apache-soap-2.3.1.jar"/>
-<property name="xercesImpl.lib" value="xerces-2.5.0_xercesImpl.jar"/>
-<property name="xercesXmlApis.lib" value="xerces-2.5.0_xml-apis.jar"/>
-<property name="crimson.lib" value="crimson-1.1.3.jar"/>
-<property name="javamail.lib" value="javamail-1.3.1.jar"/>
-<property name="opendap.lib" value="opendap-0.0.0.jar"/>
-
-
-
-
-
-
-<!-- Catalina.config:
-
-    Jakarta-Tomcat (aka Catalina) properties file. This file must contain
-    the three ANT properties used to access Catalina's manager application.
-    They are: the URL of the interface, username, and password.
-    For example:
-    Catalina.url=http://localhost:8080/manager
-    Catalina.username=admin
-    Catalina.password=somethingsecret
-
--->
-<property name="Catalina.config" location="${buildfiles.dir}/catalina-config"/>
 
 
