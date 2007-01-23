@@ -22,10 +22,12 @@ public class XMLToJDom {
 
 		//String XMLMessage = myXMLOutputter.outputString(xmlDoc);
 		try {
-			DOMBuilder domBuilder = new DOMBuilder(false);
-			outXMLDoc = domBuilder.build(xmlFile);
+			org.jdom.input.SAXBuilder saxBuilder = new org.jdom.input.SAXBuilder();
+			outXMLDoc = saxBuilder.build(xmlFile);
 		} catch(JDOMException ex){
 			opendap.clients.odc.ApplicationController.vShowError("XMLToJDOM XML file conversion to Document failed: " + ex.getMessage());
+		} catch( java.io.IOException ioex ) {
+			opendap.clients.odc.ApplicationController.vShowError("XMLToJDOM XML file conversion to Document had an IO failure: " + ioex.getMessage());
 		}
 		return outXMLDoc;
 	}

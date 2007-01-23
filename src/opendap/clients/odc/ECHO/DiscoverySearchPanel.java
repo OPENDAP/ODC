@@ -68,9 +68,10 @@ public class DiscoverySearchPanel extends JSplitPane implements MouseListener {
 		// create a file object
 		try {
 			xml = new File(xmlFile);
+
 			// convert a file to a JDOM Document
-			DOMBuilder domBuilder = new DOMBuilder(false);
-			outXMLDoc = domBuilder.build(xml);
+			org.jdom.input.SAXBuilder saxBuilder = new org.jdom.input.SAXBuilder();
+			outXMLDoc = saxBuilder.build(xml);
 
 			//get the desired valids
 			Element root = outXMLDoc.getRootElement();

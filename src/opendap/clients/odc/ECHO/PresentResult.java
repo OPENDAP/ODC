@@ -98,8 +98,8 @@ public class PresentResult
 		    writer.close();
 
 		    //convert file to document
-		    DOMBuilder domBuilder = new DOMBuilder(false);
-		    Document result =  domBuilder.build(temp);
+			org.jdom.input.SAXBuilder saxBuilder = new org.jdom.input.SAXBuilder();
+		    Document result =  saxBuilder.build(temp);
 
 		    //temp.delete();
 
