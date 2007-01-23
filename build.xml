@@ -1,11 +1,39 @@
 <?xml version="1.0"?>
 
+<!--
+/////////////////////////////////////////////////////////////////////////////
+// This file is part of the OPeNDAP Data Connector project.
+//
+// Copyright (c) 2007 OPeNDAP, Inc.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
+/////////////////////////////////////////////////////////////////////////////
+-->
+
+        
+<!-- Build file for OPeNDAP Data Connector (ODC) software -->
+
+
+
+
 <!DOCTYPE project [
     <!ENTITY globalprops   SYSTEM "file:./buildfiles/globalprops.xml">
-    <!ENTITY globaltargets SYSTEM "file:./buildfiles/globaltargets.xml">
 ]>
 
-<!-- Build file for OPeNDAP Data Connector (ODC) software -->
 
 
 <project name="OPeNDAP Data Connector" default="all" basedir=".">
@@ -20,38 +48,69 @@
     <property name="bin.dir"         location="bin"/>
     <property name="dist.dir"        location="dist"/>
     <property name="buildfiles.dir"  location="buildfiles"/>
-    
-    
+
+
     <!-- Build Directories -->
     <property name="build.dir"       location="build"/>
     <property name="build.lib"       location="${build.dir}/lib"/>
     <property name="build.classes"   location="${build.dir}/classes"/>
     <property name="build.IPSClient" location="${build.dir}/IPSClient"/>
     <property name="build.doc"       location="${build.dir}/doc"/>
-    
-    
 
-    <!-- Libraries 
-       - 
-       - This section creates properties (aliases) for the names of all the 
-       - libraries. This simnplifies the process of updating software 
+
+
+    <!-- Ancillary Libraries
+       -
+       - This section creates properties (aliases) for the names of all the
+       - libraries. This simnplifies the process of updating software
        - dependancies - always use the property name elswhere in the build
        - file and you only ever have to change this instance of the actual
-       - jar file name. 
-       - 
+       - jar file name.
+       -
        - Add new properties for each new library that you add to the project.
       -->
-    <property name="mail.lib"                value="javamail-1.4_mail.jar"/>
-    <property name="mailapi.lib"             value="javamail-1.4_mailapi.jar"/>
-    <property name="jaf.lib"                 value="jaf-1.1_activation.jar"/>
+    <property name="mail.lib"           value="javamail-1.4_mail.jar"/>
+    <property name="mailapi.lib"        value="javamail-1.4_mailapi.jar"/>
+    <property name="jaf.lib"            value="jaf-1.1_activation.jar"/>
 
-    <!-- Java-OPeNDAP and required ancillary libraries  -->
-    <property name="regexp.lib"              value="gnu-regexp-1.1.4.jar"/>
-    <property name="jdom.lib"                value="jdom-b9.jar"/>
-    <property name="opendap.lib"             value="opendap-0.0.0.jar"/>
 
-    
 
+
+    <!--
+      - Java-OPeNDAP and required ancillary libraries
+      -
+      -
+      - opendap.lib - The Java-OPeNDAP DAP library.
+      -
+      - regexp.lib        - The Gnu regular expression library. Used by Server
+      -                     classes to handle regex in constraint expressions.
+      -
+      - getopt.lib        - The Gnu getopt library. Used by some of the test
+      -                     programs. Required only if test programs are called.
+      -
+      - jdom.lib          - The JDOM version/implmentation of XML DOM. Used to
+      -                     handle DDX parsing in both client and server DAP.
+      -
+      - xercesImpl.lib    - Xerces 2 implmentation. Used to handle DDX parsing
+      -                     in both client and server DAP.
+      -
+      - xercesXmlApis.lib - Xerces 2 XML API implmentation. Used to handle DDX
+      -                     parsing in both client and server DAP.
+      -
+      -
+      -->
+    <property name="opendap.lib"        value="opendap-0.0.0.jar"/>
+
+    <property name="regexp.lib"         value="gnu-regexp-1.1.4.jar"/>
+    <property name="getopt.lib"         value="gnu-getopt-1.0.6.jar"/>
+    <property name="jdom.lib"           value="jdom-b9.jar"/>
+    <property name="xercesImpl.lib"     value="xercesImpl-2.9.0.jar"/>
+    <property name="xercesXmlApis.lib"  value="xml-apis-2.9.0.jar"/>
+
+
+
+
+    <!-- Defalut target compiles code from scratch -->
     <target name="all" depends="clean,init,compile" />
 
 
@@ -88,13 +147,12 @@
 	</path>
 
 
+    <!-- Compiles ODC source code files -->
     <target name="compile" depends="init">
 
         <echo message="AntFile: ${ant.file} Compiling Core Software"/>
         <echo message="Using the ${build.compiler} javac compiler"/>
         <echo message=""/>
-
-
 
         <echo message=""/>
         <echo message="AntFile: ${ant.file} Compiling ODC"/>
@@ -108,7 +166,7 @@
             compiler="${build.compiler}"
             deprecation="${compile.deprecation}"
             >
-            
+
             <include name="opendap/clients/odc/**/*.java"/>
             <exclude name="dods/clients/importwizard/IPSClient/**"/>
             <classpath refid="compile.classpath" />
@@ -133,6 +191,8 @@
 
     </target>
 
+
+    <!-- Builds ODC Software distribution -->
 	<target name="dist-java" depends="clean,compile">
 		<copy todir="${build.classes}/opendap/clients/odc/icons">
 			<fileset dir="${src.dir}/opendap/clients/odc/icons"></fileset>
