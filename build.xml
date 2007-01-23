@@ -1,0 +1,242 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [
+    <!ENTITY globalprops   SYSTEM "file:./buildfiles/globalprops.xml">
+    <!ENTITY globaltargets SYSTEM "file:./buildfiles/globaltargets.xml">
+]>
+
+<!-- Build file for OPeNDAP Data Connector (ODC) software -->
+
+
+<project name="OPeNDAP Data Connector" default="all" basedir=".">
+
+    <!-- Global Properties -->
+    &globalprops;
+
+    <!-- Project directories -->
+    <property name="src.dir"         location="src"/>
+    <property name="doc.dir"         location="doc"/>
+    <property name="lib.dir"         location="lib"/>
+    <property name="bin.dir"         location="bin"/>
+    <property name="dist.dir"        location="dist"/>
+    <property name="buildfiles.dir"  location="buildfiles"/>
+    
+    
+    <!-- Build Directories -->
+    <property name="build.dir"       location="build"/>
+    <property name="build.lib"       location="${build.dir}/lib"/>
+    <property name="build.classes"   location="${build.dir}/classes"/>
+    <property name="build.IPSClient" location="${build.dir}/IPSClient"/>
+    <property name="build.doc"       location="${build.dir}/doc"/>
+    
+    
+
+    <!-- Libraries 
+       - 
+       - This section creates properties (aliases) for the names of all the 
+       - libraries. This simnplifies the process of updating software 
+       - dependancies - always use the property name elswhere in the build
+       - file and you only ever have to change this instance of the actual
+       - jar file name. 
+       - 
+       - Add new properties for each new library that you add to the project.
+      -->
+    <property name="javamail.lib"            value="javamail-1.4.jar"/>
+    <property name="javamail-mailapi.lib"    value="javamail-1.4-mailapi.jar"/>
+    <property name="jaf.lib"                 value="jaf-1.1-activation.jar"/>
+
+    <!-- Java-OPeNDAP and required ancillary libraries  -->
+    <property name="regexp.lib"              value="gnu-regexp-1.1.4.jar"/>
+    <property name="jdom.lib"                value="jdom-b9.jar"/>
+    <property name="opendap.lib"             value="opendap-0.0.0.jar"/>
+
+    
+
+    <target name="all" depends="clean,init,compile" />
+
+
+    <!-- Target "clean" cleans up ALL build products -->
+    <target name="clean" description="Clean up ALL build products.">
+        <delete dir="${build.dir}"/>
+    </target>
+
+
+
+    <!-- Target "init" prepares (creates if neccessary) the build dircteory tree. -->
+    <target name="init" description="Prepare all build directories.">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${build.lib}"/>
+        <mkdir dir="${build.classes}"/>
+        <mkdir dir="${build.IPSClient}"/>
+        <mkdir dir="${build.doc}"/>
+
+        <tstamp/>
+        <echo level="info" message="time: ${TSTAMP}"/>
+    </target>
+
+
+    <!-- Defines CLASSPATH for the compile. Explicitly calls out each library required to build. -->
+	<path id="compile.classpath">
+		<fileset dir="${lib.dir}">
+			<include name="${jdom.lib}"/>
+			<include name="${jaf.lib}"/>
+			<include name="${javamail.lib}"/>
+			<include name="${javamail-mailapi.lib}"/>
+			<include name="${opendap.lib}"/>
+			<include name="${regexp.lib}"/>
+		</fileset>
+	</path>
+
+
+    <target name="compile" depends="init">
+
+        <echo message="AntFile: ${ant.file} Compiling Core Software"/>
+        <echo message="Using the ${build.compiler} javac compiler"/>
+        <echo message=""/>
+
+
+
+        <echo message=""/>
+        <echo message="AntFile: ${ant.file} Compiling ODC"/>
+        <echo message=""/>
+
+        <javac
+            debug="${compile.debug}"
+            debuglevel="${compile.debuglevel}"
+            srcdir="${src.dir}"
+            destdir="${build.classes}"
+            compiler="${build.compiler}"
+            deprecation="${compile.deprecation}"
+            >
+            
+            <include name="opendap/clients/odc/**/*.java"/>
+            <exclude name="dods/clients/importwizard/IPSClient/**"/>
+            <classpath refid="compile.classpath" />
+        </javac>
+
+        <echo message=""/>
+        <echo message="AntFile: ${ant.file} Compiling Tools"/>
+        <echo message=""/>
+
+        <javac
+            debug="${compile.debug}"
+            debuglevel="${compile.debuglevel}"
+            srcdir="${src.dir}"
+            destdir="${build.IPSClient}"
+            compiler="${build.compiler}"
+            deprecation="${compile.deprecation}"
+        >
+            <include name="opendap/clients/odc/IPSClient/*.java"/>
+            <classpath refid="compile.classpath" />
+        </javac>
+
+
+    </target>
+
+	<target name="dist-java" depends="clean,compile">
+		<copy todir="${build.classes}/opendap/clients/odc/icons">
+			<fileset dir="${src.dir}/opendap/clients/odc/icons"></fileset>
+		</copy>
+		<copy todir="${build.classes}/opendap/clients/odc/images">
+			<fileset dir="${src.dir}/opendap/clients/odc/images"></fileset>
+		</copy>
+		<copy todir="${build.classes}/tmap_30/images">
+			<fileset dir="${src.dir}/tmap_30/images"></fileset>
+		</copy>
+		<copy todir="${build.classes}/opendap/clients/odc/doc">
+			<fileset dir="${src.dir}/opendap/clients/odc/doc">
+				<include name="odc-help.txt"/>
+			</fileset>
+		</copy>
+		<copy todir="${build.classes}/opendap/clients/odc/coastline">
+			<fileset dir="${src.dir}/opendap/clients/odc/coastline">
+				<include name="gshhs_c.b"/>
+			</fileset>
+		</copy>
+        <mkdir dir="${dist.dir}"/>
+		<delete dir="${dist.dir}/ODC-${DSTAMP}"/>
+		<waitfor maxwait="5" maxwaitunit="second">
+			<not>
+				<available file="${dist.dir}/ODC-${DSTAMP}/jre/bin/client/jvm.dll"/>
+			</not>
+		</waitfor>
+		<mkdir dir="${dist.dir}/ODC-${DSTAMP}"/>
+		<mkdir dir="${dist.dir}/ODC-${DSTAMP}/tools"/>
+		<jar jarfile="${dist.dir}/ODC-${DSTAMP}/odc.jar" basedir="${build.classes}"/>
+		<jar jarfile="${dist.dir}/ODC-${DSTAMP}/tools/IPSClient.jar" basedir="${build.IPSClient}"/>
+		<copy todir="${dist.dir}/ODC-${DSTAMP}" >
+			<fileset dir="${src.dir}/opendap/clients/odc">
+				<include name="gazetteer.txt"/>
+			</fileset>
+			<fileset dir="../xml/datasets">
+				<include name="datasets.xml"/>
+			</fileset>
+		</copy>
+
+
+        <!-- Copy the libraries that ODC relies on... -->
+
+		<copy file="${lib.dir}/${jdom.lib}"              tofile="${dist.dir}/ODC-${DSTAMP}/lib/${jdom.lib}"/>
+		<copy file="${lib.dir}/${jaf.lib}"               tofile="${dist.dir}/ODC-${DSTAMP}/lib/${jaf.lib}" />
+		<copy file="${lib.dir}/${javamail.lib}"          tofile="${dist.dir}/ODC-${DSTAMP}/lib/${javamail.lib}" />
+		<copy file="${lib.dir}/${javamail-mailapi.lib}"  tofile="${dist.dir}/ODC-${DSTAMP}/lib/${javamail-mailapi.lib}" />
+		<copy file="${lib.dir}/${opendap.lib}"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/${opendap.lib}" />
+
+		<mkdir dir="${dist.dir}/ODC-${DSTAMP}/doc"/>
+		<copy todir="${dist.dir}/ODC-${DSTAMP}/doc" >
+			<fileset dir="${src.dir}/opendap/clients/odc/doc" >
+				<include name="odc-help.txt"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="dist-windows" depends="dist-java">
+		<copy todir="${dist.dir}/ODC-${DSTAMP}" >
+			<fileset dir="${basedir}/launcher" >
+				<include name="ODC.exe"/>
+				<include name="startup.ini"/>
+			</fileset>
+			<fileset dir="${src.dir}/opendap/clients/odc/doc" >
+				<include name="install-windows.txt"/>
+			</fileset>
+		</copy>
+		<copy todir="${dist.dir}/ODC-${DSTAMP}/tools" >
+			<fileset dir="${src.dir}/opendap/clients/excel">
+				<include name="OPeNDAP.xla"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="dist-unix" depends="dist-java">
+		<copy todir="${dist.dir}/ODC-${DSTAMP}" >
+			<fileset dir="${src.dir}/opendap/clients/odc/doc" >
+				<include name="install-unix.txt"/>
+			</fileset>
+		</copy>
+		<mkdir dir="${dist.dir}/ODC-${DSTAMP}/tools"/>
+	</target>
+
+    <target name="dist-mac" depends="dist-java">
+        <mkdir dir="${dist.dir}/ODC-${DSTAMP}/tools"/>
+    </target>
+
+    <target name="dist-classic-windows">
+        <antcall target="dist-windows" inheritAll="false" >
+            <param name="build.compiler" value="${classic.compiler}"/>
+        </antcall>
+    </target>
+
+    <target name="dist-classic-unix">
+        <antcall target="dist-unix" inheritAll="false" >
+            <param name="build.compiler" value="${classic.compiler}"/>
+        </antcall>
+    </target>
+
+    <target name="dist-classic-mac">
+        <antcall target="dist-mac" inheritAll="false" >
+            <param name="build.compiler" value="${classic.compiler}"/>
+        </antcall>
+    </target>
+
+</project>
+
