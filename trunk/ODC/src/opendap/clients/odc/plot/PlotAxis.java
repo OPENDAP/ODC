@@ -6,7 +6,7 @@ package opendap.clients.odc.plot;
  * Copyright:    Copyright (c) 2002-4
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.40
+ * @version      2.60
  */
 
 import opendap.clients.odc.*;
@@ -20,6 +20,8 @@ import java.awt.GridBagConstraints;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Color;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusAdapter;
 
 public class PlotAxis {
 
@@ -331,8 +333,7 @@ class Panel_PlotAxes extends JPanel {
 		gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.0; gbc.weighty = 1; gbc.gridwidth = 1;
 		this.add(Box.createHorizontalStrut(2), gbc);
 
-
-		// x-axis
+		// y-axis
 		JLabel labelY = new JLabel("Y-Axis");
 		labelY.setFont(opendap.clients.odc.Styles.fontSansSerif14);
 		gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 1; gbc.weighty = 1; gbc.gridwidth = 1; gbc.gridheight = 1;
@@ -342,11 +343,53 @@ class Panel_PlotAxes extends JPanel {
 		gbc.gridx = 0; gbc.gridy = 3; gbc.weightx = 1; gbc.weighty = 1; gbc.gridwidth = 1; gbc.gridheight = 1;
 		this.add(panelY, gbc);
 	}
+	public Panel_AxisParameters getAxisParameters_X(){ return this.panelX; }
+	public Panel_AxisParameters getAxisParameters_Y(){ return this.panelY; }
 }
 
 class Panel_AxisParameters extends JPanel {
-	PlotAxis mPlotAxis = null;
+	javax.swing.JTextField mjtfOffset = new javax.swing.JTextField();
+	javax.swing.JLabel mlabelIndexSize = new JLabel();
+	int mDimSize = 0;
 	Panel_AxisParameters(){
+		vSetupHandlers();
+		vSetupInterface();
+	}
+
+	public void vSetDimSize( int i ){
+		mDimSize = i;
+	}
+
+	public void vUpdateOffsetLabel(){
+		if( mDimSize == 0 ){
+			mlabelIndexSize.setText( "" );
+		} else {
+			int iPercentage = getOffset() / mDimSize;
+			mlabelIndexSize.setText( iPercentage + "% (dim size: " + mDimSize + ")");
+		}
+	}
+
+	public int getOffset(){
+		try {
+			return Integer.parseInt( mjtfOffset.getText() );
+		} catch(Throwable t) {
+			return 0;
+		}
+	}
+
+	void vSetupHandlers(){
+		mjtfOffset.addFocusListener(
+			new FocusAdapter(){
+				public void focusLost(FocusEvent evt) {
+					try {
+						vUpdateOffsetLabel();
+					} catch(Exception ex){} // ignore invalid entries
+				}
+			}
+		);
+	}
+
+	void vSetupInterface(){
 		JPanel panelLines = new JPanel();
 		panelLines.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Baseline"));
 
@@ -356,8 +399,14 @@ class Panel_AxisParameters extends JPanel {
 		JPanel panelLabels = new JPanel();
 		panelLabels.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Labels"));
 
-		JPanel PanelRuling = new JPanel();
-		PanelRuling.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Ruling"));
+		JPanel PanelOffset = new JPanel();
+		PanelOffset.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Offset"));
+		PanelOffset.setLayout( new BoxLayout(PanelOffset, BoxLayout.X_AXIS) );
+		PanelOffset.add( new JLabel("offset:") );
+		PanelOffset.add( Box.createHorizontalStrut(2) );
+		PanelOffset.add( mjtfOffset );
+		PanelOffset.add( Box.createHorizontalStrut(2) );
+		PanelOffset.add( new JLabel("") );
 
 		this.setLayout( new BoxLayout(this, BoxLayout.Y_AXIS) );
 		this.add(panelLines);
@@ -366,8 +415,7 @@ class Panel_AxisParameters extends JPanel {
 		this.add(Box.createVerticalStrut(2));
 		this.add(panelLabels);
 		this.add(Box.createVerticalStrut(2));
-		this.add(PanelRuling);
-
+		this.add(PanelOffset);
 	}
 }
 

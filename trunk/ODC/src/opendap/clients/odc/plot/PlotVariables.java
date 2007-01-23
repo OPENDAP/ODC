@@ -319,9 +319,6 @@ Thread.dumpStack();
 			} else if( btField instanceof DArray || btField instanceof DGrid || btField instanceof DStructure ){
 				ApplicationController.vShowWarning("nested sequence array/grid ignored (sequence '" + sequenceNested.getName() + "' field " + xField + ")");
 				// not supported (todo)
-			} else if( btField instanceof DBoolean ){
-				ApplicationController.vShowWarning("nested sequence boolean ignored (sequence '" + sequenceNested.getName() + "' field " + xField + ")");
-				// not supported (todo)
 			} else if( btField instanceof DByte ||
 					   btField instanceof DInt16 ||
 					   btField instanceof DUInt16 ||
@@ -820,8 +817,7 @@ class VariableSpecification {
 						// ignore
 					} else if( btField instanceof DArray || btField instanceof DGrid || btField instanceof DStructure ){
 						// ignore
-					} else if( btField instanceof DBoolean ||
-							   btField instanceof DByte ||
+					} else if( btField instanceof DByte ||
 							   btField instanceof DInt16 ||
 							   btField instanceof DUInt16 ||
 							   btField instanceof DInt32 ||
@@ -902,8 +898,7 @@ FlattenSequence:
 								// ignore
 							} else if( btField instanceof DArray || btField instanceof DGrid || btField instanceof DStructure ){
 								// ignore
-							} else if( btField instanceof DBoolean ||
-									   btField instanceof DByte ||
+							} else if( btField instanceof DByte ||
 									   btField instanceof DInt16 ||
 									   btField instanceof DUInt16 ||
 									   btField instanceof DInt32 ||
@@ -1065,8 +1060,7 @@ FlattenSequence:
 					for( int xField = 1; xField <= vectorRow.size(); xField++ ){
 						Object oField = vectorRow.get(xField - 1);
 						BaseType btField = (BaseType)oField;
-						if( btField instanceof DBoolean ||
-							btField instanceof DByte ||
+						if( btField instanceof DByte ||
 							btField instanceof DInt16 ||
 							btField instanceof DUInt16 ||
 							btField instanceof DInt32 ||

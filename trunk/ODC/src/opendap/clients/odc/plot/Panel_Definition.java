@@ -34,14 +34,16 @@ public class Panel_Definition extends JPanel {
 	private final Panel_PlotOptions mpanelOptions = new Panel_PlotOptions();
 	private final Panel_PlotScale mpanelScale = new Panel_PlotScale();
 	private final Panel_PlotText mpanelText = new Panel_PlotText();
+	private final Panel_PlotAxes mpanelAxes = new Panel_PlotAxes();
 	private final PreviewPane mPreviewPane = new PreviewPane();
-	// private final Panel_PlotAxes mpanelAxes = new Panel_PlotAxes();
 	private final Panel_ColorSpecification mpanelColors = new Panel_ColorSpecification(this);
 	private final Panel_Thumbnails mpanelThumbnails = new Panel_Thumbnails(this);
 
 	public PreviewPane getPreviewPane(){ return mPreviewPane; }
 	public Panel_VariableTab getPanel_Variables(){ return mpanelVariables; }
 	public Panel_PlotScale getPanel_PlotScale(){ return mpanelScale; }
+	public Panel_PlotText getPanel_PlotText(){ return mpanelText; }
+	public Panel_PlotAxes getPanel_PlotAxes(){ return mpanelAxes; }
 	public Panel_PlotOptions getPanel_PlotOptions(){ return mpanelOptions; }
 	public Panel_ColorSpecification getPanel_ColorSpecification(){ return mpanelColors; }
 	public Panel_Thumbnails getPanel_Thumbnails(){ return mpanelThumbnails; }
@@ -70,7 +72,7 @@ public class Panel_Definition extends JPanel {
 		mjtpPlotDefinition.addTab(" Options", mpanelOptions);
 		mjtpPlotDefinition.addTab(" Text", mpanelText);
 		mjtpPlotDefinition.addTab(" Scale", mpanelScale);
-//		mjtpPlotDefinition.addTab(" Axes", mpanelAxes);      // todo add in future version
+//		mjtpPlotDefinition.addTab(" Axes", mpanelAxes);
 		mjtpPlotDefinition.addTab(" Colors", mpanelColors);
 //		mjtpPlotDefinition.addTab(" Geo",  mpanelGeo);      // todo add in future version
 		mjtpPlotDefinition.addTab(" Preview", mPreviewPane);
