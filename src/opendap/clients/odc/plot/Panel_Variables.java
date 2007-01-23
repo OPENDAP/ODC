@@ -208,9 +208,6 @@ public class Panel_Variables extends JPanel {
 			} else if( btField instanceof DArray || btField instanceof DGrid || btField instanceof DStructure ){
 				ApplicationController.vShowWarning("nested sequence array/grid ignored (sequence '" + sequenceNested.getName() + "' field " + xField + ")");
 				// not supported (todo)
-			} else if( btField instanceof DBoolean ){
-				ApplicationController.vShowWarning("nested sequence boolean ignored (sequence '" + sequenceNested.getName() + "' field " + xField + ")");
-				// not supported (todo)
 			} else if( btField instanceof DByte ||
 					   btField instanceof DInt16 ||
 					   btField instanceof DUInt16 ||
@@ -1632,6 +1629,13 @@ class VSelector_Plot_Values extends JPanel {
 				Panel_Dimension dimY = getDimY_Variable();
 				int iDimXsize = (dimX == null) ? 1 : dimX.getModel().getSize();
 				int iDimYsize = (dimY == null) ? 1 : dimY.getModel().getSize();
+
+				// update axes settings
+				Panel_PlotAxes axes = Panel_View_Plot.getPanel_PlotAxes();
+				axes.getAxisParameters_X().vSetDimSize(iDimXsize);
+				axes.getAxisParameters_Y().vSetDimSize(iDimYsize);
+
+				// update scale settings
 				PlotScale scale = Panel_View_Plot.getPanel_PlotScale().getScale();
 				if( scale == null ){
 					// ApplicationController.vShowWarning("no plot scale exists during parameters update");

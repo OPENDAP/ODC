@@ -134,22 +134,7 @@ public class GeoReference {
 
 		return true;
 	}
-//	public boolean zInitialize( int[] aiLongitudes1, int[] aiLatitudes1, int eTYPE, StringBuffer sbError ){
-//		maiLongitudes_Micro1 = new int[aiLongitudes1.length];
-//		maiLatitudes_Micro1 = new int[aiLatitudes1.length];
-//		System.arraycopy(aiLongitudes1, 0, maiLongitudes_Micro1, 0, aiLongitudes1.length);
-//		System.arraycopy(aiLatitudes1, 0, maiLatitudes_Micro1, 0, aiLatitudes1.length);
-// assume integer todo
-//		if( eTYPE == TYPE_IntegerG0 ){
-//			for( int xLongitude = 1; xLongitude < aiLongitudes1.length; xLongitude++ ){
-//				maiLongitudes_Micro1[xLongitude] *= 1000000;
-//			}
-//			for( int xLatitude = 1; xLatitude < aiLatitudes1.length; xLatitude++ ){
-//				maiLatitudes_Micro1[xLatitude] *= 1000000;
-//			}
-//		}
-//		return true;
-//	}
+
 	public int getBound_North(){ return mBound_North; }
 	public int getBound_East(){ return mBound_East; }
 	public int getBound_South(){ return mBound_South; }

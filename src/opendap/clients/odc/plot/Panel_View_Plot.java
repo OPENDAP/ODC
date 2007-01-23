@@ -87,6 +87,14 @@ public class Panel_View_Plot extends JPanel {
 		}
 	}
 
+	public static Panel_PlotAxes getPanel_PlotAxes(){
+		if( thisInstance.getActivePlottingDefinition() == null ){
+		    return null;
+		} else {
+			return thisInstance.mDefinitionPanel.getPanel_PlotAxes();
+		}
+	}
+
 	public static Panel_Thumbnails getPanel_Thumbnails(){
 		if( thisInstance.getActivePlottingDefinition() == null ){
 		    return null;
