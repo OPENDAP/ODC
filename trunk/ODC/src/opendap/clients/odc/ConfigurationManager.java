@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-2004
  * Company:      University of Rhode Island, Graduate School of Oceanography
  * @author       John Chamberlain
- * @version      2.57
+ * @version      2.60
  */
 
 import java.io.File;
@@ -90,6 +90,8 @@ public class ConfigurationManager {
 	public static final String PROPERTY_DISPLAY_MarginRight = "display.MarginRight";
 	public static final String PROPERTY_DISPLAY_StartupSize_Width = "display.StartupSize_Width";
 	public static final String PROPERTY_DISPLAY_StartupSize_Height = "display.StartupSize_Height";
+	public static final String PROPERTY_DISPLAY_StartupLocation_X = "display.StartupLocation_X";
+	public static final String PROPERTY_DISPLAY_StartupLocation_Y = "display.StartupLocation_Y";
 	public static final String PROPERTY_LOGGING_ShowHeaders = "logging.ShowHeaders";
 	public static final String PROPERTY_LOGGING_ReportMetrics = "logging.ReportMetrics";
 	public static final String PROPERTY_OUTPUT_DodsFormat = "output.DodsFormat";
@@ -338,6 +340,8 @@ public class ConfigurationManager {
 		mlistProperties.add( PROPERTY_DISPLAY_MarginRight );
 		mlistProperties.add( PROPERTY_DISPLAY_StartupSize_Width );
 		mlistProperties.add( PROPERTY_DISPLAY_StartupSize_Height );
+		mlistProperties.add( PROPERTY_DISPLAY_StartupLocation_X );
+		mlistProperties.add( PROPERTY_DISPLAY_StartupLocation_Y );
 		mlistProperties.add( PROPERTY_LOGGING_ShowHeaders );
 		mlistProperties.add( PROPERTY_LOGGING_ReportMetrics );
 		mlistProperties.add( PROPERTY_OUTPUT_DodsFormat );
@@ -513,6 +517,30 @@ public class ConfigurationManager {
 			ApplicationController.getInstance().vShowWarning("Invalid startup size Height setting [" + sStartupSize_Height + "]. Must be an integer.");
 		}
 		return iStartupSize_Height;
+	}
+
+	public int getProperty_StartupLocation_X(){
+		String sStartupLocation_X = this.getInstance().getOption(PROPERTY_DISPLAY_StartupLocation_X, "0");
+		int iStartupLocation_X = 0;
+		try {
+			iStartupLocation_X = Integer.parseInt(sStartupLocation_X);
+			if( iStartupLocation_X < 0 ) iStartupLocation_X *= -1;
+		} catch(Exception ex) {
+			ApplicationController.getInstance().vShowWarning("Invalid startup location X setting [" + sStartupLocation_X + "]. Must be an integer.");
+		}
+		return iStartupLocation_X;
+	}
+
+	public int getProperty_StartupLocation_Y(){
+		String sStartupLocation_Y = this.getInstance().getOption(PROPERTY_DISPLAY_StartupLocation_Y, "0");
+		int iStartupLocation_Y = 0;
+		try {
+			iStartupLocation_Y = Integer.parseInt(sStartupLocation_Y);
+			if( iStartupLocation_Y < 0 ) iStartupLocation_Y *= -1;
+		} catch(Exception ex) {
+			ApplicationController.getInstance().vShowWarning("Invalid startup location X setting [" + sStartupLocation_Y + "]. Must be an integer.");
+		}
+		return iStartupLocation_Y;
 	}
 
 	public int getProperty_RecentCount(){
@@ -789,7 +817,9 @@ public class ConfigurationManager {
 			boolean zStore = mzInitialized;
 	    	if( mProperties == null ) vRefresh( zStore );
 		    mProperties.setProperty(sKey, sValue);
-			if( zStore ) vStoreProperties();
+			if( zStore ){
+				vStoreProperties();
+			}
 	    	ApplicationController.vSetOptions();
 		} catch( Exception ex ) {
 			ApplicationController.vShowWarning("Failed to set option: '" + sKey + "' with error: " + ex);
@@ -841,6 +871,8 @@ public class ConfigurationManager {
 		sb.append(PROPERTY_DISPLAY_MarginRight + " = " + this.getProperty_MarginRight() + "\n" );
 		sb.append(PROPERTY_DISPLAY_StartupSize_Width + " = " + this.getProperty_StartupSize_Width() + "\n" );
 		sb.append(PROPERTY_DISPLAY_StartupSize_Height + " = " + this.getProperty_StartupSize_Height() + "\n" );
+		sb.append(PROPERTY_DISPLAY_StartupLocation_X + " = " + this.getProperty_StartupLocation_X() + "\n" );
+		sb.append(PROPERTY_DISPLAY_StartupLocation_Y + " = " + this.getProperty_StartupLocation_Y() + "\n" );
 		sb.append(PROPERTY_DISPLAY_ShowSplashScreen + " = " + (this.getProperty_DISPLAY_ShowSplashScreen() ? "Yes" : "No") + "\n" );
 		sb.append(PROPERTY_DISPLAY_ShowStandardOut + " = " + (this.getProperty_DISPLAY_ShowStandardOut() ? "Yes" : "No") + "\n" );
 		sb.append(PROPERTY_DISPLAY_ShowPopupCancel + " = " + (this.getProperty_DISPLAY_ShowPopupCancel() ? "Yes" : "No") + "\n" );

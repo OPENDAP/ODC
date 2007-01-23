@@ -99,14 +99,12 @@ public class DAP {
 		else if( bt instanceof DFloat32 ) return "Float32";
 		else if( bt instanceof DFloat64 ) return "Float64";
 		else if( bt instanceof DString ) return "String";
-		else if( bt instanceof DBoolean ) return "Boolean";
 		else if( bt instanceof DVector ) return "Vector";
 		else if( bt instanceof DArray ) return "Array";
 		else if( bt instanceof DConstructor ) return "Constructor";
 		else if( bt instanceof DStructure ) return "Structure";
 		else if( bt instanceof DGrid ) return "Grid";
 		else if( bt instanceof DSequence ) return "Sequence";
-		else if( bt instanceof DList ) return "List";
 		else return "[unknown type: " + bt.getClass() + "]";
 	}
 	public static String getDArrayValueString( DArray darray, int xDim1_1, int xDim2_1, int xDim3_1 ){
@@ -542,9 +540,7 @@ public class DAP {
 	}
 
 	public static double convertToDouble( BaseType bt ){
-		if( bt instanceof DBoolean ){
-			return ((DBoolean)bt).getValue() ? 1 : 0;
-		} else if( bt instanceof DByte ){
+		if( bt instanceof DByte ){
 			return (double)((int)(((DByte)bt).getValue()) & 0xFF);
 		} else if( bt instanceof DInt16 ){
 			return (double)((DInt16)bt).getValue();

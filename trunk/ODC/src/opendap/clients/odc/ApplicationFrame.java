@@ -243,37 +243,70 @@ public class ApplicationFrame extends JFrame {
 		setVisible(true);
     }
 
+	private int miStartupLocation_x;
+	private int miStartupLocation_y;
+	private int miStartupSize_Width;
+	private int miStartupSize_Height;
+
     private void vSizeDisplay(){
         Dimension dimScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int iScreenSize_Height = dimScreenSize.height;
 		int iScreenSize_Width  = dimScreenSize.width;
 		int iBottomMargin = ConfigurationManager.getInstance().getProperty_MarginBottom();
 		int iRightMargin = ConfigurationManager.getInstance().getProperty_MarginRight();
-		int iStartupSize_Width = ConfigurationManager.getInstance().getProperty_StartupSize_Width();
-		int iStartupSize_Height = ConfigurationManager.getInstance().getProperty_StartupSize_Height();
-		if( iStartupSize_Width == 0 && iStartupSize_Width == 0 ){ // unconfigured -- use default
+		miStartupSize_Width = ConfigurationManager.getInstance().getProperty_StartupSize_Width();
+		miStartupSize_Height = ConfigurationManager.getInstance().getProperty_StartupSize_Height();
+		miStartupLocation_x = ConfigurationManager.getInstance().getProperty_StartupLocation_X();
+		miStartupLocation_y = ConfigurationManager.getInstance().getProperty_StartupLocation_Y();
+		if( miStartupSize_Width == 0 && miStartupSize_Width == 0 ){ // unconfigured -- use default
 			if( ConfigurationManager.getInstance().isUNIX() ){
-				iStartupSize_Width = (int)(iScreenSize_Width * 0.80f);
-				iStartupSize_Height = (int)(iScreenSize_Height * 0.80f);
+				miStartupSize_Width = (int)(iScreenSize_Width * 0.80f);
+				miStartupSize_Height = (int)(iScreenSize_Height * 0.80f);
 			} else {
-				iStartupSize_Width = iScreenSize_Width;
-				iStartupSize_Height = iScreenSize_Height;
+				miStartupSize_Width = iScreenSize_Width;
+				miStartupSize_Height = iScreenSize_Height;
 			}
 		}
-		int iStartupSize_AdjWidth = iStartupSize_Width; // adjusted for margin
-		int iStartupSize_AdjHeight = iStartupSize_Height; // adjusted for margin
-		if( (iScreenSize_Height - iStartupSize_Height)/2 < iBottomMargin ){
-			iStartupSize_AdjHeight -= (iBottomMargin - (iScreenSize_Height - iStartupSize_Height)/2);
+		int iStartupSize_AdjWidth = miStartupSize_Width; // adjusted for margin
+		int iStartupSize_AdjHeight = miStartupSize_Height; // adjusted for margin
+		if( (iScreenSize_Height - miStartupSize_Height)/2 < iBottomMargin ){
+			iStartupSize_AdjHeight -= (iBottomMargin - (iScreenSize_Height - miStartupSize_Height)/2);
 		}
-		if( (iScreenSize_Width - iStartupSize_Width)/2 < iRightMargin ){
-			iStartupSize_AdjWidth -= (iRightMargin - (iScreenSize_Height - iStartupSize_Height)/2);
+		if( (iScreenSize_Width - miStartupSize_Width)/2 < iRightMargin ){
+			iStartupSize_AdjWidth -= (iRightMargin - (iScreenSize_Height - miStartupSize_Height)/2);
 		}
 		Dimension dimStartup = new Dimension(iStartupSize_AdjWidth, iStartupSize_AdjHeight);
-		int iStartupLocation_x = iScreenSize_Width/2 - (iStartupSize_Width/2);
-		int iStartupLocation_y = iScreenSize_Height/2 - (iStartupSize_Height/2); // do NOT use adjusted height
+		if( miStartupLocation_x == 0 && miStartupLocation_y == 0 ){
+			miStartupLocation_x = iScreenSize_Width/2 - (miStartupSize_Width/2);
+			miStartupLocation_y = iScreenSize_Height/2 - (miStartupSize_Height/2); // do NOT use adjusted height
+		}
 		setSize(dimStartup);
-		setLocation(iStartupLocation_x, iStartupLocation_y);
+		setLocation(miStartupLocation_x, miStartupLocation_y);
+		miStartupSize_Width = iStartupSize_AdjWidth;
+		miStartupSize_Height = iStartupSize_AdjHeight;
     }
+
+	public void vSaveDisplayPositioning(){
+		Point locCurrent = this.getLocation();
+		Dimension dimCurrentSize = this.getSize();
+		if( (this.getExtendedState() & this.MAXIMIZED_BOTH) == this.MAXIMIZED_BOTH ){ // if maximized reset startup dims
+			ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DISPLAY_StartupLocation_X, "0" );
+			ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DISPLAY_StartupLocation_Y, "0" );
+			ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DISPLAY_StartupSize_Width, "0" );
+			ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DISPLAY_StartupSize_Height, "0" );
+		} else if( miStartupLocation_x != locCurrent.x ||
+			miStartupLocation_y != locCurrent.y ||
+			miStartupSize_Width != dimCurrentSize.width ||
+			miStartupSize_Height != dimCurrentSize.height ){
+			ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DISPLAY_StartupLocation_X, Integer.toString(locCurrent.x) );
+			ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DISPLAY_StartupLocation_Y, Integer.toString(locCurrent.y) );
+			ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DISPLAY_StartupSize_Width, Integer.toString(dimCurrentSize.width) );
+			ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DISPLAY_StartupSize_Height, Integer.toString(dimCurrentSize.height) );
+		} else {
+			// user did not change window, do not store settings
+			System.out.print("same");
+		}
+	}
 
 	public void vActivateRetrievalPanel(){
 		jtpMain.setSelectedIndex(1); // activate the retrieve tab
