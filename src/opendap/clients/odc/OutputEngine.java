@@ -5,7 +5,7 @@ package opendap.clients.odc;
  * Description:  Methods to generate output
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.42
+ * @version      2.62
  */
 
 import java.io.*;
@@ -889,7 +889,6 @@ public class OutputEngine implements ByteCounter {
 					}
 				}
 				else if( basetype instanceof DByte ||
-						 basetype instanceof DBoolean ||
 						 basetype instanceof DInt16 ||
 						 basetype instanceof DUInt16 ||
 						 basetype instanceof DInt32 ||

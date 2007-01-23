@@ -125,16 +125,14 @@ public class DDSSelector extends JPanel {
 				variable_panel = new VSelector_DGrid( sName_Qualified, this, (DGrid)bt, das );
 			} else if(  bt instanceof DArray ){
 				variable_panel = new VSelector_DArray( sName_Qualified, this, (DArray)bt, das );
-			} else if(  bt instanceof DBoolean ||
-						bt instanceof DByte ||
+			} else if(  bt instanceof DByte ||
 						bt instanceof DInt16 ||
 						bt instanceof DInt32 ||
 						bt instanceof DFloat32 ||
 						bt instanceof DFloat64 ||
 						bt instanceof DString ){
 				variable_panel = new VSelector_Generic( sName_Qualified, this, bt, das );
-			} else if(  bt instanceof DList ||
-						bt instanceof DVector ){
+			} else if(  bt instanceof DVector ){
 				variable_panel = new UnsupportedVariablePanel( sName_Qualified, this, bt );
 				ApplicationController.getInstance().vShowWarning("variable " + sName_Qualified + " ignored, unsupported type");
 			} else {

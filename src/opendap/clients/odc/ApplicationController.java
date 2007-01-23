@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-2004
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.59.1
+ * @version      2.62
  */
 
 import java.io.*;
@@ -22,8 +22,8 @@ public class ApplicationController {
     private static final ApplicationController thisSingleton = new ApplicationController();
 
     private static final String msAppName = "OPeNDAP Data Connector";
-    private static final String msAppVersion = "2.60";
-    private static final String msAppReleaseDate = "7 December 2006"; // todo create ANT substitution
+    private static final String msAppVersion = "2.62";
+    private static final String msAppReleaseDate = "23 January 2007"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	String getAppName(){ return msAppName; }
@@ -334,6 +334,7 @@ public class ApplicationController {
 		if( ConfigurationManager.getInstance().getProperty_LOGGING_ReportMetrics() ){
 			vPersistLog();
 		}
+		ApplicationController.getInstance().getAppFrame().vSaveDisplayPositioning();
 		System.exit(0);
 	}
 
