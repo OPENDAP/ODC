@@ -99,11 +99,11 @@
       -
       -
       -->
-    <property name="opendap.lib"        value="opendap-0.0.0.jar"/>
+    <property name="opendap.lib"        value="opendap-0.0.7.jar"/>
 
     <property name="regexp.lib"         value="gnu-regexp-1.1.4.jar"/>
     <property name="getopt.lib"         value="gnu-getopt-1.0.6.jar"/>
-    <property name="jdom.lib"           value="jdom-b9.jar"/>
+    <property name="jdom.lib"           value="jdom-1.0.jar"/>
     <property name="xercesImpl.lib"     value="xercesImpl-2.9.0.jar"/>
     <property name="xercesXmlApis.lib"  value="xml-apis-2.9.0.jar"/>
 
@@ -241,11 +241,11 @@
 
         <!-- Copy the libraries that ODC relies on... -->
 
-		<copy file="${lib.dir}/${jdom.lib}"              tofile="${dist.dir}/ODC-${DSTAMP}/lib/${jdom.lib}"/>
-		<copy file="${lib.dir}/${jaf.lib}"               tofile="${dist.dir}/ODC-${DSTAMP}/lib/${jaf.lib}" />
-		<copy file="${lib.dir}/${mail.lib}"          tofile="${dist.dir}/ODC-${DSTAMP}/lib/${mail.lib}" />
-		<copy file="${lib.dir}/${mailapi.lib}"  tofile="${dist.dir}/ODC-${DSTAMP}/lib/${mailapi.lib}" />
-		<copy file="${lib.dir}/${opendap.lib}"           tofile="${dist.dir}/ODC-${DSTAMP}/lib/${opendap.lib}" />
+		<copy file="${lib.dir}/${jdom.lib}"        tofile="${dist.dir}/ODC-${DSTAMP}/lib/${jdom.lib}"/>
+		<copy file="${lib.dir}/${jaf.lib}"         tofile="${dist.dir}/ODC-${DSTAMP}/lib/${jaf.lib}" />
+		<copy file="${lib.dir}/${mail.lib}"        tofile="${dist.dir}/ODC-${DSTAMP}/lib/${mail.lib}" />
+		<copy file="${lib.dir}/${mailapi.lib}"     tofile="${dist.dir}/ODC-${DSTAMP}/lib/${mailapi.lib}" />
+		<copy file="${lib.dir}/${opendap.lib}"     tofile="${dist.dir}/ODC-${DSTAMP}/lib/${opendap.lib}" />
 
 		<mkdir dir="${dist.dir}/ODC-${DSTAMP}/doc"/>
 		<copy todir="${dist.dir}/ODC-${DSTAMP}/doc" >
