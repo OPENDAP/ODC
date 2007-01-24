@@ -3,7 +3,7 @@ use CGI;
 
 my $query    = new CGI;
 
-my $param_recipient    = $query->param('send_to');      # example: "odc-help@opendap.org"
+my $param_recipient    = $query->param('send_to');      # example: "test@theopendap.org"
 my $param_reply_to     = $query->param('reply_to');     # example: "user@school.edu"
 my $param_subject      = $query->param('subject');      # example: "[odc client message]"
 my $param_body         = $query->param('content');      # example: "I could not get program to start..."
