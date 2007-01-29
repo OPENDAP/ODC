@@ -5,6 +5,28 @@
  *
  */
 
+/////////////////////////////////////////////////////////////////////////////
+// This file is part of the OPeNDAP Data Connector project.
+//
+// Copyright (c) 2007 OPeNDAP, Inc.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
+/////////////////////////////////////////////////////////////////////////////
+
 package opendap.clients.odc;
 
 import java.awt.*;
@@ -35,17 +57,17 @@ public class DateRange extends JPanel implements ActionListener{
 	public DateRange(int lyear, int lmonth, int lday, int hyear, int hmonth, int hday) {
 		lowYear = lyear; lowMonth = lmonth; lowDay = lday;
 		highYear = hyear; highMonth = hmonth; highDay = hday;
-	
+
 		yearly = true;
 		multiYearMonthly = false;
 		monthly = false;
-		
+
 		// format the panel
 		setLayout(new FlowLayout());
 		setBorder(BorderFactory.createCompoundBorder(
-	            BorderFactory.createTitledBorder("Select Date Range"), 
+	            BorderFactory.createTitledBorder("Select Date Range"),
 	            BorderFactory.createEmptyBorder(10,10,10,10)));
-	
+
 		// create & add the selection boxes
 		populateDateRange();
     }
@@ -56,37 +78,37 @@ public class DateRange extends JPanel implements ActionListener{
     		lowDay = 1; highDay = 1;
     		lowYear = lyear; lowMonth = lmonth;
     		highYear = hyear; highMonth = hmonth;
-    		
+
     		yearly = false;
     		multiYearMonthly = true;
     		monthly = false;
-    		
+
     		// format the panel
     		setLayout(new FlowLayout());
 		setBorder(BorderFactory.createCompoundBorder(
 	            BorderFactory.createTitledBorder("Select Date Range"),
 	            BorderFactory.createEmptyBorder(10,10,10,10)));
-	
+
 		// create & add the selection boxes
 		populateDateRange();
     	}
-    	
+
     // Constructor for Monthly Date Range
          public DateRange(int lmonth, int hmonth) {
     		lowYear = 1; lowDay = 15; highYear = 1; highDay = 15;
     		lowMonth = lmonth;
     		highMonth = hmonth;
-    		
+
     		yearly = false;
     		multiYearMonthly = false;
     		monthly = true;
-    		
+
     		// format the panel
     		setLayout(new FlowLayout());
 		setBorder(BorderFactory.createCompoundBorder(
 	            BorderFactory.createTitledBorder("Select Date Range"),
 	            BorderFactory.createEmptyBorder(10,10,10,10)));
-	
+
 		// create & add the selection boxes
 		populateDateRange();
     	}
@@ -121,7 +143,7 @@ public class DateRange extends JPanel implements ActionListener{
 		tlabel = new JLabel("-");
 		tpanel.add(tlabel);
 		add(tpanel);
-		
+
 		if ( yearly || multiYearMonthly ) {
 			// create high year panel
   			highYearPanel = new JPanel();
@@ -169,14 +191,14 @@ public class DateRange extends JPanel implements ActionListener{
 
 		tpanel.add(tlabel);
 		tpanel.add(tselect);
-	
+
 		tselect.addActionListener(this); tselect.setActionCommand(type); }
 
     	// Create Month Selection Box
     	private void populateMonthPanel(JPanel tpanel, int selectMonth, String type) {
 		JLabel tlabel = new JLabel("Month");
 		tlabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-	
+
 		String[] months = new String[NUM_MONTHS];
 		if (yearly) {
 			for (int i = 0; i < NUM_MONTHS; i++) {
@@ -195,9 +217,9 @@ public class DateRange extends JPanel implements ActionListener{
 			months[9] = "October";
 			months[10] = "November";
 			months[11] = "December";
-			
+
 		}
-	
+
 		JComboBox tselect = new JComboBox(months);
 		tselect.setSelectedIndex(selectMonth-1);
 		if (yearly) {
@@ -266,13 +288,13 @@ public class DateRange extends JPanel implements ActionListener{
 			numdays = getDaysInMonth(tyear, tmonth);
 			tselect = (JComboBox) highDayPanel.getComponent(1);
 		}
-		
+
 		for (int i = 28; i < numdays; i++) {
 			if ( tselect.getItemAt(i) == null ) {
 				tselect.addItem(Integer.toString(i+1));
 			}
 		}
-		
+
 		for (int i = numdays; i < 31; i++) {
 			if ( tselect.getItemAt(numdays) != null ) {
 				tselect.removeItemAt(numdays);
@@ -295,7 +317,7 @@ public class DateRange extends JPanel implements ActionListener{
 		return (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0)) ? true : false;
     }
 
-    
+
     // Implementation of ActionListener interface.
     public void actionPerformed(ActionEvent event) {
 		if (event.getActionCommand() == "lowYear") {
@@ -336,8 +358,8 @@ public class DateRange extends JPanel implements ActionListener{
 			}
 		}
     }
-	
-	
+
+
 	/** Compare the low and high years
 	 *  Returns: -1 if low < high
 	 *			  0 if low == high
@@ -358,24 +380,24 @@ public class DateRange extends JPanel implements ActionListener{
 			return 0;
 		}
 	}
-	
+
 	/** Compare the low and high months
 	 *  Returns: -1 if low < high
 	 *			  0 if low == high
 	 *			 +1 if low > high
 	 */
 	private int compareMonths() {
-		if ( ((JComboBox) lowMonthPanel.getComponent(1)).getSelectedIndex() < 
+		if ( ((JComboBox) lowMonthPanel.getComponent(1)).getSelectedIndex() <
 					((JComboBox) highMonthPanel.getComponent(1)).getSelectedIndex() ) {
 			return -1;
-		} else if ( ((JComboBox) lowMonthPanel.getComponent(1)).getSelectedIndex() == 
+		} else if ( ((JComboBox) lowMonthPanel.getComponent(1)).getSelectedIndex() ==
 					((JComboBox) highMonthPanel.getComponent(1)).getSelectedIndex() ) {
 			return 0;
 		} else {
 			return 1;
 		}
 	}
-	
+
 	/** Compare the low and high days
 	 *  Returns: -1 if low < high
 	 *			  0 if low == high
