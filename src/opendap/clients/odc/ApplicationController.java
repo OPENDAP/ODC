@@ -6,8 +6,30 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-2004
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.62
+ * @version      2.63
  */
+
+/////////////////////////////////////////////////////////////////////////////
+// This file is part of the OPeNDAP Data Connector project.
+//
+// Copyright (c) 2007 OPeNDAP, Inc.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
+/////////////////////////////////////////////////////////////////////////////
 
 import java.io.*;
 import java.util.*;
@@ -22,8 +44,8 @@ public class ApplicationController {
     private static final ApplicationController thisSingleton = new ApplicationController();
 
     private static final String msAppName = "OPeNDAP Data Connector";
-    private static final String msAppVersion = "2.62";
-    private static final String msAppReleaseDate = "23 January 2007"; // todo create ANT substitution
+    private static final String msAppVersion = "2.63";
+    private static final String msAppReleaseDate = "29 January 2007"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	String getAppName(){ return msAppName; }
