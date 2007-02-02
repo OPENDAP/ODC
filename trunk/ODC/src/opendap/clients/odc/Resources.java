@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2005
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.59
+ * @version      2.64
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -144,64 +144,75 @@ public class Resources {
 		}
 	}
 
-	public static boolean zLoadIcons(StringBuffer sbError){
+	public static boolean zLoadIcons( StringBuffer sbError ){
 		String sPath = "/opendap/clients/odc/icons/";
 		try {
 
 			imageiconSplash = imageiconLoadResource(pathSplashScreen, sbError);
 			if( imageIndicator_Granule == null ){
 				ApplicationController.vShowError_NoModal("Splash screen [" + pathSplashScreen + "] not loaded: " + sbError);
+				sbError.setLength( 0 );
 			}
 
 			imageiconInternet = imageiconLoadResource(pathICONS_InternetConnection, sbError );
 			if( imageiconInternet == null ){
 				ApplicationController.vShowError_NoModal("Internet icon [" + pathICONS_InternetConnection + "] not loaded: " + sbError);
+				sbError.setLength( 0 );
 			}
 
 			imageiconCalculator = Resources.imageiconLoadResource( sPath + "calculator.gif", sbError );
 			if( imageiconCalculator == null ){
 				ApplicationController.vShowError_NoModal("Calculator icon not loaded: " + sbError);
+				sbError.setLength( 0 );
 			}
 
-			javax.swing.ImageIcon image = imageiconLoadResource(sPath + "dataset-granule.gif", sbError);
-			imageIndicator_Granule = image.getImage();
-			if( imageIndicator_Granule == null ){
+			javax.swing.ImageIcon image;
+
+			image = imageiconLoadResource(sPath + "dataset-granule.gif", sbError);
+			if( image == null ){
 				sbError.insert( 0, "icon " + sPath + "dataset-granule.gif" + " not found: " );
 				return false;
 			}
+			imageIndicator_Granule = image.getImage();
+
 			image = imageiconLoadResource(sPath + "dataset-directory.gif", sbError);
-			imageIndicator_Directory = image.getImage();
-			if( imageIndicator_Granule == null ){
+			if( image == null ){
 				sbError.insert( 0, "icon " + sPath + "dataset-directory.gif" + " not found: " );
 				return false;
 			}
+			imageIndicator_Directory = image.getImage();
+
 			image = imageiconLoadResource(sPath + "dataset-catalog.gif", sbError);
-			imageIndicator_Catalog = image.getImage();
-			if( imageIndicator_Granule == null ){
+			if( image == null ){
 				sbError.insert( 0, "icon " + sPath + "dataset-catalog.gif" + " not found: " );
 				return false;
 			}
+			imageIndicator_Catalog = image.getImage();
+
 			image = imageiconLoadResource(sPath + "dataset-binary.gif", sbError);
-			imageIndicator_Binary = image.getImage();
-			if( imageIndicator_Granule == null ){
+			if( image == null ){
 				sbError.insert( 0, "icon " + sPath + "dataset-binary.gif" + " not found: " );
 				return false;
 			}
+			imageIndicator_Binary = image.getImage();
+
 			image = imageiconLoadResource(sPath + "dataset-image.gif", sbError);
-			imageIndicator_Image = image.getImage();
-			if( imageIndicator_Granule == null ){
+			if( image == null ){
 				sbError.insert( 0, "icon " + sPath + "dataset-image.gif" + " not found: " );
 				return false;
 			}
+			imageIndicator_Image = image.getImage();
+
 			image = imageiconLoadResource(sPath + "constrained.gif", sbError);
-			imageConstrained = image.getImage();
-			if( imageIndicator_Granule == null ){
+			if( image == null ){
 				sbError.insert( 0, "icon " + sPath + "constrained.gif" + " not found: " );
 				return false;
 			}
+			imageConstrained = image.getImage();
+
 			return true;
 		} catch(Exception ex) {
-			sbError.append("Icons not found in path " + sPath);
+			Utility.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}
