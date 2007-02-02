@@ -149,7 +149,7 @@ public class Resources {
 		try {
 
 			imageiconSplash = imageiconLoadResource(pathSplashScreen, sbError);
-			if( imageIndicator_Granule == null ){
+			if( imageiconSplash == null ){
 				ApplicationController.vShowError_NoModal("Splash screen [" + pathSplashScreen + "] not loaded: " + sbError);
 				sbError.setLength( 0 );
 			}
