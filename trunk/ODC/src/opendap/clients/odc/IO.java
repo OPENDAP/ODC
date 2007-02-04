@@ -86,7 +86,7 @@ public class IO {
 	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList listClientCookies, ArrayList listServerCookies, ByteCounter bc, Activity activity, StringBuffer sbError) {
 		String sBasicAuthentication = null;
 		String[] eggLocation = null;
-		return getStaticContent( sCommand, sHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, sbError );
+		return getStaticContent( sCommand, sHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, 0, sbError );
 	}
 
     /**
@@ -104,10 +104,12 @@ public class IO {
 	 * @param sBasicAuthentication Optional the Base64 encoded username:password required for HTTP Basic Authentication scheme if any
 	 * @param eggLocation Optional the 1-member array to accept a redirect location, if non-null then a redirect occurred
      * @param bc Optional ByteCounter object to get progress feedback, supply null if unwanted
+     * @param Activity Optional activity object to manage asynchronous connections, supply null if unwanted
+     * @param iRedirectCounter if this is a redirect increment this value; more than 3 redirects result in a failure
      * @param sbError Buffer to write any error message to.
      * @return the content of the return as a String or null in the case of an error.
      */
-	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList listClientCookies, ArrayList listServerCookies, String sBasicAuthentication, String[] eggLocation, ByteCounter bc, Activity activity, StringBuffer sbError) {
+	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList listClientCookies, ArrayList listServerCookies, String sBasicAuthentication, String[] eggLocation, ByteCounter bc, Activity activity, int iRedirectCount, StringBuffer sbError) {
 
 		if( sHost == null ){
 			sbError.append("host missing");
@@ -150,6 +152,9 @@ public class IO {
 		} else {
 			sRequest += "\r\n"; // end of header
 		}
+
+		Thread.dumpStack();
+		System.out.println("request: " + sRequest);
 
 		if( zLogHeaders ) ApplicationController.getInstance().vShowStatus("Request header:\n" + Utility.sShowUnprintable(sRequest));
 
@@ -199,7 +204,15 @@ public class IO {
 				return null;
 			}
 			String sLocation = 	getHeaderField( sHeader, "Location" );
-			if( eggLocation != null ) eggLocation[0] = sLocation;
+			if( eggLocation != null ){
+				if( eggLocation[0] == null ){
+					eggLocation[0] = sLocation;
+				} else if( sLocation == null ) {
+					// in this case do not change existing location (probable redirect)
+				} else {
+					eggLocation[0] = sLocation;
+				}
+			}
 			String sResponseCode = null;
 			for( int xResponseField = 1; xResponseField <= asHTTPResponse.length - 1; xResponseField++ ){
 				if( asHTTPResponse[xResponseField] != null && asHTTPResponse[xResponseField].length() > 0 ){
@@ -212,7 +225,7 @@ public class IO {
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
-			if( !sResponseCode.equals("200") && !sResponseCode.equals("302") ){ // todo better handling of response codes
+			if( !sResponseCode.equals("200") && !sResponseCode.equals("302") && !sResponseCode.equals("303") ){
 				sbError.append("server returned HTTP error code: " + Utility.sSafeSubstring(sHTTP_Response, 0, 500));
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
@@ -234,9 +247,68 @@ public class IO {
 					xCookie++;
 					if( xCookie > 1000 ) break; // overflow protection
 					String sCookieText = getHeaderField(sHeader, "Set-Cookie", xCookie);
-					if( sCookieText == null ) break; else listServerCookies.add(sCookieText);
+					if( sCookieText == null ){
+						break; // no more cookies
+					} else { // check to see if the cookie is already there
+						int xCookieList = 1;
+						while( true ){
+							if( xCookieList > listServerCookies.size() ){
+								listServerCookies.add( sCookieText ); // add new cookie
+System.out.println("added new cookie: " + sCookieText);
+								break;
+							}
+							String sExistingCookie = (String)listServerCookies.get( xCookieList - 1 );
+							int posEqualsSign = sExistingCookie.indexOf('=');
+							if( posEqualsSign == -1 ){
+								// existing cookie is invalid
+							} else {
+								String sExistingCookie_Name = sExistingCookie.substring(0, posEqualsSign);
+								int posEqualsSign_NewCookie = sCookieText.indexOf('=');
+								if( posEqualsSign_NewCookie == -1 ){
+									ApplicationController.vShowError_NoModal("received invalid cookie (no equals sign): " + sCookieText);
+									break; // new cookie is invalid
+								} else {
+									String sNewCookie_Name = sCookieText.substring(0, posEqualsSign);
+									if( sExistingCookie_Name.equalsIgnoreCase( sNewCookie_Name ) ){
+										listServerCookies.remove( xCookieList - 1 ); // replace existing cookie
+										listServerCookies.add( sCookieText ); // ...with new cookie
+System.out.println("replaced cookie: " + sCookieText);
+										break; // duplicate cookie
+									}
+								}
+							}
+							xCookieList++;
+						}
+					}
 				}
 			}
+
+			// note that the redirect is done after the cookie scan because
+			// any cookies in the redirecting page must be accepted before the redirect occurs
+			if( sResponseCode.equals("302") || sResponseCode.equals("303") ){ // a redirect has occurred
+				if( iRedirectCount >= 3 ){
+					sbError.append("request abandoned because there were more than 3 redirects; could be infinite");
+					return null;
+				}
+				if( sLocation == null ){
+					sbError.append("request returned redirect but there was no Location header");
+					return null;
+				}
+				URL urlRedirectLocation;
+				try {
+					 urlRedirectLocation = new URL(sLocation);
+				} catch(Exception ex) {
+					sbError.append("Failed to interpret redirect location " + sLocation + " as an URL: " + ex);
+					return null;
+				}
+				String sHost_redirect  = urlRedirectLocation.getHost();
+				int    iPort_redirect  = urlRedirectLocation.getPort();
+				String sPath_redirect  = urlRedirectLocation.getPath();
+				String sQuery_redirect = urlRedirectLocation.getQuery();
+				if( iPort == -1 ) iPort = 80;
+				return getStaticContent( "GET", sHost_redirect, iPort_redirect, sPath_redirect, sQuery_redirect, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, iRedirectCount + 1, sbError );
+			}
+
 		} else {
 			if( zLogHeaders ) ApplicationController.getInstance().vShowWarning("No header http://" + sHost + ":" + iPort + sRequestLocator);
 		}

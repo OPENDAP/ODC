@@ -1,14 +1,3 @@
-package opendap.clients.odc;
-
-/**
- * Title:        Panel_Feedback_Bug
- * Description:  Output text area which displays messages and data
- * Copyright:    Copyright (c) 2004-6
- * Company:      University of Rhode Island, Graduate School of Oceanography
- * @author       John Chamberlain
- * @version      2.57
- */
-
 /////////////////////////////////////////////////////////////////////////////
 // This file is part of the OPeNDAP Data Connector project.
 //
@@ -30,6 +19,17 @@ package opendap.clients.odc;
 //
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 /////////////////////////////////////////////////////////////////////////////
+
+package opendap.clients.odc;
+
+/**
+ * Title:        Panel_Feedback_Bug
+ * Description:  Output text area which displays messages and data
+ * Copyright:    Copyright (c) 2004-7
+ * Company:      University of Rhode Island, Graduate School of Oceanography
+ * @author       John Chamberlain
+ * @version      2.64
+ */
 
 import java.awt.event.*;
 import java.awt.*;
@@ -451,7 +451,7 @@ public class Panel_Feedback_Bug extends JPanel {
 		// start session
 		// http://scm.opendap.org:8090/trac
 		sPath = sBugRoot;
-		sPageReturn = IO.getStaticContent( sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, sbError );
+		sPageReturn = IO.getStaticContent( sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, 0, sbError );
 		if( sPageReturn == null ){
 			ApplicationController.vShowError("Failed to contact bug server: " + sbError);
 			return;
@@ -475,7 +475,7 @@ public class Panel_Feedback_Bug extends JPanel {
 				}
 				if( theCookie.sName.equalsIgnoreCase("trac_session") ){
 					listClientCookies.add( theCookie.getClientCookie() ); // add authorization cookie
-					System.out.println("added session cookie: " + oServerCookie);
+					System.out.println("added session cookie to client: " + oServerCookie);
 					break;
 				}
 			}
@@ -485,7 +485,7 @@ public class Panel_Feedback_Bug extends JPanel {
 		// login
 		// http://scm.opendap.org:8090/trac/login
 		sPath = sBugRoot + "/login";
-		sPageReturn = IO.getStaticContent( sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, sbError );
+		sPageReturn = IO.getStaticContent( sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, 0, sbError );
 		if( sPageReturn == null ){
 			ApplicationController.vShowError("Failed to login: " + sbError);
 			return;
@@ -500,16 +500,17 @@ public class Panel_Feedback_Bug extends JPanel {
 			}
 			Object oServerCookie = listServerCookies.get(xServerCookie-1);
 			if( oServerCookie == null ){
-				System.out.println("cookie " +  xServerCookie + " was null");
+				ApplicationController.vShowError_NoModal("while posting bug report and checking for authorization cookie " +  xServerCookie + " was null");
 			} else {
 				Cookie theCookie = IO.parseCookie( oServerCookie.toString(), sbError );
 				if( theCookie == null ){
 					ApplicationController.vShowError("Error parsing cookie " +  xServerCookie + ": " + sbError );
 					return;
 				}
+				System.out.println("checking for authorization cookie " + xServerCookie + " : " + theCookie.sName);
 				if( theCookie.sName.equalsIgnoreCase("trac_auth") ){
 					listClientCookies.add( theCookie.getClientCookie() ); // add authorization cookie
-					System.out.println("added authorization cookie: " + oServerCookie);
+//					System.out.println("added authorization cookie: " + oServerCookie);
 					break;
 				}
 			}
@@ -535,40 +536,7 @@ public class Panel_Feedback_Bug extends JPanel {
 			return;
 		}
 
-		// Assemble Detailed Bug Description
-		String sOperatingSystem = jcbOperatingSystem.getSelectedItem().toString();
-		String sNatureOfBug = jcbNatureOfBug.getSelectedItem().toString(); // not used
-		String sKindOfProblem = jcbKindOfProblem.getSelectedItem().toString();
-		String sAreaOfProblem;
-	    if( jtabAreaOfProblem.isVisible() ){
-			switch( jtabAreaOfProblem.getSelectedIndex() ){
-				case 0:
-					sAreaOfProblem = jcbAreaOfProblem_Search.getSelectedItem().toString(); break;
-				case 1:
-					sAreaOfProblem = jcbAreaOfProblem_Retrieve.getSelectedItem().toString(); break;
-				case 2:
-					sAreaOfProblem = jcbAreaOfProblem_View.getSelectedItem().toString(); break;
-				case 3:
-					sAreaOfProblem = jcbAreaOfProblem_Other.getSelectedItem().toString(); break;
-				default:
-					sAreaOfProblem = "[undefined]";
-			}
-		} else {
-			sAreaOfProblem = "[none]";
-		}
-		StringBuffer sbBugDescription = new StringBuffer(2500);
-		sbBugDescription.append("OPeNDAP Data Connector: User Feedback Bug" + WIKI_LineBreak);
-		sbBugDescription.append("Version: " + ApplicationController.getInstance().getVersionString() + WIKI_LineBreak);
-		sbBugDescription.append("Operating System: " + sOperatingSystem + WIKI_LineBreak);
-		sbBugDescription.append("Kind of Problem: " + sKindOfProblem + WIKI_LineBreak);
-		if( jtabAreaOfProblem.isVisible() ) sbBugDescription.append("Area of Problem: ").append(sAreaOfProblem).append(WIKI_LineBreak);
-		if( sUserEmail.trim().length() == 0 ) sUserEmail = "[none provided]";
-		sbBugDescription.append(WIKI_LineBreak + WIKI_LineBreak + "**************** USER EMAIL *******************" + WIKI_LineBreak);
-		sbBugDescription.append(sUserEmail);
-		sbBugDescription.append(WIKI_LineBreak + WIKI_LineBreak + "**************** USER BUG DESCRIPTION ********************" + WIKI_LineBreak);
-		sbBugDescription.append(jtaFullDescription.getText());
-		sbBugDescription.append(WIKI_LineBreak + WIKI_LineBreak + "**************** SYSTEM LOG ********************" + WIKI_LineBreak);
-		sbBugDescription.append(jtaSystemLog.getText());
+		StringBuffer sbBugDescription = getBugDescription();
 		String sBugDescription_encoded;
 		try {
 			sBugDescription_encoded = java.net.URLEncoder.encode( sbBugDescription.toString(), "UTF-8" );
@@ -577,12 +545,50 @@ public class Panel_Feedback_Bug extends JPanel {
 			return;
 		}
 
+		// get ticket form to obtain form token
+		// http://scm.opendap.org:8090/trac/newticket
+		sCommand = "GET";
+		sPath = sBugRoot + "/newticket";
+		sPageReturn = IO.getStaticContent( sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, 0, sbError );
+		if( sPageReturn == null ){
+			ApplicationController.vShowError("Failed to login: " + sbError);
+			return;
+		}
+
+		// make sure form token cookie is there
+		String sFormToken = null;
+		xServerCookie = 1;
+		while( true ){
+			if( xServerCookie > listServerCookies.size() ){
+				ApplicationController.vShowError("Bug server did not return expected form token cookie after login");
+				return;
+			}
+			Object oServerCookie = listServerCookies.get(xServerCookie-1);
+			if( oServerCookie == null ){
+				ApplicationController.vShowError_NoModal("while posting bug report and obtaining form token cookie " +  xServerCookie + " was null");
+			} else {
+				Cookie theCookie = IO.parseCookie( oServerCookie.toString(), sbError );
+				if( theCookie == null ){
+					ApplicationController.vShowError("Error parsing cookie " +  xServerCookie + ": " + sbError );
+					return;
+				}
+				if( theCookie.sName.equalsIgnoreCase("trac_form_token") ){
+					sFormToken = theCookie.sValue;
+					listClientCookies.add( theCookie.getClientCookie() ); // add form token cookie
+					break;
+				}
+			}
+			xServerCookie++;
+		}
+
 		String sBugCategory = "Bug";
+		String sNatureOfBug = jcbNatureOfBug.getSelectedItem().toString();
 		if( sNatureOfBug.equalsIgnoreCase( "New feature request" ) ){ sBugCategory = "Feature"; }
 
 		// Assemble Posting
 		// EXAMPLE // reporter=jchamber&summary=Coastline+outline+have+horizontal+lines&description=The+coastline%27s+sometimes+have+horizontal+lines+apparently+caused+by+the+renderer+not+knowing+the+correct+location+of+the+meridian.&mode=newticket&action=create&status=new&component=ODC&version=&severity=normal&keywords=&priority=normal&milestone=Java-OPeNDAP+Release&owner=jchamber&cc=&custom_category=Bug&create=Submit+ticket
 		StringBuffer sbContent = new StringBuffer(1000);
+		sbContent.append("__FORM_TOKEN=").append(sFormToken).append('&');
 		sbContent.append("reporter=jchamber").append('&');
 		sbContent.append("summary=").append(sBugSummary_encoded).append('&');
 		sbContent.append("description=").append(sBugDescription_encoded).append('&');
@@ -616,7 +622,7 @@ public class Panel_Feedback_Bug extends JPanel {
 		sContentType = "application/x-www-form-urlencoded";
 		sContent = sbContent.toString();
 		listServerCookies.clear();
-		sPageReturn = IO.getStaticContent(sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, sbError);
+		sPageReturn = IO.getStaticContent(sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, 0, sbError);
 		if( sPageReturn == null ){
 			ApplicationController.vShowError("Failed to post bug/feature to " + sBugHost + ":" + iPort + sPath + ", Note: if this is a timeout error you may have to increase your timeout settings; HTTP failure: " + sbError);
 			return;
@@ -630,7 +636,7 @@ public class Panel_Feedback_Bug extends JPanel {
 				String sTicketKey = "/trac/ticket/";
 				int iTicketKey = sLocation.indexOf( sTicketKey );
 				if( iTicketKey >= 0 ){
-					String sTicketNumber = eggLocation[0].substring( iTicketKey + sTicketKey.length() );
+					String sTicketNumber = sLocation.substring( iTicketKey + sTicketKey.length() );
 					int iPreviewBookmark = sTicketNumber.indexOf( "#preview" );
 					if( iPreviewBookmark > 0 ){
 						sTicketNumber = sTicketNumber.substring( 0, iPreviewBookmark );
@@ -645,6 +651,45 @@ public class Panel_Feedback_Bug extends JPanel {
 			}
 		}
 
+	}
+
+	StringBuffer getBugDescription(){
+
+		// Assemble Detailed Bug Description
+		String sUserEmail = jtfUserEmail.getText();
+		String sOperatingSystem = jcbOperatingSystem.getSelectedItem().toString();
+		String sKindOfProblem = jcbKindOfProblem.getSelectedItem().toString();
+		String sAreaOfProblem;
+	    if( jtabAreaOfProblem.isVisible() ){
+			switch( jtabAreaOfProblem.getSelectedIndex() ){
+				case 0:
+					sAreaOfProblem = jcbAreaOfProblem_Search.getSelectedItem().toString(); break;
+				case 1:
+					sAreaOfProblem = jcbAreaOfProblem_Retrieve.getSelectedItem().toString(); break;
+				case 2:
+					sAreaOfProblem = jcbAreaOfProblem_View.getSelectedItem().toString(); break;
+				case 3:
+					sAreaOfProblem = jcbAreaOfProblem_Other.getSelectedItem().toString(); break;
+				default:
+					sAreaOfProblem = "[undefined]";
+			}
+		} else {
+			sAreaOfProblem = "[none]";
+		}
+		StringBuffer sbBugDescription = new StringBuffer(2500);
+		sbBugDescription.append("OPeNDAP Data Connector: User Feedback Bug" + WIKI_LineBreak);
+		sbBugDescription.append("Version: " + ApplicationController.getInstance().getVersionString() + WIKI_LineBreak);
+		sbBugDescription.append("Operating System: " + sOperatingSystem + WIKI_LineBreak);
+		sbBugDescription.append("Kind of Problem: " + sKindOfProblem + WIKI_LineBreak);
+		if( jtabAreaOfProblem.isVisible() ) sbBugDescription.append("Area of Problem: ").append(sAreaOfProblem).append(WIKI_LineBreak);
+		if( sUserEmail.trim().length() == 0 ) sUserEmail = "[none provided]";
+		sbBugDescription.append(WIKI_LineBreak + WIKI_LineBreak + "**************** USER EMAIL *******************" + WIKI_LineBreak);
+		sbBugDescription.append(sUserEmail);
+		sbBugDescription.append(WIKI_LineBreak + WIKI_LineBreak + "**************** USER BUG DESCRIPTION ********************" + WIKI_LineBreak);
+		sbBugDescription.append(jtaFullDescription.getText());
+		sbBugDescription.append(WIKI_LineBreak + WIKI_LineBreak + "**************** SYSTEM LOG ********************" + WIKI_LineBreak);
+		sbBugDescription.append(jtaSystemLog.getText());
+		return sbBugDescription;
 	}
 
 }
