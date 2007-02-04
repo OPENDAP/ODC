@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-4
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.59
+ * @version      2.64
  */
 
 /////////////////////////////////////////////////////////////////////////////
