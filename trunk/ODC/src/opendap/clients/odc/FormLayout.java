@@ -25,10 +25,10 @@ package opendap.clients.odc;
 /**
  * <p>Title: Form Layout</p>
  * <p>Description: lays out swing components in a form-like manner</p>
- * <p>Copyright: Copyright (c) 2004</p>
+ * <p>Copyright: Copyright (c) 2004-7</p>
  * <p>Company: OPeNDAP.org</p>
  * @author John Chamberlain
- * @version 2.49
+ * @version 2.64
  */
 
 /**
@@ -135,6 +135,14 @@ import javax.swing.*;
 //	public Dimension maximumLayoutSize( Container container ){ return null; }
 
 public class FormLayout implements LayoutManager2 {
+
+	public static final void main( String[] args ){
+		JFrame frameTest = new JFrame();
+		FormTestPanel panelTest = new FormTestPanel();
+		frameTest.add( panelTest );
+		frameTest.setVisible( true );
+	}
+
 	Container mContainer; // each form layout can only manage one container
 
 	int mpxMinimumWidth = 0;
@@ -177,14 +185,48 @@ public class FormLayout implements LayoutManager2 {
 			}
 		}
 
+System.out.println("form has " + ctComponent + " components");
+
 		// define any components in the container that are not defined
-		for( int xComponent = 1; xComponent <= ctComponent; xComponent += 2 ){
-			Component componentLabel = mContainer.getComponent( xComponent - 1 );
-			Component componentControl = (xComponent < ctComponent) ? mContainer.getComponent( xComponent ) : null;
-			setOrder(componentLabel, componentControl, false);
+		Component componentLabel = null;
+		Component componentControl = null;
+		Component componentCurrent = null;
+		for( int xComponent = 1; xComponent <= ctComponent; xComponent++ ){
+			componentLabel = null;
+			componentControl = null;
+			componentCurrent = mContainer.getComponent( xComponent - 1 );
+			FormElement elementCurrent = getFormElement( componentCurrent );
+			if( elementCurrent == null ){
+				if( componentCurrent instanceof javax.swing.JLabel ||
+					componentCurrent instanceof java.awt.Label ){
+					componentLabel = componentCurrent;
+System.out.println("putting label component " + xComponent + " in element");
+					if( xComponent < ctComponent ){
+						Component componentNext = mContainer.getComponent( xComponent );
+						FormElement elementNext = getFormElement( componentNext );
+						if( elementNext == null ){
+							if( ! (componentNext  instanceof javax.swing.JLabel) &&
+								! (componentNext instanceof java.awt.Label ) ){
+								componentControl = componentNext;
+System.out.println("putting control component " + xComponent + " in element with label");
+								xComponent++;
+							}
+						}
+					}
+				} else {
+					componentControl = componentCurrent;
+System.out.println("putting control component " + xComponent + " in element");
+				}
+				setOrder(componentLabel, componentControl, false);
+System.out.println("set order");
+			} else {
+				// element is defined
+			}
 		}
 
 		int ctElement = listDefinedElements.size();
+
+System.out.println("form has " + ctElement + " elements");
 
 // TODO the mappings must be improved to take into account alignments
 
@@ -203,6 +245,7 @@ public class FormLayout implements LayoutManager2 {
 				aiRowMapping[xElement] = ++iRowMax;
 			}
 		}
+System.out.println("row mapping established");
 
 		// compress mapping into sequential list of rows - this eliminates skipped row numbers
 		// in other words if the elements have rows like 2 3 4 4 4 6 7 9 9
@@ -218,6 +261,7 @@ public class FormLayout implements LayoutManager2 {
 			}
 		}
 		int ctRows = iSequentialMapping; // the last mapping will now be the total number of rows
+System.out.println("rows sequenced");
 
 		// determine how many elements are in each row and the max number of elements in any row (= the number of columns)
 		int[] aiRowElementCount = new int[ ctRows + 1 ];
@@ -227,6 +271,7 @@ public class FormLayout implements LayoutManager2 {
 			if( aiRowElementCount[aiRowMapping[xElement1]] > ctColumns )
 			    ctColumns = aiRowElementCount[aiRowMapping[xElement1]];
 		}
+System.out.println("row element count determined: " + ctColumns);
 
 		// repeat the row process for columns with the difference that elements in
 		// the same row and the same column will be adjusted to the next available column
@@ -275,6 +320,7 @@ public class FormLayout implements LayoutManager2 {
 					}
 				}
 			}
+System.out.println("row " + xRow + " column mapping established");
 
 			// add any unassigned elements
 			for( int xElement = 1; xElement <= ctElement; xElement++ ){
@@ -288,6 +334,7 @@ public class FormLayout implements LayoutManager2 {
 					}
 				}
 			}
+System.out.println("row " + xRow + " added any unassigned elements");
 
 			// if any column assignments are greater than ctColumns shift assignments left to fit within ctColumns
 			while( true ){
@@ -305,11 +352,13 @@ public class FormLayout implements LayoutManager2 {
 				}
 				aiElementInCurrentRow[xRightmostAssignment] = 0;
 			}
+System.out.println("row " + xRow + " left shifted columns");
 
 			// create the column mappings for this row
 			for( int xColumn = 1; xColumn < ctColumns; xColumn++ ){
 				aiColumnMapping[aiElementInCurrentRow[xColumn]] = xColumn;
 			}
+System.out.println("row " + xRow + " column mappings complete");
 
 		}
 
@@ -320,18 +369,22 @@ public class FormLayout implements LayoutManager2 {
 			FormElement element = (FormElement)listDefinedElements.get( xElement - 1 );
 			aMapping[aiColumnMapping[xElement]][aiRowMapping[xElement]] = element;
 		}
+System.out.println("master array mapping complete");
 
 		// determine the column minimum width taking into account the column alignments
 		int[] apxColumnMinimumWidth = new int[ ctColumns + 1 ];
 		if( mzGlobalFill ){
+System.out.println("global fill, alignments are ignored");
 			// alignments are ignored
 		} else {
-			for( int xColumn = 1; xColumn <= ctColumns; ctColumns++ ){
+System.out.println("determining column minimum widths out of " + ctColumns + " colummns");
+			for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
+System.out.println("column " + xColumn);
 				if( maiColumnAlignment[xColumn] == ALIGNMENT_None ){
 					apxColumnMinimumWidth[xColumn] = 0;
 				} else {
-					int pxMinimumWidth = 0;
 					for( int xRow = 1; xRow <= ctRows; xRow++ ){
+System.out.println("row " + xRow);
 						FormElement element = aMapping[xColumn][xRow];
 						if( element == null ) continue;
 						int pxMinimumWidth_Element =    element.miSpacing_indent
@@ -340,24 +393,28 @@ public class FormLayout implements LayoutManager2 {
 														+ ( element.componentLabel != null ? (int)element.componentLabel.getMinimumSize().getWidth() : 0 )
 														+ ( element.componentControl != null ? (int)element.componentControl.getMinimumSize().getWidth() : 0 );
 						if( pxMinimumWidth_Element > apxColumnMinimumWidth[xColumn] ) apxColumnMinimumWidth[xColumn] = pxMinimumWidth_Element;
+System.out.println("pxMinimumWidth_Element: " + pxMinimumWidth_Element);
 					}
 				}
 			}
 		}
+System.out.println("column minimum widths determined");
 
 		// determine the component guide sizes ( widths )
-		int pxMinimumWidth = 0;
-		int pxPreferredWidth = 0;
-		int pxMaximumWidth = 0;
-		int[] apxWidth_preferred_row = new int[ctRows];
+		int pxMinimumWidth_form = 0;
+		int pxPreferredWidth_form = 0;
+		int pxMaximumWidth_form = 0;
+		int[] apxWidth_preferred_row = new int[ ctRows + 1 ];
 		for( int xRow = 1; xRow <= ctRows; xRow++ ){
 			int pxMinimumWidth_CurrentRow = 0;
 			int pxPreferredWidth_CurrentRow = 0;
 			int pxMaximumWidth_CurrentRow = 0;
 			int ctElementsInThisRow = aiRowElementCount[xRow];
-			for( int xColumn = 1; xColumn <= ctColumns; ctColumns++ ){
+System.out.println("row " + xRow + " has " + ctElementsInThisRow + " elements");
+			for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
 				FormElement element = aMapping[xColumn][xRow];
 				if( element == null ) continue;
+				ctElementsInThisRow++;
 
 				// minimum
 				int pxMinimumWidth_Element =    element.miSpacing_indent
@@ -378,6 +435,7 @@ public class FormLayout implements LayoutManager2 {
 				if( pxPreferredWidth_Element < element.iBounds_minimum_width ) pxPreferredWidth_Element = element.iBounds_minimum_width;
 				element.iBounds_preferred_width = pxPreferredWidth_Element;
 				pxPreferredWidth_CurrentRow += pxPreferredWidth_Element;
+System.out.println("row preferred width:" + pxPreferredWidth_CurrentRow);
 
 				// maximum
 				int pxMaximumWidth_Element =  element.miSpacing_indent
@@ -391,42 +449,48 @@ public class FormLayout implements LayoutManager2 {
 
 			}
 			apxWidth_preferred_row[xRow] = pxPreferredWidth_CurrentRow;
-			if( pxMinimumWidth_CurrentRow > pxMinimumWidth ) pxMinimumWidth = pxMinimumWidth_CurrentRow;
-			if( pxPreferredWidth_CurrentRow > pxPreferredWidth ) pxPreferredWidth = pxPreferredWidth_CurrentRow;
-			if( pxMaximumWidth_CurrentRow > pxMaximumWidth ) pxMaximumWidth = pxMaximumWidth_CurrentRow;
+			if( pxMinimumWidth_CurrentRow > pxMinimumWidth_form ) pxMinimumWidth_form = pxMinimumWidth_CurrentRow;
+			if( pxPreferredWidth_CurrentRow > pxPreferredWidth_form ) pxPreferredWidth_form = pxPreferredWidth_CurrentRow;
+			if( pxMaximumWidth_CurrentRow > pxMaximumWidth_form ) pxMaximumWidth_form = pxMaximumWidth_CurrentRow;
+
+System.out.println("row " + xRow + " element ct: " + ctElementsInThisRow + " preferred width: " + pxPreferredWidth_CurrentRow + " minimum: " + pxMinimumWidth_CurrentRow + " max: " + pxMaximumWidth_CurrentRow );
 		}
+System.out.println("guide sizes determined");
 
 		// adjust the guide sizes to account for alignments
 		// TODO
 
+		mpxMinimumWidth = pxMinimumWidth_form;
+		mpxPreferredWidth = pxPreferredWidth_form;
+		mpxMaximumWidth = pxMaximumWidth_form;
+
 		// determine the form size ( widths )
-		int mpxMinimumWidth = pxMinimumWidth;
-		int mpxPreferredWidth = pxPreferredWidth;
-		int mpxMaximumWidth = pxMaximumWidth;
 		int pxFormWidth;
-		if( pxPreferredWidth <= widthCanvas ){
-			pxFormWidth = pxPreferredWidth;
-		} else if( pxMinimumWidth <= widthCanvas ){
+		if( pxPreferredWidth_form <= widthCanvas ){
+			pxFormWidth = pxPreferredWidth_form;
+		} else if( pxMinimumWidth_form <= widthCanvas ){
 			pxFormWidth = (int)widthCanvas;
 		} else {
-			pxFormWidth = pxMinimumWidth;
+			pxFormWidth = pxMinimumWidth_form;
 		}
 
 		// determine component realized size ( width )
 		for( int xRow = 1; xRow <= ctRows; xRow++ ){
 
+
 			int pxPreferredWidth_CurrentRow = apxWidth_preferred_row[xRow];
+System.out.println("form width: " + pxFormWidth + " preferred width of row " + xRow + ": " + pxPreferredWidth_CurrentRow);
 			int pxFillWidth_CurrentRow = pxFormWidth - pxPreferredWidth_CurrentRow;
 			if( pxFillWidth_CurrentRow < 0 ) pxFillWidth_CurrentRow = 0;
 
 			FormElement elementLastInRow = null;
 			int psTotalWidthUsed = 0;
-			if( pxFillWidth_CurrentRow == 0 ){ // all elements will be their min/preferred size
+			if( pxFillWidth_CurrentRow == 0 ){ // there is no extra space in row, all elements will be their min/preferred size
 
 				// in the first pass determine all the items at minimum size
 				int pxPreferredWidth_non_minimums = 0;
 				int pxTotalWidth_minimums = 0;
-				float fScaleDown = 1 - pxFormWidth / pxPreferredWidth_CurrentRow;
+				float fScaleDown = pxPreferredWidth_CurrentRow == 0 ? 1 : 1 - pxFormWidth / pxPreferredWidth_CurrentRow;
 				for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
 					FormElement element = aMapping[xColumn][xRow];
 					if( element == null ) continue;
@@ -441,7 +505,7 @@ public class FormLayout implements LayoutManager2 {
 				}
 
 				// second pass: scale down all items that are above minimum size
-				float fPreferredScaleDown = 1 - (pxFormWidth - pxTotalWidth_minimums)/pxPreferredWidth_non_minimums;
+				float fPreferredScaleDown =  pxPreferredWidth_non_minimums == 0 ? 1 : 1 - (pxFormWidth - pxTotalWidth_minimums)/pxPreferredWidth_non_minimums;
 				int pxTotalWidth_scaled = 0;
 				for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
 					FormElement element = aMapping[xColumn][xRow];
@@ -508,6 +572,7 @@ public class FormLayout implements LayoutManager2 {
 
 				// third pass: scale remaining items
 				int pxTotalWidth_filled = 0;
+				if( iWeighting_total == 0 ) iWeighting_total = 1;
 				for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
 					FormElement element = aMapping[xColumn][xRow];
 					if( element == null ) continue;
@@ -556,9 +621,21 @@ public class FormLayout implements LayoutManager2 {
 	public void invalidateLayout( Container ignored ){}
 	public float getLayoutAlignmentX( Container ignored ){ return 0; }
 	public float getLayoutAlignmentY( Container ignored ){ return 0; }
-	public Dimension preferredLayoutSize( Container ignored ){ return new Dimension(mpxPreferredWidth, mpxPreferredHeight); }
-	public Dimension minimumLayoutSize( Container ignored ){ return new Dimension(mpxMinimumWidth, mpxMinimumHeight); }
-	public Dimension maximumLayoutSize( Container ignored ){ return new Dimension(mpxMaximumWidth, mpxMaximumHeight); }
+	public Dimension preferredLayoutSize( Container parent ){
+		int pxInsetsWidth = parent.getInsets().left + parent.getInsets().right;
+		int pxInsetsHeigh = parent.getInsets().top + parent.getInsets().bottom;
+		return new Dimension( mpxPreferredWidth + pxInsetsWidth, mpxPreferredHeight + pxInsetsHeigh );
+	}
+	public Dimension minimumLayoutSize( Container parent ){
+		int pxInsetsWidth = parent.getInsets().left + parent.getInsets().right;
+		int pxInsetsHeigh = parent.getInsets().top + parent.getInsets().bottom;
+		return new Dimension( mpxMinimumWidth + pxInsetsWidth, mpxMinimumHeight + pxInsetsHeigh );
+	}
+	public Dimension maximumLayoutSize( Container parent ){
+		int pxInsetsWidth = parent.getInsets().left + parent.getInsets().right;
+		int pxInsetsHeigh = parent.getInsets().top + parent.getInsets().bottom;
+		return new Dimension( mpxMaximumWidth + pxInsetsWidth, mpxMaximumHeight + pxInsetsHeigh );
+	}
 
 	/** custom formatting (all one-based arrays) */
 	public static final int ALIGNMENT_None = 0;
@@ -634,8 +711,11 @@ public class FormLayout implements LayoutManager2 {
 			element.componentLabel = label;
 			element.componentControl = control;
 			listDefinedElements.add( element ); // add element at end
+System.out.println("adding new element");
 		} else {
+System.out.println("element exists");
 			if( zReorder ){
+System.out.println("reordering element");
 				listDefinedElements.remove( element );
 				listDefinedElements.add( element ); // add element at end
 			}
@@ -757,11 +837,14 @@ class FormTestPanel extends JPanel {
 	JPanel panelControls = new JPanel();
 	JPanel panelDisplay = new JPanel();
 	FormTestPanel(){
-		this.setLayout( new java.awt.BorderLayout() );
-		this.add( panelControls, java.awt.BorderLayout.NORTH );
-		this.add( panelDisplay, java.awt.BorderLayout.CENTER );
+
+		panelControls.add( new JLabel("control panel") );
+
+		JLabel label1 = new JLabel("label 1");
+System.out.println("label 1 preferred size: " + label1.getPreferredSize().getWidth() );
+
 		panelDisplay.setLayout( new FormLayout(panelDisplay) );
-		panelDisplay.add( new JLabel("label 1") );
+		panelDisplay.add( label1 );
 		panelDisplay.add( new JTextField("text field 1") );
 		panelDisplay.add( new JLabel("label 2") );
 		panelDisplay.add( new JTextField("text field 2") );
@@ -773,6 +856,11 @@ class FormTestPanel extends JPanel {
 		panelDisplay.add( new JTextField("text field 5") );
 		panelDisplay.add( new JLabel("label 6") );
 		panelDisplay.add( new JTextField("text field 6") );
+
+		this.setLayout( new java.awt.BorderLayout() );
+		this.add( panelControls, java.awt.BorderLayout.NORTH );
+		this.add( panelDisplay, java.awt.BorderLayout.CENTER );
+
 	}
 
 
