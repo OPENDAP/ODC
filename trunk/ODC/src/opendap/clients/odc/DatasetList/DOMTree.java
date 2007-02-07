@@ -9,8 +9,6 @@ package opendap.clients.odc.DatasetList;
 
 import opendap.clients.odc.*;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.util.*;
@@ -84,9 +82,9 @@ public class DOMTree extends JTree {
 	}
 
 	boolean zRefreshTreeFromCacheFile( StringBuffer sbError ){
-		java.io.FileInputStream fisXML = mParent.getXMLInputStream();
+		java.io.FileInputStream fisXML = mParent.getXMLInputStream( sbError );
 		if( fisXML == null ){
-			sbError.append("dataset list xml unavailable");
+			sbError.insert(0, "dataset list xml unavailable: ");
 			return false;
 		}
 
@@ -286,8 +284,11 @@ public class DOMTree extends JTree {
             Document nDoc;
             try {
                 DocumentBuilder builder = factory.newDocumentBuilder();
-				java.io.InputStream fisXML = mParent.getXMLInputStream();
-				if( fisXML == null ) return SEARCH_ERROR; // todo make more specific
+				java.io.InputStream fisXML = mParent.getXMLInputStream( sbError );
+				if( fisXML == null ){
+					ApplicationController.vShowError( "Failed to access datasets xml file: " + sbError.toString() );
+					return SEARCH_ERROR;
+				}
                 nDoc = builder.parse( fisXML );
             } catch(Exception e) {
 				Utility.vUnexpectedError(e, new StringBuffer("creating document builder: "));
