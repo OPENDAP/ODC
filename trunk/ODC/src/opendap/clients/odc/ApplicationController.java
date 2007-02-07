@@ -45,7 +45,7 @@ public class ApplicationController {
 
     private static final String msAppName = "OPeNDAP Data Connector";
     private static final String msAppVersion = "2.64";
-    private static final String msAppReleaseDate = "2 February 2007"; // todo create ANT substitution
+    private static final String msAppReleaseDate = "5 February 2007"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	String getAppName(){ return msAppName; }
