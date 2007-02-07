@@ -3,6 +3,28 @@ NEWS
 Historical Release Notes
 
 ----------------------------------------------------------------------------------------
+ODC 2.64
+5 February 2007
+
+Release Notes
+
+Bug and Behavior Fixes and Upgrades
+
+- Compatibility fix for feedback bug post
+- Upgraded startup script for unix version
+
+----------------------------------------------------------------------------------------
+ODC 2.63
+29 January 2007
+
+Release Notes
+
+Bug and Behavior Fixes and Upgrades
+
+- new Java-OPeNDAP compatibility fix
+- legal statement added to source code
+
+----------------------------------------------------------------------------------------
 ODC 2.60
 22 January 2007
 
