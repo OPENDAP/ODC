@@ -40,6 +40,8 @@ public class Panel_Feedback_Bug extends JPanel {
 
     public Panel_Feedback_Bug() {}
 
+	final JButton jbuttonSendBug = new JButton("Send Bug");
+
 	public final static String WIKI_LineBreak = "[[BR]]";
 
 	public final static String[] CHOICE_OS = {
@@ -387,7 +389,6 @@ public class Panel_Feedback_Bug extends JPanel {
 			);
 
 			// Send Bug
-			JButton jbuttonSendBug = new JButton("Send Bug");
 			jbuttonSendBug.addActionListener(
 				new ActionListener(){
 	    			public void actionPerformed(ActionEvent event) {
@@ -424,6 +425,26 @@ public class Panel_Feedback_Bug extends JPanel {
 	}
 
 	void vSendBug(){
+		final Activity activity = new Activity();
+		Continuation_DoCancel conSendBug = new Continuation_DoCancel(){
+			public void Do(){
+				try {
+					vSendBug( activity );
+				} catch(Exception ex) {
+					StringBuffer sbError = new StringBuffer(80);
+					Utility.vUnexpectedError( ex, sbError);
+				}
+			}
+			public void Cancel(){
+				// TODO - no way to cancel currently because a static page fetch is used
+			}
+		};
+		activity.vDoActivity( jbuttonSendBug, null, conSendBug, "Submitting Bug..." );
+	}
+
+	void vSendBug( Activity activity ){
+
+		activity.vUpdateStatus( "Getting parameters" );
 
 		// get parameters
 		String sBugHost = ConfigurationManager.getInstance().getProperty_FEEDBACK_BugHost();
@@ -444,12 +465,12 @@ public class Panel_Feedback_Bug extends JPanel {
 		ArrayList listClientCookies = new ArrayList();
 		ArrayList listServerCookies = new ArrayList();
 		ByteCounter bc = null;
-		Activity activity = null;
 		StringBuffer sbError = new StringBuffer(80);
 		String sPageReturn;
 
 		// start session
 		// http://scm.opendap.org:8090/trac
+		activity.vUpdateStatus( "Starting trac session" );
 		sPath = sBugRoot;
 		sPageReturn = IO.getStaticContent( sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, 0, sbError );
 		if( sPageReturn == null ){
@@ -458,6 +479,7 @@ public class Panel_Feedback_Bug extends JPanel {
 		}
 
 		// make sure a session cookie has been obtained
+		activity.vUpdateStatus( "Getting session cookie" );
 		int xServerCookie = 1;
 		while( true ){
 			if( xServerCookie > listServerCookies.size() ){
@@ -484,6 +506,7 @@ public class Panel_Feedback_Bug extends JPanel {
 
 		// login
 		// http://scm.opendap.org:8090/trac/login
+		activity.vUpdateStatus( "Logging in..." );
 		sPath = sBugRoot + "/login";
 		sPageReturn = IO.getStaticContent( sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, 0, sbError );
 		if( sPageReturn == null ){
@@ -547,6 +570,7 @@ public class Panel_Feedback_Bug extends JPanel {
 
 		// get ticket form to obtain form token
 		// http://scm.opendap.org:8090/trac/newticket
+		activity.vUpdateStatus( "Getting new ticket form..." );
 		sCommand = "GET";
 		sPath = sBugRoot + "/newticket";
 		sPageReturn = IO.getStaticContent( sCommand, sBugHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, 0, sbError );
@@ -614,6 +638,7 @@ public class Panel_Feedback_Bug extends JPanel {
 //		sbContent.append("reporter=j.chamberlain%40opendap.org&product=DODS+clients&version=3.1.x&component=ODC&rep_platform=PC&op_sys=Windows+2000&priority=P1&bug_severity=normal&assigned_to=&cc=&bug_file_loc=http%3A%2F%2Fnone2&short_desc=test+bug+for+ODC+feedback+%232&comment=content+description+for+%232%0D%0Asecond+line+for+description+%232&bit-256=0&bit-512=0&form_name=enter_bug");
 
 		// make posting
+		activity.vUpdateStatus( "Posting bug..." );
 		sCommand = "POST";
 		sPath = sBugRoot + "/newticket";
 		sQuery = null;
