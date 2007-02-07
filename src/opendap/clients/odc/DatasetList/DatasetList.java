@@ -100,6 +100,7 @@ public class DatasetList extends SearchInterface {
 		StringBuffer sbError = new StringBuffer(256);
 		if( !zRefreshDisplayFromCache(sbError) ){
 			ApplicationController.vShowError("Error refreshing dataset list from cache: " + sbError.toString());
+			sbError.setLength(0);
 		}
 
         // Put tree view and selection view into a splitPane
@@ -285,16 +286,23 @@ public class DatasetList extends SearchInterface {
 		}
 	}
 
-	java.io.FileInputStream getXMLInputStream(){
+	java.io.FileInputStream getXMLInputStream( StringBuffer sbError ){
 		String sCachePath = ConfigurationManager.getInstance().getProperty_PATH_XML_Cache();
-		if( sCachePath == null ) return null;
+		if( sCachePath == null ){
+			sbError.append("no path to cache supplied");
+			return null;
+		}
 		try {
-			java.io.File fileCache = new java.io.File(sCachePath);
-			if( fileCache == null ) return null;
+			java.io.File fileCache = new java.io.File( sCachePath );
+			if( fileCache == null ){
+				sbError.append("invalid path: " + sCachePath);
+				return null;
+			}
 			if( fileCache.exists()){
 				java.io.FileInputStream fisCache = new java.io.FileInputStream( fileCache );
 				return fisCache;
 			} else {
+				sbError.append("file does not exist: " + sCachePath);
 				return null;
 			}
 		} catch(Exception ex) {
@@ -558,8 +566,8 @@ public class DatasetList extends SearchInterface {
         }
     }
 
-	private boolean zRefreshDisplayFromCache(StringBuffer sbError){
-		if( xmlDOMTree.zRefreshTreeFromCacheFile(sbError) ){
+	private boolean zRefreshDisplayFromCache( StringBuffer sbError ){
+		if( xmlDOMTree.zRefreshTreeFromCacheFile( sbError ) ){
 			treePanel.removeAll();
 			treePanel.add(scrollTree,BorderLayout.CENTER);
 			return true;
@@ -573,7 +581,8 @@ public class DatasetList extends SearchInterface {
 			treePanel.add(jtaNoTree, BorderLayout.CENTER);
 
 			// and return error
-			sbError.insert(0, "Failed to refresh tree from cache file: " + sbError);
+			sbError.insert(0, "Failed to refresh tree from cache file: ");
+
 			return false;
 		}
 	}
