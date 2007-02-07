@@ -153,9 +153,6 @@ public class IO {
 			sRequest += "\r\n"; // end of header
 		}
 
-		Thread.dumpStack();
-		System.out.println("request: " + sRequest);
-
 		if( zLogHeaders ) ApplicationController.getInstance().vShowStatus("Request header:\n" + Utility.sShowUnprintable(sRequest));
 
 		try {
@@ -254,7 +251,6 @@ public class IO {
 						while( true ){
 							if( xCookieList > listServerCookies.size() ){
 								listServerCookies.add( sCookieText ); // add new cookie
-System.out.println("added new cookie: " + sCookieText);
 								break;
 							}
 							String sExistingCookie = (String)listServerCookies.get( xCookieList - 1 );
@@ -272,7 +268,6 @@ System.out.println("added new cookie: " + sCookieText);
 									if( sExistingCookie_Name.equalsIgnoreCase( sNewCookie_Name ) ){
 										listServerCookies.remove( xCookieList - 1 ); // replace existing cookie
 										listServerCookies.add( sCookieText ); // ...with new cookie
-System.out.println("replaced cookie: " + sCookieText);
 										break; // duplicate cookie
 									}
 								}

@@ -1,14 +1,3 @@
-package opendap.clients.odc;
-
-/**
- * Title:        Panel_Feedback_Email
- * Description:  User can send developers comments via email
- * Copyright:    Copyright (c) 2004
- * Company:      OPeNDAP.org
- * @author       John Chamberlain
- * @version      2.59
- */
-
 /////////////////////////////////////////////////////////////////////////////
 // This file is part of the OPeNDAP Data Connector project.
 //
@@ -31,6 +20,17 @@ package opendap.clients.odc;
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 /////////////////////////////////////////////////////////////////////////////
 
+package opendap.clients.odc;
+
+/**
+ * Title:        Panel_Feedback_Email
+ * Description:  User can send developers comments via email
+ * Copyright:    Copyright (c) 2004
+ * Company:      OPeNDAP.org
+ * @author       John Chamberlain
+ * @version      2.64
+ */
+
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
@@ -49,6 +49,7 @@ public class Panel_Feedback_Email extends JPanel {
 	private final JCheckBox jcheckIncludeMe = new JCheckBox("Include me on mailing list");
 	private final JCheckBox jcheckCanWeContactYou = new JCheckBox("Can we contact you");
 	private final PostOffice mPostOffice = new PostOffice();
+	private final JButton jbuttonSendEmail = new JButton("Send Email");
 
     boolean zInitialize(StringBuffer sbError){
 
@@ -95,7 +96,6 @@ public class Panel_Feedback_Email extends JPanel {
 			jpanelCommand.add( panelOptions, BorderLayout.NORTH );
 
 			// Show Log
-			JButton jbuttonSendEmail = new JButton("Send Email");
 			jbuttonSendEmail.addActionListener(
 				new ActionListener(){
 				    public void actionPerformed(ActionEvent event) {
@@ -136,7 +136,28 @@ public class Panel_Feedback_Email extends JPanel {
 	// sends mail via a web-server based relay
 	// the relay is a perl script on the server (see src/clients/odc/cgi)
 	void vSendEmail_Relay(){
+		final Activity activity = new Activity();
+		Continuation_DoCancel conSendMail = new Continuation_DoCancel(){
+			public void Do(){
+				try {
+					vSendEmail_Relay( activity );
+				} catch(Exception ex) {
+					StringBuffer sbError = new StringBuffer(80);
+					Utility.vUnexpectedError( ex, sbError);
+				}
+			}
+			public void Cancel(){
+				// TODO - no way to cancel currently because a static page fetch is used
+			}
+		};
+		activity.vDoActivity( jbuttonSendEmail, null, conSendMail, "Sending Mail..." );
+	}
+
+	void vSendEmail_Relay( Activity activity ){
 		StringBuffer sbError = new StringBuffer(250);
+
+		activity.vUpdateStatus("Assembling mail details");
+
 		String sMailRelayURL = ConfigurationManager.getInstance().getProperty_FEEDBACK_EmailRelayURL();
 		if( sMailRelayURL == null ){
 			ApplicationController.vShowError("Unable to obtain mail relay URL from configuration manager.");
@@ -182,6 +203,9 @@ public class Panel_Feedback_Email extends JPanel {
 		String sContent = sbContent.toString();
 		java.util.ArrayList listServerCookies = null;
 		java.util.ArrayList listClientCookies = null;
+
+		activity.vUpdateStatus("Posting mail to relay");
+
 		String sPageReturn = IO.getStaticContent(sCommand, sMailHost, iPort, sMailRelayURL, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, null, null, sbError);
 		String sHostAddress = sMailHost + ":" + iPort + sMailRelayURL;
 		if( sPageReturn == null ){
@@ -191,7 +215,7 @@ public class Panel_Feedback_Email extends JPanel {
 			if( sPageReturn.toUpperCase().startsWith("MAIL SENT") ){
 				jtaDisplay.setText(""); // clear the display
 				ApplicationController.getInstance().vShowErrorDialog("Comment emailed. Thanks for your feedback.");
-			} if( sPageReturn.toUpperCase().startsWith("ERROR:") ){
+			} else if( sPageReturn.toUpperCase().startsWith("ERROR:") ){
 				ApplicationController.vShowError("Feedback email attempt to " + sHostAddress + " failed: " + sPageReturn);
 			} else {
 				ApplicationController.vShowError("Feedback email attempt to " + sHostAddress + " had unexpected result: " + sPageReturn);
@@ -286,10 +310,6 @@ class PostOffice {
 
 	boolean zSendEmail( String sMailUser, String sRecipientAddress, String sFromAddress, String sReturnAddress, String sSubject, String sMessageContent, StringBuffer sbError){
 		try {
-System.out.println("sMailUser: " + sMailUser);
-System.out.println("sFromAddress: " + sFromAddress);
-System.out.println("sRecipientAddress: " + sRecipientAddress);
-System.out.println("sReturnAddress: " + sReturnAddress);
 			String sMailServerHost = getMailHost();
 			if (sMailServerHost == null) {
 				sbError.append("no mail host defined");
@@ -337,7 +357,6 @@ System.out.println("sReturnAddress: " + sReturnAddress);
 
 			// define message parameters and content
 			// set return address todo
-System.out.println("from msg: " + addressFrom.toString());
 			msg.setFrom(addressFrom);
 			msg.setRecipient(javax.mail.Message.RecipientType.TO, addressRecipient);
 			msg.setSubject(sSubject);

@@ -139,7 +139,7 @@ public class FormLayout implements LayoutManager2 {
 	public static final void main( String[] args ){
 		JFrame frameTest = new JFrame();
 		FormTestPanel panelTest = new FormTestPanel();
-		frameTest.add( panelTest );
+		frameTest.getContentPane().add( panelTest );
 		frameTest.setVisible( true );
 	}
 
