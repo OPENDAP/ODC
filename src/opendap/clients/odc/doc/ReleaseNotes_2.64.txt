@@ -1,0 +1,10 @@
+ODC 2.64
+5 February 2007
+
+Release Notes
+
+Bug and Behavior Fixes and Upgrades
+
+- Compatibility fix for feedback bug post
+- Upgraded startup script for unix version
+

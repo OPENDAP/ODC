@@ -1,0 +1,11 @@
+ODC 2.63
+29 January 2007
+
+Release Notes
+
+Bug and Behavior Fixes and Upgrades
+
+- new Java-OPeNDAP compatibility fix
+- legal statement added to source code
+
+
