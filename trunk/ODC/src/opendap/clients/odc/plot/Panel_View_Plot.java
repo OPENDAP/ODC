@@ -834,11 +834,13 @@ public class Panel_View_Plot extends JPanel {
 			}
 			DodsURL urlEntry = (DodsURL)listPlotterData.get(xURL_0);
 			StringBuffer sbInfo = new StringBuffer(120);
-			sbInfo.append(urlEntry.getTitle()).append("\n");
+			sbInfo.append(urlEntry.getTitle());
+			sbInfo.append("\n");
 			if( urlEntry == null ){
 				sbInfo.append("[no url available]\n");
 			} else {
-				sbInfo.append(urlEntry).append("\n\n");
+				sbInfo.append(urlEntry);
+				sbInfo.append("\n\n");
 				sbInfo.append(urlEntry.getInfo());
 			}
 			JFrame frame = new JFrame();

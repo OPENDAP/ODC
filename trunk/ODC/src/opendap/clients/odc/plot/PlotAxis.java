@@ -187,7 +187,7 @@ public class PlotAxis {
 	// generates:
 	//   - masScaleLabels1
 	//   - mpxLowerOffset and mpxUpperOffset
-	boolean zDetermineScaleInterval( int pxLength, Font font, boolean zOrthogonalLabels, Graphics g, boolean zDoBiasAdjustment, double dSlope, double dIntercept, StringBuffer sbError ){
+	boolean zDetermineScaleInterval( int pxLength, Font font, boolean zOrthogonalLabels, Graphics g, boolean zDoBiasAdjustment, double dSlope, double dIntercept, boolean zRenderAsTime, StringBuffer sbError ){
 
 		// generate graphics to use
 		// java.awt.image.BufferedImage bi = new java.awt.image.BufferedImage(10,10,java.awt.image.BufferedImage.TYPE_INT_ARGB);
@@ -258,7 +258,11 @@ public class PlotAxis {
 		if( !zAscending ) dIncrement *= -1;
 		while( (zAscending ? dTick <= dValueTo_rounded : dTick >= dValueTo_rounded ) ){
 			mctTicks++;
-			masScaleLabels1[mctTicks] = Utility.sDoubleToRoundedString(dTick, ctDecimalPlaces);
+			if( zRenderAsTime ){
+				masScaleLabels1[mctTicks] = sDetermineTimeLabel( dTick, dRange );
+			} else {
+				masScaleLabels1[mctTicks] = Utility.sDoubleToRoundedString(dTick, ctDecimalPlaces);
+			}
 			dTick += dIncrement;
 		}
 		if( dTick > dValueTo_rounded ){
@@ -268,6 +272,32 @@ public class PlotAxis {
 		}
 
 		return true;
+	}
+
+	static String msLastError = null;
+	private String sDetermineTimeLabel( Double dTimeValue_ms1970, Double dTimeRange_ms ){
+		long nTimeValue_ms1970;
+		long nTimeRange_ms;
+		try {
+			nTimeValue_ms1970 = Long.parseLong( Utility.sDoubleToRoundedString( dTimeValue_ms1970 ) );
+			nTimeRange_ms = Long.parseLong( Utility.sDoubleToRoundedString( dTimeRange_ms ) );
+		} catch( Exception ex ) {
+			String sError = "Error converting double time value to long milliseconds since 1970: " + ex;
+			if( ! sError.equalsIgnoreCase( msLastError ) ){
+				ApplicationController.vShowError_NoModal( sError );
+			}
+		}
+		java.util.Date dateTimeValue = new java.util.Date( nTimeValue_ms1970 );
+
+		// determine time resolution
+		if( nTimeRange_ms < 60000 ){ // use seconds
+		} else if( nTimeRange_ms < 60000 * 60 * 5 ){ // use minutes
+		} else if( nTimeRange_ms < 60000 * 60 * 72 ){ // use hours
+		} else if( nTimeRange_ms < 60000 * 60 * 24 * 30 * 6 ){ // use days
+		} else if( nTimeRange_ms < 60000 * 60 * 24 * 30 * 12 * 3 ){ // use months
+		} else { // use years
+		}
+		return null;
 	}
 
 	// Determine the maximum space each label takes on the axis (pxLabelLength)
