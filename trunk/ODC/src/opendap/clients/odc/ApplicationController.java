@@ -842,7 +842,9 @@ class Environment {
 		while( true ){
 			xSymbol++;
 			if( xSymbol > mlenEnvironment ) return sb.toString();
-			sb.append(asEnvironment_Symbol[xSymbol]).append(" = ").append(asEnvironment_Value[xSymbol]);
+			sb.append(asEnvironment_Symbol[xSymbol]);
+			sb.append(" = ");
+		    sb.append(asEnvironment_Value[xSymbol]);
 		}
 	}
 	private int mlenEnvironment = 0;
