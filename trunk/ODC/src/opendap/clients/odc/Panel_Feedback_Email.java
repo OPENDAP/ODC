@@ -163,7 +163,7 @@ public class Panel_Feedback_Email extends JPanel {
 			ApplicationController.vShowError("Unable to obtain mail relay URL from configuration manager.");
 			return;
 		}
-		String sToAddress = "feedback@opendap.org";
+		String sToAddress = "feedback" + '@' + "opendap.org"; // do not put unseparated address in code or it will get picked up by spiders
 		String sFromAddress = jtfUserEmail.getText();
 		String sReturnAddress = jtfUserEmail.getText(); // same as from address
 		String sSubject = "[ODC feedback]";
