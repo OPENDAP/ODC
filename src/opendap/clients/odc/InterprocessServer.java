@@ -217,6 +217,7 @@ class CommandListener extends Thread {
 				writeLine(ApplicationController.getInstance().getAppName() + " version " + ApplicationController.getInstance().getAppVersion());
 				writeLine("--- Commands (case-insensitive) ---");
 				writeLine("? or Help          - this information");
+				writeLine("exit or quit       - end the application");
 				writeLine("about              - about this application");
 				writeLine("again              - repeat the previous command");
 				writeLine("show config        - displays current configuration settings");
@@ -227,6 +228,7 @@ class CommandListener extends Thread {
 				writeLine("set [option] [val] - sets the value of a configuration option");
 				writeLine("dump tree          - prints tree if selected URL is a directory");
 				writeLine("AddURL [url]       - adds an URL to the selection list");
+				writeLine("GetIP              - returns the external IP address of the current machine");
 				writeLine("GetSelectionCount  - returns the number of currently selected data sets");
 				writeLine("GetAllURLs         - returns URLs for the selected datasets (gives directory urls)");
 				writeLine("GetSelectedURLs    - returns selected URLs (directories are recursed)");
@@ -252,6 +254,8 @@ class CommandListener extends Thread {
 				writeLine("  locate, query and retrieve datasets and other files served by OPeNDAP/DODS servers.");
 				writeLine("  \nFor more information visit: http://OPeNDAP.org");
 				writeLine("  \nFor software updates and tutorials: http://dodsdev.gso.uri.edu/ODC");
+			} else if( sCommandUpper.equals("EXIT") || sCommandUpper.equals("QUIT") ){
+				ApplicationController.getInstance().vForceExit();
 			} else if( sCommandUpper.startsWith("AGAIN") ){
 				sCommand = msLastCommand;
 				vExecute( sCommand, os, sTerminator );
@@ -602,6 +606,14 @@ class CommandListener extends Thread {
 			} else if( sCommandUpper.startsWith("TESTLAYOUT") ){ // test routine
 				opendap.clients.odc.plot.Panel_View_Plot.vTestLayout();
 				writeLine("layout tester launched");
+			} else if( sCommandUpper.startsWith( "GETIP" ) ){
+				String sURL = "http://ttools.kattare.com/IPLookup/servlet/iplookup.IPLookupServlet3";
+				String sIP = IO.getStaticContent( sURL, null, null, sbError );
+				if( sbError.length() != 0 ) {
+					writeLine(sbError.toString());
+				} else {
+					writeLine(sIP);
+				}
 			} else {
 				String sError = "[Error: unknown command: " + sCommand + "]";
 				writeLine(sError);
