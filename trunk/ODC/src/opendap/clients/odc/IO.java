@@ -32,7 +32,7 @@ import java.util.ArrayList;
 
 public class IO {
 
-	public final static int TIMEOUT_CHECK_INTERVAL_ms = 100;
+	public final static int TIMEOUT_CHECK_INTERVAL_ms = 50;
 	public final static int TIMEOUT_DEFAULT_CONNECT   = 20;
 	public final static int TIMEOUT_DEFAULT_READ      = 10;
 	public final static int MAX_HEADER_BYTES          = 10000; // headers larger than this unacceptable
@@ -110,7 +110,6 @@ public class IO {
      * @return the content of the return as a String or null in the case of an error.
      */
 	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList listClientCookies, ArrayList listServerCookies, String sBasicAuthentication, String[] eggLocation, ByteCounter bc, Activity activity, int iRedirectCount, StringBuffer sbError) {
-
 		if( sHost == null ){
 			sbError.append("host missing");
 			return null;
@@ -229,9 +228,12 @@ public class IO {
 			}
 			String sContentDescription = getHeaderField(sHeader, "content-description");
 			String sContentLength = getHeaderField(sHeader, "content-length");
-			if (sContentLength != null){
+			if (sContentLength == null){
+				// no content length supplied
+			} else {
 				try {
 					iContentLength = Integer.parseInt(sContentLength);
+					zHasContentLength = true;
 				} catch(Exception ex) {
 					ApplicationController.vShowWarning("failed to interpret content length (" + sContentLength + ") as integer");
 				}
@@ -473,6 +475,7 @@ ReadHeader:
 	private static String getRemainder( SocketChannel socket_channel, int iContentLength, int iReadTimeout_seconds, ByteCounter byte_counter, Activity activity, StringBuffer sbError ){
 		StringBuffer sbContent = new StringBuffer(1024);
 		long ctTotalBytesRead = 0;
+		int iReadCount = 0;
 		try {
 			ByteBuffer bb = ByteBuffer.allocateDirect(1024);
 			long nReadStarted = System.currentTimeMillis();
@@ -493,13 +496,14 @@ ReadHeader:
 							if( byte_counter != null ) byte_counter.vReportByteCount_Total( ctTotalBytesRead );
 							return null;
 						}
+						break;
 					default: // read bytes
 						bb.flip(); // prepare to read byte buffer
 					    while( bb.remaining() > 0 ){
 							sbContent.append((char)bb.get());
 						}
 						ctTotalBytesRead += iBytesRead;
-						if( iContentLength > 0 && ctTotalBytesRead > iContentLength ){
+						if( iContentLength > 0 && ctTotalBytesRead >= iContentLength ){
 							return sbContent.toString();
 						}
 						bb.clear();
