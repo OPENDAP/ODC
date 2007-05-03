@@ -1,5 +1,5 @@
 #Introduction
-(help file revised 22 January 2007)
+(help file revised 3 May 2007)
 
 This is the OPeNDAP Data Connector (ODC). Using the ODC you can search for and retrieve datasets published by OPeNDAP data servers. OPeNDAP servers (also known as DODS servers) located at major institutions around the world serve a wide variety of data including: climatic data, satellite imagery, and ocean sensor results. The ODC allows you to find these datasets, download them to your machine, save them, and import them into client applications like IDL, Matlab, SPSS, Excel, or into databases such as Access and Oracle. The ODC is your gateway to terabytes of scientific data and imagery.
 
@@ -226,9 +226,14 @@ Another way to change this setting is to edit the config.txt file in the ODC bas
 
 * You can issue the same commands by connecting from a third party application such as a telnet client.
 
-* Enter "?" or "help" in the command line at the bottom of the text view screen to see supported commands for the interprocess server. Step-by-step:
+* Enter "?" or "help" in the command line at the bottom of the text view screen to see supported commands for the interprocess server. See the step by step instructions above for entering a "help" command.
 
-* You can change configuration settings from console by using the command "set".
+* The Interprocess Server is used by the Excel and Access add-ins to do data imports
+
+* The configuration settings for the server are accessible from the console and default to:
+
+InterprocessServer.port = 31870
+InterprocessServer.on = Yes
 
 #Program Directories and Files
 
