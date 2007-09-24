@@ -6,9 +6,8 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002
  * Company:      University of Rhode Island, Graduate School of Oceanography
  * @author       John Chamberlain
- * @version      2.32
+ * @version      2.70
  */
-
 
 /////////////////////////////////////////////////////////////////////////////
 // This file is part of the OPeNDAP Data Connector project.
@@ -34,6 +33,7 @@ package opendap.clients.odc;
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.text.*;
 import java.io.*;
 
 public class Panel_View_Text extends JPanel {
@@ -65,9 +65,30 @@ public class Panel_View_Text extends JPanel {
 				new KeyListener(){
 					public void keyPressed(KeyEvent ke){
 						if( ke.getKeyCode() == ke.VK_ENTER ){
-						    // int iCaretPosition = jtaDisplay.getCaretPosition();
-							// JOptionPane.showMessageDialog(Panel_View_Text.this, "caret position: " + iCaretPosition, "How to Enter Commands", JOptionPane.OK_OPTION);
-							JOptionPane.showMessageDialog(Panel_View_Text.this, "Enter commands by typing them in the box at the bottom of the screen and hitting enter.", "How to Enter Commands", JOptionPane.OK_OPTION);
+							// JOptionPane.showMessageDialog(Panel_View_Text.this, "Enter commands by typing them in the box at the bottom of the screen and hitting enter.", "How to Enter Commands", JOptionPane.OK_OPTION);
+						    int iCaretPosition = jtaDisplay.getCaretPosition();
+							String sDisplayText = jtaDisplay.getText();
+							int lenText = sDisplayText.length();
+							int posBeginningOfLine = iCaretPosition - 1;
+							while( true ){
+								if( posBeginningOfLine < 0 ) break;
+								if( sDisplayText.charAt( posBeginningOfLine ) == '\n' ) break;
+								posBeginningOfLine--;
+							}
+							int posEndOfLine = iCaretPosition;
+							while( true ){
+								if( posEndOfLine == lenText ) break;
+								if( sDisplayText.charAt( posEndOfLine ) == '\n' ) break;
+								posEndOfLine++;
+							}
+							int iPromptLength = ApplicationController.getInstance().getInterpreter().getPromptLength();
+							posBeginningOfLine += iPromptLength;
+							if( posEndOfLine - posBeginningOfLine < 2 ) return; // empty line
+							String sLine = sDisplayText.substring( posBeginningOfLine + 1, posEndOfLine );
+//							System.out.println("command [" + sLine + "]");
+//							JOptionPane.showMessageDialog(Panel_View_Text.this, "line is: [" + sLine + "] posb: " + posBeginningOfLine, "How to Enter Commands", JOptionPane.OK_OPTION);
+							ApplicationController.getInstance().vCommand(sLine);
+							ke.consume();
 						}
 					}
 					public void keyReleased(KeyEvent ke){}

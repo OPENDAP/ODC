@@ -1553,14 +1553,19 @@ ScanForStartOfMatch:
 	final public static String sLineBreak( String sInput, int ctChars, String sBreakChars ){
 		int lenInput = sInput.length();
 		StringBuffer sb = new StringBuffer( lenInput + lenInput/ctChars + 1);
-		int xLine = 1;
+		int xChar = 0;
+		int ctCharsSinceLastBreak = 0;
 		while( true ){
-			if( xLine * ctChars  > lenInput ) break;
-			sb.append( sInput.substring( (xLine-1) * ctChars, xLine * ctChars - 1) );
-			sb.append( sBreakChars );
-			xLine++;
+			if( xChar == lenInput ) break;
+			ctCharsSinceLastBreak++;
+			char cCurrent = sInput.charAt(xChar);
+			sb.append( cCurrent );
+			if( sInput.substring( xChar ).startsWith( sBreakChars ) ) ctCharsSinceLastBreak = 0;
+			if( ctCharsSinceLastBreak == ctChars ){
+				sb.append( sBreakChars );
+				ctCharsSinceLastBreak = 0;
+			}
 		}
-		sb.append( sInput.substring((xLine-1) * ctChars) );
 		return sb.toString();
 	}
 
