@@ -38,7 +38,7 @@ public class InterprocessServer extends Thread {
 	private int miPort;
 	private ArrayList mlistClients = new ArrayList();
 
-	boolean zInitialize(StringBuffer sbError){
+	boolean zInitialize( StringBuffer sbError ){
 		miPort = ConfigurationManager.getInstance().getProperty_InterprocessServerPort();
 		return true;
 	}
@@ -68,7 +68,7 @@ public class InterprocessServer extends Thread {
 			try {
 				StringBuffer sbError = new StringBuffer(250);
 				final CommandListener theNewListener = new CommandListener();
-				if (!theNewListener.zInitialize_Remote(this, socketClient, sbError)) {
+				if( !theNewListener.zInitialize_Remote(this, socketClient, sbError) ){
 					ApplicationController.getInstance().vShowError("Error while initializing a command listener: " + sbError);
 					socketClient.close();
 					return;
@@ -139,7 +139,7 @@ class CommandListener extends Thread {
 			}
 			this.mServer = theServer;
 			this.mClientSocket = theClientSocket;
-			if( !zInitialize_Local(mClientSocket.getOutputStream(), sbError) ){
+			if( !zInitialize_Local( mClientSocket.getOutputStream(), sbError ) ){
 				return false;
 			}
 			return true;
@@ -182,8 +182,16 @@ class CommandListener extends Thread {
 		mbwriter = new BufferedWriter(mwriter);
 	}
 
+	/** Executes an ODC-specific command. Regular commands go to the Python
+	 *  interpreter. To execute an ODC command prefix it with an
+	 *  exclamation point (!).
+	 */
 	void vExecute( String sCommand, OutputStream os, String sTerminator ) {
 		try {
+			if( sCommand == null ){
+				ApplicationController.vShowWarning("internal error, null command supplied to execute");
+				return;
+			}
 			ApplicationController.getInstance().vLogActivity( "command: " + sCommand );
 			if( os == null ){
 				// use existing os
@@ -215,11 +223,12 @@ class CommandListener extends Thread {
 				ApplicationController.getInstance().vShowError(sError);
 			} else if( sCommandUpper.equals("?") || sCommandUpper.equals("HELP") ){
 				writeLine(ApplicationController.getInstance().getAppName() + " version " + ApplicationController.getInstance().getAppVersion());
-				writeLine("--- Commands (case-insensitive) ---");
+				writeLine("--- ODC Commands (case-insensitive) ---");
 				writeLine("? or Help          - this information");
 				writeLine("exit or quit       - end the application");
 				writeLine("about              - about this application");
 				writeLine("again              - repeat the previous command");
+				writeLine("reset              - creates a new Python interpreter");
 				writeLine("show config        - displays current configuration settings");
 				writeLine("show splash        - displays the splash screen (click it to close)");
 				writeLine("show activities    - displays any active processes");
@@ -257,8 +266,18 @@ class CommandListener extends Thread {
 			} else if( sCommandUpper.equals("EXIT") || sCommandUpper.equals("QUIT") ){
 				ApplicationController.getInstance().vForceExit();
 			} else if( sCommandUpper.startsWith("AGAIN") ){
-				sCommand = msLastCommand;
-				vExecute( sCommand, os, sTerminator );
+				if( msLastCommand == null ){
+					writeLine("[no existing command]");
+				} else {
+					sCommand = msLastCommand;
+					vExecute( sCommand, os, sTerminator );
+				}
+			} else if( sCommandUpper.startsWith("RESET") ){
+				if( ApplicationController.getInstance().getInterpreter().zCreateInterpreter( os, sbError ) ){
+					writeLine("new interpreter created");
+				} else {
+					writeLine("failed to create new interpreter: " + sbError);
+				}
 			} else if( sCommandUpper.startsWith("SET") ){
 				boolean zOption = !sCommandUpper.startsWith("SETV");
 				int posOptionBegin = sCommand.indexOf(' ');

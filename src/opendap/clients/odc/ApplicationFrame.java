@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-4
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.64
+ * @version      2.70
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -326,7 +326,6 @@ public class ApplicationFrame extends JFrame {
 			ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DISPLAY_StartupSize_Height, Integer.toString(dimCurrentSize.height) );
 		} else {
 			// user did not change window, do not store settings
-			System.out.print("same");
 		}
 	}
 

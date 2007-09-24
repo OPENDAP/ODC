@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-2004
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.64
+ * @version      2.70
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -44,21 +44,22 @@ public class ApplicationController {
     private static final ApplicationController thisSingleton = new ApplicationController();
 
     private static final String msAppName = "OPeNDAP Data Connector";
-    private static final String msAppVersion = "2.64";
+    private static final String msAppVersion = "2.70";
     private static final String msAppReleaseDate = "5 February 2007"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
-	String getAppName(){ return msAppName; }
-	String getAppVersion(){ return msAppVersion; }
-	String getAppReleaseDate(){ return msAppReleaseDate; }
-	String getVersionString(){ return "ODC " + msAppVersion; }
+	public final String getAppName(){ return msAppName; }
+	public final String getAppVersion(){ return msAppVersion; }
+	public final String getAppReleaseDate(){ return msAppReleaseDate; }
+	public final String getVersionString(){ return "ODC " + msAppVersion; }
 
 	private ApplicationFrame appframe;
 	private InterprocessServer server;
 	private CommandListener command;
+	private Interpreter interpreter;
 
 	private OutputEngine mOutputEngine;
-	public OutputEngine getOutputEngine(){ return mOutputEngine; }
+	public final OutputEngine getOutputEngine(){ return mOutputEngine; }
 
 	private Model_Retrieve mRetrieve;
 	public Model_Retrieve getRetrieveModel(){ return mRetrieve; }
@@ -122,9 +123,16 @@ public class ApplicationController {
 			thisInstance.vShowStartupMessage("creating models");
 			thisInstance.mOutputEngine = new OutputEngine();
 			thisInstance.mRetrieve     = new Model_Retrieve();
+			thisInstance.vShowStartupMessage("creating interpreter");
+			thisInstance.interpreter = new Interpreter();
 			if( !thisInstance.appframe.zInitialize( msAppName, thisSingleton, sbError ) ){
 				ApplicationController.vShowStartupDialog("Failed to initialize main window: " + sbError);
 				System.out.println("Failed to initialize main window: " + sbError);
+				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
+			}
+			if( ! thisInstance.interpreter.zInitialize( ApplicationController.getInstance().getAppFrame().getTextViewerOS(), sbError ) ){
+				ApplicationController.vShowStartupDialog("Failed to initialize command interpreter: " + sbError);
+				System.out.println("Failed to initialize command interpreter: " + sbError);
 				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
 			}
 			ApplicationController.getInstance().vShowStartupMessage("setting options");
@@ -314,23 +322,51 @@ public class ApplicationController {
 
 	public ApplicationFrame getAppFrame(){ return appframe; } // todo review this usage
 
+	public Interpreter getInterpreter(){ return interpreter; } // todo review this usage
+
 	public ArrayList getActivities(){ return this.mlistActivities; }
+
+	StringBuffer msbInterpreterError = new StringBuffer(256);
+
+	public void vCommand( String sCommand ){
+		vCommand( sCommand, this.getAppFrame().getTextViewerOS() );
+	}
 
 	public void vCommand( String sCommand, OutputStream os ){
 		if( command == null ){
+			StringBuffer sbError = new StringBuffer(80);
 			command = new CommandListener();
 			if( os == null ){ os = this.getAppFrame().getTextViewerOS(); }
 			if( os == null ){
 				this.vShowError("internal error, text viewer's output stream unavailable");
 				return;
 			}
-			StringBuffer sbError = new StringBuffer(80);
 			if( !command.zInitialize_Local( os, sbError ) ){
 				this.vShowError("Failed to initialize command listener: " + sbError);
 				return ;
 			}
 		}
-		command.vExecute( sCommand, os, null );
+		if( sCommand.charAt(0) == '!' ){
+			sCommand = sCommand.substring(1);
+			command.vExecute( sCommand, os, null );
+		} else {
+			try {
+				if( interpreter == null ){
+					vShowError( "no interpreter exists" );
+					return;
+				}
+				os.write("\n".getBytes()); // response begins new line
+				if( interpreter.zExecute( sCommand, os, msbInterpreterError ) ){
+					// success
+				} else {
+					this.vShowError("Failed to execute command [" + sCommand + "]: " +  msbInterpreterError);
+					msbInterpreterError.setLength(0);
+				}
+			} catch (Throwable t) {
+				Utility.vUnexpectedError( t, "Unexpected error executing command" );
+			}
+		}
+		interpreter.vWritePrompt(os);
 	}
 
 	public int getStatusCount(){ return listStatusMessages.size(); }
