@@ -188,27 +188,13 @@ public class DatasetList extends SearchInterface {
 			new MouseAdapter(){
 				public void mousePressed( MouseEvent me ){
 					if( me.getClickCount() == 2 ){
-						StringBuffer sbError = new StringBuffer(80);
-						DodsURL[] urls = DatasetList.this.getURLs(sbError);
-	    				if( urls == null ) return;
-						Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
-		    			retrieve_model.getURLList().vDatasets_Add( urls );
-				    	ApplicationController.getInstance().getAppFrame().vActivateRetrievalPanel();
-
-						// select the first URL in the added ones, and activate it
-						DodsURL urlFirst = urls[0];
-						Model_URLList modelURLList = retrieve_model.getURLList();
-						Panel_URLList panelList = modelURLList.getControl();
-						for( int iListIndex = 0; iListIndex < modelURLList.getSize(); iListIndex++ ){
-							if( modelURLList.get( iListIndex ) == urlFirst ){
-								panelList.vSelectIndex(iListIndex);
-								if( urlFirst.getType() == DodsURL.TYPE_Data )
-									ApplicationController.getInstance().getRetrieveModel().getRetrievePanel().vShowDirectory( false ); // data URLs do not have directories
-								ApplicationController.getInstance().getRetrieveModel().vShowURL( urlFirst, null );
+						SwingUtilities.invokeLater(
+							new Runnable(){
+								public void run(){
+									vAddSelectedURLs();
+								}
 							}
-						}
-
-
+						);
 					}
 				}
 			}
@@ -246,6 +232,32 @@ public class DatasetList extends SearchInterface {
 		}
 	    });
     }
+
+	private final void vAddSelectedURLs(){
+		try {
+			StringBuffer sbError = new StringBuffer(80);
+			DodsURL[] urls = DatasetList.this.getURLs(sbError);
+			if( urls == null ) return;
+			Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
+			retrieve_model.getURLList().vDatasets_Add( urls );
+			ApplicationController.getInstance().getAppFrame().vActivateRetrievalPanel();
+
+			// select the first URL in the added ones, and activate it
+			DodsURL urlFirst = urls[0];
+			Model_URLList modelURLList = retrieve_model.getURLList();
+			Panel_URLList panelList = modelURLList.getControl();
+			for( int iListIndex = 0; iListIndex < modelURLList.getSize(); iListIndex++ ){
+				if( modelURLList.get( iListIndex ) == urlFirst ){
+					panelList.vSelectIndex(iListIndex);
+					if( urlFirst.getType() == DodsURL.TYPE_Data )
+						ApplicationController.getInstance().getRetrieveModel().getRetrievePanel().vShowDirectory( false ); // data URLs do not have directories
+					ApplicationController.getInstance().getRetrieveModel().vShowURL( urlFirst, null );
+				}
+			}
+		} catch( Throwable t ) {
+			Utility.vUnexpectedError( t, "adding selected URLs from dataset list" );
+		}
+	}
 
     // XML source management
 
