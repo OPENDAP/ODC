@@ -37,7 +37,13 @@ public class Button_Select extends JButton implements ListSelectionListener {
 		addActionListener(
 			new ActionListener(){
 	    		public void actionPerformed(ActionEvent event) {
-		    		searchable.vAddSelected();
+					SwingUtilities.invokeLater(
+						new Runnable(){
+							public void run(){
+								searchable.vAddSelected();
+							}
+						}
+					);
 			    }
 			}
 		);
