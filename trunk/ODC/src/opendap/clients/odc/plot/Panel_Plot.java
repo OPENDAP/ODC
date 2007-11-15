@@ -256,7 +256,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			int pxPlotTop  = mpxMargin_Top;
 
 			if( axisVertical != null ){
-				if( !axisVertical.zDetermineScaleInterval(pxPlotHeight, fontAxisTicks, true, mbi.createGraphics(), false, 0, 0, sbError) ){
+				if( !axisVertical.zDetermineScaleInterval(pxPlotHeight, fontAxisTicks, true, mbi.createGraphics(), false, 0, 0, false, sbError) ){
 					ApplicationController.vShowError("Failed to generate vertical axis: " + sbError);
 				}
 				if( axisVertical.mpxTick_MajorInterval == 0 ){
@@ -268,7 +268,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 				masTickLabels_vertical = axisVertical.getScaleLabels1();
 			}
 			if( axisHorizontal != null ){
-				if( !axisHorizontal.zDetermineScaleInterval(pxPlotWidth, fontAxisTicks, false, mbi.createGraphics(), false, 0, 0, sbError) ){
+				if( !axisHorizontal.zDetermineScaleInterval(pxPlotWidth, fontAxisTicks, false, mbi.createGraphics(), false, 0, 0, false, sbError) ){
 					ApplicationController.vShowError("Failed to generate vertical axis: " + sbError);
 				}
 				if( axisHorizontal.mpxTick_MajorInterval == 0 ){
@@ -963,7 +963,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 				boolean zDoBiasAdjustment = mOptions.option_legend_zDoBiasAdjustment;
 				double dSlope = mOptions.option_legend_dBiasSlope;
 				double dIntercept = mOptions.option_legend_dBiasIntercept;
-				if( axisColorbar.zDetermineScaleInterval(iSwatchLength, font, zOrthogonalLabels, g2, zDoBiasAdjustment, dSlope, dIntercept, sbError) ){
+				if( axisColorbar.zDetermineScaleInterval(iSwatchLength, font, zOrthogonalLabels, g2, zDoBiasAdjustment, dSlope, dIntercept, false, sbError) ){
 					String[] asScaleLabels = axisColorbar.getScaleLabels1();
 					int pxLabelHeight = fontmetrics.getHeight();
 					int pxTickSize = 5;
