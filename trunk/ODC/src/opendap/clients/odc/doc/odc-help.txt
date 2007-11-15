@@ -1,5 +1,5 @@
 #Introduction
-(help file revised 3 May 2007)
+(help file revised 21 June 2007)
 
 This is the OPeNDAP Data Connector (ODC). Using the ODC you can search for and retrieve datasets published by OPeNDAP data servers. OPeNDAP servers (also known as DODS servers) located at major institutions around the world serve a wide variety of data including: climatic data, satellite imagery, and ocean sensor results. The ODC allows you to find these datasets, download them to your machine, save them, and import them into client applications like IDL, Matlab, SPSS, Excel, or into databases such as Access and Oracle. The ODC is your gateway to terabytes of scientific data and imagery.
 
@@ -622,4 +622,46 @@ IMPORTANT: any resolution smaller than low (5 km) will use significant memory an
 * By double-clicking in this area you can see the currently defined constraint
 * Ctrl-clicking in this area will run whatever text is in this panel as a GCMD query
 * Some servers especially NOAA/NASA servers may require longer timeouts
+
+#Interpreter
+
+The ODC uses the Jython interpreter as its scripting engine. Jython is a full-featured implementation of the Python programming language. This allows you to program the ODC with Python to manipulate data, generate plots, and do calculations. Python is the most powerful interpretive language available and there are many libraries written in Python which you can use to do calculations.
+
+The interpreter is accessible from the View / Text window which acts as a command console. In this window you can enter commands and press Enter to execute them. If you want to execute a group of lines as a unit separate them with a backslash (\). You can also load complete files, called "modules". For more information about loading modules and blocks of code see the help topic "Interpreter - Modules". For more information about manipulating data using the interpreter see the help topic "Interpreter - Data Access".
+
+As a simple example of using the interpreter go to the View / Text window and type:
+
+	print 2+2
+
+and press the Enter key. The console will respond with '4'. In a similar way you can type any valid Python expression.
+
+Python is complex object-oriented language that you can find more information about at www.python.org. To find out about Jython go to www.jython.org.
+
+#Interpreter  - Commands
+
+The ODC interpreter has two main modes: ODC native commands and Jython interpreter commands. By default anything typed into the interpreter will be interpreted as a Python expression unless it begins with an exclamation point (!) in which case it is treated as an ODC native command. Examples of commands:
+
+!             ODC native commands begin with an exclamation point
+!help         ODC command help
+!reset        reset the interpreter environment, all variables deleted
+
+print [expr]       prints the value of an expression
+print sys.version  prints the version of Python being used
+print sys.modules  prints a list of the currently loaded modules
+print 2+2          prints '4'
+
+Complete list of Python built-in functions:
+
+http://www.python.org/doc/current/lib/built-in-funcs.html
+
+#Interpreter  - Modules
+
+Master list of standard Python modules: http://docs.python.org/modindex.html
+
+List of nearly 3000 importable Python modules: http://cheeseshop.python.org
+
+#Interpreter  - Data Access
+
+
+
 
