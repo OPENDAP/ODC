@@ -79,7 +79,9 @@ public class Panel_View_Plot extends JPanel {
 		thisInstance = this;
 	}
 
-	public static Panel_View_Plot getInstance(){ return thisInstance; }
+	public final static Panel_View_Plot getInstance(){ return thisInstance; }
+
+	public final static ArrayList getData(){ return getInstance().listPlotterData; }
 
 	public static JPanel getTN_Controls(){
 		return thisInstance.panelTN_Controls;

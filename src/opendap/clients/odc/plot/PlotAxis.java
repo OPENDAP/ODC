@@ -28,7 +28,7 @@ package opendap.clients.odc.plot;
  * Copyright:    Copyright (c) 2002-4
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.60
+ * @version      2.64
  */
 
 import opendap.clients.odc.*;
@@ -279,13 +279,15 @@ public class PlotAxis {
 		long nTimeValue_ms1970;
 		long nTimeRange_ms;
 		try {
-			nTimeValue_ms1970 = Long.parseLong( Utility.sDoubleToRoundedString( dTimeValue_ms1970 ) );
-			nTimeRange_ms = Long.parseLong( Utility.sDoubleToRoundedString( dTimeRange_ms ) );
+			nTimeValue_ms1970 = Long.parseLong( Utility.sDoubleToRoundedString( dTimeValue_ms1970, 0 ) );
+			nTimeRange_ms = Long.parseLong( Utility.sDoubleToRoundedString( dTimeRange_ms, 0 ) );
 		} catch( Exception ex ) {
 			String sError = "Error converting double time value to long milliseconds since 1970: " + ex;
 			if( ! sError.equalsIgnoreCase( msLastError ) ){
 				ApplicationController.vShowError_NoModal( sError );
+				msLastError = sError;
 			}
+			return "Err";
 		}
 		java.util.Date dateTimeValue = new java.util.Date( nTimeValue_ms1970 );
 
