@@ -143,19 +143,25 @@ public class DOMTree extends JTree {
 	}
 
 	private void vRemoveUnusableNodes( DOMTree.AdapterNode node ){
-		if( node == null ) return;
-		for( int xChild = node.childCount() - 1; xChild >= 0 ; xChild-- ){
-			DOMTree.AdapterNode nodeChild = node.getChild(xChild);
-			if (nodeChild.isLeaf()) {
-				if( nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL) != null ) continue; // data url
-				if( nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null ) continue; // directory url
-				node.removeChild(xChild); // not a valid node
-			} else {
-				vRemoveUnusableNodes( nodeChild ) ;
-				if( nodeChild.childCount() < 1 ){ // all children have been removed
-					node.removeChild(xChild); // directory node no longer has children
+		try {
+			if (node == null)return;
+			for (int xChild = node.childCount() - 1; xChild >= 0; xChild--) {
+				DOMTree.AdapterNode nodeChild = node.getChild(xChild);
+				if (nodeChild.isLeaf()) {
+					if (nodeChild.getAttributes().getNamedItem(DOMTree.
+						ATTR_BASE_URL) != null)continue; // data url
+					if (nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null)continue; // directory url
+					node.removeChild(xChild); // not a valid node
+				} else {
+					vRemoveUnusableNodes(nodeChild);
+					if (nodeChild.childCount() < 1) { // all children have been removed
+						node.removeChild(xChild); // directory node no longer has children
+					}
 				}
 			}
+		} catch( Throwable t ) {
+			ApplicationController.vShowWarning( "failed to remove unusable nodes: " + t );
+			return;
 		}
 	}
 
@@ -572,14 +578,14 @@ public class DOMTree extends JTree {
             return -1; // Should never get here.
         }
 
-        public AdapterNode getChild(int searchIndex) {
+        public AdapterNode getChild( int searchIndex ){
             //Note: JTree index is zero-based.
-            org.w3c.dom.Node node = domNode.getChildNodes().item(searchIndex);
+            org.w3c.dom.Node node = domNode.getChildNodes().item( searchIndex );
             // Return Nth displayable node
             int elementNodeIndex = 0;
-            for (int i=0; i<domNode.getChildNodes().getLength(); i++) {
+            for (int i=0; i < domNode.getChildNodes().getLength(); i++) {
                 node = domNode.getChildNodes().item(i);
-                if (node.getNodeType() == ELEMENT_TYPE
+                if( node.getNodeType() == ELEMENT_TYPE
                         && treeElement( node.getNodeName() )
                         && elementNodeIndex++ == searchIndex)
                 {
