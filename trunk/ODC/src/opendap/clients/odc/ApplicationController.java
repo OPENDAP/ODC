@@ -27,7 +27,7 @@ package opendap.clients.odc;
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//
+//	
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 /////////////////////////////////////////////////////////////////////////////
 
@@ -41,11 +41,11 @@ public class ApplicationController {
 
 	public final static boolean DEBUG = true;
 
-    private static final ApplicationController thisSingleton = new ApplicationController();
+	private static final ApplicationController thisSingleton = new ApplicationController();
 
-    private static final String msAppName = "OPeNDAP Data Connector";
-    private static final String msAppVersion = "2.70";
-    private static final String msAppReleaseDate = "5 February 2007"; // todo create ANT substitution
+	private static final String msAppName = "OPeNDAP Data Connector";
+	private static final String msAppVersion = "2.70";
+	private static final String msAppReleaseDate = "5 February 2007"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	public final String getAppName(){ return msAppName; }
@@ -57,7 +57,10 @@ public class ApplicationController {
 	private InterprocessServer server;
 	private CommandListener command;
 	private Interpreter interpreter;
+	private opendap.clients.odc.geo.Geodesy geodesy;
 
+	public final opendap.clients.odc.geo.Geodesy getGeodesy(){ return geodesy; }
+	
 	private OutputEngine mOutputEngine;
 	public final OutputEngine getOutputEngine(){ return mOutputEngine; }
 
@@ -71,8 +74,8 @@ public class ApplicationController {
 
 	private Environment mEnvironment = new Environment();
 
-    public static void main(String[] args){
-        try {
+	public static void main(String[] args){
+		try {
 
 			ApplicationController thisInstance = ApplicationController.getInstance();
 
@@ -123,6 +126,15 @@ public class ApplicationController {
 			thisInstance.vShowStartupMessage("creating models");
 			thisInstance.mOutputEngine = new OutputEngine();
 			thisInstance.mRetrieve     = new Model_Retrieve();
+			
+			thisInstance.vShowStartupMessage("initializing geodesy");
+			thisInstance.geodesy = opendap.clients.odc.geo.Geodesy.getInstance();
+			if( ! thisInstance.geodesy.zInitialize( sBaseDirectory, sbError ) ){
+				ApplicationController.vShowStartupDialog("Failed to initialize geodesy engine: " + sbError);
+				System.out.println("Failed to initialize geodesy engine: " + sbError);
+				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
+			}
+			
 			thisInstance.vShowStartupMessage("creating interpreter");
 			thisInstance.interpreter = new Interpreter();
 			if( !thisInstance.appframe.zInitialize( msAppName, thisSingleton, sbError ) ){
@@ -144,13 +156,13 @@ public class ApplicationController {
 			} else {
 				thisInstance.vActivate();
 			}
-        } catch( Throwable t ) {
+		} catch( Throwable t ) {
 			String sStackTrace = ApplicationController.extractStackTrace( t );
-            System.out.println("Unexpected error starting application: " + sStackTrace);
+			System.out.println("Unexpected error starting application: " + sStackTrace);
 			ApplicationController.vShowStartupDialog("Failed to initialize: " + sStackTrace);
-            System.exit(1);
-        }
-    }
+			System.exit(1);
+		}
+	}
 
 	static boolean zCheckJavaVersion( String sJavaVersion ){
 		if( sJavaVersion == null ) return false;
@@ -296,7 +308,7 @@ public class ApplicationController {
 			server = new InterprocessServer();
 			StringBuffer sbError = new StringBuffer(80);
 			if( !server.zInitialize(sbError) ){
-				ApplicationController.getInstance().vShowError("Failed to start interprocess server: " + sbError);
+				ApplicationController.vShowError("Failed to start interprocess server: " + sbError);
 				return;
 			}
 		}
@@ -338,11 +350,11 @@ public class ApplicationController {
 			command = new CommandListener();
 			if( os == null ){ os = this.getAppFrame().getTextViewerOS(); }
 			if( os == null ){
-				this.vShowError("internal error, text viewer's output stream unavailable");
+				vShowError("internal error, text viewer's output stream unavailable");
 				return;
 			}
 			if( !command.zInitialize_Local( os, sbError ) ){
-				this.vShowError("Failed to initialize command listener: " + sbError);
+				vShowError("Failed to initialize command listener: " + sbError);
 				return ;
 			}
 		}
@@ -359,7 +371,7 @@ public class ApplicationController {
 				if( interpreter.zExecute( sCommand, os, msbInterpreterError ) ){
 					// success
 				} else {
-					this.vShowError("Failed to execute command [" + sCommand + "]: " +  msbInterpreterError);
+					vShowError("Failed to execute command [" + sCommand + "]: " +  msbInterpreterError);
 					msbInterpreterError.setLength(0);
 				}
 			} catch (Throwable t) {
