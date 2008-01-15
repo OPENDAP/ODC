@@ -1,3 +1,5 @@
+package opendap.clients.odc;
+
 /**
  * <p>Title: Form Layout</p>
  * <p>Description: lays out swing components in a form-like manner</p>
