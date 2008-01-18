@@ -10,15 +10,21 @@ public class ViewManager {
 	final HUD hud = new HUD();
 	int iFrameRate = 0;
 	ViewPanel panelViewPort = null;
+	int ZOOM_max = 10;
+	int ZOOM_min = -10;
 	int iZoomLevel = 0;
+	int iVP_x = 0;
+	int iVP_y = 0;
 	int iVP_w = 0;
 	int iVP_h = 0;
-	int iVPC_x = 0;
+	int iVPB_w = 0; // viewport bounds
+	int iVPB_h = 0;
+	int iVPC_x = 0; // viewport center
 	int iVPC_y = 0;
 
 	public ViewManager() {}
 
-	JPanel getViewport(){ return panelViewPort; }
+	ViewPanel getViewport(){ return panelViewPort; }
 	
 	public boolean zInitialize( StringBuffer sbError ){
 		try {
@@ -33,9 +39,25 @@ public class ViewManager {
 		}
 	}
 
-	void setCenter( int x, int y ){ 
+	void setCenter( int x, int y ){
+		if( (x + 1) * 2 < iVP_w ) x = (iVP_w + 1)/2 - 1;  // -1 is necessary because 0-based
+		else if( (iVPB_w - x + 1) * 2 < iVP_w ) x = iVPB_w - (iVP_w + 1)/2 - 1;
+		if( (y + 1) * 2 < iVP_h ) y = (iVP_h + 1)/2 - 1;  // -1 is necessary because 0-based
+		else if( (iVPB_h - y + 1) * 2 < iVP_h ) y = iVPB_h - (iVP_h + 1)/2 - 1;
 		iVPC_x = x;
 		iVPC_y = y;
+		if( iZoomLevel == 0 ){
+			iVP_x = iVPC_x - iVP_w / 2; 
+			iVP_y = iVPC_y - iVP_h / 2;
+		} else if( iZoomLevel > 0 ) {
+		} else {
+		}
+		panelViewPort.repaint();
+	}
+	
+	void setZoom( int iZoomAdjustment ){
+		if( iZoomAdjustment > 0 && iZoomLevel < ZOOM_max ) iZoomLevel++;
+		else if( iZoomLevel < ZOOM_min ) iZoomLevel--;
 		panelViewPort.repaint();
 	}
 	
@@ -57,7 +79,7 @@ public class ViewManager {
 	          // exiting
 	          new Thread(new Runnable() {
 	              public void run() {
-	                manager.panelViewPort.zStopAnimation( new StringBuffer() );
+	                manager.panelViewPort._zStopAnimation( new StringBuffer() );
 	                System.exit(0);
 	              }
 	            }).start();
@@ -65,16 +87,23 @@ public class ViewManager {
 	      });
 		StringBuffer sbError = new StringBuffer();
 		manager.zInitialize( sbError );
-		manager.panelViewPort.zInitialize( manager, sbError );
+		manager.panelViewPort._zInitialize( manager, sbError );
 		
 		Model2D_Raster raster = new Model2D_Raster();
 		if( ! raster.zLoadImageFromFile( "C:/dev/workspace/ADACK/imagery/fallujah_ge_7m.png", sbError) ){
 			System.err.println( "error loading file: " + sbError ); 
 		}
+		if( ! manager.panelViewPort._setRaster( raster, sbError) ){
+			System.err.println( "error setting raster: " + sbError ); 
+		}
 		frame.setSize(500, 500);
 		frame.setVisible( true );
 		manager.iVP_w = manager.panelViewPort.getWidth();
 		manager.iVP_h = manager.panelViewPort.getHeight();
+		manager.iVPB_w = raster.iWidth;
+		manager.iVPB_h = raster.iHeight;
+		manager.iVPC_x = manager.iVPB_w / 2;
+		manager.iVPC_y = manager.iVPB_h / 2;
 	}
 	
 	public static void vRunGearDemo(){
@@ -112,7 +141,7 @@ public class ViewManager {
 	          // exiting
 	          new Thread(new Runnable() {
 	              public void run() {
-	                manager.panelViewPort.zStopAnimation( new StringBuffer() );
+	                manager.panelViewPort._zStopAnimation( new StringBuffer() );
 	                System.exit(0);
 	              }
 	            }).start();
@@ -121,9 +150,9 @@ public class ViewManager {
 		
 		StringBuffer sbError = new StringBuffer();
 		manager.zInitialize( sbError );
-		manager.panelViewPort.zInitialize( manager, sbError );
+		manager.panelViewPort._zInitialize( manager, sbError );
 		manager.panelViewPort.addGLEventListener( new Model3D_Gears() );
-		manager.panelViewPort.zActivateAnimation( sbError );
+		manager.panelViewPort._zActivateAnimation( sbError );
 	}
 
 	
