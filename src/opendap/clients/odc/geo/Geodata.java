@@ -4,6 +4,7 @@ import geotrans.ConversionState;
 import geotrans.JNIEngine;
 
 abstract public class Geodata<T extends Geodata> {
+	protected final static double PI = 3.14159265358979323e0;  
     protected final static int INPUT = 0;
     protected final static int OUTPUT = 1;
 	public int iDatumIndex;
