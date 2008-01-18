@@ -30,6 +30,8 @@ public class Model2D_Raster {
 			int iZoom_width_10k;
 		} else { // image is enlarged
 		}
+		System.out.println("drawing image at " + x_VP + " " + y_VP + " " + iSubImage_width + " " + iSubImage_height);  
+		System.out.println("subimage at " + iSubImage_x + " " + iSubImage_y + " " + iSubImage_width + " " + iSubImage_height);  
 		g2.drawImage( mbi,
 				x_VP, y_VP, iSubImage_width, iSubImage_height,        // destination coordinates
 				iSubImage_x, iSubImage_y, iSubImage_width, iSubImage_height,  // source coordinates
