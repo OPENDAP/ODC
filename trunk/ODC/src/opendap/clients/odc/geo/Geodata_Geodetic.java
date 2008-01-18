@@ -7,7 +7,6 @@ import geotrans.JNIEngine;
 import geotrans.JNIException;
 
 public class Geodata_Geodetic extends Geodata {
-	private final static double PI = 3.14159265358979323e0;  
 	private Geodetic geodetic;
 	public Geodata_Geodetic( double lon_degrees, double lat_degrees, double height_meters ){
 		geodetic = new Geodetic( lon_degrees * PI / 180, lat_degrees * PI / 180, height_meters );
