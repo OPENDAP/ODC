@@ -6,11 +6,11 @@ import geotrans.GeotransError;
 import geotrans.JNIEngine;
 import geotrans.JNIException;
 
-public class Geodata_LocalCartesian extends Geodata {
+public class Projection_LocalCartesian extends Projection {
 	private LocalCartesian local_cartesian;
 	
 	// parameter constructor
-	public Geodata_LocalCartesian( 
+	public Projection_LocalCartesian( 
 			double origin_lat_degrees,
 			double origin_lon_degrees,
 			double origin_height,
@@ -19,19 +19,19 @@ public class Geodata_LocalCartesian extends Geodata {
 	}
 	
 	// output constructor
-	public Geodata_LocalCartesian( double x, double y, double z ){
+	public Projection_LocalCartesian( double x, double y, double z ){
 		this.local_cartesian = new LocalCartesian( x, y, z );
 	}
-	public Geodata_LocalCartesian( LocalCartesian local_cartesian ){
+	public Projection_LocalCartesian( LocalCartesian local_cartesian ){
 		this.local_cartesian = local_cartesian;
 	}
-	public Projection getProjection(){ return Geodata.Projection.Geocentric; }
+	public ProjectionType getProjectionType(){ return Projection.ProjectionType.LocalCartesian; }
 	public double getX(){ return local_cartesian.getX(); }
 	public double getY(){ return local_cartesian.getY(); }
 	public double getZ(){ return local_cartesian.getZ(); }
-	public static Geodata getOutput( JNIEngine geotrans_engine, StringBuffer sbError ){
+	public static Projection getOutput( JNIEngine geotrans_engine, StringBuffer sbError ){
 		try {
-			return new Geodata_LocalCartesian( geotrans_engine.JNIGetLocalCartesianCoordinates( ConversionState.INTERACTIVE, OUTPUT ) );
+			return new Projection_LocalCartesian( geotrans_engine.JNIGetLocalCartesianCoordinates( ConversionState.INTERACTIVE, OUTPUT ) );
 		} catch(GeotransError e) {
 			sbError.insert( 0, "geotrans error: " + e );
 			return null;
@@ -59,9 +59,24 @@ public class Geodata_LocalCartesian extends Geodata {
         return true;
 	}
 	protected boolean setParameters( JNIEngine geotrans_engine, int direction, StringBuffer sbError ) {
-		return true; // geocentric has no parameters
+		try {
+			geotrans_engine.JNISetLocalCartesianParams( ConversionState.INTERACTIVE, direction, local_cartesian );
+		} catch(GeotransError e) {
+			sbError.insert( 0, "geotrans error: " + e);
+			return false;
+		} catch( JNIException e ) {
+			sbError.insert( 0, "JNI error: " + e );
+			return false;
+        } catch( Throwable t ) {
+        	Utility.vUnexpectedError( t, sbError );
+        	return false;
+        }
+        return true;
 	}
 	public String sDump(){
+		if( local_cartesian.getOriginLatitude() != 0 ){
+			return "origin lat: " + local_cartesian.getOriginLatitude() + " origin lon: " + local_cartesian.getOriginLongitude() + " origin height: " + local_cartesian.getOriginHeight() + " origin orientation: " + local_cartesian.getOrientation(); 
+		}
 		return "X: " + local_cartesian.getX()+ " Y: " + local_cartesian.getY() + " Z: " + local_cartesian.getZ();
 	}
 }

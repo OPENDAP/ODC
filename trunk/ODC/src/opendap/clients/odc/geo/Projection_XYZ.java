@@ -6,7 +6,7 @@ import geotrans.JNIException;
 import geotrans.LocalCartesian;
 import geotrans.JNIEngine;
 
-public class Geodata_XYZ {
+public class Projection_XYZ {
 //	private Geocentric geocentric;
 //	private LocalCartesian local_cartesian;
 //	public double getX(){
