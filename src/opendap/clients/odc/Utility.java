@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Utility
  * Description:  Contains shared utility routines for all the classes in this package
- * Copyright:    Copyright (c) 2002-2004
+ * Copyright:    Copyright (c) 2002-2008
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.60
+ * @version      2.70
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -532,6 +532,112 @@ ScanForStartOfMatch:
 		return s.substring(posLeft + sLeft.length(), posRight);
 	}
 
+	/** loads a CSV file into an array list of 0-based string arrays
+	 *  quotation marks are double escaped
+	 *  @param  sAbsolutePath       absolute path name to file
+	 *  @param  iEstimatedSize      the estimated sie of the CSV file in bytes
+	 *  @param  zRecognizeComments  unquoted # signs will be treated as comments
+	 *  @return                     ArrayList of 0-based string arrays
+	 **/
+	public static ArrayList<String[]> zLoadCSV( String sAbsolutePath, int iEstimatedSize, boolean zRecognizeComments, StringBuffer sbError ){
+		ArrayList listLines = zLoadLines( sAbsolutePath, iEstimatedSize, sbError );
+		if( listLines == null ){ sbError.insert( 0, "failed to load file: " ); return null; }
+		ArrayList<String[]> listRecords = new ArrayList<String[]>( listLines.size() );
+		int ctLines = listLines.size();
+		for( int xLine = 1; xLine <= ctLines; xLine++ ){
+			String sLine = (String) listLines.get( xLine - 1 );
+			String[] asLine = zParseCSVLine( sLine, zRecognizeComments );
+			if( asLine == null ) continue; // ignore blank lines
+			listRecords.add( asLine );
+		}
+		return listRecords;
+	}
+	
+	public static String[] zParseCSVLine( String sLine, boolean zRecognizeComments ){
+		if( sLine == null )return null;
+		sLine = sLine.trim();
+		if( sLine.trim().length() == 0 ) return null;
+		if( sLine.startsWith( "#" ) ) return null; // comment
+		String[] asLine = null;
+		boolean zWriting = false;
+		int ctFields = 0;
+		int lenLine = sLine.length();
+		StringBuffer sbField = new StringBuffer(256);
+		while( true ){
+			int pos = 0;
+			int state = 0; // beginning of field
+			while( true ){
+				if( pos == lenLine ){
+					if( zWriting ){
+						asLine[ctFields] = sbField.toString().trim();
+						sbField.setLength(0);
+					}
+					ctFields++;
+					break;
+				}
+				char c = sLine.charAt( pos );
+				switch( state ){
+					case 0: // beginning of field
+						if( Character.isWhitespace( c ) ) break; // ignore leading whitespace
+						if( c == '"' ){ state = 1; break; } // in quoted string
+						if( c == ',' ){ // end of field
+							if( zWriting ){
+								asLine[ctFields] = sbField.toString().trim();
+								sbField.setLength(0);
+							}
+							ctFields++;
+							state = 0;
+							break;
+						}
+						state = 2; // in unquoted string or number
+						sbField.append( c );
+						break;
+					case 1: // in quoted string
+						if( c == '"' ){ state = 3; break; } // after quotation in quoted string
+						sbField.append( c );
+						break;
+					case 2: // in unquoted string or number
+						if( c == ',' ){
+							if( zWriting ){
+								asLine[ctFields] = sbField.toString().trim();
+								sbField.setLength(0);
+							}
+							ctFields++;
+							state = 0;
+							break;
+						}
+						if(  zRecognizeComments && c == '#' ){ // comment
+							pos = lenLine - 1; // skip to end of line
+							break;
+						}
+						sbField.append( c );
+						break;
+					case 3: // after quotation in quoted string
+						if( c == ',' ){ // end of field
+							if( zWriting ){
+								asLine[ctFields] = sbField.toString().trim();
+								sbField.setLength(0);
+							}
+							ctFields++;
+							state = 0;
+							break;
+						}
+						if( c == '"' ){ sbField.append( c ); break; } // double escaped quotation
+						sbField.append( '"' ); // treat the quotation as a literal even though it is violation of CSV format
+						sbField.append( c );
+						state = 1;
+						break;
+				}
+				pos++;
+			}
+			if( zWriting ){
+				return asLine; 
+			} else {
+				asLine = new String[ctFields]; 
+			}
+		}
+	}
+	
 	// loads lines in a file into an array list of lines
 	// content can include newlines if in quotation marks
 	// End of Line:
@@ -1212,7 +1318,12 @@ ScanForStartOfMatch:
 		return sText.substring(sText.length()-iWidth);
 	}
 
-	// number of decimal places, 0 means integer pecision
+	/** determines the cartesian distance between two sets of coordinates */
+	public static double getDistance( int x1, int y1, int x2, int y2 ){
+		return Math.sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
+	}
+	
+	/** number of decimal places, 0 means integer pecision */
 	public static String sDoubleToPrecisionString( double d, int iPrecision ){
 		if( Double.isNaN(d) ) return "NaN";
 		if( Double.isInfinite(d) ) return "\u221E";
@@ -1221,6 +1332,11 @@ ScanForStartOfMatch:
 		// return "";
 	}
 
+	/** rounds a double to the nearest integer */
+	public static int round( double d ){
+		return (int)round( d, 0 );
+	}
+	
 	/** the order is the power of ten, for example order 0 is rounding to the
 	 *  nearest integer; order 2 rounds to the nearest 100; order -3 rounds to
 	 *  the nearest 0.001 etc
