@@ -6,21 +6,21 @@ import geotrans.GeotransError;
 import geotrans.JNIEngine;
 import geotrans.JNIException;
 
-public class Geodata_Geocentric extends Geodata {
+public class Projection_Geocentric extends Projection {
 	private Geocentric geocentric;
-	public Geodata_Geocentric( double x, double y, double z ){
+	public Projection_Geocentric( double x, double y, double z ){
 		geocentric = new Geocentric( x, y, z );
 	}
-	public Geodata_Geocentric( Geocentric geocentric ){
+	public Projection_Geocentric( Geocentric geocentric ){
 		this.geocentric = geocentric;
 	}
-	public Projection getProjection(){ return Geodata.Projection.Geocentric; }
+	public ProjectionType getProjectionType(){ return Projection.ProjectionType.Geocentric; }
 	public double getX(){ return geocentric.getX(); }
 	public double getY(){ return geocentric.getY(); }
 	public double getZ(){ return geocentric.getZ(); }
-	public static Geodata getOutput( JNIEngine geotrans_engine, StringBuffer sbError ){
+	public static Projection getOutput( JNIEngine geotrans_engine, StringBuffer sbError ){
 		try {
-			return new Geodata_Geocentric( geotrans_engine.JNIGetGeocentricCoordinates( ConversionState.INTERACTIVE, OUTPUT ) );
+			return new Projection_Geocentric( geotrans_engine.JNIGetGeocentricCoordinates( ConversionState.INTERACTIVE, OUTPUT ) );
 		} catch(GeotransError e) {
 			sbError.insert( 0, "geotrans error: " + e );
 			return null;

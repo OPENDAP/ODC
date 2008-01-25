@@ -6,21 +6,21 @@ import geotrans.GeotransError;
 import geotrans.JNIEngine;
 import geotrans.JNIException;
 
-public class Geodata_Geodetic extends Geodata {
+public class Projection_Geodetic extends Projection {
 	private Geodetic geodetic;
-	public Geodata_Geodetic( double lon_degrees, double lat_degrees, double height_meters ){
+	public Projection_Geodetic( double lon_degrees, double lat_degrees, double height_meters ){
 		geodetic = new Geodetic( lon_degrees * PI / 180, lat_degrees * PI / 180, height_meters );
 	}
-	public Geodata_Geodetic( Geodetic geodetic ){
+	public Projection_Geodetic( Geodetic geodetic ){
 		this.geodetic = geodetic;
 	}
-	public Projection getProjection(){ return Geodata.Projection.Geodetic; }
+	public ProjectionType getProjectionType(){ return Projection.ProjectionType.Geodetic; }
 	public double getLongitude_degrees(){ return geodetic.getLongitude() * 180/PI; }
 	public double getLatitude_degrees(){ return geodetic.getLatitude() * 180/PI; }
 	public double getHeight_meters(){ return geodetic.getHeight(); }
-	public static Geodata getOutput( JNIEngine geotrans_engine, StringBuffer sbError ){
+	public static Projection getOutput( JNIEngine geotrans_engine, StringBuffer sbError ){
 		try {
-			return new Geodata_Geodetic( geotrans_engine.JNIGetGeodeticCoordinates( ConversionState.INTERACTIVE, OUTPUT ) );
+			return new Projection_Geodetic( geotrans_engine.JNIGetGeodeticCoordinates( ConversionState.INTERACTIVE, OUTPUT ) );
 		} catch(GeotransError e) {
 			sbError.insert( 0, "geotrans error: " + e );
 			return null;
