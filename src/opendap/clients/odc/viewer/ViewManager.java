@@ -2,6 +2,7 @@ package opendap.clients.odc.viewer;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import opendap.clients.odc.*;
@@ -9,6 +10,7 @@ import opendap.clients.odc.*;
 public class ViewManager {
 	final HUD hud = new HUD();
 	int iFrameRate = 0;
+	JFrame frame = null;
 	ViewPanel panelViewPort = null;
 	int ZOOM_max = 10;
 	int ZOOM_min = -10;
@@ -22,11 +24,15 @@ public class ViewManager {
 	int iVPC_x = 0; // viewport center
 	int iVPC_y = 0;
 
+	Model2D_Raster mRaster;
+	Model3D_Network mNetwork;
+	
 	public ViewManager() {}
 
-	ViewPanel getViewport(){ return panelViewPort; }
+	public final JFrame getFrame(){ return frame; }
+	public final ViewPanel getViewport(){ return panelViewPort; }
 	
-	public boolean zInitialize( StringBuffer sbError ){
+	public final boolean zInitialize( StringBuffer sbError ){
 		try {
 			if( ! hud.zInitialize( this, sbError ) ){
 				sbError.insert( 0, "error initializing HUD: " );
@@ -39,40 +45,13 @@ public class ViewManager {
 		}
 	}
 
-	void setCenter( int x, int y ){
-		if( (x + 1) * 2 < iVP_w ) x = (iVP_w + 1)/2 - 1;  // -1 is necessary because 0-based
-		else if( (iVPB_w - x + 1) * 2 < iVP_w ) x = iVPB_w - (iVP_w + 1)/2 - 1;
-		if( (y + 1) * 2 < iVP_h ) y = (iVP_h + 1)/2 - 1;  // -1 is necessary because 0-based
-		else if( (iVPB_h - y + 1) * 2 < iVP_h ) y = iVPB_h - (iVP_h + 1)/2 - 1;
-		iVPC_x = x;
-		iVPC_y = y;
-		if( iZoomLevel == 0 ){
-			iVP_x = iVPC_x - iVP_w / 2; 
-			iVP_y = iVPC_y - iVP_h / 2;
-		} else if( iZoomLevel > 0 ) {
-		} else {
-		}
-		panelViewPort.repaint();
-	}
-	
-	void setZoom( int iZoomAdjustment ){
-		if( iZoomAdjustment > 0 && iZoomLevel < ZOOM_max ) iZoomLevel++;
-		else if( iZoomLevel < ZOOM_min ) iZoomLevel--;
-		panelViewPort.repaint();
-	}
-	
-	public static void main( String[] args ) {
-		vRunFallujahTest();
-//		vRunGearDemo();
-	}
-
-	public static void vRunFallujahTest(){
-		JFrame frame = new JFrame("Fallujah Scenario");
+	public final static ViewManager createFrame( String sTitle, StringBuffer sbError ){
 		final ViewManager manager = new ViewManager();
+		manager.frame = new JFrame(sTitle);
 		manager.panelViewPort = new ViewPanel();
 		manager.panelViewPort.setOpaque(false);
-		frame.getContentPane().add( manager.panelViewPort, BorderLayout.CENTER );
-	    frame.addWindowListener(new WindowAdapter() {
+		manager.frame.getContentPane().add( manager.panelViewPort, BorderLayout.CENTER );
+	    manager.frame.addWindowListener(new WindowAdapter() {
 	        public void windowClosing(WindowEvent e) {
 	          // Run this on another thread than the AWT event queue to
 	          // make sure the call to Animator.stop() completes before
@@ -85,27 +64,88 @@ public class ViewManager {
 	            }).start();
 	        }
 	      });
-		StringBuffer sbError = new StringBuffer();
 		manager.zInitialize( sbError );
 		manager.panelViewPort._zInitialize( manager, sbError );
-		
-		Model2D_Raster raster = new Model2D_Raster();
-		if( ! raster.zLoadImageFromFile( "C:/dev/workspace/ADACK/imagery/fallujah_ge_7m.png", sbError) ){
-			System.err.println( "error loading file: " + sbError ); 
-		}
-		if( ! manager.panelViewPort._setRaster( raster, sbError) ){
-			System.err.println( "error setting raster: " + sbError ); 
-		}
-		frame.setSize(500, 500);
-		frame.setVisible( true );
-		manager.iVP_w = manager.panelViewPort.getWidth();
-		manager.iVP_h = manager.panelViewPort.getHeight();
-		manager.iVPB_w = raster.iWidth;
-		manager.iVPB_h = raster.iHeight;
-		manager.iVPC_x = manager.iVPB_w / 2;
-		manager.iVPC_y = manager.iVPB_h / 2;
+		return manager;
 	}
 	
+	public final void setOrigin( int x, int y ){
+		iVPB_w = mRaster.iWidth;
+		iVPB_h = mRaster.iHeight;
+		iVP_x = x;
+		iVP_y = y;
+		iVP_w = panelViewPort.getWidth();
+		iVP_h = panelViewPort.getHeight();
+		iVPC_x = x + iVP_w / 2;
+		iVPC_y = y + iVP_h / 2;
+	}
+
+	public final void setCenter( int x, int y ){ // TODO update mouse position
+		if( (x + 1) * 2 < iVP_w ) x = (iVP_w + 1)/2;
+		else if( (iVPB_w - x + 1) * 2 < iVP_w ) x = iVPB_w - (iVP_w + 1)/2;
+		if( (y + 1) * 2 < iVP_h ) y = (iVP_h + 1)/2;
+		else if( (iVPB_h - y + 1) * 2 < iVP_h ) y = iVPB_h - (iVP_h + 1)/2;
+		iVPC_x = x;
+		iVPC_y = y;
+		if( iZoomLevel == 0 ){
+			iVP_x = iVPC_x - iVP_w / 2; 
+			iVP_y = iVPC_y - iVP_h / 2;
+		} else if( iZoomLevel > 0 ) {
+			iVP_x = iVPC_x - iVP_w / 2; 
+			iVP_y = iVPC_y - iVP_h / 2;
+		} else {
+			iVP_x = iVPC_x - iVP_w / 2; 
+			iVP_y = iVPC_y - iVP_h / 2;
+		}
+		panelViewPort.repaint();
+	}
+	
+	public final void setZoom( int iZoomAdjustment ){
+		if( iZoomAdjustment > 0 && iZoomLevel < ZOOM_max ) iZoomLevel++;
+		else if( iZoomLevel > ZOOM_min ) iZoomLevel--;
+		setCenter( iVPC_x, iVPC_y );
+	}
+
+	public final void movePanVertical( int px ){
+		setCenter( iVPC_x, iVPC_y + px ); 
+		panelViewPort.repaint();
+	}
+
+	public final void movePanHorizontal( int px ){
+		setCenter( iVPC_x + px, iVPC_y ); 
+		panelViewPort.repaint();
+	}
+	
+	public final  boolean zAddRaster( Model2D_Raster raster, StringBuffer sbError ){
+		if( raster == null ){
+			sbError.append( "raster missing" );
+			return false;
+		}
+		if( ! panelViewPort._setRaster( raster, sbError) ){
+			sbError.insert( 0, "failed to set raster: " );
+			return false;
+		}
+		mRaster = raster;
+		return true;
+	}
+
+	public final boolean zAddNetwork( Model3D_Network network, StringBuffer sbError ){
+		if( network == null ){
+			sbError.append( "network missing" );
+			return false;
+		}
+		if( ! panelViewPort._setNetwork( network, sbError) ){
+			sbError.insert( 0, "failed to set raster: " );
+			return false;
+		}
+		mNetwork = network;
+		return true;
+	}
+	
+	public static void main( String[] args ) {
+		vRunGearDemo();
+	}
+
 	public static void vRunGearDemo(){
 		JFrame frame = new JFrame("Gear Demo");
 		frame.getContentPane().setLayout(new BorderLayout());
@@ -155,8 +195,9 @@ public class ViewManager {
 		manager.panelViewPort._zActivateAnimation( sbError );
 	}
 
-	
 
 }
+
+	
 
 
