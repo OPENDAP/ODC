@@ -154,7 +154,7 @@ public class VSelector_DGrid extends VariableSelector {
 			boolean zShowDescriptions = getOwner().mGenerator.zShowDescriptions();
 			vUpdateInfo(zShowDescriptions);
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, "While building grid interface");
+			ApplicationController.vUnexpectedError(ex, "While building grid interface");
 		}
     }
 

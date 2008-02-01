@@ -76,7 +76,7 @@ public class InterprocessServer extends Thread {
 				theNewListener.start();
 				ApplicationController.getInstance().vShowStatus("Accepted connection from " +  socketClient.getInetAddress().getHostAddress());
 			} catch(Exception ex) {
-				Utility.vUnexpectedError(ex, new StringBuffer("Unexpected error while creating command listener"));
+				ApplicationController.vUnexpectedError(ex, new StringBuffer("Unexpected error while creating command listener"));
 			}
 		}
 	}
@@ -144,7 +144,7 @@ class CommandListener extends Thread {
 			}
 			return true;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -153,7 +153,7 @@ class CommandListener extends Thread {
 			vSetOutputStream( os );
 			return true;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -172,7 +172,7 @@ class CommandListener extends Thread {
 			try { mClientSocket.close(); } catch(Exception ex) {}
 			mServer.vTerminateClient(this);
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, new StringBuffer("Failed to respond to command (connection may have been broken)"));
+			ApplicationController.vUnexpectedError(ex, new StringBuffer("Failed to respond to command (connection may have been broken)"));
 		}
 	}
 
@@ -643,7 +643,7 @@ class CommandListener extends Thread {
 			msLastCommand = sCommand;
 		} catch(Exception ex) {
 			StringBuffer sbUnexpectedError = new StringBuffer("Failed to execute command: ");
-			Utility.vUnexpectedError(ex, sbUnexpectedError);
+			ApplicationController.vUnexpectedError(ex, sbUnexpectedError);
 			try {
 				writeLine(sbUnexpectedError.toString());
 			} catch(Exception e) {}

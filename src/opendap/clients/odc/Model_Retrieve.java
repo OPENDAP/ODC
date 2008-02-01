@@ -148,7 +148,7 @@ public class Model_Retrieve {
 				vShowMessage(sDDS);
 			}
 		} catch( Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			vShowMessage("[unexpected error retrieving DDS (" + sBaseURL + "): " + sbError + "]");
 		}
 	}
@@ -175,7 +175,7 @@ public class Model_Retrieve {
 				vShowMessage(sDAS);
 			}
 		} catch( Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			vShowMessage("[unexpected error retrieving DAS (" + sBaseURL + "): " + sbError + "]");
 		}
 	}
@@ -195,7 +195,7 @@ public class Model_Retrieve {
 				vShowMessage(sContent);
 			}
 		} catch( Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			vShowMessage("[unexpected error retrieving content (" + url + "): " + sbError + "]");
 		}
 	}
@@ -264,7 +264,7 @@ public class Model_Retrieve {
 					if( con != null ) con.Success();
 			   } catch(Exception ex) {
 				   StringBuffer sbError = new StringBuffer(80);
-				   Utility.vUnexpectedError( ex, sbError);
+				   ApplicationController.vUnexpectedError( ex, sbError);
 				   if( con != null ) con.Failure(sbError.toString());
 			   }
 		   }
@@ -321,7 +321,7 @@ public class Model_Retrieve {
 					if( con != null ) con.Success();
 			   } catch(Exception ex) {
 				   StringBuffer sbError = new StringBuffer(80);
-				   Utility.vUnexpectedError( ex, sbError);
+				   ApplicationController.vUnexpectedError( ex, sbError);
 				   if( con != null ) con.Failure(sbError.toString());
 			   }
 		   }
@@ -509,7 +509,7 @@ public class Model_Retrieve {
 			if( activity != null ) activity.vUpdateStatus("loading root node " + sURL);
 			vFetchDirectoryTree_LoadNode( nodeRoot, sURL, 1, zRecurse, activity );
 		} catch(Exception ex) {
-			Utility.vUnexpectedError( ex, "Unexpected error getting directory tree " + sURL);
+			ApplicationController.vUnexpectedError( ex, "Unexpected error getting directory tree " + sURL);
 			return null;
 		}
 		mActiveDirectoryTree = dt;
@@ -606,7 +606,7 @@ public class Model_Retrieve {
 
 			return;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbNodeError);
+			ApplicationController.vUnexpectedError(ex, sbNodeError);
 			node.setError("page unavailable: " + sbNodeError);
 			return;
 		}
@@ -657,7 +657,7 @@ public class Model_Retrieve {
 			node.setError(null); // no errors found
 			return;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbNodeError);
+			ApplicationController.vUnexpectedError(ex, sbNodeError);
 			node.setError("page unavailable: " + sbNodeError);
 			return;
 		}
@@ -696,7 +696,7 @@ public class Model_Retrieve {
 			node.setError(null); // no errors found
 			return;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbNodeError);
+			ApplicationController.vUnexpectedError(ex, sbNodeError);
 			node.setError("page unavailable: " + sbNodeError);
 			return;
 		}
@@ -737,7 +737,7 @@ public class Model_Retrieve {
 			node.setError(null); // no errors found
 			return;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbNodeError);
+			ApplicationController.vUnexpectedError(ex, sbNodeError);
 			node.setError("page unavailable: " + sbNodeError);
 			return;
 		}
@@ -776,7 +776,7 @@ public class Model_Retrieve {
 			node.setError(null); // no errors found
 			return;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbNodeError);
+			ApplicationController.vUnexpectedError(ex, sbNodeError);
 			node.setError("page unavailable: " + sbNodeError);
 			return;
 		}
@@ -917,7 +917,7 @@ public class Model_Retrieve {
 			node.setError(null); // no errors found
 			return;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbNodeError);
+			ApplicationController.vUnexpectedError(ex, sbNodeError);
 			node.setError("page unavailable: " + sbNodeError);
 			return;
 		}
@@ -1061,7 +1061,7 @@ public class Model_Retrieve {
 			node.setError(null); // no errors found
 			return;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbNodeError);
+			ApplicationController.vUnexpectedError(ex, sbNodeError);
 			node.setError("page unavailable: " + sbNodeError);
 			return;
 		}
@@ -1102,7 +1102,7 @@ public class Model_Retrieve {
 			eggLabel[0] = sPageHTML.substring(xLabel_begin, xLabel_end).trim();
 			return true;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError( ex, sbError);
+			ApplicationController.vUnexpectedError( ex, sbError);
 			return false;
 		}
 	}
@@ -1227,7 +1227,7 @@ public class Model_Retrieve {
 			}
 			return null; // could not find a file
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbNodeError);
+			ApplicationController.vUnexpectedError(ex, sbNodeError);
 			return null;
 		}
     }

@@ -292,7 +292,7 @@ public class DodsURL implements java.io.Serializable {
 			return sEscapedCE;
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("error escaping CE: ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			ApplicationController.vShowError(sbError.toString());
 			return msCE;
 		}
@@ -564,7 +564,7 @@ public class DodsURL implements java.io.Serializable {
 			}
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("Unexpected error loading preferences (filename: " + sFileName + " path: " + sPath + "): ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			ApplicationController.vShowError(sbError.toString());
 			return null;
 		}

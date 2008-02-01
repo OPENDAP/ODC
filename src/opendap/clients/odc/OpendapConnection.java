@@ -140,7 +140,7 @@ public class OpendapConnection {
 			if( activity != null ) activity.vUpdateStatus("sending request");
 			socket_channel.write(ByteBuffer.wrap(sRequest.getBytes()));
 		} catch( Throwable t ) {
-			Utility.vUnexpectedError(t, "rendering request for " + sRequestLocator + " to remote host (" + sRequest_Host + ":" + iRequest_Port + ")");
+			ApplicationController.vUnexpectedError(t, "rendering request for " + sRequestLocator + " to remote host (" + sRequest_Host + ":" + iRequest_Port + ")");
 			try { socket_channel.close(); } catch( Throwable t_is ){}
 			return null;
 		}
@@ -314,7 +314,7 @@ public class OpendapConnection {
 		} catch( java.lang.InterruptedException ex ) { // the user has cancelled the action
 			return null;
 		} catch( Throwable t ) {
-			Utility.vUnexpectedError(t, sbContent);
+			ApplicationController.vUnexpectedError(t, sbContent);
 			return sbContent.toString();
 		}
 	}

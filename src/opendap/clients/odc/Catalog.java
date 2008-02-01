@@ -106,7 +106,7 @@ public class Catalog extends JPanel implements ActionListener {
 
 			return true;
 		} catch( Exception ex ){
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -281,7 +281,7 @@ public class Catalog extends JPanel implements ActionListener {
 						}
 					} catch(Exception ex) {
 						StringBuffer sbError = new StringBuffer("While getting data variables: ");
-						Utility.vUnexpectedError( ex, sbError );
+						ApplicationController.vUnexpectedError( ex, sbError );
 					}
 				}
 				public void Cancel(){

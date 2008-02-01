@@ -212,7 +212,7 @@ public class Resources {
 
 			return true;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}

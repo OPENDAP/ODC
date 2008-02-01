@@ -124,7 +124,7 @@ public class Panel_Feedback_Email extends JPanel {
             return true;
 
         } catch(Exception ex){
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
             return false;
         }
 	}
@@ -143,7 +143,7 @@ public class Panel_Feedback_Email extends JPanel {
 					vSendEmail_Relay( activity );
 				} catch(Exception ex) {
 					StringBuffer sbError = new StringBuffer(80);
-					Utility.vUnexpectedError( ex, sbError);
+					ApplicationController.vUnexpectedError( ex, sbError);
 				}
 			}
 			public void Cancel(){
@@ -284,7 +284,7 @@ class PostOffice {
 			// validate that mail host is reachable todo
 			return true;
 		} catch (Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -378,7 +378,7 @@ class PostOffice {
 			}
 			return true;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}

@@ -121,7 +121,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 								int iStep = Integer.parseInt(jcbStride.getSelectedItem().toString());
 								vUpdateStep( iStep );
 							} catch(Exception ex) {
-								Utility.vUnexpectedError(ex, "Error changing stride");
+								ApplicationController.vUnexpectedError(ex, "Error changing stride");
 							}
 						}
 					}
@@ -158,7 +158,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 			return true;
 
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -230,7 +230,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 			);
 			return true;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		} finally {
 			mscrollpane_Criteria.invalidate();
@@ -278,7 +278,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 			}
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("applying subset");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 		} finally {
 			mzApplyingSubset = false;
 		}
@@ -293,7 +293,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 			}
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("applying subset");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 		}
 	}
 

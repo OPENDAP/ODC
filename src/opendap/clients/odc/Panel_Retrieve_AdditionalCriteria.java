@@ -136,7 +136,7 @@ public class Panel_Retrieve_AdditionalCriteria extends JPanel {
 			return true;
 		} catch(Exception e) {
 			vShowText("Constraint expression modification unavailable: " + e);
-			Utility.vUnexpectedError( e, sbError );
+			ApplicationController.vUnexpectedError( e, sbError );
 			return false;
 		} finally {
 			ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
@@ -152,7 +152,7 @@ public class Panel_Retrieve_AdditionalCriteria extends JPanel {
 			ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("showing retrieve text");
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			ApplicationController.getInstance().vShowError(sbError.toString());
 		}
 	}

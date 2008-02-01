@@ -178,22 +178,22 @@ public class DAP {
 		}
 		switch( getDArrayType(darray) ){
 			case DATA_TYPE_Byte:
-				if( !Utility.zMemoryCheck(lenDim1, 3, sbError) ) return null; else break;
+				if( !ApplicationController.zMemoryCheck(lenDim1, 3, sbError) ) return null; else break;
 			case DATA_TYPE_Int16:
-				if( !Utility.zMemoryCheck(lenDim1, 6, sbError) ) return null; else break;
+				if( !ApplicationController.zMemoryCheck(lenDim1, 6, sbError) ) return null; else break;
 			case DATA_TYPE_Int32:
-				if( !Utility.zMemoryCheck(lenDim1, 12, sbError) ) return null; else break;
+				if( !ApplicationController.zMemoryCheck(lenDim1, 12, sbError) ) return null; else break;
 			case DATA_TYPE_UInt16:
-				if( !Utility.zMemoryCheck(lenDim1, 12, sbError) ) return null; else break;
+				if( !ApplicationController.zMemoryCheck(lenDim1, 12, sbError) ) return null; else break;
 			case DATA_TYPE_UInt32:
-				if( !Utility.zMemoryCheck(lenDim1, 16, sbError) ) return null; else break;
+				if( !ApplicationController.zMemoryCheck(lenDim1, 16, sbError) ) return null; else break;
 			case DATA_TYPE_Float32:
-				if( !Utility.zMemoryCheck(lenDim1, 12, sbError) ) return null; else break;
+				if( !ApplicationController.zMemoryCheck(lenDim1, 12, sbError) ) return null; else break;
 			case DATA_TYPE_Float64:
-				if( !Utility.zMemoryCheck(lenDim1, 16, sbError) ) return null; else break;
+				if( !ApplicationController.zMemoryCheck(lenDim1, 16, sbError) ) return null; else break;
 			default:
 			case DATA_TYPE_String:
-				if( !Utility.zMemoryCheck(lenDim1, 24, sbError) ) return null; else break;
+				if( !ApplicationController.zMemoryCheck(lenDim1, 24, sbError) ) return null; else break;
 		}
 		String[] asValues = new String[lenDim1];
 		PrimitiveVector pvector = darray.getPrimitiveVector();
@@ -301,7 +301,7 @@ public class DAP {
 		Object[] egg = new Object[1];
 		switch( eJAVA_TYPE ){
 			case DAP.JAVA_TYPE_byte:
-				if( !Utility.zMemoryCheck(lenData, 1, sbError) ) return null;
+				if( !ApplicationController.zMemoryCheck(lenData, 1, sbError) ) return null;
 				byte[] ab = new byte[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					ab[xValue] = (byte)ad[xValue];
@@ -309,7 +309,7 @@ public class DAP {
 				egg[0] = ab;
 				break;
 			case DAP.JAVA_TYPE_short:
-				if( !Utility.zMemoryCheck(lenData, 2, sbError) ) return null;
+				if( !ApplicationController.zMemoryCheck(lenData, 2, sbError) ) return null;
 				short[] ash = new short[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					ash[xValue] = (short)ad[xValue];
@@ -317,7 +317,7 @@ public class DAP {
 				egg[0] = ash;
 				break;
 			case DAP.JAVA_TYPE_int:
-				if( !Utility.zMemoryCheck(lenData, 4, sbError) ) return null;
+				if( !ApplicationController.zMemoryCheck(lenData, 4, sbError) ) return null;
 				int[] ai = new int[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					ai[xValue] = (int)ad[xValue];
@@ -325,7 +325,7 @@ public class DAP {
 				egg[0] = ai;
 				break;
 			case DAP.JAVA_TYPE_long:
-				if( !Utility.zMemoryCheck(lenData, 8, sbError) ) return null;
+				if( !ApplicationController.zMemoryCheck(lenData, 8, sbError) ) return null;
 				long[] an = new long[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					an[xValue] = (long)ad[xValue];
@@ -333,7 +333,7 @@ public class DAP {
 				egg[0] = an;
 				break;
 			case DAP.JAVA_TYPE_float:
-				if( !Utility.zMemoryCheck(lenData, 4, sbError) ) return null;
+				if( !ApplicationController.zMemoryCheck(lenData, 4, sbError) ) return null;
 				float[] af = new float[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					af[xValue] = (float)ad[xValue];
@@ -360,7 +360,7 @@ public class DAP {
 		Object[] egg = new Object[1];
 		switch( eJAVA_TYPE ){
 			case DAP.JAVA_TYPE_byte:
-				if( !Utility.zMemoryCheck(lenData, 1, sbError) ) return null;
+				if( !ApplicationController.zMemoryCheck(lenData, 1, sbError) ) return null;
 				byte[] ab = new byte[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					try {
@@ -372,7 +372,7 @@ public class DAP {
 				egg[0] = ab;
 				break;
 			case DAP.JAVA_TYPE_short:
-				if( !Utility.zMemoryCheck(lenData, 2, sbError) ) return null;
+				if( !ApplicationController.zMemoryCheck(lenData, 2, sbError) ) return null;
 				short[] ash = new short[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					try {
@@ -384,7 +384,7 @@ public class DAP {
 				egg[0] = ash;
 				break;
 			case DAP.JAVA_TYPE_int:
-				if( !Utility.zMemoryCheck(lenData, 4, sbError) ) return null;
+				if( !ApplicationController.zMemoryCheck(lenData, 4, sbError) ) return null;
 				int[] ai = new int[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					try {
@@ -396,7 +396,7 @@ public class DAP {
 				egg[0] = ai;
 				break;
 			case DAP.JAVA_TYPE_long:
-				if( !Utility.zMemoryCheck(lenData, 8, sbError) ) return null;
+				if( !ApplicationController.zMemoryCheck(lenData, 8, sbError) ) return null;
 				long[] an = new long[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					try {
@@ -408,7 +408,7 @@ public class DAP {
 				egg[0] = an;
 				break;
 			case DAP.JAVA_TYPE_float:
-				if( !Utility.zMemoryCheck(lenData, 4, sbError) ) return null;
+				if( !ApplicationController.zMemoryCheck(lenData, 4, sbError) ) return null;
 				float[] af = new float[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					try {
@@ -420,7 +420,7 @@ public class DAP {
 				egg[0] = af;
 				break;
 			case DAP.JAVA_TYPE_double:
-				if( !Utility.zMemoryCheck(lenData, 8, sbError) ) return null;
+				if( !ApplicationController.zMemoryCheck(lenData, 8, sbError) ) return null;
 				double[] ad = new double[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					try {
@@ -842,7 +842,7 @@ public class DAP {
 			}
 			return true;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -912,7 +912,7 @@ public class DAP {
 			}
 			return true;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}

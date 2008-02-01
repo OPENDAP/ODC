@@ -364,7 +364,7 @@ public class OutputEngine implements ByteCounter {
 			return true;
 		} catch(Throwable t) {
 			sbError.append("Unexpected error in output frame: ");
-			Utility.vUnexpectedError(t, sbError);
+			ApplicationController.vUnexpectedError(t, sbError);
 			return false;
 		}
 	}
@@ -512,7 +512,7 @@ public class OutputEngine implements ByteCounter {
 						}
 					} catch(Exception exx) {
 // there is an NPE occurring in FilterOutputStream of unknown cause
-//						Utility.vUnexpectedError(exx, "error closing stream");
+//						ApplicationController.vUnexpectedError(exx, "error closing stream");
 					}
 					if( iTarget == OutputProfile.TARGET_ViewImage ){
 						ApplicationController.getInstance().getAppFrame().vActivateViewImagePanel();
@@ -521,7 +521,7 @@ public class OutputEngine implements ByteCounter {
 				}
 			} catch(Exception ex) {
 				StringBuffer sb = new StringBuffer("Unexpected error during output: ");
-				Utility.vUnexpectedError(ex, sb);
+				ApplicationController.vUnexpectedError(ex, sb);
 				ApplicationController.vShowError(sb.toString());
 				if( os != null )
 				    try { os.close(); } catch(Exception exx) {}
@@ -700,7 +700,7 @@ public class OutputEngine implements ByteCounter {
 				} else {
 				}
 			} catch(Exception ex) {
-				Utility.vUnexpectedError(ex, sbError);
+				ApplicationController.vUnexpectedError(ex, sbError);
 				ApplicationController.vShowError(sbError.toString());
 			}
 		}
@@ -737,7 +737,7 @@ public class OutputEngine implements ByteCounter {
 					ApplicationController.vShowWarning("catalog info not supported");
 				}
 			} catch(Exception ex) {
-				Utility.vUnexpectedError(ex, sbError);
+				ApplicationController.vUnexpectedError(ex, sbError);
 				ApplicationController.vShowError(sbError.toString());
 			}
 		}
@@ -764,7 +764,7 @@ public class OutputEngine implements ByteCounter {
 				}
 				return datadds;
 			} catch(Exception ex) {
-				Utility.vUnexpectedError(ex, sbError);
+				ApplicationController.vUnexpectedError(ex, sbError);
 				return null;
 			}
 		}
@@ -816,7 +816,7 @@ public class OutputEngine implements ByteCounter {
 				}
 				ApplicationController.vShowStatus("Output complete for " + sFullURL);
 			} catch(Exception ex) {
-				Utility.vUnexpectedError(ex, sbError);
+				ApplicationController.vUnexpectedError(ex, sbError);
 				ApplicationController.vShowError(sbError.toString());
 			}
 		}
@@ -930,7 +930,7 @@ public class OutputEngine implements ByteCounter {
 				}
 				return true;
 			} catch(Exception ex) {
-				Utility.vUnexpectedError(ex, sbError);
+				ApplicationController.vUnexpectedError(ex, sbError);
 				return false;
 			}
 		}
@@ -986,7 +986,7 @@ public class OutputEngine implements ByteCounter {
 				sbError.append("Socket error [" + exSocket + "]. Client may have closed connection.");
 				return false;
 			} catch(Exception ex) {
-				Utility.vUnexpectedError(ex, sbError);
+				ApplicationController.vUnexpectedError(ex, sbError);
 				return false;
 			}
 		}
@@ -1184,7 +1184,7 @@ public class OutputEngine implements ByteCounter {
 				sbError.append("Socket error [" + exSocket + "]. Client may have closed connection.");
 				return false;
 			} catch(Exception ex) {
-				Utility.vUnexpectedError(ex, sbError);
+				ApplicationController.vUnexpectedError(ex, sbError);
 				return false;
 			}
 		}
@@ -1257,7 +1257,7 @@ public class OutputEngine implements ByteCounter {
 				ApplicationController.vShowError("Socket error [" + exSocket + "]. Client may have closed connection.");
 				return;
 			} catch(Exception ex) {
-				Utility.vUnexpectedError(ex, sbError);
+				ApplicationController.vUnexpectedError(ex, sbError);
 				ApplicationController.vShowError(sbError.toString());
 			}
 		}
@@ -1297,7 +1297,7 @@ public class OutputEngine implements ByteCounter {
 					ApplicationController.vShowError("Download from " + sFullURL + " failed: " + sbError.toString());
 				}
 			} catch(Exception ex) {
-				Utility.vUnexpectedError(ex, sbError);
+				ApplicationController.vUnexpectedError(ex, sbError);
 				ApplicationController.vShowError(sbError.toString());
 			} finally {
 				try {
@@ -1320,7 +1320,7 @@ public class OutputEngine implements ByteCounter {
 			try {
 				String sFullURL = url.getFullURL();
 				if( Utility.isDodsURL(sFullURL) ){
-					sFullURL = Utility.sDetemineDodsRawPath(sFullURL, sbError);
+					sFullURL = ApplicationController.sDetemineDodsRawPath(sFullURL, sbError);
 					if( sFullURL == null ){
 						ApplicationController.vShowError("Unable to determine raw path from DODS URL " +  url.getFullURL() + ": " + sbError);
 						return;
@@ -1348,7 +1348,7 @@ public class OutputEngine implements ByteCounter {
 //					ApplicationController.vShowError("Download from " + sFullURL + " failed: " + sbError.toString());
 //				}
 			} catch(Exception ex) {
-				Utility.vUnexpectedError(ex, sbError);
+				ApplicationController.vUnexpectedError(ex, sbError);
 				ApplicationController.vShowError(sbError.toString());
 			} finally {
 				try {
@@ -1444,7 +1444,7 @@ public class OutputEngine implements ByteCounter {
 			);
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("Unexpected error loading: ");
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			ApplicationController.vShowError(sbError.toString());
 			if( con != null ) con.Cancel();
 		}

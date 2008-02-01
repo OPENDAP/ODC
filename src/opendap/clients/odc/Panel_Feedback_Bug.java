@@ -408,7 +408,7 @@ public class Panel_Feedback_Bug extends JPanel {
             return true;
 
         } catch(Exception ex){
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
             return false;
         }
 	}
@@ -432,7 +432,7 @@ public class Panel_Feedback_Bug extends JPanel {
 					vSendBug( activity );
 				} catch(Exception ex) {
 					StringBuffer sbError = new StringBuffer(80);
-					Utility.vUnexpectedError( ex, sbError);
+					ApplicationController.vUnexpectedError( ex, sbError);
 				}
 			}
 			public void Cancel(){

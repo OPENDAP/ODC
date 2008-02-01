@@ -279,7 +279,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 			return true;
 
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -406,7 +406,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 			panelGazetteer.add(jpanelCustom);
 			return true;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 
@@ -455,7 +455,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 			}
 		} catch(Exception ex) {
 			sbError.append("While adding custom gazetteer entry: ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			ApplicationController.vShowError("While adding custom gazetteer entry " + sResponse + ": " + sbError);
 		}
 	}
@@ -473,7 +473,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 			}
 		} catch(Exception ex) {
 			sbError.append("While adding custom gazetteer entry: ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 		}
 	}
 
@@ -798,7 +798,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 			return true;
 
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 

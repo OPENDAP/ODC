@@ -240,7 +240,7 @@ public class Panel_View_Image extends JPanel {
 			Panel_View_Image.this.vAction_LoadFile( sFullPath );
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("internal error, no object for item in list");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			ApplicationController.vShowError(sbError.toString());
 		}
 	}

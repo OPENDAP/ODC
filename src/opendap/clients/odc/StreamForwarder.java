@@ -69,7 +69,7 @@ class StreamForwarder extends FilterOutputStream {
 			mctOutputStreams = mctOutputStreams*2;
 			return true;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}

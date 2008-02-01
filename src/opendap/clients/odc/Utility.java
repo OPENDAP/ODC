@@ -42,26 +42,6 @@ public class Utility {
 
     public Utility() {}
 
-	// requires a 5 megabyte buffer which is wise for a Swing application
-	public static boolean zMemoryCheck( int iCount, int iWidth, StringBuffer sbError ){
-		if( ApplicationController.getMemory_Available() > iCount * iWidth + 5000000 ){
-			return true;
-		} else {
-			sbError.append("insufficient memory (see help for how to increase memory)");
-			return false;
-		}
-	}
-
-	public static boolean activateURL( String sURL, StringBuffer sbError ){
-		try {
-			Runtime.getRuntime().exec("start " + sURL);
-			return true;
-		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
-			return false;
-		}
-	}
-
 	public static String getByteCountString( long nBytes ){
 		char cOrder;
 		int intSz;
@@ -85,24 +65,6 @@ public class Utility {
 
 	public static String  getFileSeparator(){
 		return msFileSeparator;
-	}
-
-	public static void vUnexpectedError( Throwable ex, String sMessage ){
-		if( ApplicationController.DEBUG ){
-			ApplicationController.vShowError(sMessage + ":\n" + Utility.extractStackTrace(ex));
-		} else {
-			ApplicationController.vShowError(sMessage + ": " + Utility.extractErrorLine(ex));
-		}
-	}
-
-	public static void vUnexpectedError( Throwable ex, StringBuffer sbError ){
-		String sErrorMessage = ApplicationController.DEBUG ? Utility.extractStackTrace(ex) : Utility.extractErrorLine(ex);
-		if( sbError == null ){
-			System.err.println("(no buffer supplied for the following error:)");
-			System.err.println(sErrorMessage);
-		} else {
-			sbError.append(": ").append(sErrorMessage);
-		}
 	}
 
 	public static String sEscapeURL( String sRawURL ){
@@ -135,6 +97,15 @@ public class Utility {
 			if( s.charAt(pos) == c ) iCount++;
 		}
 		return iCount;
+	}
+
+	public static int find( String s, String[] as, boolean zCaseSensitive ){
+		if( as == null ) return -1;
+		for( int x = 0; x < as.length; x++ ){
+			if( as[x] == null ) continue;
+			if( zCaseSensitive ? as[x].equals( s ) : as[x].equalsIgnoreCase( s ) ) return x;
+		}
+		return -1;
 	}
 
 	public static int find( StringBuffer sb, String sTarget ){ // zero based
@@ -570,10 +541,14 @@ ScanForStartOfMatch:
 				if( pos == lenLine ){
 					if( zWriting ){
 						asLine[ctFields] = sbField.toString().trim();
-						sbField.setLength(0);
+						return asLine; 
 					}
 					ctFields++;
-					break;
+					asLine = new String[ctFields];
+					ctFields = 0;
+					zWriting = true;
+					pos = 0;
+					sbField.setLength(0);
 				}
 				char c = sLine.charAt( pos );
 				switch( state ){
@@ -629,11 +604,6 @@ ScanForStartOfMatch:
 						break;
 				}
 				pos++;
-			}
-			if( zWriting ){
-				return asLine; 
-			} else {
-				asLine = new String[ctFields]; 
 			}
 		}
 	}
@@ -749,7 +719,7 @@ ScanForStartOfMatch:
 		return true;
 	}
 
-	static boolean zSaveStringFile( String sAbsolutePath, StringBuffer sbBuffer, StringBuffer sbError){
+	public static boolean zSaveStringFile( String sAbsolutePath, StringBuffer sbBuffer, StringBuffer sbError){
 		File file = new File(sAbsolutePath);
 		OutputStream os = null;
 		try {
@@ -772,23 +742,6 @@ ScanForStartOfMatch:
 			}
 		}
 		return true;
-	}
-
-	static boolean zDeletePreferenceObject( String sFileName, StringBuffer sbError ){
-		try {
-			String sPreferencesDirectory = ConfigurationManager.getInstance().getProperty_PreferencesDirectory();
-			String sPath = sPreferencesDirectory + sFileName;
-			File fileToDelete = new File(sPath);
-			if( !fileToDelete.exists() ){
-				sbError.append("file does not exist: " + sPath);
-				return false;
-			}
-			fileToDelete.delete();
-			return true;
-		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
-			return false;
-		}
 	}
 
 	static int parseInteger_positive(String s){
@@ -1079,54 +1032,6 @@ ScanForStartOfMatch:
 		}
 	}
 
-	public static String sDetemineDodsRawPath( String sDodsURL, StringBuffer sbError ){
-		try {
-			if( sDodsURL == null ){
-				sbError.append("input URL was null");
-				return null;
-			}
-
-			// find method
-			int posMethodBegin = sDodsURL.indexOf("://");
-			if( posMethodBegin < 0 ){
-				sbError.append("no method found in URL");
-				return null;
-			}
-			int posDomainBegin = posMethodBegin + 3;
-
-			// find end of domain
-			int posDomainEnd = sDodsURL.indexOf("/", posDomainBegin);
-			if( posDomainEnd < 0 ){
-				sbError.append("no domain-terminating slash found after method");
-				return null;
-			}
-
-			// find nph
-			int posNPHbegin = sDodsURL.toUpperCase().indexOf("NPH-");
-			if( posNPHbegin < 0 ){
-				sbError.append("hint 'nph-' not found in URL");
-				return null;
-			}
-
-			// find end of nph
-			int posNPHend = sDodsURL.indexOf("/", posNPHbegin);
-			if( posNPHend < 0 ){
-				sbError.append("no slash found after 'nph-' hint");
-				return null;
-			}
-
-			// construct raw URL
-			StringBuffer sbRawURL = new StringBuffer(sDodsURL.length());
-			sbRawURL.append(sDodsURL.substring(0, posDomainEnd));
-			sbRawURL.append(sDodsURL.substring(posNPHend));
-			return sbRawURL.toString();
-
-		} catch( Exception ex ) {
-			vUnexpectedError(ex, sbError);
-			return null;
-		}
-	}
-
 	public static String sListDoubles1( double[] ad1, String sSeperator ){
 		StringBuffer sb = new StringBuffer(100);
 		for( int x = 1; x < ad1.length; x++ ){
@@ -1200,6 +1105,82 @@ ScanForStartOfMatch:
 		}
 	}
 
+	static File fileDefine( String sDirectory, String sFileName, StringBuffer sbError ){
+		try {
+			String sPath = Utility.sConnectPaths( sDirectory, sFileName );
+			File file = new File( sPath );
+			return file;
+		} catch( Throwable t ) {
+			sbError.append("error: " +  t);
+			return null;
+		}
+	}
+			
+	static javax.swing.JFileChooser jfc = null;
+	/** opens a dialog to save a file
+	 *  this method is appropriate for files less than 1 MB
+	 *  if the error buffer is blank and file is null then the user cancelled the operation
+	 *  @param sSuggestedFileName  example: "processing_script.py", null is ok
+	 *  @param sDirectory  default directory to save to, terminator optional
+	 *  @return File  the file to which the user saved */
+	static final File fileSaveAs( String sDirectory, String sSuggestedFileName, String sContent, StringBuffer sbError ){
+		try {
+
+			// ask user for desired location
+			File filePlotsDirectory = Utility.fileEstablishDirectory( sDirectory, sbError );
+			if (jfc == null) jfc = new javax.swing.JFileChooser();
+			if( filePlotsDirectory == null ){
+				// no default directory
+			} else {
+				jfc.setCurrentDirectory(filePlotsDirectory);
+			}
+			if( sSuggestedFileName != null && sSuggestedFileName.length() != 0 ){
+				jfc.setSelectedFile(new File(sSuggestedFileName));
+			}
+			int iState = jfc.showDialog(ApplicationController.getInstance().getAppFrame(), "Select Save Location");
+			File file = jfc.getSelectedFile();
+			if (file == null || iState != javax.swing.JFileChooser.APPROVE_OPTION) return null; // user cancel
+			if( ! fileSave( file, sContent, sbError ) ){
+				sbError.insert( 0, "failed to save [" + file + "]: " );
+				return null;
+			}
+			return file;
+		} catch(Exception ex) {
+			sbError.append( "unexpected error: " + ex );
+			return null;
+		}
+	}
+
+	static boolean fileSave(  File file, String sContent, StringBuffer sbError ){
+
+		// open file
+		FileOutputStream fos;
+	    try {
+		    fos = new java.io.FileOutputStream(file);
+			if( fos == null ){
+				sbError.append("failed to open file, empty stream");
+				return false;
+			}
+		} catch(Exception ex) {
+			sbError.append("failed to open file for writing: " + ex);
+			return false;
+		}
+
+		// save to file
+		java.nio.channels.FileChannel fc = fos.getChannel();
+		try {
+			fc.write( java.nio.ByteBuffer.wrap( sContent.getBytes()) );
+		} catch(Exception ex) {
+			ApplicationController.vShowError("write failure: " + ex);
+			return false;
+		} finally {
+			try {
+				if(fos!=null) fos.close();
+			} catch(Exception ex) {}
+		}
+		return true;
+	}
+	
 	/* 1.4.1 only
 	public static boolean zChannelCopy( ReadableByteChannel rbcSource, WritableByteChannel wbcDestination, StringBuffer sbError ){
 		try {
@@ -1439,7 +1420,8 @@ ScanForStartOfMatch:
 	}
 	public static String dumpArray( String[] as, int from, int to ){
 		if( as == null ) return "[null]";
-		if( to == 0 ) to = as.length - 1;
+		if( from < 0 ) from = 0;
+		if( to == 0 || to > as.length - 1 ) to = as.length - 1;
 		StringBuffer sb = new StringBuffer(80);
 		for( int x = from; x <= to; x++ ){
 			sb.append("[" + x + "] = " + as[x] + "\n");
@@ -1622,7 +1604,7 @@ ScanForStartOfMatch:
 		component.setBounds(widthContainer/2 - (widthComponent/2), heightContainer/2 - (heightComponent/2), widthComponent, heightComponent);
 	}
 
-	public static File fileEstablishDirectory( String sPath ){
+	public static File fileEstablishDirectory( String sPath, StringBuffer sbError ){
 		try {
 			File fileDirectory = null;
 			if (sPath == null) {
@@ -1641,9 +1623,7 @@ ScanForStartOfMatch:
 				return fileDirectory;
 			}
 		} catch(Exception ex) {
-			StringBuffer sbError = new StringBuffer();
-			Utility.vUnexpectedError(ex, sbError);
-			ApplicationController.vShowWarning("error establishing directory: " + sbError);
+			sbError.append( Utility.extractStackTrace( ex ) );
 			return null;
 		}
 	}
