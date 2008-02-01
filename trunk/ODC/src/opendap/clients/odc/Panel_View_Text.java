@@ -32,140 +32,121 @@ package opendap.clients.odc;
 /////////////////////////////////////////////////////////////////////////////
 import java.awt.event.*;
 import java.awt.*;
+import java.io.File;
+
 import javax.swing.*;
-import javax.swing.text.*;
-import java.io.*;
 
 public class Panel_View_Text extends JPanel {
 
+	private int mctFilesOpened;
+	
     public Panel_View_Text() {}
 
-	JScrollPane jspDisplay = new JScrollPane();
-	private final JTextArea jtaDisplay = new JTextArea("");
-	private final JTextField jtfCommand = new JTextField();
+	private final JTabbedPane jtpEditors = new JTabbedPane();
+//	private final ArrayList<Panel_View_Text_Editor> listEditors = new ArrayList<Panel_View_Text_Editor>();
 
-    boolean zInitialize(StringBuffer sbError){
+	boolean zInitialize(StringBuffer sbError){
 
         try {
 
 			javax.swing.border.Border borderStandard = BorderFactory.createEtchedBorder();
-			this.setBorder(borderStandard);
+			setBorder(borderStandard);
+			setLayout(new java.awt.BorderLayout());
 
-			this.setLayout(new java.awt.BorderLayout());
-
-			// Create and intialize the text area
-			Styles.vApply(Styles.STYLE_Terminal, jtaDisplay);
-			jtaDisplay.setLineWrap(true);
-			jtaDisplay.setWrapStyleWord(true);
-			jspDisplay.setViewportView(jtaDisplay);
-		    this.add(jspDisplay, java.awt.BorderLayout.CENTER);
-
-			// Add special warning message to display jta
-			jtaDisplay.addKeyListener(
-				new KeyListener(){
-					public void keyPressed(KeyEvent ke){
-						if( ke.getKeyCode() == ke.VK_ENTER ){
-							// JOptionPane.showMessageDialog(Panel_View_Text.this, "Enter commands by typing them in the box at the bottom of the screen and hitting enter.", "How to Enter Commands", JOptionPane.OK_OPTION);
-						    int iCaretPosition = jtaDisplay.getCaretPosition();
-							String sDisplayText = jtaDisplay.getText();
-							int lenText = sDisplayText.length();
-							int posBeginningOfLine = iCaretPosition - 1;
-							while( true ){
-								if( posBeginningOfLine < 0 ) break;
-								if( sDisplayText.charAt( posBeginningOfLine ) == '\n' ) break;
-								posBeginningOfLine--;
-							}
-							int posEndOfLine = iCaretPosition;
-							while( true ){
-								if( posEndOfLine == lenText ) break;
-								if( sDisplayText.charAt( posEndOfLine ) == '\n' ) break;
-								posEndOfLine++;
-							}
-							int iPromptLength = ApplicationController.getInstance().getInterpreter().getPromptLength();
-							posBeginningOfLine += iPromptLength;
-							if( posEndOfLine - posBeginningOfLine < 2 ) return; // empty line
-							String sLine = sDisplayText.substring( posBeginningOfLine + 1, posEndOfLine );
-//							System.out.println("command [" + sLine + "]");
-//							JOptionPane.showMessageDialog(Panel_View_Text.this, "line is: [" + sLine + "] posb: " + posBeginningOfLine, "How to Enter Commands", JOptionPane.OK_OPTION);
-							ApplicationController.getInstance().vCommand(sLine);
-							ke.consume();
-						}
-					}
-					public void keyReleased(KeyEvent ke){}
-					public void keyTyped(KeyEvent ke){}
-				}
-		    );
 
 			// Create and intialize the command panel
 			JPanel jpanelCommand = new JPanel();
 			JPanel jpanelCommandButtons = new JPanel();
-
 			jpanelCommand.setLayout( new BorderLayout() );
-			jpanelCommand.add( jtfCommand, BorderLayout.NORTH );
+			add( jtpEditors, BorderLayout.CENTER );
+			add( jpanelCommand, BorderLayout.SOUTH );
+
+			// Create the default editor
+			editorNew();
 
 			// Command
-			jtfCommand.addKeyListener(
-				new KeyListener(){
-					public void keyPressed(KeyEvent ke){
-						if( ke.getKeyCode() == ke.VK_ENTER ){
-							String sCommand = jtfCommand.getText();
-							ApplicationController.getInstance().vCommand(sCommand, null);
-							jtfCommand.setText("");
-						}
-					}
-					public void keyReleased(KeyEvent ke){}
-					public void keyTyped(KeyEvent ke){}
-				}
-		    );
+//			jtfCommand.addKeyListener(
+//				new KeyListener(){
+//					public void keyPressed(KeyEvent ke){
+//						if( ke.getKeyCode() == ke.VK_ENTER ){
+//							String sCommand = jtfCommand.getText();
+//							ApplicationController.getInstance().vCommand(sCommand, null);
+//							jtfCommand.setText("");
+//						}
+//					}
+//					public void keyReleased(KeyEvent ke){}
+//					public void keyTyped(KeyEvent ke){}
+//				}
+//		    );
 
-			// Show Log
-			JButton jbuttonShowLog = new JButton("Show Log");
-			jbuttonShowLog.addActionListener(
-				new ActionListener(){
-				    public void actionPerformed(ActionEvent event) {
-					    Panel_View_Text.this.vShowLog();
-					}
-				}
-			);
-
-			// Show Errors
-			JButton jbuttonShowErrors = new JButton("Show Errors");
-			jbuttonShowErrors.addActionListener(
-				new ActionListener(){
-				    public void actionPerformed(ActionEvent event) {
-					    Panel_View_Text.this.vShowErrors();
-					}
-				}
-			);
-
-			// Clear Display
-			JButton jbuttonClearDisplay = new JButton("Clear Display");
-			jbuttonClearDisplay.addActionListener(
+			// New
+			JButton jbuttonNew = new JButton("New (ctrl+N)");
+			jbuttonNew.addActionListener(
 				new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
-					Panel_View_Text.this.vClearDisplay();
+					    Panel_View_Text.this.editorNew( null, null, null );
 					}
 				}
 			);
 
-			// Clear History
-			JButton jbuttonClearHistory = new JButton("Clear History");
-			jbuttonClearHistory.addActionListener(
+			// Open
+			JButton jbuttonOpen = new JButton("Open (ctrl+O)");
+			jbuttonOpen.addActionListener(
 				new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
-					Panel_View_Text.this.vClearHistory();
+					    Panel_View_Text.this.editorOpen();
 					}
 				}
 			);
 
-			jpanelCommandButtons.add( jbuttonShowLog );
-			jpanelCommandButtons.add( jbuttonShowErrors );
-			jpanelCommandButtons.add( jbuttonClearDisplay );
-			jpanelCommandButtons.add( jbuttonClearHistory );
+			// Save
+			JButton jbuttonSave = new JButton("Save (ctrl+S)");
+			jbuttonSave.addActionListener(
+				new ActionListener(){
+				public void actionPerformed(ActionEvent event) {
+					    Panel_View_Text.this.editorSave();
+					}
+				}
+			);
+
+			// Save As...
+			JButton jbuttonSaveAs = new JButton("Save As... (ctrl+shift+S");
+			jbuttonSaveAs.addActionListener(
+				new ActionListener(){
+				public void actionPerformed(ActionEvent event) {
+					    Panel_View_Text.this.editorSaveAs();
+					}
+				}
+			);
+
+			// Save and Close
+			JButton jbuttonSaveAndClose = new JButton("Save and Close (ctrl+X");
+			jbuttonSaveAndClose.addActionListener(
+				new ActionListener(){
+				public void actionPerformed(ActionEvent event) {
+					    Panel_View_Text.this.editorSaveClose();
+					}
+				}
+			);
+
+			// Close without saving
+			JButton jbuttonCloseNoSave = new JButton("Close No Save (ctrl+shift+X");
+			jbuttonSaveAndClose.addActionListener(
+				new ActionListener(){
+				public void actionPerformed(ActionEvent event) {
+					    Panel_View_Text.this.editorCloseNoSave();
+					}
+				}
+			);
+			
+			jpanelCommandButtons.add( jbuttonNew );
+			jpanelCommandButtons.add( jbuttonOpen );
+			jpanelCommandButtons.add( jbuttonSave );
+			jpanelCommandButtons.add( jbuttonSaveAs );
+			jpanelCommandButtons.add( jbuttonSaveAndClose );
+			jpanelCommandButtons.add( jbuttonCloseNoSave );
 
 			jpanelCommand.add( jpanelCommandButtons, BorderLayout.SOUTH );
-
-			this.add(jpanelCommand, BorderLayout.SOUTH);
 
             return true;
 
@@ -173,152 +154,86 @@ public class Panel_View_Text extends JPanel {
             sbError.insert(0, "Unexpected error: " + ex);
             return false;
         }
+    }
+	
+	public void editorNew(){
+		editorNew( null, null, null );
 	}
-
-	void vClearDisplay(){
-		jtaDisplay.setText("");
-	}
-
-	void vClearHistory(){
-		ApplicationController.getInstance().vClearHistory();
-	}
-
-	void vDisplayAppendLine(String sTextToAppend){
-		if( sTextToAppend.endsWith(CommandListener.FORMATTING_ResponseTermination) ){
-			sTextToAppend = sTextToAppend.substring(0, sTextToAppend.length()-CommandListener.FORMATTING_ResponseTermination.length());
-		}
-		jtaDisplay.append(sTextToAppend + "\r\n");
-		try { // scroll to end of display
-			jspDisplay.scrollRectToVisible(
-					new java.awt.Rectangle(0,
-					jtaDisplay.getLineEndOffset(
-					jtaDisplay.getLineCount()), 1,1));
-			} catch(Exception ex) {}
-	}
-
-	OutputStream getOutputStream(){
-		return new ViewFilter(null);
-	}
-
-	void vShowMessages(){
-		ApplicationController.getInstance().vDumpMessages();
-	}
-
-	void vShowLog(){
-		ApplicationController.getInstance().vDumpLog();
-	}
-
-	void vShowErrors(){
-		ApplicationController.getInstance().vDumpErrors();
-	}
-
-	class ViewFilter extends FilterOutputStream {
-		boolean zMaxedOut = false;
-		int MAX_ViewCharacters = 160000;
-		final static int MIN_BUFFER_LENGTH = 10000;
-		byte[] mabBuffer = new byte[MIN_BUFFER_LENGTH];
-		int mlenBuffer = MIN_BUFFER_LENGTH;
-		int mlenData = 0;
-		public ViewFilter(OutputStream os){
-			super(os);
-			MAX_ViewCharacters = ConfigurationManager.getInstance().getProperty_MaxViewCharacters();
-		}
-		public void write(byte[] buffer) throws IOException {
-			try {
-				if( zMaxedOut ) throw new IOException("screen buffer size exceeded");
-				while( mlenData + buffer.length > mlenBuffer ){
-					Thread.yield();
-					mlenBuffer *= 2;
-					byte[] abNewBuffer = new byte[mlenBuffer];
-					System.arraycopy(mabBuffer, 0, abNewBuffer, 0, mlenData);
-					mabBuffer = abNewBuffer;
-				}
-				synchronized(mabBuffer){
-					System.arraycopy(buffer, 0, mabBuffer, mlenData, buffer.length);
-					mlenData += buffer.length;
-				}
-				javax.swing.SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						vAppendToScreen();
-					}
-				});
-			} catch( Throwable throwable ) {
-				mabBuffer =  null;
-				throw new IOException("error: " + throwable.toString());
+	
+	public void editorNew( String sDirectory, String sName, String sContent ){
+		try {
+			StringBuffer sbError = new StringBuffer(250);
+			mctFilesOpened++;
+			if( sName == null ) sName = "" + mctFilesOpened + ".txt";
+			if( sDirectory == null ) sDirectory = ConfigurationManager.getInstance().getDefault_DIR_Scripts();
+			Panel_View_Text_Editor editorDefault = new Panel_View_Text_Editor();
+			if( ! editorDefault.zInitialize( sDirectory, sName, sContent, sbError ) ){
+				ApplicationController.vShowError( "Error creating new editor window for directory: " + sDirectory + " file: " + sName + " " + sContent.length() + " bytes: " + sbError );
 			}
+//			listEditors.add( editorDefault );
+			jtpEditors.addTab( editorDefault.getFileName(), editorDefault );
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while opening new editor" );
 		}
-		public void write(final byte[] buffer, final int offset, final int count) throws IOException {
-			try {
-				if( zMaxedOut ) throw new IOException("screen buffer size exceeded on offset write");
-				while( mlenData + count > mlenBuffer ){
-					Thread.yield();
-					mlenBuffer *= 2;
-					byte[] abNewBuffer = new byte[mlenBuffer];
-					System.arraycopy(mabBuffer, 0, abNewBuffer, 0, mlenData);
-					mabBuffer = abNewBuffer;
-				}
-				synchronized(mabBuffer){
-					System.arraycopy(buffer, offset, mabBuffer, mlenData, count);
-					mlenData += count;
-				}
-				javax.swing.SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						vAppendToScreen();
-					}
-				});
-			} catch( Throwable throwable ) {
-				mabBuffer =  null;
-				throw new IOException("error on offset write: " + throwable.toString());
-			}
-		}
-		public void write(int iByte) throws IOException {
-			try {
-				if( zMaxedOut ) throw new IOException("screen buffer size exceeded on offset write");
-				if( mlenData == mlenBuffer ){
-					Thread.yield();
-					mlenBuffer *= 2;
-					byte[] abNewBuffer = new byte[mlenBuffer];
-					System.arraycopy(mabBuffer, 0, abNewBuffer, 0, mlenData);
-					mabBuffer = abNewBuffer;
-					javax.swing.SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							vAppendToScreen();
-						}
-					});
-				}
-				synchronized(mabBuffer){
-					mlenData ++;
-					mabBuffer[mlenData-1] = (byte)iByte;
-				}
-			} catch( Throwable throwable ) {
-				mabBuffer =  null;
-				throw new IOException("error on offset write: " + throwable.toString());
-			}
-		}
+	}
 
-		// should only be run on the GUI thread
-		private void vAppendToScreen(){
-			if (jtaDisplay.getText().length() > MAX_ViewCharacters) {
-				ApplicationController.vShowStatus("View panel limit of " + MAX_ViewCharacters +
-					" characters exceeded. Remaining output omitted.");
-				zMaxedOut = true;
-				try { close(); } catch(Exception ex){}
-			}
-			synchronized(mabBuffer){
-				String sToAppend = new String(mabBuffer, 0, mlenData);
-				mlenData = 0;
-				jtaDisplay.append(sToAppend);
-			}
-			jtaDisplay.setCaretPosition( jtaDisplay.getDocument().getLength() );
-		}
-		public void flush(){
-			javax.swing.SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					vAppendToScreen();
+	javax.swing.JFileChooser jfcOpen = null;
+	void editorOpen(){
+		try {
+			StringBuffer sbError = new StringBuffer( 250 );
+
+			// ask user for desired location
+			if( jfcOpen == null ){
+				javax.swing.JFileChooser jfcOpen = new javax.swing.JFileChooser();
+				String sDirectory = ConfigurationManager.getInstance().getDefault_DIR_Scripts();
+				File fileDirectory = Utility.fileEstablishDirectory( sDirectory, sbError );
+				if( fileDirectory == null ){
+					// no default directory
+				} else {
+					jfcOpen.setCurrentDirectory( fileDirectory );
 				}
-			});
-			Thread.yield();
+			}
+			int iState = jfcOpen.showDialog( ApplicationController.getInstance().getAppFrame(), "Open Text File" );
+			File file = jfcOpen.getSelectedFile();
+			if( file == null || iState != javax.swing.JFileChooser.APPROVE_OPTION || ! file.isFile() ){
+				ApplicationController.vShowStatus_NoCache( "file open cancelled" );
+				return;
+			}
+			
+			// open the selected file
+			String sContent = Utility.fileLoadIntoString( file, sbError);
+			editorNew( file.getName(), file.getParent(), sContent );
+
+		} catch(Exception ex) {
+			ApplicationController.vUnexpectedError( ex, "while opening file" );
 		}
+	}
+	
+	void editorSave(){
+		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
+		editor.save();
+	}
+	
+	void editorSaveAs(){
+		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
+		editor.saveAs();		
+	}
+	void editorSaveClose(){
+		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
+		if( editor == null ){
+			ApplicationController.vShowStatus_NoCache( "no active editor to save/close" );
+			return;
+		}
+		if( ! editor.save() ) return; // do not close if action was cancelled or failed
+		jtpEditors.remove( editor );
+	}
+	void editorCloseNoSave(){
+		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
+		if( editor == null ){
+			ApplicationController.vShowStatus_NoCache( "no active editor to close" );
+			return;
+		}
+		jtpEditors.remove( editor );
 	}
 
 }
