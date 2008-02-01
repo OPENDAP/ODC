@@ -5,7 +5,6 @@ import java.io.File;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.imageio.ImageIO;
-import opendap.clients.odc.Utility;
 import java.awt.RenderingHints;
 
 import opendap.clients.odc.ApplicationController;
