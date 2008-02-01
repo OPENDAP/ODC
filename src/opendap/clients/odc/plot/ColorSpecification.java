@@ -1384,7 +1384,7 @@ class ColorSpecification extends AbstractListModel {
 			ApplicationController.getInstance().vShowError("cannot render float data for type " + DAP.getType_String(getDataType()));
 			return null;
 		}
-		if( !ApplicationController.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
+		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
 		int[] aiRGB = new int[pxWidth * pxHeight];
 		final boolean zScale = ( iDataWidth != pxWidth || iDataHeight != pxHeight );
 		int xDataWidth, xDataHeight;
@@ -1441,10 +1441,10 @@ class ColorSpecification extends AbstractListModel {
 	int[] aiRender( double[] adData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage, StringBuffer sbError ){
 		int iDataType = getDataType();
 		if( iDataType != DATA_TYPE_Float64 ){
-			ApplicationController.getInstance().vShowError("cannot render double data for type " + DAP.getType_String(getDataType()));
+			ApplicationController.vShowError("cannot render double data for type " + DAP.getType_String(getDataType()));
 			return null;
 		}
-		if( !ApplicationController.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
+		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
 		int[] aiRGB = new int[pxWidth * pxHeight];
 		final boolean zScale = ( iDataWidth != pxWidth || iDataHeight != pxHeight );
 		int xDataWidth, xDataHeight;
@@ -1499,7 +1499,7 @@ class ColorSpecification extends AbstractListModel {
 			ApplicationController.getInstance().vShowError("cannot render short data for type " + DAP.getType_String(getDataType()));
 			return null;
 		}
-		if( !ApplicationController.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
+		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
 		int[] aiRGB = new int[pxWidth * pxHeight];
 		final boolean zScale = ( iDataWidth != pxWidth || iDataHeight != pxHeight );
 		int xDataWidth, xDataHeight;
@@ -1548,7 +1548,7 @@ class ColorSpecification extends AbstractListModel {
 		return aiRGB;
 	}
 	int[] aiRender( int[] aiData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage, StringBuffer sbError ){
-		if( !ApplicationController.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
+		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
 		int iDataType = getDataType();
 		if( iDataType != DATA_TYPE_Int32 && iDataType != DATA_TYPE_UInt16 ){
 			sbError.append("cannot render int data for type " + DAP.getType_String(iDataType));
@@ -1602,7 +1602,7 @@ Ranges:
 		return aiRGB;
 	}
 	int[] aiRender( long[] anData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage, StringBuffer sbError ){
-		if( !ApplicationController.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
+		if( ! Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
 		int iDataType = getDataType();
 		if( iDataType != DATA_TYPE_UInt32 ){
 			sbError.append("cannot render long data for type " + DAP.getType_String(iDataType));

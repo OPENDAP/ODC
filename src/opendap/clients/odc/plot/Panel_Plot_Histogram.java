@@ -126,7 +126,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 				case DAP.DATA_TYPE_Int16:
 					short[] ashData = (short[])eggData[0];
 					miDataElementCount = ashData.length;
-	    			if( !ApplicationController.zMemoryCheck(miDataElementCount, 2, sbError) ) return false;
+	    			if( !Utility.zMemoryCheck(miDataElementCount, 2, sbError) ) return false;
 					mashSortedData = new short[miDataElementCount];
 					System.arraycopy(ashData, 0, mashSortedData, 0, miDataElementCount);
 					java.util.Arrays.sort(mashSortedData);
@@ -152,7 +152,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 										xData++;
 									}
 									int ctDataMissing = xMissing_end - xMissing_begin + 1;
-		    		    			if( !ApplicationController.zMemoryCheck(miDataElementCount - ctDataMissing, 2, sbError) ) return false;
+		    		    			if( !Utility.zMemoryCheck(miDataElementCount - ctDataMissing, 2, sbError) ) return false;
 									short[] ashDataNoMissing = new short[miDataElementCount - ctDataMissing];
 									if( xMissing_begin > 0 ) System.arraycopy(mashSortedData, 0, ashDataNoMissing, 0, xMissing_begin);
 									if( (miDataElementCount - xMissing_end - 1) > 0 ) System.arraycopy(mashSortedData, xMissing_end + 1, ashDataNoMissing, xMissing_begin, miDataElementCount - xMissing_end - 1);
@@ -170,7 +170,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 					int[] aiData = (int[])eggData[0];
 					miDataElementCount = aiData.length;
 					try {
-   		    			if( !ApplicationController.zMemoryCheck(miDataElementCount, 4, sbError) ) return false;
+   		    			if( !Utility.zMemoryCheck(miDataElementCount, 4, sbError) ) return false;
 						maiSortedData = new int[miDataElementCount];
 					} catch(Throwable t ){
 						sbError.append("unable to create " + miDataElementCount + " ints: " + t);
@@ -200,7 +200,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 										xData++;
 									}
 									int ctDataMissing = xMissing_end - xMissing_begin + 1;
-		    		    			if( !ApplicationController.zMemoryCheck(miDataElementCount - ctDataMissing, 4, sbError) ) return false;
+		    		    			if( !Utility.zMemoryCheck(miDataElementCount - ctDataMissing, 4, sbError) ) return false;
 									int[] aiDataNoMissing = new int[miDataElementCount - ctDataMissing];
 									if( xMissing_begin > 0 ) System.arraycopy(maiSortedData, 0, aiDataNoMissing, 0, xMissing_begin);
 									if( (miDataElementCount - xMissing_end - 1) > 0 ) System.arraycopy(maiSortedData, xMissing_end + 1, aiDataNoMissing, xMissing_begin, miDataElementCount - xMissing_end - 1);
@@ -216,7 +216,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 				case DAP.DATA_TYPE_UInt32:
 					long[] anData = (long[])eggData[0];
 					miDataElementCount = anData.length;
-	    			if( !ApplicationController.zMemoryCheck(miDataElementCount, 8, sbError) ) return false;
+	    			if( !Utility.zMemoryCheck(miDataElementCount, 8, sbError) ) return false;
 					manSortedData = new long[miDataElementCount];
 					System.arraycopy(anData, 0, manSortedData, 0, miDataElementCount);
 					java.util.Arrays.sort(manSortedData);
@@ -242,7 +242,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 										xData++;
 									}
 									int ctDataMissing = xMissing_end - xMissing_begin + 1;
-					    			if( !ApplicationController.zMemoryCheck(miDataElementCount - ctDataMissing, 8, sbError) ) return false;
+					    			if( !Utility.zMemoryCheck(miDataElementCount - ctDataMissing, 8, sbError) ) return false;
 									long[] anDataNoMissing = new long[miDataElementCount - ctDataMissing];
 									if( xMissing_begin > 0 ) System.arraycopy(manSortedData, 0, anDataNoMissing, 0, xMissing_begin);
 									if( (miDataElementCount - xMissing_end - 1) > 0 ) System.arraycopy(manSortedData, xMissing_end + 1, anDataNoMissing, xMissing_begin, miDataElementCount - xMissing_end - 1);
@@ -258,7 +258,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 				case DAP.DATA_TYPE_Float32:
 					float[] afData = (float[])eggData[0];
 					miDataElementCount = afData.length;
-	    			if( !ApplicationController.zMemoryCheck(miDataElementCount, 4, sbError) ) return false;
+	    			if( !Utility.zMemoryCheck(miDataElementCount, 4, sbError) ) return false;
 					mafSortedData = new float[miDataElementCount];
 					System.arraycopy(afData, 0, mafSortedData, 0, miDataElementCount);
 					java.util.Arrays.sort(mafSortedData);
@@ -284,7 +284,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 										xData++;
 									}
 									int ctDataMissing = xMissing_end - xMissing_begin + 1;
-					    			if( !ApplicationController.zMemoryCheck(miDataElementCount - ctDataMissing, 4, sbError) ) return false;
+					    			if( !Utility.zMemoryCheck(miDataElementCount - ctDataMissing, 4, sbError) ) return false;
 									float[] afDataNoMissing = new float[miDataElementCount - ctDataMissing];
 									if( xMissing_begin > 0 ) System.arraycopy(mafSortedData, 0, afDataNoMissing, 0, xMissing_begin);
 									if( (miDataElementCount - xMissing_end - 1) > 0 ) System.arraycopy(mafSortedData, xMissing_end + 1, afDataNoMissing, xMissing_begin, miDataElementCount - xMissing_end - 1);
@@ -300,7 +300,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 				case DAP.DATA_TYPE_Float64:
 					double[] adData = (double[])eggData[0];
 					miDataElementCount = adData.length;
-	    			if( !ApplicationController.zMemoryCheck(miDataElementCount, 8, sbError) ) return false;
+	    			if( !Utility.zMemoryCheck(miDataElementCount, 8, sbError) ) return false;
 					madSortedData = new double[miDataElementCount];
 					System.arraycopy(adData, 0, madSortedData, 0, miDataElementCount);
 					java.util.Arrays.sort(madSortedData);
@@ -326,7 +326,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 										xData++;
 									}
 									int ctDataMissing = xMissing_end - xMissing_begin + 1;
-		    		    			if( !ApplicationController.zMemoryCheck(miDataElementCount - ctDataMissing, 8, sbError) ) return false;
+		    		    			if( !Utility.zMemoryCheck(miDataElementCount - ctDataMissing, 8, sbError) ) return false;
 									double[] adDataNoMissing = new double[miDataElementCount - ctDataMissing];
 									if( xMissing_begin > 0 ) System.arraycopy(madSortedData, 0, adDataNoMissing, 0, xMissing_begin);
 									if( (miDataElementCount - xMissing_end - 1) > 0 ) System.arraycopy(madSortedData, xMissing_end + 1, adDataNoMissing, xMissing_begin, miDataElementCount - xMissing_end - 1);
@@ -342,7 +342,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 				case DAP.DATA_TYPE_String:
 					String[] asData = (String[])eggData[0];
 					miDataElementCount = asData.length;
-	    			if( !ApplicationController.zMemoryCheck(miDataElementCount, 2, sbError) ) return false;
+	    			if( !Utility.zMemoryCheck(miDataElementCount, 2, sbError) ) return false;
 					masSortedData = new String[miDataElementCount];
 					System.arraycopy(asData, 0, masSortedData, 0, miDataElementCount);
 					java.util.Arrays.sort(masSortedData);
@@ -368,7 +368,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 										xData++;
 									}
 									int ctDataMissing = xMissing_end - xMissing_begin + 1;
-					    			if( !ApplicationController.zMemoryCheck(miDataElementCount - ctDataMissing, 2, sbError) ) return false;
+					    			if( !Utility.zMemoryCheck(miDataElementCount - ctDataMissing, 2, sbError) ) return false;
 									String[] asDataNoMissing = new String[miDataElementCount - ctDataMissing];
 									if( xMissing_begin > 0 ) System.arraycopy(masSortedData, 0, asDataNoMissing, 0, xMissing_begin);
 									if( (miDataElementCount - xMissing_end - 1) > 0 ) System.arraycopy(masSortedData, xMissing_end + 1, asDataNoMissing, xMissing_begin, miDataElementCount - xMissing_end - 1);

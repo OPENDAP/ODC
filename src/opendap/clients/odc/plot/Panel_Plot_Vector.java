@@ -198,7 +198,7 @@ AbortVector:
 		int lenData = mDataDim_Height * mDataDim_Width;
 		mUmax = Float.MIN_VALUE;
 		mVmax = Float.MIN_VALUE;
-		if( ! ApplicationController.zMemoryCheck(lenData * 2, 4, sbError) ) return false;
+		if( ! Utility.zMemoryCheck(lenData * 2, 4, sbError) ) return false;
 		mafU = new float[lenData];
 		mafV = new float[lenData];
 		float fTotalU = 0;

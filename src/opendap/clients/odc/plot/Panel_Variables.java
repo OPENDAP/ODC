@@ -1074,7 +1074,7 @@ class VSelector_Plot_Schematic extends JPanel {
 						ashValues = (short[])oValues;
 						ctValues = ashValues.length;
 					}
-					if( !ApplicationController.zMemoryCheck(ctValues, 2, sbError) ) return false;
+					if( !Utility.zMemoryCheck(ctValues, 2, sbError) ) return false;
 					short[] ashTransformedValues0 = new short[ctValues];
 					if( eVALUE_TYPE == DAP.DATA_TYPE_Byte ){
 					    for( xValue = 0; xValue < ctValues; xValue++ )
@@ -1094,7 +1094,7 @@ class VSelector_Plot_Schematic extends JPanel {
 						aiValues = (int[])oValues;
 						ctValues = aiValues.length;
 					}
-					if( !ApplicationController.zMemoryCheck(ctValues, 4, sbError) ) return false;
+					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return false;
 					int[] aiTransformedValues0 = new int[ctValues];
 					if( eVALUE_TYPE == DAP.DATA_TYPE_UInt16 ){
 						for( xValue = 0; xValue < ctValues; xValue++ )
@@ -1108,7 +1108,7 @@ class VSelector_Plot_Schematic extends JPanel {
 				case DAP.DATA_TYPE_UInt32:
 					aiValues = (int[])oValues;
 					ctValues = aiValues.length;
-					if( !ApplicationController.zMemoryCheck(ctValues, 8, sbError) ) return false;
+					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return false;
 					long[] anTransformedValues0 = new long[ctValues];
 					for( xValue = 0; xValue < ctValues; xValue++ ){
 						anTransformedValues0[xValue] = (long)((long)aiValues[xValue] & 0xFFFFFFFF);
@@ -1118,7 +1118,7 @@ class VSelector_Plot_Schematic extends JPanel {
 				case DAP.DATA_TYPE_Float32:
 					float[] afValues = (float[])oValues;
 					ctValues = afValues.length;
-					if( !ApplicationController.zMemoryCheck(ctValues, 4, sbError) ) return false;
+					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return false;
 					float[] afTransformedValues0 = new float[ctValues];
 					for( xValue = 0; xValue < ctValues; xValue++ ){
 						afTransformedValues0[xValue] = afValues[xValue];
@@ -1128,7 +1128,7 @@ class VSelector_Plot_Schematic extends JPanel {
 				case DAP.DATA_TYPE_Float64:
 					double[] adValues = (double[])oValues;
 					ctValues = adValues.length;
-					if( !ApplicationController.zMemoryCheck(ctValues, 8, sbError) ) return false;
+					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return false;
 					double[] adTransformedValues0 = new double[ctValues];
 					for( xValue = 0; xValue < ctValues; xValue++ ){
 						adTransformedValues0[xValue] = adValues[xValue];
