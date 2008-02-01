@@ -1,5 +1,7 @@
 package opendap.clients.odc.viewer;
 
+import opendap.clients.odc.ApplicationController;
+
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.BasicStroke;
@@ -11,8 +13,6 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
-
-import opendap.clients.odc.Utility;
 
 /** The HUD (Heads Up Display) controls rendering of the following screen elements:
  * 		- Screen Pixel Ruler
@@ -72,7 +72,7 @@ public class HUD {
 //			bimageJavaLogo = scaleImage( bimageOpenGLLogo_raw, 0.45f, 0.45f);
 			return true;
 		} catch( Exception t ) {
-			Utility.vUnexpectedError( t, sbError );
+			ApplicationController.vUnexpectedError( t, sbError );
 			return false;
 		}
 	}
@@ -175,10 +175,18 @@ public class HUD {
 			iNavBox_h = iNavBox_w * view_manager.iVPB_h / view_manager.iVPB_w;
 			iNavBox_x = view_manager.iVP_w - iNavBox_w - iNavBox_x_offset - 2;
 			iNavBox_y = view_manager.iVP_h - iNavBox_h - iNavBox_y_offset - 2;
-			int iNavBlock_w = iNavBox_w * view_manager.iVP_w / view_manager.iVPB_w;
-			int iNavBlock_h = iNavBox_h * view_manager.iVP_h / view_manager.iVPB_h;
+			float fScale = 1;
+			if( view_manager.iZoomLevel > 0 ){
+				fScale = 1 / (view_manager.iZoomLevel + 1);
+			} else if( view_manager.iZoomLevel < 0 ){
+				fScale = view_manager.iZoomLevel * -1 + 1; 
+			}
+			int iNavBlock_w = (int)(iNavBox_w * view_manager.iVP_w * fScale / view_manager.iVPB_w);
+			int iNavBlock_h = (int)(iNavBox_h * view_manager.iVP_h * fScale / view_manager.iVPB_h);
 			int iNavBlock_x = iNavBox_x + view_manager.iVP_x * iNavBox_w / view_manager.iVPB_w;
 			int iNavBlock_y = iNavBox_y + view_manager.iVP_y * iNavBox_h / view_manager.iVPB_h;
+			if( iNavBlock_w < 5 ) iNavBlock_w = 5;
+			if( iNavBlock_h < 5 ) iNavBlock_h = 5;
 			raster.renderThumb( g, iNavBox_x, iNavBox_y, iNavBox_w, iNavBox_h );
 			g.drawRect( iNavBox_x, iNavBox_y, iNavBox_w, iNavBox_h);
 			Stroke strokeDefault = ((Graphics2D)g).getStroke(); 
