@@ -38,7 +38,7 @@ import javax.swing.*;
 
 public class Panel_View_Text extends JPanel {
 
-	private int mctFilesOpened;
+	private int mctFilesOpened; // used to generate default file name of new window
 	
     public Panel_View_Text() {}
 
@@ -131,7 +131,7 @@ public class Panel_View_Text extends JPanel {
 
 			// Close without saving
 			JButton jbuttonCloseNoSave = new JButton("Close No Save (ctrl+shift+X");
-			jbuttonSaveAndClose.addActionListener(
+			jbuttonCloseNoSave.addActionListener(
 				new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
 					    Panel_View_Text.this.editorCloseNoSave();
@@ -166,35 +166,35 @@ public class Panel_View_Text extends JPanel {
 			mctFilesOpened++;
 			if( sName == null ) sName = "" + mctFilesOpened + ".txt";
 			if( sDirectory == null ) sDirectory = ConfigurationManager.getInstance().getDefault_DIR_Scripts();
-			Panel_View_Text_Editor editorDefault = new Panel_View_Text_Editor();
-			if( ! editorDefault.zInitialize( sDirectory, sName, sContent, sbError ) ){
+			Panel_View_Text_Editor editor = new Panel_View_Text_Editor();
+			if( ! editor.zInitialize( sDirectory, sName, sContent, sbError ) ){
 				ApplicationController.vShowError( "Error creating new editor window for directory: " + sDirectory + " file: " + sName + " " + sContent.length() + " bytes: " + sbError );
 			}
-//			listEditors.add( editorDefault );
-			jtpEditors.addTab( editorDefault.getFileName(), editorDefault );
+			jtpEditors.addTab( editor.getFileName(), editor );
+			jtpEditors.setSelectedComponent( editor );
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, "while opening new editor" );
 		}
 	}
 
-	javax.swing.JFileChooser jfcOpen = null;
+	javax.swing.JFileChooser mjfcOpen = null;
 	void editorOpen(){
 		try {
 			StringBuffer sbError = new StringBuffer( 250 );
 
 			// ask user for desired location
-			if( jfcOpen == null ){
-				javax.swing.JFileChooser jfcOpen = new javax.swing.JFileChooser();
+			if( mjfcOpen == null ){
+				mjfcOpen = new javax.swing.JFileChooser();
 				String sDirectory = ConfigurationManager.getInstance().getDefault_DIR_Scripts();
 				File fileDirectory = Utility.fileEstablishDirectory( sDirectory, sbError );
 				if( fileDirectory == null ){
 					// no default directory
 				} else {
-					jfcOpen.setCurrentDirectory( fileDirectory );
+					mjfcOpen.setCurrentDirectory( fileDirectory );
 				}
 			}
-			int iState = jfcOpen.showDialog( ApplicationController.getInstance().getAppFrame(), "Open Text File" );
-			File file = jfcOpen.getSelectedFile();
+			int iState = mjfcOpen.showDialog( ApplicationController.getInstance().getAppFrame(), "Open Text File" );
+			File file = mjfcOpen.getSelectedFile();
 			if( file == null || iState != javax.swing.JFileChooser.APPROVE_OPTION || ! file.isFile() ){
 				ApplicationController.vShowStatus_NoCache( "file open cancelled" );
 				return;
@@ -202,7 +202,11 @@ public class Panel_View_Text extends JPanel {
 			
 			// open the selected file
 			String sContent = Utility.fileLoadIntoString( file, sbError);
-			editorNew( file.getName(), file.getParent(), sContent );
+			if( sContent == null ){
+				ApplicationController.vShowError( "Error opening file " + file + ": " + sbError );
+				return;
+			}
+			editorNew(  file.getParent(), file.getName(), sContent );
 
 		} catch(Exception ex) {
 			ApplicationController.vUnexpectedError( ex, "while opening file" );
