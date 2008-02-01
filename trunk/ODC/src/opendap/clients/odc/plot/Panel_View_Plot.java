@@ -221,7 +221,7 @@ public class Panel_View_Plot extends JPanel {
 			);
 
 			final JPanel panelChecks = new JPanel();
-			panelChecks.setLayout(new BoxLayout(panelZoom, BoxLayout.Y_AXIS));
+			panelChecks.setLayout(new BoxLayout(panelChecks, BoxLayout.Y_AXIS));
 			panelChecks.add( jcheckShowDatasets );
 			panelChecks.add( jcheckFreezeDefinition );
 
