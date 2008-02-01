@@ -8,6 +8,8 @@ import javax.imageio.ImageIO;
 import opendap.clients.odc.Utility;
 import java.awt.RenderingHints;
 
+import opendap.clients.odc.ApplicationController;
+
 public class Model2D_Raster {
 	BufferedImage mbi = null;
 	int iWidth = 0;
@@ -135,7 +137,7 @@ public class Model2D_Raster {
 			iWidth = mbi.getWidth();
 			iHeight = mbi.getHeight(); 
 		} catch( Exception t ) {
-			Utility.vUnexpectedError( t, sbError );
+			ApplicationController.vUnexpectedError( t, sbError );
 			return false;
 		}
 		return true;

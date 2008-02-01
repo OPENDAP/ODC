@@ -93,7 +93,7 @@ public class Model3D_Network {
 		}
 	}
 	
-	void render(  Graphics g, int x_VP, int y_VP, int w_VP, int h_VP ){
+	void render(  Graphics g, int x_VP, int y_VP, int w_VP, int h_VP, float fScale ){
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setRenderingHint(
 				RenderingHints.KEY_RENDERING,
@@ -105,22 +105,22 @@ public class Model3D_Network {
 		int iCircleOffset = iCircleWidth / 2;
 		g2.setPaint( java.awt.Color.CYAN );
 		for( int xNode = 1; xNode <= ctNodes; xNode++ ){
-			int x = ax[xNode] - x_VP - iCircleOffset;
-			int y = ay[xNode] - y_VP - iCircleOffset;
+			int x = (int)((ax[xNode] - x_VP)*fScale) - iCircleOffset;
+			int y = (int)((ay[xNode] - y_VP)*fScale) - iCircleOffset;
 			if( x >= 0 && y >= 0 && x < w_VP && y < h_VP ) g.fillOval( x, y, iCircleWidth, iCircleWidth);
 		}
 		for( int xSegment = 1; xSegment <= ctSegments; xSegment++ ){
-			int x_from = ax[afrom[xSegment]] - x_VP;
-			int y_from = ay[afrom[xSegment]] - y_VP;
-			int x_to = ax[ato[xSegment]] - x_VP;
-			int y_to = ay[ato[xSegment]] - y_VP;
+			int x_from = (int)((ax[afrom[xSegment]] - x_VP) * fScale);
+			int y_from = (int)((ay[afrom[xSegment]] - y_VP) * fScale);
+			int x_to   = (int)((ax[ato[xSegment]] - x_VP) * fScale);
+			int y_to   = (int)((ay[ato[xSegment]] - y_VP) * fScale);
 			if( x_from >= 0 && y_from >= 0 && x_from < w_VP && y_from < h_VP ||   // todo case where line is in square but both nodes are not
 				x_to >= 0 && y_to >= 0 && x_to < w_VP && y_to < h_VP )
 					g.drawLine(x_from, y_from, x_to, y_to);
 		}
 		for( int xNode = 1; xNode <= ctNodes; xNode++ ){
-			int x = ax[xNode] - x_VP + iCircleWidth + 2;
-			int y = ay[xNode] - y_VP;
+			int x = (int)((ax[xNode] - x_VP) * fScale) + iCircleWidth + 2;
+			int y = (int)((ay[xNode] - y_VP) * fScale);
 //			System.out.println("node at " + x + " " + y ); 
 			if( x >= 0 && y >= 0 && x < w_VP && y < h_VP ) g2.drawString( Integer.toString(xNode), x, y);;
 		}

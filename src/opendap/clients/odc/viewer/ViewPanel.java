@@ -2,7 +2,6 @@ package opendap.clients.odc.viewer;
 
 import java.awt.Graphics;
 import java.awt.event.*;
-import java.awt.event.InputEvent.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
@@ -11,17 +10,17 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyListener;
 import java.awt.event.ComponentEvent;
-import java.awt.Rectangle;
 import javax.media.opengl.GL;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLJPanel;
 import javax.swing.SwingUtilities;
 
 import opendap.clients.odc.Utility;
+import opendap.clients.odc.ApplicationController;
 
 import com.sun.opengl.util.Animator;
 
-public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseListener, MouseMotionListener, ComponentListener, KeyListener {
+public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseListener, MouseMotionListener, ComponentListener {
 	private static GLCapabilities caps;
 	private HUD hud = null;
 	private ViewManager view_manager;
@@ -50,7 +49,7 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 			this.addMouseWheelListener( this );  // mouse wheel does not work
 			return true;
 		} catch( Exception t ) {
-			Utility.vUnexpectedError( t, sbError );
+			ApplicationController.vUnexpectedError( t, sbError );
 			return false;
 		}
 	}
@@ -85,7 +84,7 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 //			animator.setRunAsFastAsPossible( true );
 			return true;
 		} catch( Exception t ) {
-			Utility.vUnexpectedError( t, sbError );
+			ApplicationController.vUnexpectedError( t, sbError );
 			return false;
 		}
 	}
@@ -95,7 +94,7 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 			animator.stop();
 			return true;
 		} catch( Exception t ) {
-			Utility.vUnexpectedError( t, sbError );
+			ApplicationController.vUnexpectedError( t, sbError );
 			return false;
 		}
 	}
@@ -117,12 +116,12 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 		}
 		if( raster != null ){
 			int iZoomLevel = view_manager.iZoomLevel;
-			int iSubImage_x = view_manager.iVPC_x;
-			int iSubImage_y = view_manager.iVPC_y;
+			int iSubImage_x = view_manager.iVP_x;
+			int iSubImage_y = view_manager.iVP_y;
 			raster.render( g, 0, 0, getWidth(), getHeight(), iZoomLevel, iSubImage_x, iSubImage_y );
 		}
 		if( network != null ){
-			network.render( g, view_manager.iVP_x, view_manager.iVP_y, getWidth(), getHeight() );
+			network.render( g, view_manager.iVP_x, view_manager.iVP_y, getWidth(), getHeight(), view_manager.getScale() );
 		}
 		hud.render( g, raster );
 	}
@@ -185,20 +184,5 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 			}
 		);
 	}
-	
-	public void keyTyped( java.awt.event.KeyEvent e) {
-    }
-
-    /** Handle the key-pressed event from the text field. */
-    public void keyPressed( java.awt.event.KeyEvent e) {
-    	if( e.getKeyCode() == KeyEvent.VK_RIGHT ){
-    	}
-    	if( e.getKeyCode() == KeyEvent.VK_LEFT ){
-    	}
-    }
-
-    /** Handle the key-released event from the text field. */
-    public void keyReleased( java.awt.event.KeyEvent e) {
-    }
 	
 }
