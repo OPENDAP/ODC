@@ -22,14 +22,8 @@
 
 package opendap.clients.odc.ECHO;
 
-import java.lang.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
 import org.jdom.*;
 import org.jdom.output.XMLOutputter;
-import org.jdom.input.DOMBuilder;
 import java.io.*;
 import opendap.clients.odc.*;
 
@@ -73,7 +67,7 @@ import opendap.clients.odc.*;
 			 opendap.clients.odc.ApplicationController.vShowError("SOAP messenger XML file conversion to Document failed: " + ex.getMessage());
 		 } catch( Exception ex) {
 			 StringBuffer sbError = new StringBuffer("Error executing SOAP query: ");
-			 Utility.vUnexpectedError(ex, sbError);
+			 ApplicationController.vUnexpectedError(ex, sbError);
 			 ApplicationController.vShowError(sbError.toString());
 		 }
 		 return outXMLDoc;
