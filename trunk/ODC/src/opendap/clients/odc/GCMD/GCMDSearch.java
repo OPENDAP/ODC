@@ -80,7 +80,7 @@ public class GCMDSearch extends JPanel {
                                     tabbedPane.addTab("Free Text", freeTextSearch);
                                 } catch(Exception ex){
                                     StringBuffer sb = new StringBuffer(80);
-                                    Utility.vUnexpectedError(ex, sb);
+                                    ApplicationController.vUnexpectedError(ex, sb);
                                     ApplicationController.getInstance().vShowError("Error creating free text search panel: " + sb);
                                 }
                                 try {
@@ -88,7 +88,7 @@ public class GCMDSearch extends JPanel {
                                     tabbedPane.addTab("Keyword", keywordSearch);
                                 } catch(Exception ex){
                                     StringBuffer sb = new StringBuffer(80);
-                                    Utility.vUnexpectedError(ex, sb);
+                                    ApplicationController.vUnexpectedError(ex, sb);
                                     ApplicationController.getInstance().vShowError("Error creating keyword search panel: " + sb);
                                 }
 								jbuttonAccessGCMD.setVisible(false);

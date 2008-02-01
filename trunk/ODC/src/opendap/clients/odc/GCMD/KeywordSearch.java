@@ -144,7 +144,7 @@ public class KeywordSearch extends PanelTemplate {
 			return sQueryString;
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("GCMD keyword search error");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			ApplicationController.vShowError(sbError.toString());
 			return "";
 		}
@@ -172,7 +172,7 @@ public class KeywordSearch extends PanelTemplate {
 								}
 							}
 						} catch(Exception ex){
-							Utility.vUnexpectedError(ex, "Trying to get the desired valids");
+							ApplicationController.vUnexpectedError(ex, "Trying to get the desired valids");
 						}
 						jlistTerms.setListData(valids);
 					}
