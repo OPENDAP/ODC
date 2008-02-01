@@ -154,13 +154,13 @@ public class Output_ToPlot {
 			} catch(Exception ex) {
 				StringBuffer sbErrorScreen = new StringBuffer("While setting up full screen: ");
 				if( windowFullScreen_final != null ) windowFullScreen_final.setVisible(false);
-				Utility.vUnexpectedError(ex, sbErrorScreen);
+				ApplicationController.vUnexpectedError(ex, sbErrorScreen);
 				ApplicationController.getInstance().vShowError(sbError.toString());
 			}
 
 			return true;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}
@@ -255,7 +255,7 @@ public class Output_ToPlot {
 			return true;
 		} catch(Exception ex) {
 			sbError.append("error creating data sets: ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -396,7 +396,7 @@ public class Output_ToPlot {
 			return zPlot(panelPL, eOutputOption, sbError);
 		} catch(Exception ex) {
 			sbError.append("While building line plot: ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -433,7 +433,7 @@ public class Output_ToPlot {
 			return zPlot(plotHistogram, eOutputOption, iFrame, ctFrames, sbError);
 		} catch(Exception ex) {
 			sbError.append("While building histogram: ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -552,7 +552,7 @@ public class Output_ToPlot {
 			return zPlot(panelPC, eOutputOption, iFrame, ctFrames, sbError);
 		} catch(Exception ex) {
 			sbError.append("While building pseudocolor plot: ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -655,7 +655,7 @@ public class Output_ToPlot {
 			return zPlot(panelVector, eOutputOption, iFrame, ctFrames, sbError);
 		} catch(Exception ex) {
 			sbError.append("While building vector plot: ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -822,7 +822,7 @@ public class Output_ToPlot {
 			return true;
 		} catch(Exception ex) {
 			sbError.append("While building output window: ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}

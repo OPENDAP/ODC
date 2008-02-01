@@ -192,7 +192,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			((Graphics2D)g).drawImage(mbi, null, 0, 0); // flip image to printer
 			return java.awt.print.Printable.PAGE_EXISTS;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, "While trying to print");
+			ApplicationController.vUnexpectedError(ex, "While trying to print");
 			return java.awt.print.Printable.NO_SUCH_PAGE;
 		}
 	}
@@ -205,7 +205,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		} catch(Exception ex) {
 			if( mzFatalError ) return; // got the training wheels on here todo
 			mzFatalError = true;
-			Utility.vUnexpectedError(ex, "Error rendering plot image");
+			ApplicationController.vUnexpectedError(ex, "Error rendering plot image");
 		}
 	}
 
@@ -215,7 +215,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			vCreateImage( zFill );
 			return true;
 		} catch(Throwable ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -507,7 +507,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			mpxMargin_Bottom = mScale.getMarginBottom_px();
 			return true;
 		} catch(Throwable ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}

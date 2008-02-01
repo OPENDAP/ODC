@@ -111,7 +111,7 @@ public class Panel_Thumbnails extends JPanel implements Printable, MouseListener
 			if( mbi == null ) vGenerateImage();
 			((Graphics2D)g).drawImage(mbi, null, 0, 0); // flip image to canvas
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, "Error rendering thumbnails panel");
+			ApplicationController.vUnexpectedError(ex, "Error rendering thumbnails panel");
 		}
 	}
 

@@ -161,13 +161,13 @@ class Panel_Plot_Line extends Panel_Plot {
 
 		// build default mappings if necessary
 		if( ctSeriesY == 0 ){
-			if( !Utility.zMemoryCheck(iSeriesLength, 8, sbError) ) return false;
+			if( !ApplicationController.zMemoryCheck(iSeriesLength, 8, sbError) ) return false;
 			double[] adY = new double[iSeriesLength];
 			for( int xY = 0; xY < iSeriesLength; xY++ ) adY[xY] = (double)(xY + 1);
 			list_eggSeriesY.add( adY );
 			ctSeriesY = 1;
 		} else if( ctSeriesX == 0 ){
-			if( !Utility.zMemoryCheck(iSeriesLength, 8, sbError) ) return false;
+			if( !ApplicationController.zMemoryCheck(iSeriesLength, 8, sbError) ) return false;
 			double[] adX = new double[iSeriesLength];
 			for( int xX = 0; xX < iSeriesLength; xX++ ) adX[xX] = (double)(xX + 1);
 			list_eggSeriesX.add( adX );
@@ -344,7 +344,7 @@ class Panel_Plot_Line extends Panel_Plot {
 				xData++;
 				if( xData >= lenData ){
 					if( ctPoints > 0 ){
-						if( !Utility.zMemoryCheck(xLines * xSegment * ctPoints * 2, 4, sbError) ) return false;
+						if( !ApplicationController.zMemoryCheck(xLines * xSegment * ctPoints * 2, 4, sbError) ) return false;
 						mapxX1[xLines + 1][xSegment] = new int[ctPoints];  // point array is passed to library routine so is zero-based
 						mapxY1[xLines + 1][xSegment] = new int[ctPoints];
 					}
@@ -355,7 +355,7 @@ class Panel_Plot_Line extends Panel_Plot {
 				if( Double.isNaN( dValueX ) || Double.isNaN( dValueY ) ){
 					if( zInLine ){
 						if( ctPoints > 0 ){
-							if( !Utility.zMemoryCheck(xLines * xSegment * ctPoints * 2, 4, sbError) ) return false;
+							if( !ApplicationController.zMemoryCheck(xLines * xSegment * ctPoints * 2, 4, sbError) ) return false;
 							mapxX1[xLines + 1][xSegment] = new int[ctPoints];
 							mapxY1[xLines + 1][xSegment] = new int[ctPoints];
 						}

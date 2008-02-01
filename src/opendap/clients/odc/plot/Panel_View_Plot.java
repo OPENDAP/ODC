@@ -340,7 +340,7 @@ public class Panel_View_Plot extends JPanel {
             return true;
 
         } catch(Exception ex){
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
             return false;
         }
 	}
@@ -454,10 +454,10 @@ public class Panel_View_Plot extends JPanel {
 					}
 				}
 		   } catch(Throwable t) {
-			   Utility.vUnexpectedError(t, "While plotting");
+			   ApplicationController.vUnexpectedError(t, "While plotting");
 		   }
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, "Error plotting: ");
+			ApplicationController.vUnexpectedError(ex, "Error plotting: ");
 		}
 		return true;
 	}
@@ -511,7 +511,7 @@ public class Panel_View_Plot extends JPanel {
 					try {
 						jlistSelectedURLs.setSelectionInterval(0, jlistSelectedURLs.getModel().getSize() - 1);
 					} catch(Exception ex) {
-						Utility.vUnexpectedError(ex, "while selecting all plotting datasets");
+						ApplicationController.vUnexpectedError(ex, "while selecting all plotting datasets");
 					}
 			    }
 			}
@@ -530,7 +530,7 @@ public class Panel_View_Plot extends JPanel {
 						return;
 					} catch(Exception ex) {
 						StringBuffer sbError = new StringBuffer(80);
-						Utility.vUnexpectedError(ex, sbError);
+						ApplicationController.vUnexpectedError(ex, sbError);
 						ApplicationController.vShowError("Unexpected error unloading item: " + sbError);
 					}
 			    }
@@ -563,7 +563,7 @@ public class Panel_View_Plot extends JPanel {
 						return;
 					} catch(Exception ex) {
 						StringBuffer sbError = new StringBuffer(80);
-						Utility.vUnexpectedError(ex, sbError);
+						ApplicationController.vUnexpectedError(ex, sbError);
 						ApplicationController.vShowError("Unexpected error gettomg item info: " + sbError);
 					}
 			    }
@@ -686,7 +686,8 @@ public class Panel_View_Plot extends JPanel {
 
 			// ask user for desired location
 			String sCacheDirectory = ConfigurationManager.getInstance().getProperty_DIR_DataCache();
-			File fileCacheDirectory = Utility.fileEstablishDirectory(sCacheDirectory);
+			StringBuffer sbError = new StringBuffer();
+			File fileCacheDirectory = Utility.fileEstablishDirectory( sCacheDirectory, sbError );
 			if (jfc == null) jfc = new JFileChooser();
 			if( fileCacheDirectory == null ){
 				// not established
@@ -721,7 +722,7 @@ public class Panel_View_Plot extends JPanel {
 			}
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer(80);
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			ApplicationController.vShowError("Unexpected error unloading item: " + sbError);
 		}
 	}
@@ -731,7 +732,8 @@ public class Panel_View_Plot extends JPanel {
 
 			// determine file path
 			String sCacheDirectory = ConfigurationManager.getInstance().getProperty_DIR_DataCache();
-			File fileCacheDirectory = Utility.fileEstablishDirectory(sCacheDirectory);
+			StringBuffer sbError = new StringBuffer();
+			File fileCacheDirectory = Utility.fileEstablishDirectory( sCacheDirectory, sbError );
 			if (jfc == null) jfc = new JFileChooser();
 			if( fileCacheDirectory != null ) jfc.setCurrentDirectory(fileCacheDirectory);
 			int iState = jfc.showDialog(Panel_View_Plot.this, "Load");
@@ -740,7 +742,6 @@ public class Panel_View_Plot extends JPanel {
 			if (file == null) return;
 
 			// load serialized object
-			StringBuffer sbError = new StringBuffer(80);
 			Object o = Utility.oLoadObject(file, sbError);
 			if( o == null ){
 				ApplicationController.vShowError("Error loading Data DDS from file: " + sbError);
@@ -762,7 +763,7 @@ public class Panel_View_Plot extends JPanel {
 
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer(80);
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			ApplicationController.vShowError("Unexpected error loading item: " + sbError);
 		}
 	}
@@ -804,7 +805,7 @@ public class Panel_View_Plot extends JPanel {
 			return true;
 		} catch(Exception ex) {
 			sbError.append("System error adding plot source: " + ex);
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -823,7 +824,7 @@ public class Panel_View_Plot extends JPanel {
 			}
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("Unexpected error unloading: ");
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			ApplicationController.vShowError(sbError.toString());
 		}
 	}
@@ -865,7 +866,7 @@ public class Panel_View_Plot extends JPanel {
 			});
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("Unexpected error getting info: ");
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			ApplicationController.vShowError(sbError.toString());
 		}
 	}
@@ -1063,7 +1064,7 @@ class DataParameters {
 				case DAP.DATA_TYPE_Byte:
 					abValues = (byte[])oValues;
 					ctValues = abValues.length;
-   					if( !Utility.zMemoryCheck(ctValues, 2, sbError) ) return false;
+   					if( !ApplicationController.zMemoryCheck(ctValues, 2, sbError) ) return false;
 					short[] ashWorkingValues0 = new short[ctValues];
 					for( int xValue = 0; xValue < ctValues; xValue++ ){
 						ashWorkingValues0[xValue] = (short)((short)abValues[xValue] & 0xFF);
@@ -1073,7 +1074,7 @@ class DataParameters {
 				case DAP.DATA_TYPE_UInt16:
 					ashValues = (short[])oValues;
 					ctValues = ashValues.length;
-   					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return false;
+   					if( !ApplicationController.zMemoryCheck(ctValues, 4, sbError) ) return false;
 					int[] aiWorkingValues0 = new int[ctValues];
 					for( int xValue = 0; xValue < ctValues; xValue++ ){
 						aiWorkingValues0[xValue] = (int)((int)ashValues[xValue] & 0xFFFF);
@@ -1083,7 +1084,7 @@ class DataParameters {
 				case DAP.DATA_TYPE_UInt32:
 					aiValues = (int[])oValues;
 					ctValues = aiValues.length;
-   					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return false;
+   					if( !ApplicationController.zMemoryCheck(ctValues, 8, sbError) ) return false;
 					long[] anWorkingValues0 = new long[ctValues];
 					for( int xValue = 0; xValue < ctValues; xValue++ ){
 						anWorkingValues0[xValue] = (long)((long)aiValues[xValue] & 0xFFFFFFFF);
@@ -1332,7 +1333,7 @@ class DataParameters {
 					// build new artificial data array which is already sorted
 					int iTotalValues = 0;
 					for( int xClass = 1; xClass < aiClassCount.length; xClass++ ) iTotalValues += aiClassCount[xClass];
-					if( !Utility.zMemoryCheck(iTotalValues, 8, sbError) ) return null;
+					if( !ApplicationController.zMemoryCheck(iTotalValues, 8, sbError) ) return null;
 					double[] adNew = new double[iTotalValues];
 					int xInstance = 0;
 					for( int xClass = 1; xClass < aiClassCount.length; xClass++ ){
@@ -1361,7 +1362,7 @@ class DataParameters {
 			return eggMissing;
 		} catch(Exception ex) {
 			msbMissingValueCalculation.append("error calculating missing values: ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return null;
 		} finally {
 			ApplicationController.getInstance().set("_mvcalc", msbMissingValueCalculation.toString());
@@ -1385,7 +1386,7 @@ class DataParameters {
 
 			double[] adSorted;
 			if( zSort ){
-				if( !Utility.zMemoryCheck(ctData, 8, sbError) ) return false;
+				if( !ApplicationController.zMemoryCheck(ctData, 8, sbError) ) return false;
 				adSorted = new double[ctData];
 				System.arraycopy(ad, 0, adSorted, 0, ctData);
 				java.util.Arrays.sort(adSorted);
@@ -1443,7 +1444,7 @@ class DataParameters {
 							msbMissingValueCalculation.append("mv " + ctMissingValues + ": " + dGroupValue + " count: " + sizeCurrentGroup + "\n");
 							if( ctMissingValues > adMissingValuesBuffer.length - 1 ){ // expand the storage arrays
 								int iNewBufferLength = (adMissingValuesBuffer.length-1)*2 + 1;
-		    					if( !Utility.zMemoryCheck(iNewBufferLength, 8, sbError) ) return false;
+		    					if( !ApplicationController.zMemoryCheck(iNewBufferLength, 8, sbError) ) return false;
 								double[] adNewValuesBuffer = new double[iNewBufferLength];
 								System.arraycopy(adMissingValuesBuffer, 0, adNewValuesBuffer, 0, adMissingValuesBuffer.length);
 								adMissingValuesBuffer = adNewValuesBuffer;
@@ -1469,7 +1470,7 @@ class DataParameters {
 			return true;
 		} catch(Exception ex) {
 			msbMissingValueCalculation.append("error during calculation");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
