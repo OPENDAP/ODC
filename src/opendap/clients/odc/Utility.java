@@ -722,10 +722,11 @@ ScanForStartOfMatch:
 				return null;
 			}
 			mbb = fileChannel.map( java.nio.channels.FileChannel.MapMode.READ_ONLY, 0, nFileSize );
-			String s = mbb.toString();
+			StringBuffer sb = new StringBuffer( (int)nFileSize );
+			for( int x = 0; x < nFileSize; x++ ) sb.append( (char)mbb.get() );
 			fileChannel.close();
 			fileInputStream.close();
-			return s;
+			return sb.toString();
 		} catch( Throwable t ) {
 			sbError.append( "Unexpected error loading file: " + Utility.extractStackTrace( t ) );
 			return null;
@@ -1201,9 +1202,20 @@ ScanForStartOfMatch:
 
 	public static boolean fileSave(  File file, String sContent, StringBuffer sbError ){
 
+		// if file does not exist, create it
+		try {
+			if( ! file.exists() ){
+				file.createNewFile();
+			}
+		} catch( Exception ex ) {
+			sbError.append("failed to create file " + file + ": " + ex );
+			return false;
+		}
+		
+		
 		// open file
-		FileOutputStream fos;
-	    try {
+		java.io.FileOutputStream fos = null;
+		try {
 		    fos = new java.io.FileOutputStream(file);
 			if( fos == null ){
 				sbError.append("failed to open file, empty stream");
@@ -1215,15 +1227,14 @@ ScanForStartOfMatch:
 		}
 
 		// save to file
-		java.nio.channels.FileChannel fc = fos.getChannel();
 		try {
-			fc.write( java.nio.ByteBuffer.wrap( sContent.getBytes()) );
+			fos.write( sContent.getBytes() );
 		} catch(Exception ex) {
 			ApplicationController.vShowError("write failure (" + sContent.length() + " bytes): " + ex);
 			return false;
 		} finally {
 			try {
-				if(fos!=null) fos.close();
+				if( fos!=null ) fos.close();
 			} catch(Exception ex) {}
 		}
 		return true;
