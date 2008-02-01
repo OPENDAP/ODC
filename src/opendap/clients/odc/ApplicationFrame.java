@@ -50,7 +50,8 @@ public class ApplicationFrame extends JFrame {
 	private Panel_Select_Favorites panelFavorites;
 	private Panel_Select_Recent panelRecent;
 	private Panel_Retrieve jpanelRetrieve;
-	private Panel_View_Text panelTextView;
+	private Panel_View_Command panelCommand;
+	private Panel_View_Text panelTextEditor;
 	private Panel_View_Table panelTableView;
 	private Panel_View_Image panelImageView;
 	private Panel_View_Plot panelPlotter;
@@ -148,10 +149,16 @@ public class ApplicationFrame extends JFrame {
 			}
 		}
 
-		ApplicationController.getInstance().vShowStartupMessage("creating text viewer");
-		panelTextView = new Panel_View_Text();
-		if( !panelTextView.zInitialize(sbError) ){
-			sbError.insert(0, "Failed to initialize text view panel: ");
+		ApplicationController.getInstance().vShowStartupMessage("creating command shell");
+		panelCommand = new Panel_View_Command();
+		if( ! panelCommand.zInitialize(sbError) ){
+			sbError.insert(0, "Failed to initialize command shell window: ");
+			return false;
+		}
+		ApplicationController.getInstance().vShowStartupMessage("creating text editor");
+		panelTextEditor = new Panel_View_Text();
+		if( ! panelTextEditor.zInitialize(sbError) ){
+			sbError.insert(0, "Failed to initialize text editor panel: ");
 			return false;
 		}
 		ApplicationController.getInstance().vShowStartupMessage("creating table viewer");
@@ -240,7 +247,8 @@ public class ApplicationFrame extends JFrame {
 			//    add tab
 		}
 
-		jtpView.addTab(" Text", panelTextView);
+		jtpView.addTab(" Command", panelCommand);
+		jtpView.addTab(" Editor", panelTextEditor);
 		jtpView.addTab(" Table", panelTableView);
 		jtpView.addTab(" Image File", panelImageView);
 		jtpView.addTab(" Plotter", panelPlotter);
@@ -333,7 +341,7 @@ public class ApplicationFrame extends JFrame {
 		jtpMain.setSelectedIndex(1); // activate the retrieve tab
 	}
 
-	public void vActivateViewTextPanel(){
+	public void vActivateCommandPanel(){
 		jtpMain.setSelectedIndex(2); // activate the view tab
 		jtpView.setSelectedIndex(0);
 	}
@@ -343,7 +351,7 @@ public class ApplicationFrame extends JFrame {
 			new Runnable(){
 				public void run(){
 					jtpMain.setSelectedIndex(2); // activate the view tab
-					jtpView.setSelectedIndex(1); // activate the table tab
+					jtpView.setSelectedIndex(2); // activate the table tab
 				}
 			}
 		);
@@ -354,7 +362,7 @@ public class ApplicationFrame extends JFrame {
 			new Runnable(){
 				public void run(){
 					jtpMain.setSelectedIndex(2); // activate the view tab
-					jtpView.setSelectedIndex(3); // activate the plotting tab
+					jtpView.setSelectedIndex(4); // activate the plotting tab
 					panelPlotter.getPanel_Definition().vActivateVariableSelector();
 				}
 			}
@@ -366,14 +374,14 @@ public class ApplicationFrame extends JFrame {
 			new Runnable(){
 				public void run(){
 					jtpMain.setSelectedIndex(2); // activate the view tab
-					jtpView.setSelectedIndex(2); // activate the view/images tab
+					jtpView.setSelectedIndex(3); // activate the view/images tab
 				}
 			}
 		);
 	}
 
 	public java.io.OutputStream getTextViewerOS(){
-		return panelTextView.getOutputStream();
+		return panelCommand.getOutputStream();
 	}
 
 	public java.io.OutputStream getImageViewerOS( String sImageFileName, StringBuffer sbError ){
@@ -531,7 +539,7 @@ class StatusBar extends JPanel {
 		jpanelMemory.setLayout(new BorderLayout());
 		jpbMemory = new JProgressBar();
 		jpbMemory.setToolTipText("Double-click for memory info"); // not working for unknown reason TODO
-		int iMaximumMemory = (int)(ApplicationController.getMemory_Max() / 1048576); // memory is measured in megabtyes
+		int iMaximumMemory = (int)(Utility.getMemory_Max() / 1048576); // memory is measured in megabtyes
 		jpbMemory.setMaximum(iMaximumMemory);
 		jpbMemory.setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0));
 		jpanelMemory.add(jpbMemory, BorderLayout.CENTER);
@@ -542,7 +550,7 @@ class StatusBar extends JPanel {
 						String sMemoryStatus = ApplicationController.getInstance().sMemoryStatus();
 						JOptionPane jop = new JOptionPane(sMemoryStatus);
 						jop.setFont( Styles.fontFixed10 );
-						jop.showMessageDialog(ApplicationController.getInstance().getAppFrame(), sMemoryStatus);
+						JOptionPane.showMessageDialog(ApplicationController.getInstance().getAppFrame(), sMemoryStatus);
 					}
 				}
 			}
@@ -576,7 +584,7 @@ class StatusBar extends JPanel {
 		jbuttonHelp.addActionListener(
 			new ActionListener(){
 				public void actionPerformed(ActionEvent event){
-					ApplicationController.getInstance().vShowHelp();
+					ApplicationController.vShowHelp();
 				}
 			}
 		);
@@ -611,8 +619,8 @@ class StatusBar extends JPanel {
 //		return sb.toString();
 	void vUpdateMemoryBar(){
 		try {
-			final long nTotalMemory = ApplicationController.getMemory_Total();
-			final long nFreeMemory = ApplicationController.getMemory_Free();
+			final long nTotalMemory = Utility.getMemory_Total();
+			final long nFreeMemory = Utility.getMemory_Free();
 			final long nUsedMemory = (nTotalMemory - nFreeMemory);
 			final int iUsedMemoryM = (int)(nUsedMemory / 1048576);
 			zMemoryReadingAvailable = true;

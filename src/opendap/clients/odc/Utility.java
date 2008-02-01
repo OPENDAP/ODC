@@ -42,6 +42,42 @@ public class Utility {
 
     public Utility() {}
 
+	public static long getMemory_Max(){ return Runtime.getRuntime().maxMemory(); }
+	public static long getMemory_Total(){ return Runtime.getRuntime().totalMemory(); }
+	public static long getMemory_Free(){ return Runtime.getRuntime().freeMemory(); }
+	public static long getMemory_Available(){
+		long nMax = getMemory_Max();
+		long nTotal = getMemory_Total();
+		long nFree = getMemory_Free();
+		return nMax - nTotal + nFree;
+	}
+
+	public static boolean zMemoryCheck( long nBytes ){
+		if( getMemory_Available() > nBytes + 5000000 ){
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean zMemoryCheck( int iBytes ){
+		if( getMemory_Available() > iBytes + 5000000 ){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	// requires a 5 megabyte buffer which is wise for a Swing application
+	public static boolean zMemoryCheck( int iCount, int iWidth, StringBuffer sbError ){
+		if( getMemory_Available() > iCount * iWidth + 5000000 ){
+			return true;
+		} else {
+			sbError.append("insufficient memory (see help for how to increase memory)");
+			return false;
+		}
+	}
+
 	public static String getByteCountString( long nBytes ){
 		char cOrder;
 		int intSz;
@@ -618,7 +654,7 @@ ScanForStartOfMatch:
 	public static ArrayList zLoadLines( String sAbsolutePath, int iEstimatedSize, StringBuffer sbError){
 		if( sAbsolutePath == null ){ sbError.append("path missing"); return null; }
 		StringBuffer sbContent = new StringBuffer(iEstimatedSize);
-		if( !zLoadStringFile( sAbsolutePath, sbContent, sbError ) ){
+		if( !fileLoadIntoBuffer( sAbsolutePath, sbContent, sbError ) ){
 			sbError.insert(0, "error loading file (" + sAbsolutePath + "): ");
 			return null;
 		}
@@ -663,7 +699,40 @@ ScanForStartOfMatch:
 		return listLines;
 	}
 
-	static boolean zLoadStringFile( String sAbsolutePath, StringBuffer sbResource, StringBuffer sbError){
+	static String fileLoadIntoString( File file, StringBuffer sbError){
+		return fileLoadIntoString( file.getAbsolutePath(), sbError );
+	}
+	
+	static String fileLoadIntoString( String sAbsolutePath, StringBuffer sbError){
+		File file = new File(sAbsolutePath);
+		if( !file.exists() ){
+			sbError.append("file not found");
+			return null;
+		}
+		FileInputStream fileInputStream;
+		java.nio.channels.FileChannel fileChannel;
+		long nFileSize;
+		java.nio.MappedByteBuffer mbb;
+		try {
+			fileInputStream = new FileInputStream( file );
+			fileChannel = fileInputStream.getChannel();
+			nFileSize = fileChannel.size();
+			if( ! Utility.zMemoryCheck( nFileSize ) ){
+				sbError.append("insufficient memory to load file with " + nFileSize + " bytes");
+				return null;
+			}
+			mbb = fileChannel.map( java.nio.channels.FileChannel.MapMode.READ_ONLY, 0, nFileSize );
+			String s = mbb.toString();
+			fileChannel.close();
+			fileInputStream.close();
+			return s;
+		} catch( Throwable t ) {
+			sbError.append( "Unexpected error loading file: " + Utility.extractStackTrace( t ) );
+			return null;
+		}
+	}
+	
+	static boolean fileLoadIntoBuffer( String sAbsolutePath, StringBuffer sbResource, StringBuffer sbError){
 		File file = new File(sAbsolutePath);
 		if( !file.exists() ){
 			sbError.append("file not found");
@@ -713,31 +782,6 @@ ScanForStartOfMatch:
 				if(brFileToBeLoaded!=null) brFileToBeLoaded.close();
 			} catch(Exception ex) {
 				sbError.append("Failed to close resource: " + ex);
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public static boolean zSaveStringFile( String sAbsolutePath, StringBuffer sbBuffer, StringBuffer sbError){
-		File file = new File(sAbsolutePath);
-		OutputStream os = null;
-		try {
-			os = new FileOutputStream(file);
-		} catch(Exception ex) {
-			sbError.append("Failed to open file for writing: " + ex);
-			return false;
-		}
-		try {
-			os.write(sbBuffer.toString().getBytes());
-		} catch(Exception ex) {
-			sbError.append("Failed to write " + sbBuffer.length() + " byte buffer: " + ex);
-			return false;
-		} finally {
-			try {
-				if(os != null) os.close();
-			} catch(Exception ex) {
-				sbError.append("Failed to close output stream: " + ex);
 				return false;
 			}
 		}
@@ -1118,26 +1162,25 @@ ScanForStartOfMatch:
 			
 	static javax.swing.JFileChooser jfc = null;
 	/** opens a dialog to save a file
-	 *  this method is appropriate for files less than 1 MB
 	 *  if the error buffer is blank and file is null then the user cancelled the operation
 	 *  @param sSuggestedFileName  example: "processing_script.py", null is ok
 	 *  @param sDirectory  default directory to save to, terminator optional
 	 *  @return File  the file to which the user saved */
-	static final File fileSaveAs( String sDirectory, String sSuggestedFileName, String sContent, StringBuffer sbError ){
+	static final File fileSaveAs( java.awt.Component componentParent, String sTitle, String sDirectory, String sSuggestedFileName, String sContent, StringBuffer sbError ){
 		try {
 
 			// ask user for desired location
-			File filePlotsDirectory = Utility.fileEstablishDirectory( sDirectory, sbError );
+			File fileDirectory = Utility.fileEstablishDirectory( sDirectory, sbError );
 			if (jfc == null) jfc = new javax.swing.JFileChooser();
-			if( filePlotsDirectory == null ){
+			if( fileDirectory == null ){
 				// no default directory
 			} else {
-				jfc.setCurrentDirectory(filePlotsDirectory);
+				jfc.setCurrentDirectory( fileDirectory );
 			}
 			if( sSuggestedFileName != null && sSuggestedFileName.length() != 0 ){
 				jfc.setSelectedFile(new File(sSuggestedFileName));
 			}
-			int iState = jfc.showDialog(ApplicationController.getInstance().getAppFrame(), "Select Save Location");
+			int iState = jfc.showDialog( componentParent, sTitle );
 			File file = jfc.getSelectedFile();
 			if (file == null || iState != javax.swing.JFileChooser.APPROVE_OPTION) return null; // user cancel
 			if( ! fileSave( file, sContent, sbError ) ){
@@ -1151,7 +1194,12 @@ ScanForStartOfMatch:
 		}
 	}
 
-	static boolean fileSave(  File file, String sContent, StringBuffer sbError ){
+	public static boolean fileSave( String sAbsolutePath, String sContent, StringBuffer sbError){
+		File file = new File(sAbsolutePath);
+		return fileSave( file, sContent, sbError );
+	}
+
+	public static boolean fileSave(  File file, String sContent, StringBuffer sbError ){
 
 		// open file
 		FileOutputStream fos;
@@ -1171,7 +1219,7 @@ ScanForStartOfMatch:
 		try {
 			fc.write( java.nio.ByteBuffer.wrap( sContent.getBytes()) );
 		} catch(Exception ex) {
-			ApplicationController.vShowError("write failure: " + ex);
+			ApplicationController.vShowError("write failure (" + sContent.length() + " bytes): " + ex);
 			return false;
 		} finally {
 			try {

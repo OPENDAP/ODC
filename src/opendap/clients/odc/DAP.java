@@ -164,7 +164,6 @@ public class DAP {
 	}
 
 	public static String[] getDArrayStringVector0( DArray darray, StringBuffer sbError ){
-		int xDim = 0;
 		int ctDim = darray.numDimensions();
 		if( ctDim != 1 ){
 			sbError.append("DArray is not a vector");
@@ -178,22 +177,22 @@ public class DAP {
 		}
 		switch( getDArrayType(darray) ){
 			case DATA_TYPE_Byte:
-				if( !ApplicationController.zMemoryCheck(lenDim1, 3, sbError) ) return null; else break;
+				if( !Utility.zMemoryCheck(lenDim1, 3, sbError) ) return null; else break;
 			case DATA_TYPE_Int16:
-				if( !ApplicationController.zMemoryCheck(lenDim1, 6, sbError) ) return null; else break;
+				if( !Utility.zMemoryCheck(lenDim1, 6, sbError) ) return null; else break;
 			case DATA_TYPE_Int32:
-				if( !ApplicationController.zMemoryCheck(lenDim1, 12, sbError) ) return null; else break;
+				if( !Utility.zMemoryCheck(lenDim1, 12, sbError) ) return null; else break;
 			case DATA_TYPE_UInt16:
-				if( !ApplicationController.zMemoryCheck(lenDim1, 12, sbError) ) return null; else break;
+				if( !Utility.zMemoryCheck(lenDim1, 12, sbError) ) return null; else break;
 			case DATA_TYPE_UInt32:
-				if( !ApplicationController.zMemoryCheck(lenDim1, 16, sbError) ) return null; else break;
+				if( !Utility.zMemoryCheck(lenDim1, 16, sbError) ) return null; else break;
 			case DATA_TYPE_Float32:
-				if( !ApplicationController.zMemoryCheck(lenDim1, 12, sbError) ) return null; else break;
+				if( !Utility.zMemoryCheck(lenDim1, 12, sbError) ) return null; else break;
 			case DATA_TYPE_Float64:
-				if( !ApplicationController.zMemoryCheck(lenDim1, 16, sbError) ) return null; else break;
+				if( !Utility.zMemoryCheck(lenDim1, 16, sbError) ) return null; else break;
 			default:
 			case DATA_TYPE_String:
-				if( !ApplicationController.zMemoryCheck(lenDim1, 24, sbError) ) return null; else break;
+				if( !Utility.zMemoryCheck(lenDim1, 24, sbError) ) return null; else break;
 		}
 		String[] asValues = new String[lenDim1];
 		PrimitiveVector pvector = darray.getPrimitiveVector();
@@ -301,7 +300,7 @@ public class DAP {
 		Object[] egg = new Object[1];
 		switch( eJAVA_TYPE ){
 			case DAP.JAVA_TYPE_byte:
-				if( !ApplicationController.zMemoryCheck(lenData, 1, sbError) ) return null;
+				if( !Utility.zMemoryCheck(lenData, 1, sbError) ) return null;
 				byte[] ab = new byte[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					ab[xValue] = (byte)ad[xValue];
@@ -309,7 +308,7 @@ public class DAP {
 				egg[0] = ab;
 				break;
 			case DAP.JAVA_TYPE_short:
-				if( !ApplicationController.zMemoryCheck(lenData, 2, sbError) ) return null;
+				if( !Utility.zMemoryCheck(lenData, 2, sbError) ) return null;
 				short[] ash = new short[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					ash[xValue] = (short)ad[xValue];
@@ -317,7 +316,7 @@ public class DAP {
 				egg[0] = ash;
 				break;
 			case DAP.JAVA_TYPE_int:
-				if( !ApplicationController.zMemoryCheck(lenData, 4, sbError) ) return null;
+				if( !Utility.zMemoryCheck(lenData, 4, sbError) ) return null;
 				int[] ai = new int[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					ai[xValue] = (int)ad[xValue];
@@ -325,7 +324,7 @@ public class DAP {
 				egg[0] = ai;
 				break;
 			case DAP.JAVA_TYPE_long:
-				if( !ApplicationController.zMemoryCheck(lenData, 8, sbError) ) return null;
+				if( !Utility.zMemoryCheck(lenData, 8, sbError) ) return null;
 				long[] an = new long[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					an[xValue] = (long)ad[xValue];
@@ -333,7 +332,7 @@ public class DAP {
 				egg[0] = an;
 				break;
 			case DAP.JAVA_TYPE_float:
-				if( !ApplicationController.zMemoryCheck(lenData, 4, sbError) ) return null;
+				if( !Utility.zMemoryCheck(lenData, 4, sbError) ) return null;
 				float[] af = new float[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					af[xValue] = (float)ad[xValue];
@@ -360,7 +359,7 @@ public class DAP {
 		Object[] egg = new Object[1];
 		switch( eJAVA_TYPE ){
 			case DAP.JAVA_TYPE_byte:
-				if( !ApplicationController.zMemoryCheck(lenData, 1, sbError) ) return null;
+				if( !Utility.zMemoryCheck(lenData, 1, sbError) ) return null;
 				byte[] ab = new byte[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					try {
@@ -372,7 +371,7 @@ public class DAP {
 				egg[0] = ab;
 				break;
 			case DAP.JAVA_TYPE_short:
-				if( !ApplicationController.zMemoryCheck(lenData, 2, sbError) ) return null;
+				if( !Utility.zMemoryCheck(lenData, 2, sbError) ) return null;
 				short[] ash = new short[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					try {
@@ -384,7 +383,7 @@ public class DAP {
 				egg[0] = ash;
 				break;
 			case DAP.JAVA_TYPE_int:
-				if( !ApplicationController.zMemoryCheck(lenData, 4, sbError) ) return null;
+				if( !Utility.zMemoryCheck(lenData, 4, sbError) ) return null;
 				int[] ai = new int[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					try {
@@ -396,7 +395,7 @@ public class DAP {
 				egg[0] = ai;
 				break;
 			case DAP.JAVA_TYPE_long:
-				if( !ApplicationController.zMemoryCheck(lenData, 8, sbError) ) return null;
+				if( !Utility.zMemoryCheck(lenData, 8, sbError) ) return null;
 				long[] an = new long[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					try {
@@ -408,7 +407,7 @@ public class DAP {
 				egg[0] = an;
 				break;
 			case DAP.JAVA_TYPE_float:
-				if( !ApplicationController.zMemoryCheck(lenData, 4, sbError) ) return null;
+				if( !Utility.zMemoryCheck(lenData, 4, sbError) ) return null;
 				float[] af = new float[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					try {
@@ -420,7 +419,7 @@ public class DAP {
 				egg[0] = af;
 				break;
 			case DAP.JAVA_TYPE_double:
-				if( !ApplicationController.zMemoryCheck(lenData, 8, sbError) ) return null;
+				if( !Utility.zMemoryCheck(lenData, 8, sbError) ) return null;
 				double[] ad = new double[lenData];
 				for( int xValue = 0; xValue < lenData; xValue++ ){
 					try {
@@ -987,12 +986,11 @@ public class DAP {
 	/** returns only the first value of the named attribute */
 	public static String getAttributeValue( DAS das, String sVariableName, String sAttributeName, StringBuffer sbError ){
 		if( das == null || sVariableName == null ) return null;
-		java.util.ArrayList list = new java.util.ArrayList();
 		try {
 			AttributeTable atMatching = findAttributeTable( das, sVariableName );
 			if( atMatching == null ) return null;
 			java.util.Enumeration enumNames = atMatching.getNames();
-			while(enumNames.hasMoreElements()){
+			while( enumNames.hasMoreElements() ){
 				String sElementAttributeName = (String)enumNames.nextElement();
 				if( sElementAttributeName.equalsIgnoreCase(sAttributeName) ){
 					Attribute attr = atMatching.getAttribute(sAttributeName);
@@ -1016,12 +1014,12 @@ public class DAP {
 
 	public static Object[] getMissingValues( DAS das, String sVariableName, StringBuffer sbError ){
 		if( das == null || sVariableName == null ) return null;
-		java.util.ArrayList list = new java.util.ArrayList();
+		java.util.ArrayList<String> list = new java.util.ArrayList<String>();
 		try {
 			AttributeTable atMatching = findAttributeTable( das, sVariableName );
 			if( atMatching == null ) return null;
 			java.util.Enumeration enumNames = atMatching.getNames();
-			while(enumNames.hasMoreElements()){
+			while( enumNames.hasMoreElements() ){
 				String sAttributeName = (String)enumNames.nextElement();
 				if( sAttributeName.toUpperCase().startsWith("MISSING") ){
 					Attribute attr = atMatching.getAttribute(sAttributeName);
