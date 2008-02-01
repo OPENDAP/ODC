@@ -130,7 +130,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 				return adodsurl;
 			}
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return null;
 		}
 	}
@@ -264,7 +264,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 			}
 
 		} catch (Exception ex) {
-			Utility.vUnexpectedError(ex, new StringBuffer("while synchronizing selection list"));
+			ApplicationController.vUnexpectedError(ex, new StringBuffer("while synchronizing selection list"));
 		}
 	}
 
@@ -436,7 +436,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 					ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
 				}
 			} catch( Exception ex ) {
-				Utility.vUnexpectedError( ex, "Unexpected error determing dataset types" );
+				ApplicationController.vUnexpectedError( ex, "Unexpected error determing dataset types" );
 			}
 		}
 	}

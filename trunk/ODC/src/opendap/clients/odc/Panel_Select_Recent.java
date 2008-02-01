@@ -115,7 +115,7 @@ public class Panel_Select_Recent extends SearchInterface {
             return true;
 
         } catch(Exception ex){
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
             return false;
         }
 	}
@@ -178,7 +178,7 @@ public class Panel_Select_Recent extends SearchInterface {
 		int xFileToDelete = panelRecent.xIndexOfMatchingBaseURL(url);
 		if( xFileToDelete != - 1 ){ // already in there (replace existing object)
 			String sFilename = afile[xFileToDelete].getName();
-			if( !Utility.zDeletePreferenceObject(sFilename, sbError) ){
+			if( !ApplicationController.zDeletePreferenceObject(sFilename, sbError) ){
 				ApplicationController.getInstance().vShowWarning("failed to delete matching recent: " + sbError);
 				return;
 			}
@@ -190,7 +190,7 @@ public class Panel_Select_Recent extends SearchInterface {
 			int ctToDelete = afile.length - iRecentCount + 1;
 			for( xFileToDelete = 0; xFileToDelete < ctToDelete; xFileToDelete++ ){
 				String sFilename = afile[xFileToDelete].getName();
-				if( !Utility.zDeletePreferenceObject(sFilename, sbError) ){
+				if( !ApplicationController.zDeletePreferenceObject(sFilename, sbError) ){
 					ApplicationController.getInstance().vShowWarning("failed to delete extra recent: " + sbError);
 				}
 			}

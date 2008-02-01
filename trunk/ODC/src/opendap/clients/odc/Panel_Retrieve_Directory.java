@@ -147,7 +147,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 													}
 												);
 											} catch(Exception ex) {
-												Utility.vUnexpectedError(ex, "Error updating tree");
+												ApplicationController.vUnexpectedError(ex, "Error updating tree");
 											}
 											vUpdateFileList(node);
 											try {
@@ -159,7 +159,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 													}
 												);
 											} catch( Exception ex ) {
-												Utility.vUnexpectedError(ex, "Error expanding row");
+												ApplicationController.vUnexpectedError(ex, "Error expanding row");
 											}
 										}
 										public void Cancel(){
@@ -254,7 +254,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 			return true;
 
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -363,7 +363,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 			mParent.model.retrieve_panel.getPanelDDX().vClear();
 			return true;
 		} catch( Throwable t ) {
-			Utility.vUnexpectedError(t, sbError);
+			ApplicationController.vUnexpectedError(t, sbError);
 			return false;
 		}
 	}

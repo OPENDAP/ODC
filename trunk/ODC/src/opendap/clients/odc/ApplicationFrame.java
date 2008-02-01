@@ -109,7 +109,7 @@ public class ApplicationFrame extends JFrame {
 			return true;
 
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
     }

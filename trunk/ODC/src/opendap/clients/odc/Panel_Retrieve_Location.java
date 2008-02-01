@@ -103,7 +103,7 @@ public class Panel_Retrieve_Location extends JPanel {
             return true;
 
         } catch(Exception ex){
-            Utility.vUnexpectedError(ex, sbError);
+            ApplicationController.vUnexpectedError(ex, sbError);
             return false;
         }
 

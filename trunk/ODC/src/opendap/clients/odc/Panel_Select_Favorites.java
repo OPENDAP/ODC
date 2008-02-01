@@ -143,7 +143,7 @@ public class Panel_Select_Favorites extends SearchInterface {
             return true;
 
         } catch(Exception ex){
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
             return false;
         }
 	}
@@ -238,9 +238,9 @@ public class Panel_Select_Favorites extends SearchInterface {
 		try {
 			String sNumber = Utility.sFixedWidth(Integer.toString(iID), 7, '0', Utility.ALIGNMENT_RIGHT);
 			String sFilename = "favorite-" + sNumber + ".ser";
-			return Utility.zDeletePreferenceObject(sFilename, sbError);
+			return ApplicationController.zDeletePreferenceObject(sFilename, sbError);
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}

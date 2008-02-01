@@ -62,6 +62,7 @@ public class ConfigurationManager {
 	private static final String DIR_Default_ImageCache = "ImageCache";
 	private static final String DIR_Default_DataCache = "DataCache";
 	private static final String DIR_Default_Plots = "plots";
+	private static final String DIR_Default_Scripts = "scripts";
 	private static final String DIR_Default_Coastline = "coastline";
 
 	private static final String FEEDBACK_Default_EmailRelayURL = "/cgi-bin/odc_mail_relay.pl"; // http://test.opendap.org/cgi-bin/odc_mail_relay.pl
@@ -85,6 +86,7 @@ public class ConfigurationManager {
 	public static final String PROPERTY_DIR_ImageCache = "dir.ImageCache";
 	public static final String PROPERTY_DIR_DataCache = "dir.DataCache";
 	public static final String PROPERTY_DIR_Plots = "dir.Plots";
+	public static final String PROPERTY_DIR_Scripts = "dir.Scripts";
 	public static final String PROPERTY_PROXY_Use = "proxy.Use";
 	public static final String PROPERTY_PROXY_Host = "proxy.Host";
 	public static final String PROPERTY_PROXY_Port = "proxy.Port";
@@ -402,6 +404,7 @@ public class ConfigurationManager {
 	public String getProperty_DIR_ImageCache(){ return this.getInstance().getOption(PROPERTY_DIR_ImageCache, this.getDefault_DIR_ImageCache()); }
 	public String getProperty_DIR_DataCache(){ return this.getInstance().getOption(PROPERTY_DIR_DataCache, this.getDefault_DIR_DataCache()); }
 	public String getProperty_DIR_Plots(){ return this.getInstance().getOption(PROPERTY_DIR_Plots, this.getDefault_DIR_Plots()); }
+	public String getProperty_DIR_Scripts(){ return this.getInstance().getOption(PROPERTY_DIR_Scripts, this.getDefault_DIR_Scripts()); }
 	public String getProperty_DISPLAY_IconSize(){ return this.getInstance().getOption(PROPERTY_DISPLAY_IconSize, "16"); }
 	public boolean getProperty_MODE_ReadOnly(){
 		return mzReadOnly;
@@ -795,6 +798,14 @@ public class ConfigurationManager {
 		return sPlotsDirectory;
 	}
 
+	String getDefault_DIR_Scripts(){
+		String sWorkingDirectory = this.getBaseDirectory();
+		if( sWorkingDirectory == null ) sWorkingDirectory = "";
+		String sSeparator = System.getProperty(SYSTEM_PROPERTY_FileSeparator);
+		String sPlotsDirectory = Utility.sConnectPaths(sWorkingDirectory, sSeparator, DIR_Default_Scripts) + sSeparator;
+		return sPlotsDirectory;
+	}
+
 	String getDefault_URL_GCMD(){ return URL_Default_GCMD; }
 
 	String getDefault_URL_ECHO(){ return "http://fosters.gsfc.nasa.gov:4500/"; }
@@ -872,6 +883,7 @@ public class ConfigurationManager {
 		sb.append(PROPERTY_DIR_ImageCache + " = " + this.getProperty_DIR_ImageCache() + "\n" );
 		sb.append(PROPERTY_DIR_DataCache + " = " + this.getProperty_DIR_DataCache() + "\n" );
 		sb.append(PROPERTY_DIR_Plots + " = " + this.getProperty_DIR_Plots() + "\n" );
+		sb.append(PROPERTY_DIR_Scripts + " = " + this.getProperty_DIR_Scripts() + "\n" );
 		sb.append(PROPERTY_PROXY_Use + " = " + (this.getProperty_ProxyUse() ? "Yes" : "No") + "\n" );
 		sb.append(PROPERTY_PROXY_Host + " = " + (this.getProperty_ProxyHost()==null ? "[none]" : this.getProperty_ProxyHost()) + "\n" );
 		sb.append(PROPERTY_PROXY_Port + " = " + (this.getProperty_ProxyPort()==null ? "[none]" : this.getProperty_ProxyPort()) + "\n" );
@@ -943,6 +955,7 @@ public class ConfigurationManager {
 			mProperties.setProperty( PROPERTY_DIR_ImageCache, this.getDefault_DIR_ImageCache());
 			mProperties.setProperty( PROPERTY_DIR_DataCache, this.getDefault_DIR_DataCache());
 			mProperties.setProperty( PROPERTY_DIR_Plots, this.getDefault_DIR_Plots());
+			mProperties.setProperty( PROPERTY_DIR_Scripts, this.getDefault_DIR_Scripts());
 			mProperties.setProperty( PROPERTY_DISPLAY_IconSize, this.getDefault_DISPLAY_IconSize());
 			mProperties.setProperty( PROPERTY_DISPLAY_MarginBottom, "32");
 			mProperties.setProperty( PROPERTY_DISPLAY_ShowSplashScreen, "Yes");

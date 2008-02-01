@@ -262,7 +262,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 			DodsURL[] aDisplayedURLs = getDisplayURLs();
 			if( aDisplayedURLs == null ) return;
         } catch(Exception ex) {
-		   Utility.vUnexpectedError( ex, "Unexpected error synchronizing display list");
+		   ApplicationController.vUnexpectedError( ex, "Unexpected error synchronizing display list");
 		} finally {
 			ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
 		}

@@ -56,7 +56,7 @@ public class SystemConduit {
 					try {
 						Process process = Runtime.getRuntime().exec(asCommand_final);
 					} catch(Exception ex) {
-						Utility.vUnexpectedError(ex, "Failed to execute command " + sCommandComplete_final);
+						ApplicationController.vUnexpectedError(ex, "Failed to execute command " + sCommandComplete_final);
 					}
 				}
 			};

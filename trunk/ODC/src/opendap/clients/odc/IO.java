@@ -416,7 +416,7 @@ ReadHeader:
 			return sbHeader.toString();
 		} catch( Throwable t ) {
 			sbError.append("error scanning header: ");
-			Utility.vUnexpectedError(t, sbError);
+			ApplicationController.vUnexpectedError(t, sbError);
 			try { socket_channel.close(); } catch( Throwable t_is ){}
 			return null;
 		}
@@ -516,7 +516,7 @@ ReadHeader:
 				}
 			}
 		} catch( Throwable t ) {
-			Utility.vUnexpectedError(t, sbError);
+			ApplicationController.vUnexpectedError(t, sbError);
 			return null;
 		}
 	}
@@ -597,7 +597,7 @@ ReadHeader:
 				}
 			}
 		} catch( Throwable t ) {
-			Utility.vUnexpectedError(t, sbError);
+			ApplicationController.vUnexpectedError(t, sbError);
 			return null;
 		}
 	}
@@ -665,7 +665,7 @@ ReadHeader:
 			return null;
 		} catch( Throwable t ) {
 			sbError.append("error during open of " + (zUseProxy ? "proxy" : "remote host") + " (" + sConnection_Host + ":" + iConnection_Port + "): " + t);
-			Utility.vUnexpectedError(t, sbError);
+			ApplicationController.vUnexpectedError(t, sbError);
 			return null;
 		}
 

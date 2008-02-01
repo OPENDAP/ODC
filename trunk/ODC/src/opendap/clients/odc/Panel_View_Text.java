@@ -2,11 +2,11 @@ package opendap.clients.odc;
 
 /**
  * Title:        Panel_View_Text
- * Description:  Output text area which displays messages and data
- * Copyright:    Copyright (c) 2002
- * Company:      University of Rhode Island, Graduate School of Oceanography
+ * Description:  Text editor with multiple tabs
+ * Copyright:    Copyright (c) 2008
+ * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.70
+ * @version      3.00
  */
 
 /////////////////////////////////////////////////////////////////////////////

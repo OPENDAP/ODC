@@ -381,7 +381,7 @@ ApplicationController.getInstance().vShowStartupMessage("1");
             return true;
 
         } catch(Exception ex){
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
             return false;
         }
 	}
@@ -558,7 +558,7 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 		try {
 			return new TableOutputStream();
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return null;
 		}
 	}
@@ -1034,7 +1034,7 @@ class ExcelAdapter implements ActionListener {
                }
             }
          } catch(Exception ex) {
-			 Utility.vUnexpectedError(ex, "while pasting");
+			 ApplicationController.vUnexpectedError(ex, "while pasting");
 		 }
       }
    }

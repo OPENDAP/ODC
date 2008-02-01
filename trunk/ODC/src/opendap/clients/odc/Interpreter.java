@@ -63,7 +63,7 @@ public class Interpreter {
 			os.write( msPrompt.getBytes() );
 			os.flush();
 		} catch( Throwable t ) {
-			Utility.vUnexpectedError( t, sbError );
+			ApplicationController.vUnexpectedError( t, sbError );
 			return false;
 		}
 		return true;
@@ -87,7 +87,7 @@ public class Interpreter {
 			vWriteLine( os, "!python error: " + python_error, msPrompt );
 		} catch( Throwable t ) {
 			System.out.println("error: " + t.getClass().getName());
-			Utility.vUnexpectedError( t, sbError );
+			ApplicationController.vUnexpectedError( t, sbError );
 			return false;
 		}
 		return true;

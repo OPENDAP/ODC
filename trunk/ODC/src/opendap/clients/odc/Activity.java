@@ -270,7 +270,7 @@ public class Activity extends Thread {
 				}
 			} else {
 				StringBuffer sbError = new StringBuffer("Unexpected error running activity " + mID + ": ");
-				Utility.vUnexpectedError( t, sbError);
+				ApplicationController.vUnexpectedError( t, sbError);
 				ApplicationController.vShowError(sbError.toString());
 			}
 		} finally {

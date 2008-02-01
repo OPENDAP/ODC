@@ -81,7 +81,7 @@ public class VSelector_Generic extends VariableSelector {
 			boolean zShowDescriptions = getOwner().mGenerator.zShowDescriptions();
 			vUpdateInfo(zShowDescriptions);
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, "While building generic interface for " + sName);
+			ApplicationController.vUnexpectedError(ex, "While building generic interface for " + sName);
 		}
 
     }

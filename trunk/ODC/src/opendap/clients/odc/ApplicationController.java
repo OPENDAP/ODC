@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Application Controller
  * Description:  Top-level controller for starting and managing the application
- * Copyright:    Copyright (c) 2002-2004
+ * Copyright:    Copyright (c) 2002-2008
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.70
+ * @version      3.00
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -267,7 +267,7 @@ public class ApplicationController {
 		} catch(Exception ex) {
 			windowSplash = null;
 			if( windowSplash != null ) windowSplash.dispose();
-			Utility.vUnexpectedError(ex, new StringBuffer("showing splash screen: "));
+			vUnexpectedError(ex, new StringBuffer("showing splash screen: "));
 		}
 	}
 
@@ -375,7 +375,7 @@ public class ApplicationController {
 					msbInterpreterError.setLength(0);
 				}
 			} catch (Throwable t) {
-				Utility.vUnexpectedError( t, "Unexpected error executing command" );
+				vUnexpectedError( t, "Unexpected error executing command" );
 			}
 		}
 		interpreter.vWritePrompt(os);
@@ -517,6 +517,24 @@ public class ApplicationController {
 		}
 	}
 
+	public static void vUnexpectedError( Throwable ex, String sMessage ){
+		if( ApplicationController.DEBUG ){
+			ApplicationController.vShowError(sMessage + ":\n" + Utility.extractStackTrace(ex));
+		} else {
+			ApplicationController.vShowError(sMessage + ": " + Utility.extractErrorLine(ex));
+		}
+	}
+
+	public static void vUnexpectedError( Throwable ex, StringBuffer sbError ){
+		String sErrorMessage = ApplicationController.DEBUG ? Utility.extractStackTrace(ex) : Utility.extractErrorLine(ex);
+		if( sbError == null ){
+			System.err.println("(no buffer supplied for the following error:)");
+			System.err.println(sErrorMessage);
+		} else {
+			sbError.append(": ").append(sErrorMessage);
+		}
+	}
+	
 	public String getLog(){
 		StringBuffer sbLog = new StringBuffer(10000);
 		sbLog.append("Errors:");
@@ -774,6 +792,93 @@ public class ApplicationController {
 		return sb.toString();
 	}
 
+	// requires a 5 megabyte buffer which is wise for a Swing application
+	public static boolean zMemoryCheck( int iCount, int iWidth, StringBuffer sbError ){
+		if( ApplicationController.getMemory_Available() > iCount * iWidth + 5000000 ){
+			return true;
+		} else {
+			sbError.append("insufficient memory (see help for how to increase memory)");
+			return false;
+		}
+	}
+
+	public static boolean activateURL( String sURL, StringBuffer sbError ){
+		try {
+			Runtime.getRuntime().exec("start " + sURL);
+			return true;
+		} catch( Exception ex ) {
+			vUnexpectedError(ex, sbError);
+			return false;
+		}
+	}
+	
+	static boolean zDeletePreferenceObject( String sFileName, StringBuffer sbError ){
+		try {
+			String sPreferencesDirectory = ConfigurationManager.getInstance().getProperty_PreferencesDirectory();
+			String sPath = sPreferencesDirectory + sFileName;
+			File fileToDelete = new File(sPath);
+			if( !fileToDelete.exists() ){
+				sbError.append("file does not exist: " + sPath);
+				return false;
+			}
+			fileToDelete.delete();
+			return true;
+		} catch(Exception ex) {
+			vUnexpectedError(ex, sbError);
+			return false;
+		}
+	}
+
+	public static String sDetemineDodsRawPath( String sDodsURL, StringBuffer sbError ){
+		try {
+			if( sDodsURL == null ){
+				sbError.append("input URL was null");
+				return null;
+			}
+
+			// find method
+			int posMethodBegin = sDodsURL.indexOf("://");
+			if( posMethodBegin < 0 ){
+				sbError.append("no method found in URL");
+				return null;
+			}
+			int posDomainBegin = posMethodBegin + 3;
+
+			// find end of domain
+			int posDomainEnd = sDodsURL.indexOf("/", posDomainBegin);
+			if( posDomainEnd < 0 ){
+				sbError.append("no domain-terminating slash found after method");
+				return null;
+			}
+
+			// find nph
+			int posNPHbegin = sDodsURL.toUpperCase().indexOf("NPH-");
+			if( posNPHbegin < 0 ){
+				sbError.append("hint 'nph-' not found in URL");
+				return null;
+			}
+
+			// find end of nph
+			int posNPHend = sDodsURL.indexOf("/", posNPHbegin);
+			if( posNPHend < 0 ){
+				sbError.append("no slash found after 'nph-' hint");
+				return null;
+			}
+
+			// construct raw URL
+			StringBuffer sbRawURL = new StringBuffer(sDodsURL.length());
+			sbRawURL.append(sDodsURL.substring(0, posDomainEnd));
+			sbRawURL.append(sDodsURL.substring(posNPHend));
+			return sbRawURL.toString();
+
+		} catch( Exception ex ) {
+			vUnexpectedError(ex, sbError);
+			return null;
+		}
+	}
+
+	
+	
 }
 
 class Message extends JPanel {
@@ -823,7 +928,7 @@ class Message extends JPanel {
 			jd.setSize(new Dimension(iWidth, iHeight));
 			jd.setLocation((screen_width - iWidth)/2, (screen_height - iHeight)/2);
 
-			jd.show();
+			jd.setVisible( true );
 		} catch( Exception ex ) {
 			// ignore errors
 		} finally {
@@ -832,6 +937,7 @@ class Message extends JPanel {
 
 		return;
 	}
+	
 }
 
 // this is simple evaluator that can be replaced if the program ever gets a full-fledged interpreter
