@@ -255,7 +255,7 @@ public class DatasetList extends SearchInterface {
 				}
 			}
 		} catch( Throwable t ) {
-			Utility.vUnexpectedError( t, "adding selected URLs from dataset list" );
+			ApplicationController.vUnexpectedError( t, "adding selected URLs from dataset list" );
 		}
 	}
 
@@ -446,7 +446,7 @@ public class DatasetList extends SearchInterface {
 			sbError.append("error creating/opening file; this problem may be caused by a bug in MacOS 10.3, if you are using a Macintosh make sure it is 10.4 or later");
 			return false;
 		} catch( Throwable t ) {
-			Utility.vUnexpectedError(t, sbError);
+			ApplicationController.vUnexpectedError(t, sbError);
 			return false;
 		} finally {
 			try { if( fcCache != null ) fcCache.close(); } catch(Exception ex){}
