@@ -129,7 +129,7 @@ public class DOMTree extends JTree {
 			sbError.append("dataset list xml load I/O error: " + ioe);
 			return null;
         } catch( Throwable t ) {
-			Utility.vUnexpectedError(t, sbError);
+			ApplicationController.vUnexpectedError(t, sbError);
 			return null;
 		}
 		return parsed_document;
@@ -297,7 +297,7 @@ public class DOMTree extends JTree {
 				}
                 nDoc = builder.parse( fisXML );
             } catch(Exception e) {
-				Utility.vUnexpectedError(e, new StringBuffer("creating document builder: "));
+				ApplicationController.vUnexpectedError(e, new StringBuffer("creating document builder: "));
 				return SEARCH_ERROR;
 			}
 
