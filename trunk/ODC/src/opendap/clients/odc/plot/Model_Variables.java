@@ -349,7 +349,7 @@ class Model_Variable {
 
 			return maVariableInfo;
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return null;
 		}
 	}
@@ -365,7 +365,7 @@ class Model_Variable {
 		}
 		int ctRows = dsequence.getRowCount();
 		int xRow = 0;
-		if( !Utility.zMemoryCheck(ctRows, 8, sbError) ) return null;
+		if( !ApplicationController.zMemoryCheck(ctRows, 8, sbError) ) return null;
 		double[] adValues = new double[ctRows];
 		int ctErrors = 0;
 		try {
@@ -452,7 +452,7 @@ class Model_Variable {
 				case DAP.DATA_TYPE_Byte:
 					abValues = (byte[])oValues;
 					ctValues = abValues.length;
-					if( !Utility.zMemoryCheck(ctValues, 2, sbError) ) return null;
+					if( !ApplicationController.zMemoryCheck(ctValues, 2, sbError) ) return null;
 					short[] ashTransformedValues0 = new short[ctValues];
 					for( xValue = 0; xValue < ctValues; xValue++ ){
 						ashTransformedValues0[xValue] = (short)((short)abValues[xValue] & 0xFF);
@@ -467,7 +467,7 @@ class Model_Variable {
 				case DAP.DATA_TYPE_UInt16:
 					ashValues = (short[])oValues;
 					ctValues = ashValues.length;
-					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return null;
+					if( !ApplicationController.zMemoryCheck(ctValues, 4, sbError) ) return null;
 					int[] aiTransformedValues0 = new int[ctValues];
 					for( xValue = 0; xValue < ctValues; xValue++ ){
 						aiTransformedValues0[xValue] = (int)((int)ashValues[xValue] & 0xFFFF);
@@ -482,7 +482,7 @@ class Model_Variable {
 				case DAP.DATA_TYPE_UInt32:
 					aiValues = (int[])oValues;
 					ctValues = aiValues.length;
-					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return null;
+					if( !ApplicationController.zMemoryCheck(ctValues, 8, sbError) ) return null;
 					long[] anTransformedValues0 = new long[ctValues];
 					for( xValue = 0; xValue < ctValues; xValue++ ){
 						anTransformedValues0[xValue] = (long)((long)aiValues[xValue] & 0xFFFFFFFF);
@@ -508,7 +508,7 @@ class Model_Variable {
 			}
 			return infoValues;
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return null;
 		}
 	}
@@ -560,7 +560,7 @@ class Model_Variable {
 			//   xD1 + xD2*lenD1 + xD3*lenD2*lenD1
 			// the algorithm below extrapolates this to n-dimensions
 			int ctTransformedDimensions = (xDimX == 0 ? 0 : 1) + (xDimY == 0 ? 0 : 1);
-			if( !Utility.zMemoryCheck(ctValues * 2, 4, sbError) ) return null;
+			if( !ApplicationController.zMemoryCheck(ctValues * 2, 4, sbError) ) return null;
 			int[] axMappingCM2RM_base = new int[ctValues + 1]; // will contain mapping from base array to transformed array
 			int[] axMappingCM2RM_transform = new int[ctValues + 1]; // will contain mapping from base array to transformed array
 			int[] aiDimCursor = new int[ctDimensions+1];
@@ -604,7 +604,7 @@ class Model_Variable {
 					} else {
 						ashValues = (short[])oValues;
 					}
-					if( !Utility.zMemoryCheck(ctValues, 2, sbError) ) return null;
+					if( !ApplicationController.zMemoryCheck(ctValues, 2, sbError) ) return null;
 					short[] ashTransformedValues0 = new short[ctValues];
 					for( xValue = 1; xValue <= ctValues; xValue++ ){
 						if( eVALUE_TYPE == DAP.DATA_TYPE_Byte )
@@ -624,7 +624,7 @@ class Model_Variable {
 					} else {
 						aiValues = (int[])oValues;
 					}
-					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return null;
+					if( !ApplicationController.zMemoryCheck(ctValues, 4, sbError) ) return null;
 					int[] aiTransformedValues0 = new int[ctValues];
 					for( xValue = 1; xValue <= ctValues; xValue++ ){
 						if( eVALUE_TYPE == DAP.DATA_TYPE_UInt16 )
@@ -639,7 +639,7 @@ class Model_Variable {
 
 					// convert from column-major to row-major and to long
 					anValues = (long[])oValues;
-					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return null;
+					if( !ApplicationController.zMemoryCheck(ctValues, 8, sbError) ) return null;
 					long[] anTransformedValues0 = new long[ctValues];
 					for( xValue = 1; xValue <= ctValues; xValue++ ){
 						anTransformedValues0[axMappingCM2RM_transform[xValue]] = (long)(anValues[axMappingCM2RM_base[xValue]] & 0xFFFFFFFF);
@@ -651,7 +651,7 @@ class Model_Variable {
 
 					// convert from column-major to row-major
 					float[] afValues = (float[])oValues;
-					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return null;
+					if( !ApplicationController.zMemoryCheck(ctValues, 4, sbError) ) return null;
 					float[] afTransformedValues0 = new float[ctValues];
 					for( xValue = 1; xValue <= ctValues; xValue++ ){
 						afTransformedValues0[axMappingCM2RM_transform[xValue]] = afValues[axMappingCM2RM_base[xValue]];
@@ -662,7 +662,7 @@ class Model_Variable {
 
 					// convert from column-major to row-major
 					double[] adValues = (double[])oValues;
-					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return null;
+					if( !ApplicationController.zMemoryCheck(ctValues, 8, sbError) ) return null;
 					double[] adTransformedValues0 = new double[ctValues];
 					for( xValue = 1; xValue <= ctValues; xValue++ ){
 						adTransformedValues0[axMappingCM2RM_transform[xValue]] = adValues[axMappingCM2RM_base[xValue]];
@@ -675,7 +675,7 @@ class Model_Variable {
 			}
 			return infoValues;
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return null;
 		} catch( Throwable t ) {
 			sbError.append("Unable to transform " + ctValues + " values: " + t);

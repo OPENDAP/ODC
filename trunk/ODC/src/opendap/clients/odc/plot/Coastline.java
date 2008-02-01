@@ -1153,7 +1153,7 @@ public class Coastline {
 			}
 
 		} catch(Exception ex) {
-			opendap.clients.odc.Utility.vUnexpectedError(ex, sbError);
+			opendap.clients.odc.ApplicationController.vUnexpectedError(ex, sbError);
 			sbError.insert(0, "error reading polygon " + ctPolygons + " from " + sFilePathInfo + " " + sPath + ": ");
 			return false;
 		} finally {
@@ -1240,7 +1240,7 @@ public class Coastline {
 			}
 
 		} catch(Exception ex) {
-			opendap.clients.odc.Utility.vUnexpectedError(ex, sbError);
+			opendap.clients.odc.ApplicationController.vUnexpectedError(ex, sbError);
 			sbError.insert(0, "error reading polygon " + ctPolygons + " point " + xPoint + " of " + ctPoints + ": ");
 			return false;
 		} finally {
@@ -1304,7 +1304,7 @@ public class Coastline {
 
 			// create the point buffer
 			int ctPointsInLargestPolygon = polygonsCoastline.getLongestSegmentLength();
-			if( !Utility.zMemoryCheck(ctPointsInLargestPolygon * 2, 4, sbError) ){
+			if( !ApplicationController.zMemoryCheck(ctPointsInLargestPolygon * 2, 4, sbError) ){
 				ApplicationController.vShowWarning("Unable to draw coastline, insufficient memory");
 				return;
 			}
@@ -1413,7 +1413,7 @@ public class Coastline {
 			}
 		} catch(Exception ex) {
 			StringBuffer sbUError = new StringBuffer("coastline unexpected error: ");
-			Utility.vUnexpectedError(ex, sbUError);
+			ApplicationController.vUnexpectedError(ex, sbUError);
 			ApplicationController.vShowError_NoModal(sbUError.toString());
 			return;
 		} finally {

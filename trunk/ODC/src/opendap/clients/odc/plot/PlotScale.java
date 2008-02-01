@@ -758,7 +758,7 @@ class Panel_PlotScale extends JPanel implements IChanged {
 			jtfMarginRight.setText(Integer.toString(mScale.getMarginRight_px()));
 			jtfMarginBottom.setText(Integer.toString(mScale.getMarginBottom_px()));
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, "while updating scale panel");
+			ApplicationController.vUnexpectedError(ex, "while updating scale panel");
 		} finally {
 			mzUpdating = false;
 		}

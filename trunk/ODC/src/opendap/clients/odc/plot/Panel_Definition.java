@@ -306,7 +306,7 @@ class Panel_VariableTab extends JPanel {
 				vShowMessage("Failed to set data definition panel (see errors)");
 			}
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			ApplicationController.vShowError("Error showing data DDS form: " + sbError);
 			vShowMessage("Error showing data DDS form: " + sbError);
 		}
@@ -434,7 +434,7 @@ class Panel_VariableTab extends JPanel {
 
 			return pdat;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return null;
 		}
 	}

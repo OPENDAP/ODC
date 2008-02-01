@@ -248,7 +248,7 @@ class ColorSpecification extends AbstractListModel {
 
 			// ask user for desired location
 			String sPlotsDirectory = ConfigurationManager.getInstance().getProperty_DIR_Plots();
-			File filePlotsDirectory = Utility.fileEstablishDirectory(sPlotsDirectory);
+			File filePlotsDirectory = Utility.fileEstablishDirectory( sPlotsDirectory, sbError );
 			if (jfc == null) jfc = new JFileChooser();
 			if( filePlotsDirectory == null ){
 				// no default directory
@@ -297,7 +297,7 @@ class ColorSpecification extends AbstractListModel {
 			ApplicationController.vShowStatus("Wrote color specification " + sName + " to file " + file);
 			return true;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -307,7 +307,7 @@ class ColorSpecification extends AbstractListModel {
 
 			// ask user for desired location
 			String sPlotsDirectory = ConfigurationManager.getInstance().getProperty_DIR_Plots();
-			File filePlotsDirectory = Utility.fileEstablishDirectory(sPlotsDirectory);
+			File filePlotsDirectory = Utility.fileEstablishDirectory(sPlotsDirectory, sbError );
 			if (jfc == null) jfc = new JFileChooser();
 			if( filePlotsDirectory == null ){
 				// no default directory
@@ -540,7 +540,7 @@ class ColorSpecification extends AbstractListModel {
 			return true; // done, yeah
 
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
@@ -1384,7 +1384,7 @@ class ColorSpecification extends AbstractListModel {
 			ApplicationController.getInstance().vShowError("cannot render float data for type " + DAP.getType_String(getDataType()));
 			return null;
 		}
-		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
+		if( !ApplicationController.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
 		int[] aiRGB = new int[pxWidth * pxHeight];
 		final boolean zScale = ( iDataWidth != pxWidth || iDataHeight != pxHeight );
 		int xDataWidth, xDataHeight;
@@ -1444,7 +1444,7 @@ class ColorSpecification extends AbstractListModel {
 			ApplicationController.getInstance().vShowError("cannot render double data for type " + DAP.getType_String(getDataType()));
 			return null;
 		}
-		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
+		if( !ApplicationController.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
 		int[] aiRGB = new int[pxWidth * pxHeight];
 		final boolean zScale = ( iDataWidth != pxWidth || iDataHeight != pxHeight );
 		int xDataWidth, xDataHeight;
@@ -1499,7 +1499,7 @@ class ColorSpecification extends AbstractListModel {
 			ApplicationController.getInstance().vShowError("cannot render short data for type " + DAP.getType_String(getDataType()));
 			return null;
 		}
-		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
+		if( !ApplicationController.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
 		int[] aiRGB = new int[pxWidth * pxHeight];
 		final boolean zScale = ( iDataWidth != pxWidth || iDataHeight != pxHeight );
 		int xDataWidth, xDataHeight;
@@ -1548,7 +1548,7 @@ class ColorSpecification extends AbstractListModel {
 		return aiRGB;
 	}
 	int[] aiRender( int[] aiData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage, StringBuffer sbError ){
-		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
+		if( !ApplicationController.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
 		int iDataType = getDataType();
 		if( iDataType != DATA_TYPE_Int32 && iDataType != DATA_TYPE_UInt16 ){
 			sbError.append("cannot render int data for type " + DAP.getType_String(iDataType));
@@ -1602,7 +1602,7 @@ Ranges:
 		return aiRGB;
 	}
 	int[] aiRender( long[] anData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage, StringBuffer sbError ){
-		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
+		if( !ApplicationController.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
 		int iDataType = getDataType();
 		if( iDataType != DATA_TYPE_UInt32 ){
 			sbError.append("cannot render long data for type " + DAP.getType_String(iDataType));
@@ -2659,7 +2659,7 @@ class Panel_ColorSpecification extends JPanel implements IRangeChanged {
 			vAddCS( csNew );
 			return; // all done
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			ApplicationController.vShowError("Error attempting generate new CS from active definition: " + sbError);
 			sbError.setLength(0);
 		}

@@ -203,7 +203,7 @@ public class Model_Dimension {
 			msConstraint = sbConstraint.toString();
 		} catch( Throwable ex ) {
 			sbError.append("Analyzing constraint [" + s + "]: ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			setNoConstraint();
 			return false;
 		}

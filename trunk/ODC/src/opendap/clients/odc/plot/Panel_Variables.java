@@ -178,7 +178,7 @@ public class Panel_Variables extends JPanel {
 			}
 			return true;
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}
@@ -596,7 +596,7 @@ class VSelector_Plot_Schematic extends JPanel {
 			this.add(Box.createHorizontalGlue(), gbc);
 			return true;
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}
@@ -692,7 +692,7 @@ class VSelector_Plot_Schematic extends JPanel {
 			}
 
 		} catch(Throwable ex) {
-			Utility.vUnexpectedError(ex, "Error updating axes: ");
+			ApplicationController.vUnexpectedError(ex, "Error updating axes: ");
 		}
 	}
 
@@ -820,7 +820,7 @@ class VSelector_Plot_Schematic extends JPanel {
 //			}
 		} catch( Throwable t ) {
 			sbError.insert(0, "while loading model: ");
-			Utility.vUnexpectedError( t, sbError );
+			ApplicationController.vUnexpectedError( t, sbError );
 			return null;
 		}
 		try {
@@ -1026,7 +1026,7 @@ class VSelector_Plot_Schematic extends JPanel {
 
 			return dataset;
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return null;
 		} catch( Throwable t ) { // memory errors
 			sbError.append("Failed to gather data: " + t);
@@ -1074,7 +1074,7 @@ class VSelector_Plot_Schematic extends JPanel {
 						ashValues = (short[])oValues;
 						ctValues = ashValues.length;
 					}
-					if( !Utility.zMemoryCheck(ctValues, 2, sbError) ) return false;
+					if( !ApplicationController.zMemoryCheck(ctValues, 2, sbError) ) return false;
 					short[] ashTransformedValues0 = new short[ctValues];
 					if( eVALUE_TYPE == DAP.DATA_TYPE_Byte ){
 					    for( xValue = 0; xValue < ctValues; xValue++ )
@@ -1094,7 +1094,7 @@ class VSelector_Plot_Schematic extends JPanel {
 						aiValues = (int[])oValues;
 						ctValues = aiValues.length;
 					}
-					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return false;
+					if( !ApplicationController.zMemoryCheck(ctValues, 4, sbError) ) return false;
 					int[] aiTransformedValues0 = new int[ctValues];
 					if( eVALUE_TYPE == DAP.DATA_TYPE_UInt16 ){
 						for( xValue = 0; xValue < ctValues; xValue++ )
@@ -1108,7 +1108,7 @@ class VSelector_Plot_Schematic extends JPanel {
 				case DAP.DATA_TYPE_UInt32:
 					aiValues = (int[])oValues;
 					ctValues = aiValues.length;
-					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return false;
+					if( !ApplicationController.zMemoryCheck(ctValues, 8, sbError) ) return false;
 					long[] anTransformedValues0 = new long[ctValues];
 					for( xValue = 0; xValue < ctValues; xValue++ ){
 						anTransformedValues0[xValue] = (long)((long)aiValues[xValue] & 0xFFFFFFFF);
@@ -1118,7 +1118,7 @@ class VSelector_Plot_Schematic extends JPanel {
 				case DAP.DATA_TYPE_Float32:
 					float[] afValues = (float[])oValues;
 					ctValues = afValues.length;
-					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return false;
+					if( !ApplicationController.zMemoryCheck(ctValues, 4, sbError) ) return false;
 					float[] afTransformedValues0 = new float[ctValues];
 					for( xValue = 0; xValue < ctValues; xValue++ ){
 						afTransformedValues0[xValue] = afValues[xValue];
@@ -1128,7 +1128,7 @@ class VSelector_Plot_Schematic extends JPanel {
 				case DAP.DATA_TYPE_Float64:
 					double[] adValues = (double[])oValues;
 					ctValues = adValues.length;
-					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return false;
+					if( !ApplicationController.zMemoryCheck(ctValues, 8, sbError) ) return false;
 					double[] adTransformedValues0 = new double[ctValues];
 					for( xValue = 0; xValue < ctValues; xValue++ ){
 						adTransformedValues0[xValue] = adValues[xValue];
@@ -1141,7 +1141,7 @@ class VSelector_Plot_Schematic extends JPanel {
 			}
 			return true;
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}
@@ -1254,7 +1254,7 @@ class VSelector_Plot_Values extends JPanel {
 					}});
 			return true;
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}
@@ -1865,7 +1865,7 @@ class VSelector_Plot_Axis extends JPanel {
 					}});
 			return true;
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}
@@ -2236,7 +2236,7 @@ class Panel_MissingValues extends JPanel {
  			Panel_View_Plot.getDataParameters().setMissingEgg(eggMissing); // need to set dp egg so that NewCS creation can pick up manually generated egg
 			setMissingValues( eggMissing, eTYPE, sMethodCode );
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			ApplicationController.vShowError("While setting missing text: ");
 			meggMissing = null;
 			jtfMissingValues.setText("");

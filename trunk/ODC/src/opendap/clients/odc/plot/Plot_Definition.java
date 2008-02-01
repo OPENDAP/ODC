@@ -84,7 +84,7 @@ class PlottingDefinition_DataDDS extends Plot_Definition {
 				return true;
 			}
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}

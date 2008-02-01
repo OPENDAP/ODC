@@ -172,7 +172,7 @@ Thread.dumpStack();
 
 			return true;
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}
@@ -243,7 +243,7 @@ Thread.dumpStack();
 			}
 			return true;
 		} catch( Exception ex ) {
-			Utility.vUnexpectedError( ex, sbError );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}
@@ -268,7 +268,7 @@ Thread.dumpStack();
 			vsNewSequence.masPath1[1] = sVariableName;
 			return zDiscoverVariables_sequence_recursion(vsNewSequence, das, listVariableSpecs, sbError);
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}

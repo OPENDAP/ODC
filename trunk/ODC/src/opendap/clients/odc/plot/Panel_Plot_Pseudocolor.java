@@ -88,7 +88,7 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 
 		} catch( Throwable t ) {
 			if( mzTraceErrorOnce ){
-				Utility.vUnexpectedError(t, "Failed to render RGB array");
+				ApplicationController.vUnexpectedError(t, "Failed to render RGB array");
 				mzTraceErrorOnce = false;
 			}
 			g2.setColor(Color.BLACK);
@@ -126,7 +126,7 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 //			g2.drawRect(pxStartX, pxStartY, pxPlotWidth - 1, pxPlotHeight - 1); // for debugging
 		} catch( Throwable t ) {
 			if( mzTraceErrorOnce ){
-				Utility.vUnexpectedError(t, "Failed to generate plot");
+				ApplicationController.vUnexpectedError(t, "Failed to generate plot");
 			}
 			g2.setColor(Color.BLACK);
 			g2.drawString("Unexpected error generating plot (see errors)", 10, 25);
