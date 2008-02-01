@@ -32,7 +32,6 @@ import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.io.*;
 
 public class Panel_SpatialTemporal extends JPanel implements MouseListener, MouseMotionListener, MapConstants {
 	private final static String RESOURCE_PATH_WorldMap = "/tmap_30/images/java_0_world.gif";
@@ -79,7 +78,6 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 
 	private JPanel panelEast;
 	private JPanel panelCanvas;
-	private JPanel panelMapButtons;
 	private JPanel panelGazetteer;
 	private boolean mzGazetteerEnabled;
 	private boolean mzApply = false;
@@ -104,7 +102,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 		if( zInitializeGazetteer( sbError ) ){
 			this.setGazetteerEnabled(true);
 		} else {
-			ApplicationController.getInstance().vShowWarning("failed to initialize gazetteer: " + sbError);
+			ApplicationController.vShowWarning("failed to initialize gazetteer: " + sbError);
 			this.setGazetteerEnabled(false);
 		}
 
@@ -218,11 +216,11 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 				miToolType = TOOL_TYPE_XY;
 			}
 
-			boolean need_to_center; // todo doesn't seem to be used
-			if ( x_lo < grid.domain_X[LO] || x_lo > grid.domain_X[HI] )	{ x_lo = grid.domain_X[LO]; need_to_center = true; }
-			if ( x_hi < grid.domain_X[LO] || x_hi > grid.domain_X[HI] ) { x_hi = grid.domain_X[HI]; need_to_center = true; }
-			if ( y_lo < grid.domain_Y[LO] || y_lo > grid.domain_Y[HI] ) { y_lo = grid.domain_Y[LO]; need_to_center = true; }
-			if ( y_hi < grid.domain_Y[LO] || y_hi > grid.domain_Y[HI] ) { y_hi = grid.domain_Y[HI]; need_to_center = true; }
+//			boolean need_to_center; // todo doesn't seem to be used
+//			if ( x_lo < grid.domain_X[LO] || x_lo > grid.domain_X[HI] )	{ x_lo = grid.domain_X[LO]; need_to_center = true; }
+//			if ( x_hi < grid.domain_X[LO] || x_hi > grid.domain_X[HI] ) { x_hi = grid.domain_X[HI]; need_to_center = true; }
+//			if ( y_lo < grid.domain_Y[LO] || y_lo > grid.domain_Y[HI] ) { y_lo = grid.domain_Y[LO]; need_to_center = true; }
+//			if ( y_hi < grid.domain_Y[LO] || y_hi > grid.domain_Y[HI] ) { y_hi = grid.domain_Y[HI]; need_to_center = true; }
 
 			toolArray[0].setRange_X(x_lo, x_hi);
 			toolArray[0].setRange_Y(y_lo, y_hi);
@@ -465,7 +463,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 		try {
 			if( mjlistCustom.getSelectedIndex() < 0 ) return;
 			String sLabelToDelete = mjlistCustom.getSelectedValue().toString();
-			if( this.mGazetteer.zDeleteCustom( sLabelToDelete, sbError) ){
+			if( mGazetteer.zDeleteCustom( sLabelToDelete, sbError) ){
 				if( sbError.length() > 0 ) ApplicationController.vShowWarning("While deleting custom gazetteer entry " + sLabelToDelete + ": " + sbError);
 				mjlistCustom.setListData(mGazetteer.getCustom());
 			} else {
@@ -928,7 +926,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 			mMapCanvas.center_tool(1.0);
 
 		} catch (IllegalArgumentException e) {
-			ApplicationController.getInstance().vShowWarning("invalid coordinate: " + e);
+			ApplicationController.vShowWarning( "invalid coordinate: " + e );
 			// todo beep
 			// todo restore previous coordinate
 		} finally {
@@ -996,7 +994,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 				jtfWest.setText(XConvert.toString(mMapCanvas.getTool().user_X[LO]));
 			}
 		} catch (IllegalArgumentException e) {
-			ApplicationController.getInstance().vShowError("Error updating spatial coordinates: " + e);
+			ApplicationController.vShowError("Error updating spatial coordinates: " + e);
 		}
 
 	}
@@ -1179,7 +1177,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 //						   ", " + y_lo + ", " + y_hi + ")");
 
 		if ( sResourcePath == null ) {
-			ApplicationController.getInstance().vShowError("Unable to set spatial image, null input");
+			ApplicationController.vShowError("Unable to set spatial image, null input");
 			return;
 		} else {
 			StringBuffer sbError = new StringBuffer();
@@ -1373,7 +1371,6 @@ class Gazetteer {
 		int lenCoordinates = s.length();
 		StringBuffer sbNumber = new StringBuffer();
 		char cOrientation = 'N';
-		String sNumber, sOrientation;
 		while(true){
 			char c = s.charAt(pos);
 			switch(eState){
@@ -1457,7 +1454,7 @@ class Gazetteer {
 			return false;
 		}
 		StringBuffer sbGazetteer = new StringBuffer(10000);
-		if( !Utility.zLoadStringFile(sGazetteerPath, sbGazetteer, sbError) ){
+		if( ! Utility.fileLoadIntoBuffer( sGazetteerPath, sbGazetteer, sbError ) ){
 			sbError.insert(0, "failed to load gazetteer to delete custom entry: ");
 			return false;
 		}
@@ -1494,7 +1491,7 @@ class Gazetteer {
 				sbGazetteer.delete(posDeleteLocation_begin, posDeleteLocation_end);
 			}
 		}
-		if( !Utility.zSaveStringFile( sGazetteerPath, sbGazetteer, sbError) ){
+		if( !Utility.fileSave( sGazetteerPath, sbGazetteer.toString(), sbError) ){
 			sbError.append(sbError);
 		}
 		return true;
@@ -1509,7 +1506,7 @@ class Gazetteer {
 		if( sLabel == null ) sLabel = "[user defined]";
 		if( sCoordinates == null ) sCoordinates = "0N 0N 0S 0S";
 		StringBuffer sbGazetteer = new StringBuffer(10000);
-		if( !Utility.zLoadStringFile(sGazetteerPath, sbGazetteer, sbError) ){
+		if( !Utility.fileLoadIntoBuffer( sGazetteerPath, sbGazetteer, sbError ) ){
 			sbError.insert(0, "failed to load gazetteer to add custom entry: ");
 			return false;
 		}
@@ -1565,7 +1562,7 @@ class Gazetteer {
 				sbGazetteer.insert(posInsertLocation, sInsertion);
 			}
 		}
-		if( !Utility.zSaveStringFile( sGazetteerPath, sbGazetteer, sbError) ){
+		if( ! Utility.fileSave( sGazetteerPath, sbGazetteer.toString(), sbError ) ){
 			sbError.append(sbError);
 		}
 		return true;
@@ -1584,7 +1581,7 @@ class Gazetteer {
 	}
 	boolean zLoad( String sGazetteerPath, StringBuffer sbError ){ // may be a file or a directory
 		StringBuffer sbGazetteer = new StringBuffer(10000);
-		if( !Utility.zLoadStringFile(sGazetteerPath, sbGazetteer, sbError) ){
+		if( !Utility.fileLoadIntoBuffer( sGazetteerPath, sbGazetteer, sbError ) ){
 			sbError.insert(0, "failed to load: ");
 			return false;
 		}
@@ -1648,7 +1645,7 @@ class Gazetteer {
 		asEntries = new String[ctTopic][];
 		asCoordinates = new String[ctTopic][];
 		ArrayList listEntries = new ArrayList();
-		ArrayList listCoordinates = new ArrayList();
+		ArrayList<String> listCoordinates = new ArrayList<String>();
 	    int xTopic = 0;
 		int xEntry = 0;
 		pos = 0;

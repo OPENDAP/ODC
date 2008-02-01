@@ -44,7 +44,7 @@ public class OutputEngine implements ByteCounter {
 	// mechanism that uses the methods below
 	long mTotalBytes = 0;
 	public void vReportByteCount_EverySecond( long nByteCount ){
-		ApplicationController.getInstance().vShowStatus_NoCache("Received " + Utility.getByteCountString(nByteCount) + " (" + nByteCount + ")");
+		ApplicationController.vShowStatus_NoCache("Received " + Utility.getByteCountString(nByteCount) + " (" + nByteCount + ")");
 	}
 	public void vReportByteCount_Total( long nByteCount ){
 		mTotalBytes = nByteCount;
@@ -310,10 +310,10 @@ public class OutputEngine implements ByteCounter {
 	public boolean zOutputToPlotter(final DodsURL[] aURLs, final javax.swing.JButton jbuttonActivator, final ActionListener action, StringBuffer sbError){
 		try {
 
-			final ArrayList listValidURLs = new ArrayList();
+			final ArrayList<DodsURL> listValidURLs = new ArrayList<DodsURL>();
 
 			// get selection established
-			if (aURLs == null) {
+			if( aURLs == null ){
 				sbError.append("internal error, no URLs supplied");
 				return false;
 			}
@@ -400,7 +400,7 @@ public class OutputEngine implements ByteCounter {
 		}
 		OutputProfile getOutputProfile(){ return mOutputProfile; }
 		public void vReportByteCount_EverySecond( long nByteCount ){
-			ApplicationController.getInstance().vShowStatus_NoCache("Received " + Utility.getByteCountString(nByteCount) + " (" + nByteCount + ")");
+			ApplicationController.vShowStatus_NoCache("Received " + Utility.getByteCountString(nByteCount) + " (" + nByteCount + ")");
 		}
 		public void vReportByteCount_Total( long nByteCount ){
 			mTotalBytes = nByteCount;
@@ -498,7 +498,7 @@ public class OutputEngine implements ByteCounter {
 						}
                     }
 					if( iTarget == OutputProfile.TARGET_ViewText ){
-						ApplicationController.getInstance().getAppFrame().vActivateViewTextPanel();
+						ApplicationController.getInstance().getAppFrame().vActivateCommandPanel();
 					}
 					vOutput(url, os, iFormat);
 					String sTerminator = mOutputProfile.getTerminator();
@@ -575,52 +575,52 @@ public class OutputEngine implements ByteCounter {
 					try {
 						FileOutputStream fos = new FileOutputStream(sTargetOption);
 						if( sf.add(fos, sbError) ){
-							ApplicationController.getInstance().vShowStatus("targeting file " + sTargetOption);
+							ApplicationController.vShowStatus("targeting file " + sTargetOption);
 							ctSuccessfulTargets++;
 						} else {
 							sbError.insert(0, "failed to target file " + sTargetOption);
-							ApplicationController.getInstance().vShowError(sbError.toString());
+							ApplicationController.vShowError(sbError.toString());
 							sbError.setLength(0);
 						}
 					} catch(Exception ex) {
 						sbError.insert(0, "failed to open file [" + sTargetOption + "]: " + ex);
-						ApplicationController.getInstance().vShowError(sbError.toString());
+						ApplicationController.vShowError(sbError.toString());
 						sbError.setLength(0);
 					}
 				}
 				if( (iTarget & OutputProfile.TARGET_StandardOut) > 0) {
 					if( sf.add(System.out, sbError) ){
-						ApplicationController.getInstance().vShowStatus("targeting System.out");
+						ApplicationController.vShowStatus("targeting System.out");
 						ctSuccessfulTargets++;
 					} else {
 						sbError.insert(0, "failed to target System.out");
-						ApplicationController.getInstance().vShowError(sbError.toString());
+						ApplicationController.vShowError(sbError.toString());
 						sbError.setLength(0);
 					}
 				}
 				if( (iTarget & OutputProfile.TARGET_ViewText) > 0) {
 					if( sf.add(ApplicationController.getInstance().getTextViewerOS(), sbError) ){
-						ApplicationController.getInstance().vShowStatus("targeting text viewer");
+						ApplicationController.vShowStatus("targeting text viewer");
 						ctSuccessfulTargets++;
 					} else {
 						sbError.insert(0, "failed to target text viewer: ");
-						ApplicationController.getInstance().vShowError(sbError.toString());
+						ApplicationController.vShowError(sbError.toString());
 						sbError.setLength(0);
 					}
 				}
 				if( (iTarget & OutputProfile.TARGET_ViewImage) > 0) {
 					if( sTargetOption == null ){
 						sbError.insert(0, "failed to target image viewer because file name did not exist");
-						ApplicationController.getInstance().vShowError(sbError.toString());
+						ApplicationController.vShowError(sbError.toString());
 						sbError.setLength(0);
 					} else {
 						OutputStream os = ApplicationController.getInstance().getImageViewerOS(sTargetOption, sbError);
 						if( sf.add(os, sbError) ){
-							ApplicationController.getInstance().vShowStatus("targeting image viewer");
+							ApplicationController.vShowStatus("targeting image viewer");
 							ctSuccessfulTargets++;
 						} else {
 							sbError.insert(0, "failed to target image viewer: ");
-							ApplicationController.getInstance().vShowError(sbError.toString());
+							ApplicationController.vShowError(sbError.toString());
 							sbError.setLength(0);
 						}
 					}
@@ -639,7 +639,7 @@ public class OutputEngine implements ByteCounter {
 			final byte[] abNewline = { '\n' };
             StringBuffer sbError = new StringBuffer(250);
             if( url == null ){
-				ApplicationController.getInstance().vShowWarning("no url given");
+				ApplicationController.vShowWarning("no url given");
                 return;
             }
 			try {
@@ -800,7 +800,7 @@ public class OutputEngine implements ByteCounter {
 			DataDDS datadds = getDataDDS(url, activity, sbError);
 			if( datadds == null ){
 				if( sbError.length() > 0 )
-					ApplicationController.getInstance().vShowError("Failed to get data DDS: " + sbError);
+					ApplicationController.vShowError("Failed to get data DDS: " + sbError);
 				return;
 			}
 			try {

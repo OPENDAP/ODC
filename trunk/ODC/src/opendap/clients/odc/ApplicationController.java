@@ -768,21 +768,11 @@ public class ApplicationController {
 	public boolean isAutoUpdating(){ return mzIsAutoUpdating; }
 	public void setAutoUpdating(boolean z){ mzIsAutoUpdating = z; }
 
-	public static long getMemory_Max(){ return Runtime.getRuntime().maxMemory(); }
-	public static long getMemory_Total(){ return Runtime.getRuntime().totalMemory(); }
-	public static long getMemory_Free(){ return Runtime.getRuntime().freeMemory(); }
-	public static long getMemory_Available(){
-		long nMax = getMemory_Max();
-		long nTotal = getMemory_Total();
-		long nFree = getMemory_Free();
-		return nMax - nTotal + nFree;
-	}
-
 	public String sMemoryStatus(){
 		StringBuffer sb = new StringBuffer(200);
-		long nMax = getMemory_Max();
-		long nTotal = getMemory_Total();
-		long nFree = getMemory_Free();
+		long nMax = Utility.getMemory_Max();
+		long nTotal = Utility.getMemory_Total();
+		long nFree = Utility.getMemory_Free();
 		sb.append("--- Memory Status ------------------------------------------------\n");
 		sb.append("       max: " + Utility.sFormatFixedRight(nMax, 12, '.') + "  max available to the ODC\n");
 		sb.append("     total: " + Utility.sFormatFixedRight(nTotal, 12, '.') + "  total amount currently allocated\n");
@@ -790,16 +780,6 @@ public class ApplicationController {
 		sb.append("      used: " + Utility.sFormatFixedRight((nTotal - nFree) , 12, '.') + "  " + (int)((nTotal - nFree)/nMax) + "%  used memory (total-free)\n");
 		sb.append(" available: " + (int)((nMax - nTotal + nFree)/1048576) + " M  amount left (max - total + free)\n");
 		return sb.toString();
-	}
-
-	// requires a 5 megabyte buffer which is wise for a Swing application
-	public static boolean zMemoryCheck( int iCount, int iWidth, StringBuffer sbError ){
-		if( ApplicationController.getMemory_Available() > iCount * iWidth + 5000000 ){
-			return true;
-		} else {
-			sbError.append("insufficient memory (see help for how to increase memory)");
-			return false;
-		}
 	}
 
 	public static boolean activateURL( String sURL, StringBuffer sbError ){
