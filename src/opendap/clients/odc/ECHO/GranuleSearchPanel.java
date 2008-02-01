@@ -115,7 +115,7 @@ public class GranuleSearchPanel extends JSplitPane implements MouseListener {
 		} catch(JDOMException ex){
 			opendap.clients.odc.ApplicationController.vShowError("Granule Search Panel XML file conversion to Document failed: " + ex.getMessage());
 		} catch(Exception ex){
-			opendap.clients.odc.Utility.vUnexpectedError(ex, new StringBuffer("Granule Search Panel:"));
+			opendap.clients.odc.ApplicationController.vUnexpectedError(ex, new StringBuffer("Granule Search Panel:"));
 		}
 
 		//inputValids is a vector of JTextField
@@ -198,7 +198,7 @@ public class GranuleSearchPanel extends JSplitPane implements MouseListener {
 		} catch(JDOMException ex){
 			opendap.clients.odc.ApplicationController.getInstance().vShowError("Granule Search Panel XML file conversion to Document failed: " + ex);
 		} catch(Exception ex){
-			opendap.clients.odc.Utility.vUnexpectedError(ex, new StringBuffer("Granule Search Panel:"));
+			opendap.clients.odc.ApplicationController.vUnexpectedError(ex, new StringBuffer("Granule Search Panel:"));
 		}
 
 		// dataSetId from discovery search

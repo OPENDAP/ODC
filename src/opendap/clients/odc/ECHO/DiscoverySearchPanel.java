@@ -122,7 +122,7 @@ public class DiscoverySearchPanel extends JSplitPane implements MouseListener {
 		} catch(JDOMException ex){
 			ApplicationController.vShowError("Discovery Search Panel XML file conversion to Document failed: " + ex);
 		} catch(Exception ex){
-			Utility.vUnexpectedError(ex, new StringBuffer("ECHO discovery search panel: "));
+			ApplicationController.vUnexpectedError(ex, new StringBuffer("ECHO discovery search panel: "));
 		}
 
 		//inputValids is a vector of JTextField
@@ -384,7 +384,7 @@ rightPanel.add(buttonPanel);
 			}
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("Unexpected error showing valids: ");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			ApplicationController.vShowError(sbError.toString());
 		}
     }
@@ -400,7 +400,7 @@ rightPanel.add(buttonPanel);
 			}
 			return allValids;
 		} catch(Exception ex) {
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 			return null;
 		}
     }

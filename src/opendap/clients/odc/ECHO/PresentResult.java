@@ -24,7 +24,6 @@ package opendap.clients.odc.ECHO;
 
 import opendap.clients.odc.*;
 
-import java.lang.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
@@ -143,9 +142,9 @@ public class PresentResult
 			}
 		    }
 		} else
-		    ApplicationController.getInstance().vShowError("ECHO error: " + root.getChild("QueryResponse").getChild("BooleanResult").getChild("Message").getText());
+		    ApplicationController.vShowError("ECHO error: " + root.getChild("QueryResponse").getChild("BooleanResult").getChild("Message").getText());
 	    } catch(Exception ex){
-			Utility.vUnexpectedError(ex, new StringBuffer("ECHO display result: "));
+			ApplicationController.vUnexpectedError(ex, new StringBuffer("ECHO display result: "));
 	    }
 	    JTable resultTable = new JTable(data, valids);
 	    resultPane = new JScrollPane(resultTable);
