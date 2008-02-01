@@ -277,7 +277,7 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 			this.vSetMode(this.MODE_DatasetList);
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("GCMD free text search error");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 		}
 	}
 
@@ -328,7 +328,7 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 			return sConstraint;
 		} catch(Exception ex) {
 			StringBuffer sb = new StringBuffer("While formating spatial constraint: ");
-			Utility.vUnexpectedError(ex, sb);
+			ApplicationController.vUnexpectedError(ex, sb);
 			ApplicationController.vShowError(sb.toString());
 			return "";
 		}
@@ -392,7 +392,7 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 			return sConstraint;
 		} catch(Exception ex) {
 			StringBuffer sb = new StringBuffer("While formating spatial constraint: ");
-			Utility.vUnexpectedError(ex, sb);
+			ApplicationController.vUnexpectedError(ex, sb);
 			ApplicationController.vShowError(sb.toString());
 			return "";
 		}
@@ -445,7 +445,7 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 			}
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("General info error");
-			Utility.vUnexpectedError(ex, sbError);
+			ApplicationController.vUnexpectedError(ex, sbError);
 		}
 	}
 
@@ -613,7 +613,7 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 				}
 			} catch(Throwable ex) {
 				StringBuffer sbError = new StringBuffer("while executing GCMD search thread for query [" + sQueryURL + "]");
-				Utility.vUnexpectedError(ex, sbError);
+				ApplicationController.vUnexpectedError(ex, sbError);
 				ApplicationController.getInstance().vShowError(sbError.toString());
 			}
 		}
