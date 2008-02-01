@@ -31,9 +31,7 @@ package opendap.clients.odc;
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 /////////////////////////////////////////////////////////////////////////////
 import java.awt.event.*;
-import java.awt.*;
 import javax.swing.*;
-import javax.swing.text.*;
 import java.io.*;
 
 public class Panel_View_Text_Editor extends JPanel {
@@ -42,14 +40,16 @@ public class Panel_View_Text_Editor extends JPanel {
 	private String msFileDirectory = null;
 	private boolean mzDirty = false;
 	
-	public Panel_View_Text_Editor() {}
+	public Panel_View_Text_Editor(){}
 
 	JScrollPane jspDisplay = new JScrollPane();
 	private final JTextArea jtaDisplay = new JTextArea("");
 
-	boolean zInitialize(StringBuffer sbError){
+	boolean zInitialize( String sDirectory, String sName, String sContent, StringBuffer sbError ){
 
 		try {
+			msFileDirectory = sDirectory;
+			msFileName = sName;
 
 			javax.swing.border.Border borderStandard = BorderFactory.createEtchedBorder();
 			this.setBorder(borderStandard);
@@ -82,6 +82,8 @@ public class Panel_View_Text_Editor extends JPanel {
 				}
 		    );
 
+			if( sContent != null ) jtaDisplay.setText( sContent );
+			
             return true;
 
 		} catch(Exception ex){
@@ -107,43 +109,48 @@ public class Panel_View_Text_Editor extends JPanel {
     /** indicates that the file may not be saved / may be changed */
 	public boolean getDirty(){ return mzDirty; }
     
-	void save(){
+	/** returns false if the action was cancelled or failed */
+	boolean save(){
 		String sDirectory = getFileDirectory();
 		String sFileName  = getFileName();
 		if( sDirectory == null || sFileName == null ){
-			saveAs();
+			return saveAs();
 		} else {
 			try {
 				StringBuffer sbError = new StringBuffer();
 				File file = Utility.fileDefine( sDirectory, sFileName, sbError);
 				if( file == null ){					
 					ApplicationController.vShowWarning( "error defining file (dir: " + sDirectory + " name: " + sFileName + "): " );
-					saveAs();
+					return saveAs();
 				} else {
 					if( Utility.fileSave( file, jtaDisplay.getText(), sbError ) ){
 						ApplicationController.vShowStatus( "Saved " + file );
+						return true;
 					} else {
 						ApplicationController.vShowError( "Error saving file [" + file + "]: " + sbError );
+						return false;
 					}
 				}
 			} catch( Throwable t ) {
 				ApplicationController.vUnexpectedError( t, "while saving file" );
+				return false;
 			}
 		}
 	}
 
-	void saveAs(){
+	/** returns false if the action was cancelled or failed */
+	boolean saveAs(){
 		StringBuffer sbError = new StringBuffer();
 		String sSuggestedDirectory = getFileDirectory();
 		if( sSuggestedDirectory == null ) sSuggestedDirectory = ConfigurationManager.getInstance().getProperty_DIR_Scripts();
-		File fileSaved = Utility.fileSaveAs( sSuggestedDirectory, getFileName(), jtaDisplay.getText(), sbError );
+		File fileSaved = Utility.fileSaveAs( ApplicationController.getInstance().getAppFrame(), "Save As...", sSuggestedDirectory, getFileName(), jtaDisplay.getText(), sbError );
 		if( fileSaved == null ){
 			if( sbError.length() == 0 ){
 				ApplicationController.vShowStatus_NoCache( "save cancelled" );
 			} else { // an error occurred
 				ApplicationController.vShowError( "Error saving file: " +  sbError );
 			}
-			return;
+			return false;
 		}
 
 		// remember this directory as the new text file (scripts) directory
@@ -159,8 +166,10 @@ public class Panel_View_Text_Editor extends JPanel {
 
 		this.mzDirty = false;
 		ApplicationController.vShowStatus( "Saved file as " + fileSaved );
+		return true;
 
     }
+	
     
 }
 
