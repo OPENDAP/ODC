@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Configuration Manager
  * Description:  Maintains preferential settings for the application
- * Copyright:    Copyright (c) 2002-2004
- * Company:      University of Rhode Island, Graduate School of Oceanography
+ * Copyright:    Copyright (c) 2002-2008
+ * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.60
+ * @version      3.00
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ public class ConfigurationManager {
 	private static final String FEEDBACK_Default_BugPort = "8090";
 	private static final String FEEDBACK_Default_BugRoot = "/trac";
 
-	ArrayList mlistProperties;
+	ArrayList<String> mlistProperties;
 
 	public static final String PROPERTY_MODE_ReadOnly = "mode.ReadOnly";
 	public static final String PROPERTY_URL_GCMD = "url.GCMD";
@@ -194,7 +194,7 @@ public class ConfigurationManager {
 			if( sBaseDirectoryPath != null && sBaseDirectoryPath.length() > 0 ){
 				StringBuffer sbValidationError = new StringBuffer(250);
 				if( ! Utility.zDirectoryValidate( sBaseDirectoryPath, sbValidationError ) ){
-					ApplicationController.getInstance().vShowWarning("Invalid command line-supplied base directory: " + sbValidationError);
+					ApplicationController.vShowWarning("Invalid command line-supplied base directory: " + sbValidationError);
 				}
 			}
 		}
@@ -313,7 +313,7 @@ public class ConfigurationManager {
 			ApplicationController.vShowStatus("Starting in read-only mode (datasets.xml not writable: " + sPath_DatasetsXML + ")");
 			mzReadOnly = true;
 		} else {
-			String s = this.getInstance().getOption(PROPERTY_MODE_ReadOnly);
+			String s = getInstance().getOption(PROPERTY_MODE_ReadOnly);
 			if( s != null ){
 				if( s.toUpperCase().startsWith("Y") || s.toUpperCase().equals("TRUE")){
 					mzReadOnly = true;
@@ -325,7 +325,7 @@ public class ConfigurationManager {
 	}
 
 	private void vSetupPropertiesList(){
-		mlistProperties = new ArrayList();
+		mlistProperties = new ArrayList<String>();
 		mlistProperties.add( PROPERTY_MODE_ReadOnly);
 		mlistProperties.add( PROPERTY_URL_GCMD);
 		mlistProperties.add( PROPERTY_URL_ECHO );
@@ -387,30 +387,30 @@ public class ConfigurationManager {
 	}
 	public boolean getIsMacEnvironment(){ return mzMacEnvironment; }
 	public String getProperty_URL_GCMD(){
-		String sGCMD_URL = this.getInstance().getOption(PROPERTY_URL_GCMD, getDefault_URL_GCMD());
+		String sGCMD_URL = getInstance().getOption(PROPERTY_URL_GCMD, getDefault_URL_GCMD());
 		if( sGCMD_URL.equalsIgnoreCase( ConfigurationManager.URL_Default_GCMD_old ) ){
-			this.getInstance().setOption( PROPERTY_URL_GCMD, ConfigurationManager.URL_Default_GCMD );
+			getInstance().setOption( PROPERTY_URL_GCMD, ConfigurationManager.URL_Default_GCMD );
 			return ConfigurationManager.URL_Default_GCMD; // default URL changed
 		} else {
 			return sGCMD_URL;
 		}
 	}
-	public String getProperty_URL_ECHO(){ return this.getInstance().getOption(PROPERTY_URL_ECHO, getDefault_URL_ECHO()); }
-	public String getProperty_URL_XML(){ return this.getInstance().getOption(PROPERTY_URL_XML, getDefault_URL_DatasetList()); }
-	public String getProperty_PATH_XML_Cache(){ return this.getInstance().getOption(PROPERTY_PATH_XML_Cache, this.getDefault_PATH_XML()); }
-	public String getProperty_PATH_XML_ECHO_Valids(){ return this.getInstance().getOption(PROPERTY_PATH_ECHO_Valids, this.getDefault_PATH_ECHO_Valids()); }
-	public String getProperty_PATH_Gazetteer(){ return this.getInstance().getOption(PROPERTY_PATH_Gazetteer, this.getDefault_PATH_Gazetteer()); }
-	public String getProperty_PATH_Coastline(){ return this.getInstance().getOption(PROPERTY_PATH_Coastline, this.getDefault_PATH_Coastline()); }
-	public String getProperty_DIR_ImageCache(){ return this.getInstance().getOption(PROPERTY_DIR_ImageCache, this.getDefault_DIR_ImageCache()); }
-	public String getProperty_DIR_DataCache(){ return this.getInstance().getOption(PROPERTY_DIR_DataCache, this.getDefault_DIR_DataCache()); }
-	public String getProperty_DIR_Plots(){ return this.getInstance().getOption(PROPERTY_DIR_Plots, this.getDefault_DIR_Plots()); }
-	public String getProperty_DIR_Scripts(){ return this.getInstance().getOption(PROPERTY_DIR_Scripts, this.getDefault_DIR_Scripts()); }
-	public String getProperty_DISPLAY_IconSize(){ return this.getInstance().getOption(PROPERTY_DISPLAY_IconSize, "16"); }
+	public String getProperty_URL_ECHO(){ return getInstance().getOption(PROPERTY_URL_ECHO, getDefault_URL_ECHO()); }
+	public String getProperty_URL_XML(){ return getInstance().getOption(PROPERTY_URL_XML, getDefault_URL_DatasetList()); }
+	public String getProperty_PATH_XML_Cache(){ return getInstance().getOption(PROPERTY_PATH_XML_Cache, this.getDefault_PATH_XML()); }
+	public String getProperty_PATH_XML_ECHO_Valids(){ return getInstance().getOption(PROPERTY_PATH_ECHO_Valids, this.getDefault_PATH_ECHO_Valids()); }
+	public String getProperty_PATH_Gazetteer(){ return getInstance().getOption(PROPERTY_PATH_Gazetteer, this.getDefault_PATH_Gazetteer()); }
+	public String getProperty_PATH_Coastline(){ return getInstance().getOption(PROPERTY_PATH_Coastline, this.getDefault_PATH_Coastline()); }
+	public String getProperty_DIR_ImageCache(){ return getInstance().getOption(PROPERTY_DIR_ImageCache, this.getDefault_DIR_ImageCache()); }
+	public String getProperty_DIR_DataCache(){ return getInstance().getOption(PROPERTY_DIR_DataCache, this.getDefault_DIR_DataCache()); }
+	public String getProperty_DIR_Plots(){ return getInstance().getOption(PROPERTY_DIR_Plots, this.getDefault_DIR_Plots()); }
+	public String getProperty_DIR_Scripts(){ return getInstance().getOption(PROPERTY_DIR_Scripts, this.getDefault_DIR_Scripts()); }
+	public String getProperty_DISPLAY_IconSize(){ return getInstance().getOption(PROPERTY_DISPLAY_IconSize, "16"); }
 	public boolean getProperty_MODE_ReadOnly(){
 		return mzReadOnly;
 	}
 	public boolean getProperty_DISPLAY_ShowStandardOut(){
-		String s = this.getInstance().getOption(PROPERTY_DISPLAY_ShowStandardOut);
+		String s = getInstance().getOption(PROPERTY_DISPLAY_ShowStandardOut);
 		if( s == null ){
 			return getDefault_DISPLAY_ShowStandardOut();
 		}
@@ -418,7 +418,7 @@ public class ConfigurationManager {
 		return false;
 	}
 	public boolean getProperty_DISPLAY_ShowViewTab(){
-		String s = this.getInstance().getOption(PROPERTY_DISPLAY_ShowViewTab);
+		String s = getInstance().getOption(PROPERTY_DISPLAY_ShowViewTab);
 		if( s == null ){
 			return true; // default
 		}
@@ -426,7 +426,7 @@ public class ConfigurationManager {
 		return false;
 	}
 	public boolean getProperty_DISPLAY_AllowPlotterFiles(){
-		String s = this.getInstance().getOption(PROPERTY_DISPLAY_AllowPlotterFiles);
+		String s = getInstance().getOption(PROPERTY_DISPLAY_AllowPlotterFiles);
 		if( s == null ){
 			return false; // default
 		}
@@ -434,7 +434,7 @@ public class ConfigurationManager {
 		return false;
 	}
 	public boolean getProperty_DISPLAY_ShowErrorPopups(){
-		String s = this.getInstance().getOption(PROPERTY_DISPLAY_ShowErrorPopups);
+		String s = getInstance().getOption(PROPERTY_DISPLAY_ShowErrorPopups);
 		if( s == null ){
 			return true; // default
 		}
@@ -442,7 +442,7 @@ public class ConfigurationManager {
 		return false;
 	}
 	public boolean getProperty_LOGGING_ShowHeaders(){
-		String s = this.getInstance().getOption(PROPERTY_LOGGING_ShowHeaders);
+		String s = getInstance().getOption(PROPERTY_LOGGING_ShowHeaders);
 		if( s == null ){
 			return false; // default
 		}
@@ -450,7 +450,7 @@ public class ConfigurationManager {
 		return false;
 	}
 	public boolean getProperty_LOGGING_ReportMetrics(){
-		String s = this.getInstance().getOption(PROPERTY_LOGGING_ReportMetrics);
+		String s = getInstance().getOption(PROPERTY_LOGGING_ReportMetrics);
 		if( s == null ){
 			return false; // default
 		}
@@ -480,7 +480,7 @@ public class ConfigurationManager {
 
 	/** Returns an output profile format constant (see class OutputProfile) */
 	public int getProperty_OUTPUT_DodsFormat(){
-		String s = this.getInstance().getOption(PROPERTY_OUTPUT_DodsFormat);
+		String s = getInstance().getOption(PROPERTY_OUTPUT_DodsFormat);
 		if( s == null ){
 			return OutputProfile.FORMAT_Data_ASCII_text;
 		} else if( s.toUpperCase().equals("RAW") ){
@@ -497,134 +497,134 @@ public class ConfigurationManager {
 	}
 
 	public int getProperty_MarginRight(){
-		String sMarginRight = this.getInstance().getOption(PROPERTY_DISPLAY_MarginRight, "0");
+		String sMarginRight = getInstance().getOption(PROPERTY_DISPLAY_MarginRight, "0");
 		int iMarginRight = 0;
 		try {
 			iMarginRight = Integer.parseInt(sMarginRight);
 			if( iMarginRight < 0 ) iMarginRight *= -1;
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid right margin setting [" + sMarginRight + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid right margin setting [" + sMarginRight + "]. Must be an integer.");
 		}
 		return iMarginRight;
 	}
 
 	public int getProperty_MarginBottom(){
-		String sMarginBottom = this.getInstance().getOption(PROPERTY_DISPLAY_MarginBottom, "32");
+		String sMarginBottom = getInstance().getOption(PROPERTY_DISPLAY_MarginBottom, "32");
 		int iMarginBottom = 32;
 		try {
 			iMarginBottom = Integer.parseInt(sMarginBottom);
 			if( iMarginBottom < 0 ) iMarginBottom *= -1;
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid bottom margin setting [" + sMarginBottom + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid bottom margin setting [" + sMarginBottom + "]. Must be an integer.");
 		}
 		return iMarginBottom;
 	}
 
 	public int getProperty_StartupSize_Width(){
-		String sStartupSize_Width = this.getInstance().getOption(PROPERTY_DISPLAY_StartupSize_Width, "0");
+		String sStartupSize_Width = getInstance().getOption(PROPERTY_DISPLAY_StartupSize_Width, "0");
 		int iStartupSize_Width = 0;
 		try {
 			iStartupSize_Width = Integer.parseInt(sStartupSize_Width);
 			if( iStartupSize_Width < 0 ) iStartupSize_Width *= -1;
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid startup size width setting [" + sStartupSize_Width + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid startup size width setting [" + sStartupSize_Width + "]. Must be an integer.");
 		}
 		return iStartupSize_Width;
 	}
 
 	public int getProperty_StartupSize_Height(){
-		String sStartupSize_Height = this.getInstance().getOption(PROPERTY_DISPLAY_StartupSize_Height, "0");
+		String sStartupSize_Height = getInstance().getOption(PROPERTY_DISPLAY_StartupSize_Height, "0");
 		int iStartupSize_Height = 0;
 		try {
 			iStartupSize_Height = Integer.parseInt(sStartupSize_Height);
 			if( iStartupSize_Height < 0 ) iStartupSize_Height *= -1;
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid startup size Height setting [" + sStartupSize_Height + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid startup size Height setting [" + sStartupSize_Height + "]. Must be an integer.");
 		}
 		return iStartupSize_Height;
 	}
 
 	public int getProperty_StartupLocation_X(){
-		String sStartupLocation_X = this.getInstance().getOption(PROPERTY_DISPLAY_StartupLocation_X, "0");
+		String sStartupLocation_X = getInstance().getOption(PROPERTY_DISPLAY_StartupLocation_X, "0");
 		int iStartupLocation_X = 0;
 		try {
 			iStartupLocation_X = Integer.parseInt(sStartupLocation_X);
 			if( iStartupLocation_X < 0 ) iStartupLocation_X *= -1;
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid startup location X setting [" + sStartupLocation_X + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid startup location X setting [" + sStartupLocation_X + "]. Must be an integer.");
 		}
 		return iStartupLocation_X;
 	}
 
 	public int getProperty_StartupLocation_Y(){
-		String sStartupLocation_Y = this.getInstance().getOption(PROPERTY_DISPLAY_StartupLocation_Y, "0");
+		String sStartupLocation_Y = getInstance().getOption(PROPERTY_DISPLAY_StartupLocation_Y, "0");
 		int iStartupLocation_Y = 0;
 		try {
 			iStartupLocation_Y = Integer.parseInt(sStartupLocation_Y);
 			if( iStartupLocation_Y < 0 ) iStartupLocation_Y *= -1;
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid startup location X setting [" + sStartupLocation_Y + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid startup location X setting [" + sStartupLocation_Y + "]. Must be an integer.");
 		}
 		return iStartupLocation_Y;
 	}
 
 	public int getProperty_RecentCount(){
-		String sRecentCount = this.getInstance().getOption(PROPERTY_MAX_RecentCount, "50");
+		String sRecentCount = getInstance().getOption(PROPERTY_MAX_RecentCount, "50");
 		int iRecentCount = 50;
 		try {
 			iRecentCount = Integer.parseInt(sRecentCount);
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid recent count setting [" + sRecentCount + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid recent count setting [" + sRecentCount + "]. Must be an integer.");
 		}
 		return iRecentCount;
 	}
 	public int getProperty_MaxTableRows(){
-		String sMax = this.getInstance().getOption(PROPERTY_MAX_TableRows, "10000");
+		String sMax = getInstance().getOption(PROPERTY_MAX_TableRows, "10000");
 		int iMax = 10000;
 		try {
 			iMax = Integer.parseInt(sMax);
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid max table rows setting [" + sMax + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid max table rows setting [" + sMax + "]. Must be an integer.");
 		}
 		return iMax;
 	}
 	public int getProperty_MaxViewCharacters(){
-		String sMaxViewCharacters = this.getInstance().getOption(PROPERTY_MAX_ViewCharacters, "100000");
+		String sMaxViewCharacters = getInstance().getOption(PROPERTY_MAX_ViewCharacters, "100000");
 		int iMaxViewCharacters = 100000;
 		try {
 			iMaxViewCharacters = Integer.parseInt(sMaxViewCharacters);
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid max view characters setting [" + sMaxViewCharacters + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid max view characters setting [" + sMaxViewCharacters + "]. Must be an integer.");
 		}
 		return iMaxViewCharacters;
 	}
 	public int getProperty_DirectoryCount(){
 		int iMaxDirectoryCount = 100; // default
-		String sMaxDirectoryCount = this.getInstance().getOption(PROPERTY_MAX_DirectoryCount, Integer.toString(iMaxDirectoryCount));
+		String sMaxDirectoryCount = getInstance().getOption(PROPERTY_MAX_DirectoryCount, Integer.toString(iMaxDirectoryCount));
 		try {
 			iMaxDirectoryCount = Integer.parseInt(sMaxDirectoryCount);
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid max directory count setting [" + sMaxDirectoryCount + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid max directory count setting [" + sMaxDirectoryCount + "]. Must be an integer.");
 		}
 		return iMaxDirectoryCount;
 	}
 	public int getProperty_DirectoryFiles(){
 		int iMaxDirectoryFiles = 10000; // default
-		String sMaxDirectoryFiles = this.getInstance().getOption(PROPERTY_MAX_DirectoryFiles, Integer.toString(iMaxDirectoryFiles));
+		String sMaxDirectoryFiles = getInstance().getOption(PROPERTY_MAX_DirectoryFiles, Integer.toString(iMaxDirectoryFiles));
 		try {
 			iMaxDirectoryFiles = Integer.parseInt(sMaxDirectoryFiles);
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid max directory files setting [" + sMaxDirectoryFiles + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid max directory files setting [" + sMaxDirectoryFiles + "]. Must be an integer.");
 		}
 		return iMaxDirectoryFiles;
 	}
 	public int getProperty_DirectoryDepth(){
 		int iMaxDirectoryDepth = 10; // default
-		String sMaxDirectoryDepth = this.getInstance().getOption(PROPERTY_MAX_DirectoryDepth, Integer.toString(iMaxDirectoryDepth));
+		String sMaxDirectoryDepth = getInstance().getOption(PROPERTY_MAX_DirectoryDepth, Integer.toString(iMaxDirectoryDepth));
 		try {
 			iMaxDirectoryDepth = Integer.parseInt(sMaxDirectoryDepth);
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid max directory depth setting [" + sMaxDirectoryDepth + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid max directory depth setting [" + sMaxDirectoryDepth + "]. Must be an integer.");
 		}
 		return iMaxDirectoryDepth;
 	}
@@ -665,7 +665,7 @@ public class ConfigurationManager {
 		try {
 			iMailServerPort = Integer.parseInt(sPort);
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid mail server port setting [" + sPort + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid mail server port setting [" + sPort + "]. Must be an integer.");
 		}
 		return iMailServerPort;
 	}
@@ -687,7 +687,7 @@ public class ConfigurationManager {
 		try {
 			iBugPort = Integer.parseInt(sPort);
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid bug server port setting [" + sPort + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid bug server port setting [" + sPort + "]. Must be an integer.");
 		}
 		return iBugPort;
 	}
@@ -695,31 +695,31 @@ public class ConfigurationManager {
 		return getInstance().getOption(PROPERTY_FEEDBACK_BugRoot, FEEDBACK_Default_BugRoot);
 	}
 	public int getProperty_InterprocessServerPort(){
-		String sInterprocessServerPort = this.getInstance().getOption(PROPERTY_INTERPROCESS_SERVER_Port, "31870");
+		String sInterprocessServerPort = getInstance().getOption(PROPERTY_INTERPROCESS_SERVER_Port, "31870");
 		int iInterprocessServerPort = 31870;
 		try {
 			iInterprocessServerPort = Integer.parseInt(sInterprocessServerPort);
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid interprocess server port setting [" + sInterprocessServerPort + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid interprocess server port setting [" + sInterprocessServerPort + "]. Must be an integer.");
 		}
 		return iInterprocessServerPort;
 	}
 	public boolean getProperty_InterprocessServerOn(){
-		String sInterprocessServerOn = this.getInstance().getOption(PROPERTY_INTERPROCESS_SERVER_On, "Yes");
+		String sInterprocessServerOn = getInstance().getOption(PROPERTY_INTERPROCESS_SERVER_On, "Yes");
 		if( sInterprocessServerOn == null ) return true;
 		if( sInterprocessServerOn.startsWith("y") || sInterprocessServerOn.startsWith("Y") ) return true;
 		if( sInterprocessServerOn.equalsIgnoreCase("true") ) return true;
 		return false;
 	}
 	public boolean getProperty_DISPLAY_ShowSplashScreen(){
-		String sValue = this.getInstance().getOption(PROPERTY_DISPLAY_ShowSplashScreen, "Yes");
+		String sValue = getInstance().getOption(PROPERTY_DISPLAY_ShowSplashScreen, "Yes");
 		if( sValue == null ) return true;
 		if( sValue.length() == 0 ) return true;
 		if( sValue.toUpperCase().startsWith("Y") ) return true;
 		return false;
 	}
 	public boolean getProperty_DISPLAY_ShowPopupCancel(){
-		String sValue = this.getInstance().getOption(PROPERTY_DISPLAY_ShowPopupCancel, "Yes");
+		String sValue = getInstance().getOption(PROPERTY_DISPLAY_ShowPopupCancel, "Yes");
 		if( sValue == null ) return true;
 		if( sValue.length() == 0 ) return true;
 		if( sValue.toUpperCase().startsWith("Y") ) return true;
@@ -733,42 +733,42 @@ public class ConfigurationManager {
 		return sPreferencesDirectory;
 	}
 	public int getProperty_StatusTimeout(){
-		String sStatusTimeout = this.getInstance().getOption(PROPERTY_TIMEOUT_StatusMessage, "20000");
+		String sStatusTimeout = getInstance().getOption(PROPERTY_TIMEOUT_StatusMessage, "20000");
 		int iStatusTimeout = 20000;
 		try {
 			iStatusTimeout = Integer.parseInt(sStatusTimeout);
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid status message timeout setting [" + sStatusTimeout + "]. Must be an integer.");
+			ApplicationController.vShowWarning("Invalid status message timeout setting [" + sStatusTimeout + "]. Must be an integer.");
 		}
 		return iStatusTimeout;
 	}
 	public int getProperty_Timeout_InternetConnect(){
-		String sTimeout = this.getInstance().getOption(PROPERTY_TIMEOUT_InternetConnect, Integer.toString(DEFAULT_timeout_InternetConnect));
+		String sTimeout = getInstance().getOption(PROPERTY_TIMEOUT_InternetConnect, Integer.toString(DEFAULT_timeout_InternetConnect));
 		int iTimeout = DEFAULT_timeout_InternetConnect;
 		try {
 			iTimeout = Integer.parseInt(sTimeout);
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid status message timeout setting [" + sTimeout + "]. Must be an integer in seconds.");
+			ApplicationController.vShowWarning("Invalid status message timeout setting [" + sTimeout + "]. Must be an integer in seconds.");
 		}
 		return iTimeout;
 	}
 	public int getProperty_Timeout_InternetRead(){
-		String sTimeout = this.getInstance().getOption(PROPERTY_TIMEOUT_InternetRead, Integer.toString(DEFAULT_timeout_InternetRead));
+		String sTimeout = getInstance().getOption(PROPERTY_TIMEOUT_InternetRead, Integer.toString(DEFAULT_timeout_InternetRead));
 		int iTimeout = DEFAULT_timeout_InternetRead;
 		try {
 			iTimeout = Integer.parseInt(sTimeout);
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Invalid status message timeout setting [" + sTimeout + "]. Must be an integer in seconds.");
+			ApplicationController.vShowWarning("Invalid status message timeout setting [" + sTimeout + "]. Must be an integer in seconds.");
 		}
 		return iTimeout;
 	}
 	public int getProperty_PlotCount(){
-		String sStatusTimeout = this.getInstance().getOption(PROPERTY_COUNT_Plots, "0");
+		String sStatusTimeout = getInstance().getOption(PROPERTY_COUNT_Plots, "0");
 		try {
 			int iPlotCount = Integer.parseInt(sStatusTimeout);
 			if( iPlotCount >= 0 ) return iPlotCount;
 		} catch(Exception ex) {}
-		ApplicationController.getInstance().vShowWarning("Invalid plot count setting [" + sStatusTimeout + "]. Must be a non-negative integer.");
+		ApplicationController.vShowWarning("Invalid plot count setting [" + sStatusTimeout + "]. Must be a non-negative integer.");
 		return 0;
 	}
 
@@ -933,7 +933,6 @@ public class ConfigurationManager {
 		mProperties = new Properties();
 		java.io.FileInputStream fisProperties = null;
 		String sPath = getPath_Properties();
-		boolean zReadOnly;
 		if( zStore ){
 			try {
 				java.io.File fileProperties = new java.io.File(sPath);
