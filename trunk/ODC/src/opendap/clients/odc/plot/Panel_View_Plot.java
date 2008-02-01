@@ -1064,7 +1064,7 @@ class DataParameters {
 				case DAP.DATA_TYPE_Byte:
 					abValues = (byte[])oValues;
 					ctValues = abValues.length;
-   					if( !ApplicationController.zMemoryCheck(ctValues, 2, sbError) ) return false;
+   					if( !Utility.zMemoryCheck(ctValues, 2, sbError) ) return false;
 					short[] ashWorkingValues0 = new short[ctValues];
 					for( int xValue = 0; xValue < ctValues; xValue++ ){
 						ashWorkingValues0[xValue] = (short)((short)abValues[xValue] & 0xFF);
@@ -1074,7 +1074,7 @@ class DataParameters {
 				case DAP.DATA_TYPE_UInt16:
 					ashValues = (short[])oValues;
 					ctValues = ashValues.length;
-   					if( !ApplicationController.zMemoryCheck(ctValues, 4, sbError) ) return false;
+   					if( !Utility.zMemoryCheck(ctValues, 4, sbError) ) return false;
 					int[] aiWorkingValues0 = new int[ctValues];
 					for( int xValue = 0; xValue < ctValues; xValue++ ){
 						aiWorkingValues0[xValue] = (int)((int)ashValues[xValue] & 0xFFFF);
@@ -1084,7 +1084,7 @@ class DataParameters {
 				case DAP.DATA_TYPE_UInt32:
 					aiValues = (int[])oValues;
 					ctValues = aiValues.length;
-   					if( !ApplicationController.zMemoryCheck(ctValues, 8, sbError) ) return false;
+   					if( !Utility.zMemoryCheck(ctValues, 8, sbError) ) return false;
 					long[] anWorkingValues0 = new long[ctValues];
 					for( int xValue = 0; xValue < ctValues; xValue++ ){
 						anWorkingValues0[xValue] = (long)((long)aiValues[xValue] & 0xFFFFFFFF);
@@ -1333,7 +1333,7 @@ class DataParameters {
 					// build new artificial data array which is already sorted
 					int iTotalValues = 0;
 					for( int xClass = 1; xClass < aiClassCount.length; xClass++ ) iTotalValues += aiClassCount[xClass];
-					if( !ApplicationController.zMemoryCheck(iTotalValues, 8, sbError) ) return null;
+					if( !Utility.zMemoryCheck(iTotalValues, 8, sbError) ) return null;
 					double[] adNew = new double[iTotalValues];
 					int xInstance = 0;
 					for( int xClass = 1; xClass < aiClassCount.length; xClass++ ){
@@ -1386,7 +1386,7 @@ class DataParameters {
 
 			double[] adSorted;
 			if( zSort ){
-				if( !ApplicationController.zMemoryCheck(ctData, 8, sbError) ) return false;
+				if( !Utility.zMemoryCheck(ctData, 8, sbError) ) return false;
 				adSorted = new double[ctData];
 				System.arraycopy(ad, 0, adSorted, 0, ctData);
 				java.util.Arrays.sort(adSorted);
@@ -1444,7 +1444,7 @@ class DataParameters {
 							msbMissingValueCalculation.append("mv " + ctMissingValues + ": " + dGroupValue + " count: " + sizeCurrentGroup + "\n");
 							if( ctMissingValues > adMissingValuesBuffer.length - 1 ){ // expand the storage arrays
 								int iNewBufferLength = (adMissingValuesBuffer.length-1)*2 + 1;
-		    					if( !ApplicationController.zMemoryCheck(iNewBufferLength, 8, sbError) ) return false;
+		    					if( !Utility.zMemoryCheck(iNewBufferLength, 8, sbError) ) return false;
 								double[] adNewValuesBuffer = new double[iNewBufferLength];
 								System.arraycopy(adMissingValuesBuffer, 0, adNewValuesBuffer, 0, adMissingValuesBuffer.length);
 								adMissingValuesBuffer = adNewValuesBuffer;

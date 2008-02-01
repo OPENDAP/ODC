@@ -1304,7 +1304,7 @@ public class Coastline {
 
 			// create the point buffer
 			int ctPointsInLargestPolygon = polygonsCoastline.getLongestSegmentLength();
-			if( !ApplicationController.zMemoryCheck(ctPointsInLargestPolygon * 2, 4, sbError) ){
+			if( !Utility.zMemoryCheck(ctPointsInLargestPolygon * 2, 4, sbError) ){
 				ApplicationController.vShowWarning("Unable to draw coastline, insufficient memory");
 				return;
 			}
