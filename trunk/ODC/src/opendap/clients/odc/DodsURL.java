@@ -321,7 +321,7 @@ public class DodsURL implements java.io.Serializable {
      * @return a complete Dods URL.
      */
     public String getFullURL() {
-		if( this.miURLType == this.TYPE_Directory && msSubDirectory != null){
+		if( this.miURLType == TYPE_Directory && msSubDirectory != null){
 			return getFullURL(Utility.sConnectPaths(getBaseURL(), "/", getSubDirectory()));
 		} else {
 			return getFullURL(getBaseURL());
@@ -402,15 +402,15 @@ public class DodsURL implements java.io.Serializable {
 
 	public String getExampleFile(){
 		int iType = this.getType();
-		if( iType == this.TYPE_Data || iType == this.TYPE_Image ){
+		if( iType == TYPE_Data || iType == TYPE_Image ){
 			return this.getFullURL();
-		} else if( iType == this.TYPE_Directory ){
+		} else if( iType == TYPE_Directory ){
 			StringBuffer sbError = new StringBuffer(80);
 			String[] asFiles = this.getDirectoryFiles(sbError);
 			if( asFiles == null ) return null;
 			if( asFiles.length < 2 ) return null;
 			return asFiles[1];
-		} else if( iType == this.TYPE_Catalog ){
+		} else if( iType == TYPE_Catalog ){
 			if( this.mCatalog == null ) return null;
 			return this.mCatalog.getExampleFileFullURL();
 		}
