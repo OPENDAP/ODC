@@ -1,21 +1,18 @@
 package opendap.clients.odc.viewer;
 
 import java.awt.Graphics;
-import java.awt.event.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.ComponentListener;
-import java.awt.event.KeyListener;
 import java.awt.event.ComponentEvent;
 import javax.media.opengl.GL;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLJPanel;
 import javax.swing.SwingUtilities;
 
-import opendap.clients.odc.Utility;
 import opendap.clients.odc.ApplicationController;
 
 import com.sun.opengl.util.Animator;
