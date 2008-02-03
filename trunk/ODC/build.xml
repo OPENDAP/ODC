@@ -72,6 +72,7 @@
     <property name="mail.lib"           value="javamail-1.4_mail.jar"/>
     <property name="mailapi.lib"        value="javamail-1.4_mailapi.jar"/>
     <property name="jaf.lib"            value="jaf-1.1_activation.jar"/>
+    <property name="jython.lib"         value="jython.jar"/>
 
 
 
@@ -106,6 +107,8 @@
     <property name="jdom.lib"           value="jdom-1.0.jar"/>
     <property name="xercesImpl.lib"     value="xercesImpl-2.9.0.jar"/>
     <property name="xercesXmlApis.lib"  value="xml-apis-2.9.0.jar"/>
+    <property name="jython.lib"         value="jython.jar"/>
+
 
 
 
@@ -148,6 +151,7 @@
 			<include name="${mailapi.lib}"/>
 			<include name="${opendap.lib}"/>
 			<include name="${regexp.lib}"/>
+			<include name="${jython.lib}"/>
 		</fileset>
 	</path>
 
@@ -245,6 +249,7 @@
 		<copy file="${lib.dir}/${jaf.lib}"         tofile="${dist.dir}/ODC-${DSTAMP}/lib/${jaf.lib}" />
 		<copy file="${lib.dir}/${mail.lib}"        tofile="${dist.dir}/ODC-${DSTAMP}/lib/${mail.lib}" />
 		<copy file="${lib.dir}/${mailapi.lib}"     tofile="${dist.dir}/ODC-${DSTAMP}/lib/${mailapi.lib}" />
+		<copy file="${lib.dir}/${jython.lib}"      tofile="${dist.dir}/ODC-${DSTAMP}/lib/${jython.lib}" />
 		<copy file="${lib.dir}/${opendap.lib}"     tofile="${dist.dir}/ODC-${DSTAMP}/lib/${opendap.lib}" />
 
 		<mkdir dir="${dist.dir}/ODC-${DSTAMP}/doc"/>
