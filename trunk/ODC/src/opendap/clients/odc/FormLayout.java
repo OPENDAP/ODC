@@ -211,14 +211,14 @@ System.out.println("form has " + ctElement + " elements");
 
 		// establish the row mapping
 		java.util.Arrays.sort(aiSetRows);
-		int[] aiRowMapping = new int[ctElement + 1]; // maps elements to rows (one-based)
+		int[] aiMapping_Element2Row = new int[ctElement + 1]; // maps elements to rows (one-based)
 		int iRowCurrent = 0;
 		for( int xSetRow = 1; xSetRow <= ctSetRows; xSetRow++ ){
 			for( int xElement = 1; xElement <= ctElement; xElement++ ){ // add any initial unset rows
 				FormElement element = (FormElement)listDefinedElements.get( xElement - 1 );
 				if( element.miRow > 0 ) break;
 				iRowCurrent++;
-				aiRowMapping[xElement] = iRowCurrent;
+				aiMapping_Element2Row[xElement] = iRowCurrent;
 			}
 		}
 
@@ -334,12 +334,12 @@ System.out.println("element in column " + xColumn + " is " + aiElementInCurrentR
 			}
 
 			// if any column assignments are greater than ctColumns shift assignments left to fit within ctColumns
-			while( true ){
-				int xRightmostAssignment = iColumnMax;
-				for( ; xRightmostAssignment > 0; xRightmostAssignment-- ){
-					if( aiElementInCurrentRow[xRightmostAssignment] != 0 ) break; // found the rightmost assignment
-				}
-			}
+//			while( true ){
+//				int xRightmostAssignment = iColumnMax;
+//				for( ; xRightmostAssignment > 0; xRightmostAssignment-- ){
+//					if( aiElementInCurrentRow[xRightmostAssignment] != 0 ) break; // found the rightmost assignment
+//				}
+//			}
 
 			// map unspecified items to end of row
 			for( int xElementInRow = 1; xElementInRow <= ctElementsInRow; xElementInRow++ ){
@@ -374,7 +374,7 @@ System.out.println("row " + xRow + " column mappings complete");
 		for( int xElement = 1; xElement <= ctElement; xElement++ ){
 			FormElement element = (FormElement)listDefinedElements.get( xElement - 1 );
 			aMapping[aiColumnMapping[xElement]][aiMapping_Element2Row[xElement]] = element;
-System.out.println("element " + xElement + " " + element + " mapped to " + aiColumnMapping[xElement] + " " + aiRowMapping[xElement]);
+System.out.println("element " + xElement + " " + element + " mapped to " + aiColumnMapping[xElement] + " " + aiMapping_Element2Row[xElement]);
 		}
 System.out.println("master array mapping complete");
 vDumpMapping( aMapping, ctColumns, ctRows );
@@ -807,8 +807,8 @@ System.out.println("putting control component " + xComponent + " in element with
 					componentControl = componentCurrent;
 System.out.println("putting control component " + xComponent + " in element");
 				}
-				setOrder(componentLabel, componentControl, false);
-System.out.println("set order");
+//				setOrder(componentLabel, componentControl, false);
+//System.out.println("set order");
 			} else {
 				// element is defined
 			}
