@@ -62,7 +62,7 @@ public class ImportProgressWindow extends javax.swing.JFrame
 
         jPanel1.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(10, 10, 10, 10)));
         gridBagConstraints2 = new java.awt.GridBagConstraints();
-	progress.setStringPainted(true);
+		progress.setStringPainted(true);
         jPanel1.add(progress, gridBagConstraints2);
 
         outputArea.setAutoscrolls(false);
@@ -81,58 +81,60 @@ public class ImportProgressWindow extends javax.swing.JFrame
         getContentPane().add(jPanel1, gridBagConstraints1);
 
         cancelButton.setText("Cancel");
-	cancelButton.addActionListener(this);
-	cancelButton.setActionCommand("cancel");
+		cancelButton.addActionListener(this);
+		cancelButton.setActionCommand("cancel");
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 1;
-	gridBagConstraints1.weightx = 0.5;
-	gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints1.weightx = 0.5;
+		gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(cancelButton, gridBagConstraints1);
 
-	okButton.addActionListener(this);
-	okButton.setActionCommand("ok");
+		okButton.addActionListener(this);
+		okButton.setActionCommand("ok");
         okButton.setText("OK");
         okButton.setEnabled(false);
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 1;
-	gridBagConstraints1.weightx = 0.5;
-	gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints1.weightx = 0.5;
+		gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(okButton, gridBagConstraints1);
 
         pack();
     }
 
-    public void setMinimum(int value) {
-	minimum = value;
-	progress.setMinimum(minimum);
-    }
-    public void setMaximum(int value) {
-	maximum = value;
-	progress.setMaximum(maximum);
-    }
-    public void finishedVar(String name) {
-	currentValue++;
-	if(currentValue == maximum) {
-	    okButton.setEnabled(true);
-	    cancelButton.setEnabled(false);
+	public void setMinimum(int value) {
+		minimum = value;
+		progress.setMinimum(minimum);
 	}
 
-	progress.setValue(currentValue);
-	outputArea.append("Downloaded variable: " + name + "\n");
+	public void setMaximum(int value) {
+		maximum = value;
+		progress.setMaximum(maximum);
+	}
+
+	public void finishedVar(String name) {
+		currentValue++;
+		if (currentValue == maximum) {
+			okButton.setEnabled(true);
+			cancelButton.setEnabled(false);
+		}
+
+		progress.setValue(currentValue);
+		outputArea.append("Downloaded variable: " + name + "\n");
     }
 
-    public void actionPerformed(ActionEvent e) {
-	setVisible(false);
-    }
+	public void actionPerformed(ActionEvent e) {
+		setVisible(false);
+	}
 
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        new ImportProgressWindow().show();
-    }
+/**
+	 * @param args the command line arguments
+	 */
+	public static void main(String args[]) {
+		new ImportProgressWindow().setVisible( true );
+	}
 
     private int currentValue;
     private int maximum;
