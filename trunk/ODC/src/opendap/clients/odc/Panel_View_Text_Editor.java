@@ -32,9 +32,10 @@ package opendap.clients.odc;
 /////////////////////////////////////////////////////////////////////////////
 import java.awt.event.*;
 import javax.swing.*;
+
 import java.io.*;
 
-public class Panel_View_Text_Editor extends JPanel {
+public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 
 	private String msFileName = null;
 	private String msFileDirectory = null;
@@ -92,16 +93,24 @@ public class Panel_View_Text_Editor extends JPanel {
 		}
 	}
 
+	public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				jtaDisplay.requestFocus();
+			}
+		});
+	}	
+
     /** file name only, example: "image_processing.py" */
 	public String getFileName(){ return msFileName; }
-    
+
     /** returns the directory for the file with the terminating separator usually
      *  example: "c:\odc\scripts\" */
 	public String getFileDirectory(){ return msFileDirectory; }
-    
+
     /** set file name only, example: "image_processing.py" */
 	public void setFileName( String sNewName ){ msFileName = sNewName; }
-    
+
     /** sets the directory for the file (including terminating separator is optional)
      *  example: "c:\odc\scripts\" */
 	public void setFileDirectory( String sNewDirectory ){ msFileDirectory = sNewDirectory; }

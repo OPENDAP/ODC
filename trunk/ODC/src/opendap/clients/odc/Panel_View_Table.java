@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Panel_View_Table
  * Description:  Output table grid which is used to display data in matrix form
- * Copyright:    Copyright (c) 2002-4
- * Company:      University of Rhode Island, Graduate School of Oceanography
+ * Copyright:    Copyright (c) 2002-8
+ * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.41
+ * @version      3.00
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -34,12 +34,13 @@ package opendap.clients.odc;
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
+
 import java.awt.datatransfer.*;
 import java.io.*;
 import java.util.*;
 import opendap.dap.*;
 
-public class Panel_View_Table extends JPanel {
+public class Panel_View_Table extends JPanel implements IControlPanel {
 
     public Panel_View_Table() {
 ApplicationController.getInstance().vShowStartupMessage("table constructor start");
@@ -235,6 +236,14 @@ ApplicationController.getInstance().vShowStartupMessage("table constructor end")
 			return false;
 		}
 		return true;
+	}
+
+	public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				mjtDisplay.requestFocus();
+			}
+		});
 	}
 
 	public boolean zInitialize(StringBuffer sbError){

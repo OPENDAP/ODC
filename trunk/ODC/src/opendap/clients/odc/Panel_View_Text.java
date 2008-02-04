@@ -35,14 +35,16 @@ import java.awt.*;
 import java.io.File;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-public class Panel_View_Text extends JPanel {
+public class Panel_View_Text extends JPanel implements IControlPanel {
 
 	private int mctFilesOpened; // used to generate default file name of new window
 	
     public Panel_View_Text() {}
 
-	private final JTabbedPane jtpEditors = new JTabbedPane();
+	private final TabbedPane_Focusable jtpEditors = new TabbedPane_Focusable();
 //	private final ArrayList<Panel_View_Text_Editor> listEditors = new ArrayList<Panel_View_Text_Editor>();
 
 	boolean zInitialize(StringBuffer sbError){
@@ -61,6 +63,18 @@ public class Panel_View_Text extends JPanel {
 			add( jtpEditors, BorderLayout.CENTER );
 			add( jpanelCommand, BorderLayout.SOUTH );
 
+			// focus control for subpanels
+			jtpEditors.addChangeListener( new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					SwingUtilities.invokeLater( new Runnable() {
+						public void run() {
+							IControlPanel componentSelected = (IControlPanel)jtpEditors.getSelectedComponent();
+							componentSelected.vSetFocus();
+						}
+					});
+				}
+			} );
+			
 			// Create the default editor
 			editorNew();
 
@@ -155,6 +169,15 @@ public class Panel_View_Text extends JPanel {
             return false;
         }
     }
+
+	public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				IControlPanel componentSelected = (IControlPanel)jtpEditors.getSelectedComponent();
+				componentSelected.vSetFocus();				
+			}
+		});
+	}
 	
 	public void editorNew(){
 		editorNew( null, null, null );

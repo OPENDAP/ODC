@@ -519,14 +519,14 @@ public class ApplicationController {
 
 	public static void vUnexpectedError( Throwable ex, String sMessage ){
 		if( ApplicationController.DEBUG ){
-			ApplicationController.vShowError(sMessage + ":\n" + Utility.extractStackTrace(ex));
+			ApplicationController.vShowError(sMessage + ":\n" + Utility.errorExtractStackTrace(ex));
 		} else {
-			ApplicationController.vShowError(sMessage + ": " + Utility.extractErrorLine(ex));
+			ApplicationController.vShowError(sMessage + ": " + Utility.errorExtractLine(ex));
 		}
 	}
 
 	public static void vUnexpectedError( Throwable ex, StringBuffer sbError ){
-		String sErrorMessage = ApplicationController.DEBUG ? Utility.extractStackTrace(ex) : Utility.extractErrorLine(ex);
+		String sErrorMessage = ApplicationController.DEBUG ? Utility.errorExtractStackTrace(ex) : Utility.errorExtractLine(ex);
 		if( sbError == null ){
 			System.err.println("(no buffer supplied for the following error:)");
 			System.err.println(sErrorMessage);
@@ -575,7 +575,7 @@ public class ApplicationController {
 
 	public void vDumpMessages(){
 		OutputStream osTextView = this.getInstance().getAppFrame().getTextViewerOS();
-		String sHeader = "Errors:";
+		String sHeader = "\nErrors:"; // start on new line
 		Iterator iterator = listErrors.iterator();
 		if( iterator.hasNext() ){
 			sHeader += "\n";
@@ -617,11 +617,12 @@ public class ApplicationController {
 			System.out.print(sMessage);
 			try { if( osTextView != null ) osTextView.write(sMessage.getBytes()); } catch(Exception ex) {}
 		}
+		if( osTextView != null ) interpreter.vWritePrompt( osTextView );
 	}
 
 	public void vDumpLog(){
 		OutputStream osTextView = this.getInstance().getAppFrame().getTextViewerOS();
-		String sHeader = "Status Log:";
+		String sHeader = "\nStatus Log:"; // start on new line
 		Iterator iterator = listStatusMessages.iterator();
 		if( iterator.hasNext() ){
 			sHeader += "\n";
@@ -640,7 +641,7 @@ public class ApplicationController {
 
 	public void vDumpErrors(){
 		OutputStream osTextView = this.getInstance().getAppFrame().getTextViewerOS();
-		String sHeader = "Errors:";
+		String sHeader = "\nErrors:";
 		Iterator iterator = listErrors.iterator();
 		if( iterator.hasNext() ){
 			sHeader += "\n";
@@ -668,6 +669,7 @@ public class ApplicationController {
 			System.out.print(sMessage);
 			try { if( osTextView != null ) osTextView.write(sMessage.getBytes()); } catch(Exception ex) {}
 		}
+		if( osTextView != null ) interpreter.vWritePrompt( osTextView );
 	}
 
 	static long lLastProfile = 0;

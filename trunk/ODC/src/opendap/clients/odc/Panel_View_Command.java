@@ -33,20 +33,24 @@ package opendap.clients.odc;
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.text.*;
+
 import java.io.*;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
-public class Panel_View_Command extends JPanel {
+public class Panel_View_Command extends JPanel implements IControlPanel {
 
-    public Panel_View_Command() {}
+	public Panel_View_Command() {}
 
 	JScrollPane jspDisplay = new JScrollPane();
 	private final JTextArea jtaDisplay = new JTextArea("");
 	private final JTextField jtfCommand = new JTextField();
+	ArrayList<String> listCommands = new ArrayList<String>();
+	private int mposBeginningOfLine = 0;
 
-    boolean zInitialize(StringBuffer sbError){
+	boolean zInitialize(StringBuffer sbError){
 
-        try {
+		try {
 
 			javax.swing.border.Border borderStandard = BorderFactory.createEtchedBorder();
 			this.setBorder(borderStandard);
@@ -60,34 +64,30 @@ public class Panel_View_Command extends JPanel {
 			jspDisplay.setViewportView(jtaDisplay);
 		    this.add(jspDisplay, java.awt.BorderLayout.CENTER);
 
-			// Add special warning message to display jta
+			InputMap theInputMap = jtaDisplay.getInputMap();
+		    KeyStroke keystrokeCtrlEnter = KeyStroke.getKeyStroke( KeyEvent.VK_ENTER, Event.CTRL_MASK );
+		    theInputMap.put( keystrokeCtrlEnter, javax.swing.text.DefaultEditorKit.insertBreakAction );
+
+//make new execution isolater with rule that every time prompt is output beginning of line is set
+//keep a list of all beginning of lines so that
+//if the person hits enter BEFORE that position then use that line
+//each command should be stored separately in a list
+
+		    // Add special warning message to display jta
 			jtaDisplay.addKeyListener(
 				new KeyListener(){
-					public void keyPressed(KeyEvent ke){
-						if( ke.getKeyCode() == ke.VK_ENTER ){
+					public void keyPressed( KeyEvent ke ){
+						if( ke.getKeyCode() == KeyEvent.VK_ENTER ){
+							if( ke.isControlDown() ) return; // treat ctrl+enter as literal carriage return
+							
 							// JOptionPane.showMessageDialog(Panel_View_Text.this, "Enter commands by typing them in the box at the bottom of the screen and hitting enter.", "How to Enter Commands", JOptionPane.OK_OPTION);
-						    int iCaretPosition = jtaDisplay.getCaretPosition();
 							String sDisplayText = jtaDisplay.getText();
-							int lenText = sDisplayText.length();
-							int posBeginningOfLine = iCaretPosition - 1;
-							while( true ){
-								if( posBeginningOfLine < 0 ) break;
-								if( sDisplayText.charAt( posBeginningOfLine ) == '\n' ) break;
-								posBeginningOfLine--;
-							}
+						    int iCaretPosition = jtaDisplay.getCaretPosition();
 							int posEndOfLine = iCaretPosition;
-							while( true ){
-								if( posEndOfLine == lenText ) break;
-								if( sDisplayText.charAt( posEndOfLine ) == '\n' ) break;
-								posEndOfLine++;
-							}
-							int iPromptLength = ApplicationController.getInstance().getInterpreter().getPromptLength();
-							posBeginningOfLine += iPromptLength;
-							if( posEndOfLine - posBeginningOfLine < 2 ) return; // empty line
-							String sLine = sDisplayText.substring( posBeginningOfLine + 1, posEndOfLine );
-//							System.out.println("command [" + sLine + "]");
+							String sLine = sDisplayText.substring( mposBeginningOfLine, posEndOfLine );
+							System.out.println("command [" + sLine + "]");
 //							JOptionPane.showMessageDialog(Panel_View_Text.this, "line is: [" + sLine + "] posb: " + posBeginningOfLine, "How to Enter Commands", JOptionPane.OK_OPTION);
-							ApplicationController.getInstance().vCommand(sLine);
+							ApplicationController.getInstance().vCommand( sLine );
 							ke.consume();
 						}
 					}
@@ -109,7 +109,7 @@ public class Panel_View_Command extends JPanel {
 					public void keyPressed(KeyEvent ke){
 						if( ke.getKeyCode() == ke.VK_ENTER ){
 							String sCommand = jtfCommand.getText();
-							ApplicationController.getInstance().vCommand(sCommand, null);
+							ApplicationController.getInstance().vCommand( sCommand, null );
 							jtfCommand.setText("");
 						}
 					}
@@ -165,7 +165,7 @@ public class Panel_View_Command extends JPanel {
 
 			jpanelCommand.add( jpanelCommandButtons, BorderLayout.SOUTH );
 
-			this.add(jpanelCommand, BorderLayout.SOUTH);
+			this.add( jpanelCommand, BorderLayout.SOUTH );
 
             return true;
 
@@ -175,6 +175,14 @@ public class Panel_View_Command extends JPanel {
         }
 	}
 
+	public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				jtaDisplay.requestFocus();
+			}
+		});
+	}
+    
 	void vClearDisplay(){
 		jtaDisplay.setText("");
 	}
@@ -214,7 +222,7 @@ public class Panel_View_Command extends JPanel {
 
 	class ViewFilter extends FilterOutputStream {
 		boolean zMaxedOut = false;
-		int MAX_ViewCharacters = 160000;
+		int MAX_ViewCharacters = 500000;
 		final static int MIN_BUFFER_LENGTH = 10000;
 		byte[] mabBuffer = new byte[MIN_BUFFER_LENGTH];
 		int mlenBuffer = MIN_BUFFER_LENGTH;
@@ -298,18 +306,28 @@ public class Panel_View_Command extends JPanel {
 
 		// should only be run on the GUI thread
 		private void vAppendToScreen(){
-			if (jtaDisplay.getText().length() > MAX_ViewCharacters) {
-				ApplicationController.vShowStatus("View panel limit of " + MAX_ViewCharacters +
-					" characters exceeded. Remaining output omitted.");
-				zMaxedOut = true;
-				try { close(); } catch(Exception ex){}
-			}
-			synchronized(mabBuffer){
-				String sToAppend = new String(mabBuffer, 0, mlenData);
-				mlenData = 0;
-				jtaDisplay.append(sToAppend);
-			}
-			jtaDisplay.setCaretPosition( jtaDisplay.getDocument().getLength() );
+			javax.swing.SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					if (jtaDisplay.getText().length() > MAX_ViewCharacters) {
+						ApplicationController.vShowStatus("View panel limit of " + MAX_ViewCharacters +
+							" characters exceeded. Remaining output omitted.");
+						zMaxedOut = true;
+						try { close(); } catch(Exception ex){}
+					}
+					synchronized(mabBuffer){
+						String sToAppend = new String(mabBuffer, 0, mlenData);
+						mlenData = 0;
+						jtaDisplay.append(sToAppend);
+					}
+				}
+			});
+			javax.swing.SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					int posEndOfDocument = jtaDisplay.getDocument().getLength();
+					jtaDisplay.setCaretPosition( posEndOfDocument );
+					mposBeginningOfLine = posEndOfDocument;
+				}
+			});
 		}
 		public void flush(){
 			javax.swing.SwingUtilities.invokeLater(new Runnable() {

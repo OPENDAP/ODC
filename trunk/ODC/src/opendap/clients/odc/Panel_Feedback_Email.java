@@ -39,7 +39,7 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import javax.activation.*;
 
-public class Panel_Feedback_Email extends JPanel {
+public class Panel_Feedback_Email extends JPanel implements IControlPanel {
 
     public Panel_Feedback_Email() {}
 
@@ -129,6 +129,14 @@ public class Panel_Feedback_Email extends JPanel {
         }
 	}
 
+	public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				jtaDisplay.requestFocus();
+			}
+		});
+	}
+    
 	void vClearDisplay(){
 		jtaDisplay.setText("");
 	}

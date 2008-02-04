@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Interpreter
  * Description:  Python interpreter capability
- * Copyright:    Copyright (c) 2007
+ * Copyright:    Copyright (c) 2007-8
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.70
+ * @version      3.00
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -60,6 +60,11 @@ public class Interpreter {
 			mInterpreter.setOut(os);
 			mInterpreter.setErr(os);
 			mInterpreter.exec("import sys");
+			String sScriptDirectory = ConfigurationManager.getInstance().getProperty_DIR_Scripts();
+			String sScriptDirectory_quoted = '"' + sScriptDirectory + '"';
+			sScriptDirectory_quoted = Utility.sReplaceString( sScriptDirectory_quoted, "\\", "\\\\");
+			System.out.println("importing: " + sScriptDirectory_quoted); 
+			mInterpreter.exec("sys.path.append(" + sScriptDirectory_quoted + ")");
 			os.write( msPrompt.getBytes() );
 			os.flush();
 		} catch( Throwable t ) {

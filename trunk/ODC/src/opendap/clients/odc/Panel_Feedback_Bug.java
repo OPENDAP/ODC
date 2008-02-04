@@ -34,9 +34,10 @@ package opendap.clients.odc;
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
+
 import java.util.ArrayList;
 
-public class Panel_Feedback_Bug extends JPanel {
+public class Panel_Feedback_Bug extends JPanel implements IControlPanel {
 
     public Panel_Feedback_Bug() {}
 
@@ -413,6 +414,14 @@ public class Panel_Feedback_Bug extends JPanel {
         }
 	}
 
+	public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				jcbOperatingSystem.requestFocus();
+			}
+		});
+	}
+    
 	// this is called whenever the user clicks the "Feedback Bug" tab (see ApplicationFrame)
 	void vUpdateLog(){
 		jtaSystemLog.setText(ApplicationController.getInstance().getLog());

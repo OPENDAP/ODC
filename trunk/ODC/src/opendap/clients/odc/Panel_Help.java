@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Panel_Help
  * Description:  Displays the help screens
- * Copyright:    Copyright (c) 2002-2004
+ * Copyright:    Copyright (c) 2002-2008
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.48
+ * @version      3.00
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -32,11 +32,10 @@ package opendap.clients.odc;
 /////////////////////////////////////////////////////////////////////////////
 
 import java.awt.event.*;
-import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-public class Panel_Help extends JPanel {
+public class Panel_Help extends JPanel implements IControlPanel {
 
     public Panel_Help() {}
 
@@ -100,6 +99,14 @@ public class Panel_Help extends JPanel {
         }
 	}
 
+	public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				mjtaDisplay.requestFocus();
+			}
+		});
+	}
+    
 	void vAction_LoadHelpTopic( int x0Item ){
 		if( x0Item < 0 || x0Item >= asTopics.length ){
 			mjtaDisplay.setText("[internal error, help topic " + x0Item + " out of range]");

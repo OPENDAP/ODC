@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Panel_View_Image
  * Description:  Displays GIFs, PNG etc
- * Copyright:    Copyright (c) 2002-2004
- * Company:      University of Rhode Island, Graduate School of Oceanography
+ * Copyright:    Copyright (c) 2002-2008
+ * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.48
+ * @version      3.00
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,8 @@ package opendap.clients.odc;
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 /////////////////////////////////////////////////////////////////////////////
 
+// this class is targetted for termination, replaced by viewer package
+
 import java.awt.event.*;
 import java.awt.*;
 import java.awt.image.*;
@@ -38,7 +40,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 
-public class Panel_View_Image extends JPanel {
+public class Panel_View_Image extends JPanel implements IControlPanel {
 
     public Panel_View_Image() {}
 
@@ -137,6 +139,14 @@ public class Panel_View_Image extends JPanel {
             sbError.insert(0, "Unexpected error: " + ex);
             return false;
         }
+	}
+
+	public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				mDisplay.requestFocus();
+			}
+		});
 	}
 
 	JPanel jpanelMakeFileList( StringBuffer sbError ){
