@@ -1023,7 +1023,7 @@ FlattenSequence:
 				sArrayTableError = "non-supported base type for variable specification: " + DAP.getType_String(mCoreBaseType);
 			}
 		} catch(Exception ex) {
-			sArrayTableError = "Unexpected error flattening sequence: " + Utility.extractStackTrace(ex);
+			sArrayTableError = "Unexpected error flattening sequence: " + Utility.errorExtractStackTrace(ex);
 		}
 		} // end flatten sequence
 		if( sArrayTableError == null ){
