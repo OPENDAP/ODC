@@ -117,7 +117,7 @@ public class THREDDSSearch extends SearchInterface {
 
 		} catch( Throwable ex ) {
 			JPanel panelError = new JPanel();
-			panelError.add(new JTextArea("Error instantiating THREDDS:\n" + Utility.extractStackTrace(ex)));
+			panelError.add(new JTextArea("Error instantiating THREDDS:\n" + Utility.errorExtractStackTrace(ex)));
 			this.add(panelError, BorderLayout.CENTER);
 			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
