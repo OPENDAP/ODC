@@ -25,15 +25,17 @@ package opendap.clients.odc.plot;
 /**
  * Title:        Panel_View_Plot
  * Description:  Manages the plotting interface
- * Copyright:    Copyright (c) 2003-4
+ * Copyright:    Copyright (c) 2003-8
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.45
+ * @version      3.00
  */
 
 import opendap.dap.*;
 import opendap.clients.odc.*;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -42,7 +44,7 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
 
-public class Panel_View_Plot extends JPanel {
+public class Panel_View_Plot extends JPanel implements IControlPanel {
 
 	private static Panel_View_Plot thisInstance;
 
@@ -79,6 +81,14 @@ public class Panel_View_Plot extends JPanel {
 		thisInstance = this;
 	}
 
+	public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				mDefinitionPanel.requestFocus();
+			}
+		});
+	}
+	
 	public final static Panel_View_Plot getInstance(){ return thisInstance; }
 
 	public final static ArrayList getData(){ return getInstance().listPlotterData; }
