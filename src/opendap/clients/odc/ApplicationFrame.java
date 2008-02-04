@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Application Frame
  * Description:  This is the outer container of the GUI
- * Copyright:    Copyright (c) 2002-4
+ * Copyright:    Copyright (c) 2002-8
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.70
+ * @version      3.00
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -44,9 +44,9 @@ public class ApplicationFrame extends JFrame {
 	private StatusBar mStatusBar;
 
 	private final JTabbedPane jtpMain = new JTabbedPane();
-	private final JTabbedPane jtpSelect = new JTabbedPane();
-	private final JTabbedPane jtpView   = new JTabbedPane();
-	private final JTabbedPane jtpFeedback   = new JTabbedPane();
+	private final TabbedPane_Focusable jtpSelect = new TabbedPane_Focusable();
+	private final TabbedPane_Focusable jtpView   = new TabbedPane_Focusable();
+	private final TabbedPane_Focusable jtpFeedback   = new TabbedPane_Focusable();
 	private Panel_Select_Favorites panelFavorites;
 	private Panel_Select_Recent panelRecent;
 	private Panel_Retrieve jpanelRetrieve;
@@ -87,6 +87,42 @@ public class ApplicationFrame extends JFrame {
 			}
 			this.add( jtpMain, java.awt.BorderLayout.CENTER );
 
+			// focus control for subpanels
+			jtpMain.addChangeListener( new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					SwingUtilities.invokeLater( new Runnable() {
+						public void run() {
+							IControlPanel componentSelected = (IControlPanel)jtpMain.getSelectedComponent();
+							componentSelected.vSetFocus();
+						}
+					});
+				}
+			} );
+
+			// focus control for view sub tab
+			jtpView.addChangeListener( new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					SwingUtilities.invokeLater( new Runnable() {
+						public void run() {
+							IControlPanel componentSelected = (IControlPanel)jtpView.getSelectedComponent();
+							componentSelected.vSetFocus();
+						}
+					});
+				}
+			} );
+
+			// focus control for feedback sub tab
+			jtpFeedback.addChangeListener( new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					SwingUtilities.invokeLater( new Runnable() {
+						public void run() {
+							IControlPanel componentSelected = (IControlPanel)jtpFeedback.getSelectedComponent();
+							componentSelected.vSetFocus();
+						}
+					});
+				}
+			} );			
+			
 			// status bar
 			ApplicationController.getInstance().vShowStartupMessage("creating status bar");
 			mStatusBar = new StatusBar();

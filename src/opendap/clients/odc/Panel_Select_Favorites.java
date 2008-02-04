@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Panel_Select_Favorites
  * Description:  Selection panel showing saved user favorite URL selections
- * Copyright:    Copyright (c) 2002
+ * Copyright:    Copyright (c) 2002-8
  * Company:      University of Rhode Island, Graduate School of Oceanography
  * @author       John Chamberlain
- * @version      2.57
+ * @version      3.00
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 
-public class Panel_Select_Favorites extends SearchInterface {
+public class Panel_Select_Favorites extends SearchInterface implements IControlPanel {
 
     public Panel_Select_Favorites() {}
 
@@ -148,6 +148,14 @@ public class Panel_Select_Favorites extends SearchInterface {
         }
 	}
 
+    public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				mListPanel.requestFocus();
+			}
+		});
+    }
+    
 	public void addListSelectionListener( ListSelectionListener listener ){
 		// TODO
 	}

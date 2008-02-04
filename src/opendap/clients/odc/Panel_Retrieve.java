@@ -25,7 +25,7 @@ package opendap.clients.odc;
 import java.awt.*;
 import javax.swing.*;
 
-public class Panel_Retrieve extends JPanel {
+public class Panel_Retrieve extends JPanel implements IControlPanel {
 
 	private Panel_Retrieve_Location panelLocation;
 	private Panel_Retrieve_SelectedDatasets panelSelectedDatasets;
@@ -99,7 +99,15 @@ public class Panel_Retrieve extends JPanel {
 		return true;
 	}
 
-	public Panel_Retrieve_Output getOutputPanel(){ return panelOutput_below; }
+    public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				panelSelectedDatasets.requestFocus();
+			}
+		});
+    }
+
+    public Panel_Retrieve_Output getOutputPanel(){ return panelOutput_below; }
 
 // just not working
 //	boolean zUsingBelow = true;

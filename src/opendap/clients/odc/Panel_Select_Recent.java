@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Panel_Select_Recent
  * Description:  Selection panel showing saved user Recent URL selections
- * Copyright:    Copyright (c) 2002
- * Company:      University of Rhode Island, Graduate School of Oceanography
+ * Copyright:    Copyright (c) 2002-8
+ * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.45
+ * @version      3.00
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 
-public class Panel_Select_Recent extends SearchInterface {
+public class Panel_Select_Recent extends SearchInterface implements IControlPanel {
 
     public Panel_Select_Recent() {}
 
@@ -120,7 +120,15 @@ public class Panel_Select_Recent extends SearchInterface {
         }
 	}
 
-	void vShowInfo( String sInfo ){
+    public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				mListPanel.requestFocus();
+			}
+		});
+    }
+
+    void vShowInfo( String sInfo ){
 		mjtaInfo.setText(sInfo);
 		mjscrollInfo.scrollRectToVisible(new Rectangle(0,0, 1,1));
 	}

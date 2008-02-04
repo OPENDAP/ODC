@@ -728,7 +728,7 @@ ScanForStartOfMatch:
 			fileInputStream.close();
 			return sb.toString();
 		} catch( Throwable t ) {
-			sbError.append( "Unexpected error loading file: " + Utility.extractStackTrace( t ) );
+			sbError.append( "Unexpected error loading file: " + errorExtractStackTrace( t ) );
 			return null;
 		}
 	}
@@ -903,7 +903,7 @@ ScanForStartOfMatch:
 	}
 
 	/** Extracts the stack trace as a string from an exception */
-	public static String extractStackTrace(Throwable theException) {
+	public static String errorExtractStackTrace( Throwable theException ) {
 		try {
 			if( theException == null ){ return "[no exception supplied]"; }
 			StringWriter sw = new StringWriter();
@@ -915,7 +915,7 @@ ScanForStartOfMatch:
 	}
 
 	/** Extracts the stack trace as a string from an exception */
-	public static String extractErrorLine(Throwable theException) {
+	public static String errorExtractLine( Throwable theException ) {
 		try {
 			if( theException == null ){ return "[no exception supplied]"; }
 			StringWriter sw = new StringWriter();
@@ -1682,7 +1682,7 @@ ScanForStartOfMatch:
 				return fileDirectory;
 			}
 		} catch(Exception ex) {
-			sbError.append( Utility.extractStackTrace( ex ) );
+			sbError.append( Utility.errorExtractStackTrace( ex ) );
 			return null;
 		}
 	}
