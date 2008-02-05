@@ -25,7 +25,8 @@ public class Model2D_Raster {
 		int iSubImage_width = 0;
 		int iSubImage_height = 0;
 		int iDestination_width = iWidth > w_VP - x_VP ? w_VP - x_VP : iWidth; 
-		int iDestination_height = iHeight > h_VP - y_VP ? h_VP - y_VP : iHeight; 
+		int iDestination_height = iHeight > h_VP - y_VP ? h_VP - y_VP : iHeight;
+		
 		if( zoom == 0 ){ // image is 1:1
 			iSubImage_width = iDestination_width;
 			iSubImage_height = iDestination_height;
@@ -39,13 +40,58 @@ public class Model2D_Raster {
 			iSubImage_height = iDestination_height / iPixelRatio;
 		}
 //		System.out.println("drawing image at " + x_VP + " " + y_VP + " " + iSubImage_width + " " + iSubImage_height);  
-//		System.out.println("subimage at " + iSubImage_x + " " + iSubImage_y + " " + iSubImage_width + " " + iSubImage_height);  
+//		System.out.println("subimage at " + iSubImage_x + " " + iSubImage_y + " " + iSubImage_width + " " + iSubImage_height);
 		g2.drawImage( mbi,
-				x_VP, y_VP, x_VP + iDestination_width, y_VP + iDestination_height,        // destination coordinates
+				x_VP, y_VP, x_VP + w_VP, y_VP + h_VP,        // destination coordinates
 				iSubImage_x, iSubImage_y, iSubImage_x + iSubImage_width, iSubImage_y + iSubImage_height,  // source coordinates
 				null);
 	}
 
+	void renderClip(  Graphics g, int x_VP, int y_VP, int w_VP, int h_VP, int zoom, int iSubImage_x, int iSubImage_y ){
+		Graphics2D g2 = (Graphics2D)g;
+		g2.setRenderingHint(
+				RenderingHints.KEY_RENDERING,
+				RenderingHints.VALUE_RENDER_QUALITY ); // emphasize image quality
+		g2.setRenderingHint(
+				RenderingHints.KEY_INTERPOLATION, 
+				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		int iSubImage_width = 0;
+		int iSubImage_height = 0;
+		int iDestination_width = iWidth > w_VP - x_VP ? w_VP - x_VP : iWidth; 
+		int iDestination_height = iHeight > h_VP - y_VP ? h_VP - y_VP : iHeight;
+		
+		java.awt.Rectangle rectDestination = g2.getClipBounds( new java.awt.Rectangle(x_VP, y_VP, iDestination_width, iDestination_height) );
+
+		if( zoom == 0 ){ // image is 1:1
+			iSubImage_x = iSubImage_x + rectDestination.x;
+			iSubImage_y = iSubImage_y + rectDestination.y;
+			iSubImage_width = rectDestination.width;
+			iSubImage_height = rectDestination.height;
+		} else if ( zoom < 1 ){ // image is shrunken
+			int iPixelRatio = zoom * -1 + 1;
+			iSubImage_x = iSubImage_x + rectDestination.x * iPixelRatio;
+			iSubImage_y = iSubImage_y + rectDestination.y * iPixelRatio;
+			iSubImage_width = rectDestination.width * iPixelRatio;
+			iSubImage_height = rectDestination.height * iPixelRatio;
+		} else { // image is enlarged
+			int iPixelRatio = zoom + 1;
+			iSubImage_x = iSubImage_x + rectDestination.x / iPixelRatio;
+			iSubImage_y = iSubImage_y + rectDestination.y / iPixelRatio;
+			iSubImage_width = rectDestination.width / iPixelRatio;
+			iSubImage_height = rectDestination.height / iPixelRatio;
+		}
+//		System.out.println("drawing image at " + x_VP + " " + y_VP + " " + iSubImage_width + " " + iSubImage_height);  
+//		System.out.println("subimage at " + iSubImage_x + " " + iSubImage_y + " " + iSubImage_width + " " + iSubImage_height);
+		int iClip_x = rectDestination.x;
+		int iClip_y = rectDestination.y;
+		int iClip_w = rectDestination.width;
+		int iClip_h = rectDestination.height;
+		g2.drawImage( mbi,
+				iClip_x, iClip_y, iClip_x + iClip_w, iClip_y + iClip_h,        // destination coordinates
+				iSubImage_x, iSubImage_y, iSubImage_x + iSubImage_width, iSubImage_y + iSubImage_height,  // source coordinates
+				null);
+	}
+	
 	/** this version can be used when the whole image is desired */
 	void render(  Graphics g, int x, int y, int w, int h  ){
 		Graphics2D g2 = (Graphics2D)g;
