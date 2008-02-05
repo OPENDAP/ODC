@@ -36,7 +36,7 @@ import javax.swing.ImageIcon;
 
 public class Resources {
 
-    public final static String pathSplashScreen = "/opendap/clients/odc/images/splash-1.png"; // png doesn't seem to work when loaded as a resource
+	public final static String dirImages = "/opendap/clients/odc/images";
     public final static String pathHelpText = "/opendap/clients/odc/doc/odc-help.txt";
     public final static String pathICONS_InternetConnection = "/opendap/clients/odc/icons/internet-connection-icon.gif";
 
@@ -59,6 +59,20 @@ public class Resources {
 		return new javax.swing.ImageIcon(image);
 	}
 
+	public static java.awt.image.BufferedImage loadBufferedImage( String sResourcePath, StringBuffer sbError ){
+		java.net.URL url = ApplicationController.getInstance().getClass().getResource(sResourcePath);
+		if( url == null ){
+			sbError.append("image resource (" + sResourcePath + ") not found (was missing from the class path or jar file)");
+			return null;
+		}
+		try {
+			return javax.imageio.ImageIO.read( url );
+		} catch( Throwable t ) {
+			sbError.append("Error reading [" + sResourcePath + "]: " + t );
+			return null;
+		}
+	}
+	
 	public static java.awt.Image imageLoadResource( String sResourcePath, StringBuffer sbError ){
 		try {
 			java.net.URL url = ApplicationController.getInstance().getClass().getResource(sResourcePath);
@@ -147,7 +161,7 @@ public class Resources {
 	public static boolean zLoadIcons( StringBuffer sbError ){
 		String sPath = "/opendap/clients/odc/icons/";
 		try {
-
+			String pathSplashScreen = Utility.sConnectPaths( dirImages, "splash-1.png" );
 			imageiconSplash = imageiconLoadResource(pathSplashScreen, sbError);
 			if( imageiconSplash == null ){
 				ApplicationController.vShowError_NoModal("Splash screen [" + pathSplashScreen + "] not loaded: " + sbError);
