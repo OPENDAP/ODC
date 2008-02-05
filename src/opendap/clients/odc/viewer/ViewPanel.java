@@ -102,25 +102,32 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 		super.paintComponent(g);
 
 		// frame rate determination
-		if( animator.isAnimating() ){
-			if( startTime == 0 ) startTime = System.currentTimeMillis();
-			if( ++frameCount == 30 ){
-				long endTime = System.currentTimeMillis();
-				view_manager.iFrameRate = (int)(30000 / (endTime - startTime));
-				frameCount = 0;
-				startTime = System.currentTimeMillis();
+		if( animator != null ){
+			if( animator.isAnimating() ){
+				if( startTime == 0 ) startTime = System.currentTimeMillis();
+				if( ++frameCount == 30 ){
+					long endTime = System.currentTimeMillis();
+					view_manager.iFrameRate = (int)(30000 / (endTime - startTime));
+					frameCount = 0;
+					startTime = System.currentTimeMillis();
+				}
 			}
 		}
 		if( raster != null ){
 			int iZoomLevel = view_manager.iZoomLevel;
 			int iSubImage_x = view_manager.iVP_x;
 			int iSubImage_y = view_manager.iVP_y;
-			raster.render( g, 0, 0, getWidth(), getHeight(), iZoomLevel, iSubImage_x, iSubImage_y );
+			java.awt.Rectangle rectClip = g.getClipBounds();
+			if( rectClip.width == getWidth() && rectClip.height == getHeight() ){ 	
+				raster.render( g, 0, 0, getWidth(), getHeight(), iZoomLevel, iSubImage_x, iSubImage_y );
+			} else {
+				raster.renderClip(g, 0, 0, getWidth(), getHeight(), iZoomLevel, iSubImage_x, iSubImage_y );
+			}
 		}
 		if( network != null ){
 			network.render( g, view_manager.iVP_x, view_manager.iVP_y, getWidth(), getHeight(), view_manager.getScale() );
 		}
-		hud.render( g, raster );
+		if( hud != null ) hud.render( g, raster );
 	}
 	
 	public void mouseWheelMoved( MouseWheelEvent e ){

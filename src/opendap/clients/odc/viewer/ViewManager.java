@@ -7,7 +7,7 @@ import javax.swing.*;
 
 import opendap.clients.odc.*;
 
-public class ViewManager implements KeyListener {
+public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	final HUD hud = new HUD();
 	int iFrameRate = 0;
 	JFrame frame = null;
@@ -33,6 +33,7 @@ public class ViewManager implements KeyListener {
 	
 	public ViewManager() {}
 
+	public final java.awt.Rectangle getLayoutRect(){ return new java.awt.Rectangle( 0, 0, iVP_w, iVP_h ); }  
 	public final JFrame getFrame(){ return frame; }
 	public final ViewPanel getViewport(){ return panelViewPort; }
 	
@@ -75,6 +76,8 @@ public class ViewManager implements KeyListener {
 
 		return manager;
 	}
+	
+	public final HUD getHUD(){ return hud; }
 	
 	public final void frameSetVisible( boolean z ){
 		frame.setVisible( z );
@@ -258,9 +261,10 @@ public class ViewManager implements KeyListener {
 	            }).start();
 	        }
 	      });
-		
 		StringBuffer sbError = new StringBuffer();
 		manager.zInitialize( sbError );
+		java.awt.image.BufferedImage biOpenGL_Logo = Resources.loadBufferedImage( "/opendap/clients/odc/images/opengl_logo.png", sbError );
+		if( biOpenGL_Logo != null ) manager.getHUD().elementAddImage( biOpenGL_Logo );
 		manager.panelViewPort._zInitialize( manager, sbError );
 		manager.panelViewPort.addGLEventListener( new Model3D_Gears() );
 		manager.panelViewPort._zActivateAnimation( sbError );
@@ -296,4 +300,13 @@ public class ViewManager implements KeyListener {
 }
 
 
+
+//	private BufferedImage scaleImage(BufferedImage img, float xScale, float yScale) {
+//		BufferedImage scaled = new BufferedImage((int) (img.getWidth() * xScale), (int) (img.getHeight() * yScale), BufferedImage.TYPE_INT_ARGB);
+//		Graphics2D g = scaled.createGraphics();
+//		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+//		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+//		g.drawRenderedImage(img, AffineTransform.getScaleInstance(xScale, yScale));
+//		return scaled;
+//	}
 
