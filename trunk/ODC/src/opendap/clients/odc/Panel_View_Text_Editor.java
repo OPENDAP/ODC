@@ -40,15 +40,21 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 	private String msFileName = null;
 	private String msFileDirectory = null;
 	private boolean mzDirty = false;
+	private Panel_View_Text parent = null;
 	
 	public Panel_View_Text_Editor(){}
 
 	JScrollPane jspDisplay = new JScrollPane();
 	private final JTextArea jtaDisplay = new JTextArea("");
 
-	boolean zInitialize( String sDirectory, String sName, String sContent, StringBuffer sbError ){
+	boolean zInitialize( Panel_View_Text parent, String sDirectory, String sName, String sContent, StringBuffer sbError ){
 
 		try {
+			if( parent == null ){
+				sbError.append("parent missing");
+				return false;
+			}
+			this.parent = parent;
 			msFileDirectory = sDirectory;
 			msFileName = sName;
 
@@ -59,27 +65,58 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 
 			// Create and intialize the text area
 			Styles.vApply(Styles.STYLE_Terminal, jtaDisplay);
-			jtaDisplay.setLineWrap(true);
-			jtaDisplay.setWrapStyleWord(true);
+			jtaDisplay.setColumns( ConfigurationManager.getInstance().getProperty_Editing_ColumnCount() );
+			jtaDisplay.setLineWrap( ConfigurationManager.getInstance().getProperty_Editing_LineWrap() );
+			jtaDisplay.setWrapStyleWord( ConfigurationManager.getInstance().getProperty_Editing_WrapByWords() );
+			jtaDisplay.setTabSize( ConfigurationManager.getInstance().getProperty_Editing_TabSize() );
 			jspDisplay.setViewportView(jtaDisplay);
 		    this.add(jspDisplay, java.awt.BorderLayout.CENTER);
 
 			// Add special warning message to display jta
 			jtaDisplay.addKeyListener(
 				new KeyListener(){
-					public void keyPressed(KeyEvent ke){}
-					public void keyReleased(KeyEvent ke){}
-					public void keyTyped(KeyEvent ke){
-						mzDirty = true;
-						ke.getModifiers();
-						if( ke.getKeyCode() == java.awt.event.KeyEvent.VK_S ){
-							int iModifiers = ke.getModifiersEx();
-							if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
-								save();
-								ke.consume();
-							}
+					public void keyPressed( KeyEvent ke ){
+						int iKeyCode = ke.getKeyCode();
+						int iModifiers = ke.getModifiersEx();
+						switch( iKeyCode ){
+							case KeyEvent.VK_S:
+								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
+									if( (iModifiers & java.awt.event.InputEvent.SHIFT_DOWN_MASK) == java.awt.event.InputEvent.SHIFT_DOWN_MASK ){
+										saveAs();
+									} else {
+										save();
+									}
+									ke.consume();
+								} 
+								break;
+							case KeyEvent.VK_N:
+								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
+									Panel_View_Text_Editor.this.parent.editorNew();
+									ke.consume();
+								}
+								break;
+							case KeyEvent.VK_O:
+								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
+									Panel_View_Text_Editor.this.parent.editorOpen();
+									ke.consume();
+								}
+								break;
+							case KeyEvent.VK_X:
+								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
+									if( (iModifiers & java.awt.event.InputEvent.SHIFT_DOWN_MASK) == java.awt.event.InputEvent.SHIFT_DOWN_MASK ){
+										Panel_View_Text_Editor.this.parent.editorCloseNoSave();
+									} else {
+										save();
+										Panel_View_Text_Editor.this.parent.editorCloseNoSave();
+									}
+									ke.consume();
+								}
+								break;
 						}
+						if( ! isDirty() ) Panel_View_Text_Editor.this.parent.updateSelectedTab();						
 					}
+					public void keyReleased(KeyEvent ke){}
+					public void keyTyped(KeyEvent ke){}
 				}
 		    );
 
@@ -116,7 +153,10 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 	public void setFileDirectory( String sNewDirectory ){ msFileDirectory = sNewDirectory; }
     
     /** indicates that the file may not be saved / may be changed */
-	public boolean getDirty(){ return mzDirty; }
+	public boolean isDirty(){ return mzDirty; }
+	
+	public void setClean(){
+	}
     
 	/** returns false if the action was cancelled or failed */
 	boolean save(){
@@ -134,6 +174,7 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 				} else {
 					if( Utility.fileSave( file, jtaDisplay.getText(), sbError ) ){
 						ApplicationController.vShowStatus( "Saved " + file );
+						setClean();
 						return true;
 					} else {
 						ApplicationController.vShowError( "Error saving file [" + file + "]: " + sbError );
@@ -175,6 +216,8 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 
 		this.mzDirty = false;
 		ApplicationController.vShowStatus( "Saved file as " + fileSaved );
+		setClean();
+		parent.updateSelectedTab(); // update the name of the tab
 		return true;
 
     }

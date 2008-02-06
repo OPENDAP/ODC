@@ -63,7 +63,6 @@ public class Interpreter {
 			String sScriptDirectory = ConfigurationManager.getInstance().getProperty_DIR_Scripts();
 			String sScriptDirectory_quoted = '"' + sScriptDirectory + '"';
 			sScriptDirectory_quoted = Utility.sReplaceString( sScriptDirectory_quoted, "\\", "\\\\");
-			System.out.println("importing: " + sScriptDirectory_quoted); 
 			mInterpreter.exec("sys.path.append(" + sScriptDirectory_quoted + ")");
 			os.write( msPrompt.getBytes() );
 			os.flush();

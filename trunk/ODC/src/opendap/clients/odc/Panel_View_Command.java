@@ -47,6 +47,7 @@ public class Panel_View_Command extends JPanel implements IControlPanel {
 	private final JTextField jtfCommand = new JTextField();
 	ArrayList<String> listCommands = new ArrayList<String>();
 	private int mposBeginningOfLine = 0;
+	private int mCommandOnLine_1 = 0; // if user has used up arrow to insert command this will be incremented 
 
 	boolean zInitialize(StringBuffer sbError){
 
@@ -59,8 +60,10 @@ public class Panel_View_Command extends JPanel implements IControlPanel {
 
 			// Create and intialize the text area
 			Styles.vApply(Styles.STYLE_Terminal, jtaDisplay);
-			jtaDisplay.setLineWrap(true);
-			jtaDisplay.setWrapStyleWord(true);
+			jtaDisplay.setColumns( ConfigurationManager.getInstance().getProperty_Editing_ColumnCount() );
+			jtaDisplay.setLineWrap( ConfigurationManager.getInstance().getProperty_Editing_LineWrap() );
+			jtaDisplay.setWrapStyleWord( ConfigurationManager.getInstance().getProperty_Editing_WrapByWords() );
+			jtaDisplay.setTabSize( ConfigurationManager.getInstance().getProperty_Editing_TabSize() );
 			jspDisplay.setViewportView(jtaDisplay);
 		    this.add(jspDisplay, java.awt.BorderLayout.CENTER);
 
@@ -76,23 +79,58 @@ public class Panel_View_Command extends JPanel implements IControlPanel {
 		    // Add special warning message to display jta
 			jtaDisplay.addKeyListener(
 				new KeyListener(){
-					public void keyPressed( KeyEvent ke ){
-						if( ke.getKeyCode() == KeyEvent.VK_ENTER ){
+					public void keyTyped( KeyEvent ke ){}
+					public void keyReleased(KeyEvent ke){}
+					public void keyPressed(KeyEvent ke){
+						int iKeyCode = ke.getKeyCode();
+						if( iKeyCode == KeyEvent.VK_ENTER ){
 							if( ke.isControlDown() ) return; // treat ctrl+enter as literal carriage return
 							
 							// JOptionPane.showMessageDialog(Panel_View_Text.this, "Enter commands by typing them in the box at the bottom of the screen and hitting enter.", "How to Enter Commands", JOptionPane.OK_OPTION);
 							String sDisplayText = jtaDisplay.getText();
-						    int iCaretPosition = jtaDisplay.getCaretPosition();
-							int posEndOfLine = iCaretPosition;
+							int posEndOfLine = sDisplayText.length();
 							String sLine = sDisplayText.substring( mposBeginningOfLine, posEndOfLine );
 							System.out.println("command [" + sLine + "]");
 //							JOptionPane.showMessageDialog(Panel_View_Text.this, "line is: [" + sLine + "] posb: " + posBeginningOfLine, "How to Enter Commands", JOptionPane.OK_OPTION);
+							listCommands.add( sLine );
 							ApplicationController.getInstance().vCommand( sLine );
+							ke.consume();
+						} else 
+						if( iKeyCode == KeyEvent.VK_UP ){
+							final int ctCommands = listCommands.size();
+							if( ctCommands > 0 ){
+								javax.swing.SwingUtilities.invokeLater(new Runnable() {
+									public void run() {
+										try {
+											int iDocumentLength = jtaDisplay.getDocument().getLength();
+											if( iDocumentLength > mposBeginningOfLine ) jtaDisplay.getDocument().remove( mposBeginningOfLine, iDocumentLength - mposBeginningOfLine );
+										} catch( Throwable t ) {}
+										mCommandOnLine_1--;
+										if( mCommandOnLine_1 < 1 ) mCommandOnLine_1 = ctCommands; 
+										jtaDisplay.append( listCommands.get(mCommandOnLine_1 - 1) );
+									}
+								});
+							}
+							ke.consume();
+						}
+						else if( iKeyCode == KeyEvent.VK_DOWN ){
+							final int ctCommands = listCommands.size();
+							if( ctCommands > 0 ){
+								javax.swing.SwingUtilities.invokeLater(new Runnable() {
+									public void run() {
+										try {
+											int iDocumentLength = jtaDisplay.getDocument().getLength();
+											if( iDocumentLength > mposBeginningOfLine ) jtaDisplay.getDocument().remove( mposBeginningOfLine, iDocumentLength - mposBeginningOfLine );
+										} catch( Throwable t ) {}
+										mCommandOnLine_1++;
+										if( mCommandOnLine_1 > ctCommands ) mCommandOnLine_1 = 1; 
+										jtaDisplay.append( listCommands.get(mCommandOnLine_1 - 1) );
+									}
+								});
+							}
 							ke.consume();
 						}
 					}
-					public void keyReleased(KeyEvent ke){}
-					public void keyTyped(KeyEvent ke){}
 				}
 		    );
 
@@ -317,6 +355,7 @@ public class Panel_View_Command extends JPanel implements IControlPanel {
 					synchronized(mabBuffer){
 						String sToAppend = new String(mabBuffer, 0, mlenData);
 						mlenData = 0;
+						mposBeginningOfLine = jtaDisplay.getText().length() + sToAppend.length();
 						jtaDisplay.append(sToAppend);
 					}
 				}
@@ -325,7 +364,9 @@ public class Panel_View_Command extends JPanel implements IControlPanel {
 				public void run() {
 					int posEndOfDocument = jtaDisplay.getDocument().getLength();
 					jtaDisplay.setCaretPosition( posEndOfDocument );
-					mposBeginningOfLine = posEndOfDocument;
+//					int iOldPos = mposBeginningOfLine;
+//					mposBeginningOfLine = posEndOfDocument;
+//					System.out.println("old eol: " + iOldPos + " new : " + mposBeginningOfLine + " diff: " + (mposBeginningOfLine - iOldPos)); 
 				}
 			});
 		}
