@@ -78,21 +78,6 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 			// Create the default editor
 			editorNew();
 
-			// Command
-//			jtfCommand.addKeyListener(
-//				new KeyListener(){
-//					public void keyPressed(KeyEvent ke){
-//						if( ke.getKeyCode() == ke.VK_ENTER ){
-//							String sCommand = jtfCommand.getText();
-//							ApplicationController.getInstance().vCommand(sCommand, null);
-//							jtfCommand.setText("");
-//						}
-//					}
-//					public void keyReleased(KeyEvent ke){}
-//					public void keyTyped(KeyEvent ke){}
-//				}
-//		    );
-
 			// New
 			JButton jbuttonNew = new JButton("New (ctrl+N)");
 			jbuttonNew.addActionListener(
@@ -124,7 +109,7 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 			);
 
 			// Save As...
-			JButton jbuttonSaveAs = new JButton("Save As... (ctrl+shift+S");
+			JButton jbuttonSaveAs = new JButton("Save As... (ctrl+shift+S)");
 			jbuttonSaveAs.addActionListener(
 				new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
@@ -134,7 +119,7 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 			);
 
 			// Save and Close
-			JButton jbuttonSaveAndClose = new JButton("Save and Close (ctrl+X");
+			JButton jbuttonSaveAndClose = new JButton("Save and Close (ctrl+X)");
 			jbuttonSaveAndClose.addActionListener(
 				new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
@@ -144,7 +129,7 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 			);
 
 			// Close without saving
-			JButton jbuttonCloseNoSave = new JButton("Close No Save (ctrl+shift+X");
+			JButton jbuttonCloseNoSave = new JButton("Close No Save (ctrl+shift+X)");
 			jbuttonCloseNoSave.addActionListener(
 				new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
@@ -179,6 +164,12 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 		});
 	}
 	
+	public void updateSelectedTab(){
+		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
+		String sNewName = editor.getFileName() + (editor.isDirty() ? '*' : "");
+		jtpEditors.setTitleAt( jtpEditors.getSelectedIndex(), sNewName );
+	}
+	
 	public void editorNew(){
 		editorNew( null, null, null );
 	}
@@ -190,7 +181,7 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 			if( sName == null ) sName = "" + mctFilesOpened + ".txt";
 			if( sDirectory == null ) sDirectory = ConfigurationManager.getInstance().getDefault_DIR_Scripts();
 			Panel_View_Text_Editor editor = new Panel_View_Text_Editor();
-			if( ! editor.zInitialize( sDirectory, sName, sContent, sbError ) ){
+			if( ! editor.zInitialize( this, sDirectory, sName, sContent, sbError ) ){
 				ApplicationController.vShowError( "Error creating new editor window for directory: " + sDirectory + " file: " + sName + " " + sContent.length() + " bytes: " + sbError );
 			}
 			jtpEditors.addTab( editor.getFileName(), editor );

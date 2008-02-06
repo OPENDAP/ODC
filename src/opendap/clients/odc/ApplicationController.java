@@ -358,24 +358,32 @@ public class ApplicationController {
 				return ;
 			}
 		}
-		if( sCommand.charAt(0) == '!' ){
-			sCommand = sCommand.substring(1);
-			command.vExecute( sCommand, os, null );
+		if( sCommand.length() > 0 ){
+			if( sCommand.charAt(0) == '!' ){
+				sCommand = sCommand.substring(1);
+				command.vExecute( sCommand, os, null );
+			} else {
+				try {
+					if( interpreter == null ){
+						vShowError( "no interpreter exists" );
+						return;
+					}
+					os.write("\n".getBytes()); // response begins new line
+					if( interpreter.zExecute( sCommand, os, msbInterpreterError ) ){
+						// success
+					} else {
+						vShowError("Failed to execute command [" + sCommand + "]: " +  msbInterpreterError);
+						msbInterpreterError.setLength(0);
+					}
+				} catch (Throwable t) {
+					vUnexpectedError( t, "Unexpected error executing command" );
+				}
+			}
 		} else {
 			try {
-				if( interpreter == null ){
-					vShowError( "no interpreter exists" );
-					return;
-				}
-				os.write("\n".getBytes()); // response begins new line
-				if( interpreter.zExecute( sCommand, os, msbInterpreterError ) ){
-					// success
-				} else {
-					vShowError("Failed to execute command [" + sCommand + "]: " +  msbInterpreterError);
-					msbInterpreterError.setLength(0);
-				}
+				os.write("\n".getBytes()); // just write a new line
 			} catch (Throwable t) {
-				vUnexpectedError( t, "Unexpected error executing command" );
+				vUnexpectedError( t, "Unexpected error executing blank command" );
 			}
 		}
 		interpreter.vWritePrompt(os);

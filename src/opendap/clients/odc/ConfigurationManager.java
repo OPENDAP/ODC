@@ -40,6 +40,8 @@ public class ConfigurationManager {
 
 	final static int DEFAULT_timeout_InternetConnect = 20;
 	final static int DEFAULT_timeout_InternetRead = 60;
+	final static int DEFAULT_editing_TabSize = 4;
+	final static int DEFAULT_editing_ColumnCount = 80;
 
 	public static final String EXTENSION_ColorSpecification = ".cs";
 	public static final String EXTENSION_Data = ".odc";
@@ -72,6 +74,9 @@ public class ConfigurationManager {
 	private static final String FEEDBACK_Default_BugHost = "scm.opendap.org";
 	private static final String FEEDBACK_Default_BugPort = "8090";
 	private static final String FEEDBACK_Default_BugRoot = "/trac";
+	
+	private static final String EDITING_Default_TabSize = "4";
+	private static final String EDITING_Default_ColumnCount = "80";
 
 	ArrayList<String> mlistProperties;
 
@@ -129,6 +134,10 @@ public class ConfigurationManager {
 	public static final String PROPERTY_TIMEOUT_InternetConnect = "timeout.InternetConnect";
 	public static final String PROPERTY_TIMEOUT_InternetRead = "timeout.InternetRead";
 	public static final String PROPERTY_COUNT_Plots = "count.Plots";
+	public static final String PROPERTY_EDITING_TabSize = "editing.TabSize";
+	public static final String PROPERTY_EDITING_ColumnCount = "editing.ColumnCount";
+	public static final String PROPERTY_EDITING_LineWrap = "editing.LineWrap";
+	public static final String PROPERTY_EDITING_WrapByWords = "editing.WrapByWords";
 
 	private String msBaseDirectoryPath = null; // sacred object
 
@@ -379,6 +388,7 @@ public class ConfigurationManager {
 		mlistProperties.add( PROPERTY_TIMEOUT_InternetConnect );
 		mlistProperties.add( PROPERTY_TIMEOUT_InternetRead );
 		mlistProperties.add( PROPERTY_COUNT_Plots );
+		mlistProperties.add( PROPERTY_EDITING_TabSize );
 	}
 
 
@@ -406,6 +416,7 @@ public class ConfigurationManager {
 	public String getProperty_DIR_Plots(){ return getInstance().getOption(PROPERTY_DIR_Plots, this.getDefault_DIR_Plots()); }
 	public String getProperty_DIR_Scripts(){ return getInstance().getOption(PROPERTY_DIR_Scripts, this.getDefault_DIR_Scripts()); }
 	public String getProperty_DISPLAY_IconSize(){ return getInstance().getOption(PROPERTY_DISPLAY_IconSize, "16"); }
+	public String getProperty_EDITING_TabSize(){ return getInstance().getOption(PROPERTY_EDITING_TabSize, "4"); }
 	public boolean getProperty_MODE_ReadOnly(){
 		return mzReadOnly;
 	}
@@ -762,6 +773,44 @@ public class ConfigurationManager {
 		}
 		return iTimeout;
 	}
+	public int getProperty_Editing_TabSize(){
+		String sTimeout = getInstance().getOption(PROPERTY_EDITING_TabSize, EDITING_Default_TabSize );
+		int iTabSize = DEFAULT_editing_TabSize;
+		try {
+			iTabSize = Integer.parseInt(sTimeout);
+			if( iTabSize < 0 || iTabSize > 120 ) iTabSize = DEFAULT_editing_TabSize;  
+		} catch(Exception ex) {
+			ApplicationController.vShowWarning("Invalid tab setting [" + iTabSize + "]. Must be an integer between 0 and 120.");
+		}
+		return iTabSize;
+	}
+	public int getProperty_Editing_ColumnCount(){
+		String sTimeout = getInstance().getOption(PROPERTY_EDITING_ColumnCount, EDITING_Default_ColumnCount );
+		int iColumnCount = DEFAULT_editing_ColumnCount;
+		try {
+			iColumnCount = Integer.parseInt(sTimeout);
+			if( iColumnCount < 0 || iColumnCount > 10000 ) iColumnCount = DEFAULT_editing_ColumnCount;  
+		} catch(Exception ex) {
+			ApplicationController.vShowWarning("Invalid column count setting [" + iColumnCount + "]. Must be an integer between 0 and 10000.");
+		}
+		return iColumnCount;
+	}
+	public boolean getProperty_Editing_LineWrap(){
+		String s = getInstance().getOption(PROPERTY_EDITING_LineWrap);
+		if( s == null ){
+			return true; // default
+		}
+		if( s.toUpperCase().startsWith("Y") || s.toUpperCase().equals("TRUE") ) return true;
+		return false;
+	}
+	public boolean getProperty_Editing_WrapByWords(){
+		String s = getInstance().getOption(PROPERTY_EDITING_WrapByWords);
+		if( s == null ){
+			return true; // default
+		}
+		if( s.toUpperCase().startsWith("Y") || s.toUpperCase().equals("TRUE") ) return true;
+		return false;
+	}
 	public int getProperty_PlotCount(){
 		String sStatusTimeout = getInstance().getOption(PROPERTY_COUNT_Plots, "0");
 		try {
@@ -926,6 +975,10 @@ public class ConfigurationManager {
 		sb.append(PROPERTY_TIMEOUT_InternetConnect + " = " + this.getProperty_Timeout_InternetConnect() + "\n" );
 		sb.append(PROPERTY_TIMEOUT_InternetRead + " = " + this.getProperty_Timeout_InternetRead() + "\n" );
 		sb.append(PROPERTY_COUNT_Plots + " = " + this.getProperty_PlotCount() + "\n" );
+		sb.append(PROPERTY_EDITING_TabSize + " = " + this.getProperty_Editing_TabSize() + "\n" );
+		sb.append(PROPERTY_EDITING_ColumnCount + " = " + this.getProperty_Editing_ColumnCount() + "\n" );
+		sb.append(PROPERTY_EDITING_LineWrap + " = " + this.getProperty_Editing_LineWrap() + "\n" );
+		sb.append(PROPERTY_EDITING_WrapByWords + " = " + this.getProperty_Editing_WrapByWords() + "\n" );
 		return sb.toString();
 	}
 
@@ -982,6 +1035,7 @@ public class ConfigurationManager {
 			mProperties.setProperty( PROPERTY_TIMEOUT_InternetConnect, "20");
 			mProperties.setProperty( PROPERTY_TIMEOUT_InternetRead, "10");
 			mProperties.setProperty( PROPERTY_COUNT_Plots, "0");
+			mProperties.setProperty( PROPERTY_EDITING_TabSize, "4");
 		    if( zStore ) vStoreProperties();
 		} else { // load existing file
 			try {
