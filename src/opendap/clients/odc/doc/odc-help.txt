@@ -1,5 +1,5 @@
 #Introduction
-(help file revised 21 June 2007)
+(help file revised 6 February 2008)
 
 This is the OPeNDAP Data Connector (ODC). Using the ODC you can search for and retrieve datasets published by OPeNDAP data servers. OPeNDAP servers (also known as DODS servers) located at major institutions around the world serve a wide variety of data including: climatic data, satellite imagery, and ocean sensor results. The ODC allows you to find these datasets, download them to your machine, save them, and import them into client applications like IDL, Matlab, SPSS, Excel, or into databases such as Access and Oracle. The ODC is your gateway to terabytes of scientific data and imagery.
 
@@ -9,8 +9,8 @@ To report bugs or make comments use the feedback tab.
 
 You may also directly contact either:
 
-Dan Holloway <d.holloway@gso.uri.edu>
-John Chamberlain <odc-help@opendap.org>
+Dan Holloway <d.holloway at gso.uri.edu>
+John Chamberlain <odc-help at opendap.org>
 
 The development of this software was funded by the National Oceanographic Partnership Program (http://www.nopp.org/).
 
@@ -206,23 +206,42 @@ Would set the timeout to 30 seconds. You can read more about entering commands a
 
 Another way to change this setting is to edit the config.txt file in the ODC base directory.
 
+#Scripting: Python Support
+
+The console (View / Command tab) allows you to enter in commands to the program and to programmatically control the ODC.
+
+Commands prefixed by an exclamation point ("!") will be sent to the ODC. Type "!help" to see those commands". See the help topic "Third-Party and Command Line Support" for more information on this functionality. All other commands are sent to the Python interpreter.
+
+Example: type "print 2+5" and press the enter key. The result 7 will appear on the next line.
+
+The system automatically defines a script directory. By default this is "scripts" in your ODC base directory. You can place Python script files here to be imported. Type "print sys.path" to see the directories which scripts are accessible from. You can append to the path normally as in Python to add an additional directory for imports.
+
+The file editing capabilities of the ODC are useful for interactively building scripts. See the topic "Editor" for more information.
+
+#Editor
+
+The ODC has a text editor capability. Go to the tab View / Editor. The editor can work with multiple files at once.
+
+There are several configuration settings that control line wrapping and column count. These settings affect both the command console and the editor panes. Type "!show config" in the command console to see these settings.
+
 #Third-Party and Command Line Support (Console)
 
-* The ODC has a command server called the "interprocess server" which listens by default on port 31870. You can issue commands to the IPS by entering them in the text box at the bottom of the text view panel and pressing Enter.
+* The ODC has a command server called the "interprocess server" which listens by default on port 31870. You can issue commands to the IPS by entering them command console prefixed by a "!". The exclamation point indicates that the command is to be sent directly to the ODC, and is not for the Python intrepreter. You can can 
 
        STEP-BY-STEP Dummies Guide to executing a command
      - find the "View" tab at the top of the screen, click on it once
-     - find the "Text" tab at the top of the screen, click on it once
-          Near the bottom of the view text screen directly above the
-          buttons you should see a rectangular box with a
-          white background. This is the command entry edit box.
-     - click once inside the box to place the cursor inside the box
-          you should see a blinking vertical line inside the box
-          this is the cursor
+     - find the "Command" tab below this, click on it once
+          The cursor should be a vertical line blinking in white text area
+          The cursor should be preceded by a prompt string (by default ">>>")
+     - type an exclamation point "!", this means the command is for the ODC, not for the Python interpreter
      - type the command desired, it should appear in the box
           you can also copy and paste into the box
      - press the enter key to execute the command
           the results will appear in the text area above
+
+* The command "!help" will show you all the ODC-specific commands
+
+* The command "!show config" will show you the current preference and configuration settings for the program
 
 * You can issue the same commands by connecting from a third party application such as a telnet client.
 
