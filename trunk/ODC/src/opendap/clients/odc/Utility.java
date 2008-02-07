@@ -700,38 +700,46 @@ ScanForStartOfMatch:
 	}
 
 	static String fileLoadIntoString( File file, StringBuffer sbError){
-		return fileLoadIntoString( file.getAbsolutePath(), sbError );
+		StringBuffer sb = new StringBuffer(1000);
+		Utility.fileLoadIntoBuffer( file.getAbsolutePath(), sb, sbError);
+		return sb.toString();
 	}
-	
-	static String fileLoadIntoString( String sAbsolutePath, StringBuffer sbError){
-		File file = new File(sAbsolutePath);
-		if( !file.exists() ){
-			sbError.append("file not found");
-			return null;
-		}
-		FileInputStream fileInputStream;
-		java.nio.channels.FileChannel fileChannel;
-		long nFileSize;
-		java.nio.MappedByteBuffer mbb;
-		try {
-			fileInputStream = new FileInputStream( file );
-			fileChannel = fileInputStream.getChannel();
-			nFileSize = fileChannel.size();
-			if( ! Utility.zMemoryCheck( nFileSize ) ){
-				sbError.append("insufficient memory to load file with " + nFileSize + " bytes");
-				return null;
-			}
-			mbb = fileChannel.map( java.nio.channels.FileChannel.MapMode.READ_ONLY, 0, nFileSize );
-			StringBuffer sb = new StringBuffer( (int)nFileSize );
-			for( int x = 0; x < nFileSize; x++ ) sb.append( (char)mbb.get() );
-			fileChannel.close();
-			fileInputStream.close();
-			return sb.toString();
-		} catch( Throwable t ) {
-			sbError.append( "Unexpected error loading file: " + errorExtractStackTrace( t ) );
-			return null;
-		}
-	}
+
+// does not work reliably because if a file is mapped then it is not released until
+// the memory is garbage collected
+//	static String fileLoadIntoString( String sAbsolutePath, StringBuffer sbError){
+//		File file = new File(sAbsolutePath);
+//		if( !file.exists() ){
+//			sbError.append("file not found");
+//			return null;
+//		}
+//		FileInputStream fileInputStream = null;
+//		java.nio.channels.FileChannel fileChannel = null;
+//		long nFileSize;
+//		java.nio.MappedByteBuffer mbb;
+//		try {
+//			fileInputStream = new FileInputStream( file );
+//			fileChannel = fileInputStream.getChannel();
+//			nFileSize = fileChannel.size();
+//			if( ! Utility.zMemoryCheck( nFileSize ) ){
+//				sbError.append("insufficient memory to load file with " + nFileSize + " bytes");
+//				return null;
+//			}
+//			mbb = fileChannel.map( java.nio.channels.FileChannel.MapMode.READ_ONLY, 0, nFileSize );
+//			StringBuffer sb = new StringBuffer( (int)nFileSize );
+//			for( int x = 0; x < nFileSize; x++ ) sb.append( (char)mbb.get() );
+//			fileChannel.close();
+//			fileInputStream.close();
+//			return sb.toString();
+//		} catch( Throwable t ) {
+//			sbError.append( "Unexpected error loading file: " + errorExtractStackTrace( t ) );
+//			try {
+//				if( fileChannel != null ) fileChannel.close();
+//				if( fileInputStream != null ) fileInputStream.close();
+//			} catch( Throwable ex ) {}
+//			return null;
+//		}
+//	}
 	
 	static boolean fileLoadIntoBuffer( String sAbsolutePath, StringBuffer sbResource, StringBuffer sbError){
 		File file = new File(sAbsolutePath);
