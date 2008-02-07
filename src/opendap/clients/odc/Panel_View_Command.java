@@ -94,6 +94,7 @@ public class Panel_View_Command extends JPanel implements IControlPanel {
 //							JOptionPane.showMessageDialog(Panel_View_Text.this, "line is: [" + sLine + "] posb: " + posBeginningOfLine, "How to Enter Commands", JOptionPane.OK_OPTION);
 							listCommands.add( sLine );
 							ApplicationController.getInstance().vCommand( sLine );
+							mCommandOnLine_1 = 0;
 							ke.consume();
 						} else 
 						if( iKeyCode == KeyEvent.VK_UP ){

@@ -69,7 +69,7 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 					SwingUtilities.invokeLater( new Runnable() {
 						public void run() {
 							IControlPanel componentSelected = (IControlPanel)jtpEditors.getSelectedComponent();
-							componentSelected.vSetFocus();
+							if( componentSelected != null ) componentSelected.vSetFocus();
 						}
 					});
 				}
@@ -166,6 +166,7 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 	
 	public void updateSelectedTab(){
 		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
+		if( editor == null ) return;
 		String sNewName = editor.getFileName() + (editor.isDirty() ? '*' : "");
 		jtpEditors.setTitleAt( jtpEditors.getSelectedIndex(), sNewName );
 	}
