@@ -12,7 +12,7 @@ import opendap.dap.*;
 
 public class MatlabFactory implements BaseTypeFactory {
   //..................................
-  /** 
+  /**
    * Construct a new DBoolean.
    * @return the new DBoolean
    */
@@ -30,7 +30,7 @@ public class MatlabFactory implements BaseTypeFactory {
 //  }
 
   //..................................
-  /** 
+  /**
    * Construct a new DByte.
    * @return the new DByte
    */
@@ -48,7 +48,7 @@ public class MatlabFactory implements BaseTypeFactory {
   }
 
   //..................................
-  /** 
+  /**
    * Construct a new DInt16.
    * @return the new DInt16
    */
@@ -66,7 +66,7 @@ public class MatlabFactory implements BaseTypeFactory {
   }
 
   //..................................
-  /** 
+  /**
    * Construct a new DUInt16.
    * @return the new DUInt16
    */
@@ -84,7 +84,7 @@ public class MatlabFactory implements BaseTypeFactory {
   }
 
   //..................................
-  /** 
+  /**
    * Construct a new DInt32.
    * @return the new DInt32
    */
@@ -102,7 +102,7 @@ public class MatlabFactory implements BaseTypeFactory {
   }
 
   //..................................
-  /** 
+  /**
    * Construct a new DUInt32.
    * @return the new DUInt32
    */
@@ -120,7 +120,7 @@ public class MatlabFactory implements BaseTypeFactory {
   }
 
   //..................................
-  /** 
+  /**
    * Construct a new DFloat32.
    * @return the new DFloat32
    */
@@ -138,7 +138,7 @@ public class MatlabFactory implements BaseTypeFactory {
   }
 
   //..................................
-  /** 
+  /**
    * Construct a new DFloat64.
    * @return the new DFloat64
    */
@@ -156,7 +156,7 @@ public class MatlabFactory implements BaseTypeFactory {
   }
 
   //..................................
-  /** 
+  /**
    * Construct a new DString.
    * @return the new DString
    */
@@ -174,7 +174,7 @@ public class MatlabFactory implements BaseTypeFactory {
   }
 
   //..................................
-  /** 
+  /**
    * Construct a new DURL.
    * @return the new DURL
    */
@@ -192,7 +192,7 @@ public class MatlabFactory implements BaseTypeFactory {
   }
 
   //..................................
-  /** 
+  /**
    * Construct a new DArray.
    * @return the new DArray
    */
@@ -209,26 +209,9 @@ public class MatlabFactory implements BaseTypeFactory {
     return new MatlabArray(n);
   }
 
-  //..................................
-  /** 
-   * Construct a new DList.
-   * @return the new DList
-   */
-  public DList newDList() {
-    return new MatlabList();
-  }
 
+  //..................................
   /**
-   * Construct a new DList with name n.
-   * @param n the variable name
-   * @return the new DList
-   */
-  public DList newDList(String n) {
-    return new MatlabList(n);
-  }
-
-  //..................................
-  /** 
    * Construct a new DGrid.
    * @return the new DGrid
    */
@@ -246,7 +229,7 @@ public class MatlabFactory implements BaseTypeFactory {
   }
 
   //..................................
-  /** 
+  /**
    * Construct a new DStructure.
    * @return the new DStructure
    */
@@ -264,7 +247,7 @@ public class MatlabFactory implements BaseTypeFactory {
   }
 
   //..................................
-  /** 
+  /**
    * Construct a new MatlabSequence.
    * @return the new MatlabSequence
    */
