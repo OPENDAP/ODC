@@ -22,10 +22,10 @@ public class Projection_Geocentric extends Projection {
 		try {
 			return new Projection_Geocentric( geotrans_engine.JNIGetGeocentricCoordinates( ConversionState.INTERACTIVE, OUTPUT ) );
 		} catch(GeotransError e) {
-			sbError.insert( 0, "geotrans error: " + e );
+			sbError.append( "geotrans error: " + e );
 			return null;
 		} catch( JNIException e ) {
-			sbError.insert( 0, "JNI error: " + e );
+			sbError.append( "JNI error: " + e );
 			return null;
         } catch( Throwable t ) {
         	Utility.vUnexpectedError( t, sbError );
@@ -36,10 +36,10 @@ public class Projection_Geocentric extends Projection {
 		try {
 			geotrans_engine.JNISetGeocentricCoordinates( ConversionState.INTERACTIVE, direction, geocentric );
 		} catch(GeotransError e) {
-			sbError.insert( 0, "geotrans error: " + e );
+			sbError.append( "geotrans error: " + e );
 			return false;
 		} catch( JNIException e ) {
-			sbError.insert( 0, "JNI error: " + e );
+			sbError.append( "JNI error: " + e );
 			return false;
         } catch( Throwable t ) {
         	Utility.vUnexpectedError( t, sbError );
