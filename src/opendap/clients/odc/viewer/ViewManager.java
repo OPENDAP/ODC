@@ -14,7 +14,9 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	ViewPanel panelViewPort = null;
 	int ZOOM_max = 10;
 	int ZOOM_min = -10;
+	int TIMESLICE_max = 0;
 	int iZoomLevel = 0;
+	int iTimeslice = 0;
 	int iVP_x = 0;
 	int iVP_y = 0;
 	int iVP_w = 0;
@@ -30,6 +32,7 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 
 	Model2D_Raster mRaster;
 	Model3D_Network mNetwork;
+	Model3D_Featureset mFeatureset;
 	
 	public ViewManager() {}
 
@@ -187,6 +190,14 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 		}
 		panelViewPort.repaint();
 	}
+
+	public final void moveTimeslice( int px ){
+		if( iTimeslice == 0 ) return; // in this case timeslice is not application, ie, not an animated rendering
+		iTimeslice += px > 0 ? -1 : 1;
+		if( iTimeslice < 1 ) iTimeslice = 1;
+		if( iTimeslice > TIMESLICE_max ) iTimeslice = TIMESLICE_max;  
+		panelViewPort.repaint();
+	}
 	
 	public final  boolean zAddRaster( Model2D_Raster raster, StringBuffer sbError ){
 		if( raster == null ){
@@ -213,6 +224,23 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 			return false;
 		}
 		mNetwork = network;
+		return true;
+	}
+
+	public final boolean zAddFeatureset( Model3D_Featureset featureset, StringBuffer sbError ){
+		if( featureset == null ){
+			sbError.append( "featureset missing" );
+			return false;
+		}
+		if( ! panelViewPort._setFeatureset( featureset, sbError) ){
+			sbError.insert( 0, "failed to set raster: " );
+			return false;
+		}
+		if( featureset.getTimesliceCount() > 0 ){ // then featureset is animated
+			iTimeslice = 1;
+			TIMESLICE_max = featureset.getTimesliceCount(); 
+		}
+		mFeatureset = featureset;
 		return true;
 	}
 	

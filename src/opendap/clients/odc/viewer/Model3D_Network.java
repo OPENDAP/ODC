@@ -92,7 +92,7 @@ public class Model3D_Network {
 			zWriting = true;
 		}
 	}
-	
+
 	void render(  Graphics g, int x_VP, int y_VP, int w_VP, int h_VP, float fScale ){
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setRenderingHint(
