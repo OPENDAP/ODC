@@ -8,13 +8,20 @@ import geotrans.JNIException;
 
 public class Projection_Geodetic extends Projection {
 	private Geodetic geodetic;
-	public Projection_Geodetic( double lon_degrees, double lat_degrees, double height_meters ){
-		geodetic = new Geodetic( lon_degrees * PI / 180, lat_degrees * PI / 180, height_meters );
+	/** set flag to indicate whether inputs are in degrees or radians */
+	public Projection_Geodetic( double latitude, double longitude, double height_meters, boolean zInDegrees ){
+		if( zInDegrees ){
+			geodetic = new Geodetic( longitude * PI / 180, latitude * PI / 180, height_meters );
+		} else {
+			geodetic = new Geodetic( longitude, latitude, height_meters );
+		}
 	}
 	public Projection_Geodetic( Geodetic geodetic ){
 		this.geodetic = geodetic;
 	}
 	public ProjectionType getProjectionType(){ return Projection.ProjectionType.Geodetic; }
+	public double getLongitude_radians(){ return geodetic.getLongitude(); }
+	public double getLatitude_radians(){ return geodetic.getLatitude(); }
 	public double getLongitude_degrees(){ return geodetic.getLongitude() * 180/PI; }
 	public double getLatitude_degrees(){ return geodetic.getLatitude() * 180/PI; }
 	public double getHeight_meters(){ return geodetic.getHeight(); }

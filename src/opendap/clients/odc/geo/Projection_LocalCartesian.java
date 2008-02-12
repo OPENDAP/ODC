@@ -11,11 +11,18 @@ public class Projection_LocalCartesian extends Projection {
 	
 	// parameter constructor
 	public Projection_LocalCartesian( 
-			double origin_lat_degrees,
-			double origin_lon_degrees,
+			double origin_lat,            // in decimal degrees or radians (see boolean switch)
+			double origin_lon,
 			double origin_height,
-			double orientation_degreesN ){ // degrees clockwise from North
-		this.local_cartesian = new LocalCartesian( origin_lat_degrees * PI / 180, origin_lon_degrees * PI / 180, origin_height, orientation_degreesN * PI / 180 );   
+			double orientation_degreesN,  // degrees clockwise from North
+			boolean zInDegrees            // whether the lat/lon are in decimal degrees, radians if false
+		){ 
+		if( zInDegrees ){ // in decimal degrees
+			this.local_cartesian = new LocalCartesian( origin_lat * PI / 180, origin_lon * PI / 180, origin_height, orientation_degreesN * PI / 180 );
+		} else { // in radians
+			this.local_cartesian = new LocalCartesian( origin_lat, origin_lon, origin_height, orientation_degreesN * PI / 180 );
+//			System.out.println("set lat to: " + (origin_lat * 180)/PI + "  lon: " + (origin_lon * 180)/PI );
+		}
 	}
 	
 	// output constructor

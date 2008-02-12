@@ -65,24 +65,31 @@ abstract public class Projection<T extends Projection> {
 		return null;
 	}
 	
-	public boolean setAsInput( JNIEngine geotrans_engine, StringBuffer sbError ){
+	public boolean setAsInput_Parameters( JNIEngine geotrans_engine, StringBuffer sbError ){
 		if( ! setParameters( geotrans_engine, INPUT, sbError ) ){
-			sbError.insert( 0, "error setting parameters: " );
-			return false;
-		}
-		if( ! setCoordinates( geotrans_engine, INPUT, sbError ) ){
-			sbError.insert( 0, "error setting coordinates: " );
+			sbError.insert( 0, "error setting input parameters: " );
 			return false;
 		}
 		return true;
 	}
-	public boolean setAsOutput( JNIEngine geotrans_engine, StringBuffer sbError ){
-		if( ! setParameters( geotrans_engine, OUTPUT, sbError ) ){
-			sbError.insert( 0, "error setting parameters: " );
+	public boolean setAsInput_Coordinates( JNIEngine geotrans_engine, StringBuffer sbError ){
+		if( ! setCoordinates( geotrans_engine, INPUT, sbError ) ){
+			sbError.insert( 0, "error setting input coordinates: " );
 			return false;
 		}
+		return true;
+	}
+	public boolean setAsOutput_Parameters( JNIEngine geotrans_engine, StringBuffer sbError ){
+		if( ! setParameters( geotrans_engine, OUTPUT, sbError ) ){
+			sbError.insert( 0, "error setting output parameters: " );
+			return false;
+		}
+		return true;
+	}
+	public boolean setAsOutput_Coordinates( JNIEngine geotrans_engine, StringBuffer sbError ){
 		if( ! setCoordinates( geotrans_engine, OUTPUT, sbError ) ){
-			sbError.insert( 0, "error setting coordinates: " );
+			sbError.insert( 0, "error setting output coordinates: " );
+			Thread.dumpStack();
 			return false;
 		}
 		return true;

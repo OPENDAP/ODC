@@ -1,5 +1,6 @@
 package opendap.clients.odc.geo;
 
+import opendap.clients.odc.geo.Projection.ProjectionType;
 import geotrans.*;
 
 public class Geodesy {
@@ -32,8 +33,10 @@ public class Geodesy {
 				System.err.println( "error setting datums to WGS84: " + sbError );
 				System.exit(0);
 			}
+			
+			// example: geocentric to geodetic
 			Projection_Geocentric dataGeocentric = new Projection_Geocentric( 3848899.322, 3691426.002, 3486838.194 );
-			Projection_Geodetic dataGeodetic_out = new Projection_Geodetic( 0, 0, 0 );
+			Projection_Geodetic dataGeodetic_out = new Projection_Geodetic( 0, 0, 0, false );
 			Projection_Geodetic dataGeodetic = (Projection_Geodetic)geodesy.convert( dataGeocentric, dataGeodetic_out, sbError );
 //			Geodata_Geodetic dataGeodetic = (Geodata_Geodetic)geodesy.convert( dataGeocentric, Geodata.Projection.Geodetic, sbError );
 			if( dataGeodetic == null){
@@ -42,6 +45,22 @@ public class Geodesy {
 			} else {
 				System.out.println( dataGeocentric.sDump() + " converts to " + dataGeodetic.sDump() );
 			}
+			
+			// example: local cartesian to geodetic
+			Projection_LocalCartesian paramsCartesian = new Projection_LocalCartesian( 32, 46, 0, 0, true ); 
+			Projection_Geodetic paramsGeodetic = new Projection_Geodetic( 0, 0, 0, true ); 
+			if( ! geodesy.setParameters( paramsCartesian, paramsGeodetic, sbError ) ){
+				System.err.println( "error setting conversion parameters: " + sbError );
+				System.exit(0);
+			}
+			Projection_LocalCartesian inputCartesian = new Projection_LocalCartesian( -211138, 147788, -5212 ); 
+			Projection_Geodetic outputGeodetic = (Projection_Geodetic)geodesy.convert( inputCartesian, ProjectionType.Geodetic, sbError );
+			if( outputGeodetic == null){
+				System.err.println( "error converting: " + sbError );
+				System.exit(0);
+			}
+			System.out.println( inputCartesian.sDump() + " converts to " + outputGeodetic.sDump() );
+			
 		} catch( Throwable t ) {
 			Utility.vUnexpectedError(t, sbError);
 			System.err.println("Unexpected error: " + sbError.toString() );
@@ -146,8 +165,8 @@ public class Geodesy {
 //			setAccuracy( ce90, le90, se90 );
 			geotrans_engine.JNISetCoordinateSystem( ConversionState.INTERACTIVE, INPUT, Projection.getGeotransProjectionOrdinal( in.getProjectionType() ) );
 			geotrans_engine.JNISetCoordinateSystem( ConversionState.INTERACTIVE, OUTPUT, Projection.getGeotransProjectionOrdinal( out.getProjectionType() ) );
-            if( ! in.setAsInput( geotrans_engine, sbError ) ){ sbError.insert( 0, "input: " ); return null; }
-            if( ! out.setAsOutput( geotrans_engine, sbError ) ){ sbError.insert( 0, "output: " ); return null; }
+            if( ! in.setAsInput_Coordinates( geotrans_engine, sbError ) ){ sbError.insert( 0, "input: " ); return null; }
+            if( ! out.setAsOutput_Coordinates( geotrans_engine, sbError ) ){ sbError.insert( 0, "output: " ); return null; }
 			geotrans_engine.JNIConvert( ConversionState.INTERACTIVE );
 			return Projection.getOutput( geotrans_engine, out.getProjectionType(), sbError );
 		} catch( GeotransError e ) {
@@ -181,8 +200,8 @@ public class Geodesy {
 //			setAccuracy( ce90, le90, se90 );
 			geotrans_engine.JNISetCoordinateSystem( ConversionState.INTERACTIVE, INPUT, Projection.getGeotransProjectionOrdinal( in.getProjectionType() ) );
 			geotrans_engine.JNISetCoordinateSystem( ConversionState.INTERACTIVE, OUTPUT, Projection.getGeotransProjectionOrdinal( out.getProjectionType() ) );
-            if( ! in.setAsInput( geotrans_engine, sbError ) ){ sbError.insert( 0, "input: " ); return false; }
-            if( ! out.setAsOutput( geotrans_engine, sbError ) ){ sbError.insert( 0, "output: " ); return false; }
+            if( ! in.setAsInput_Parameters( geotrans_engine, sbError ) ){ sbError.insert( 0, "input: " ); return false; }
+            if( ! out.setAsOutput_Parameters( geotrans_engine, sbError ) ){ sbError.insert( 0, "output: " ); return false; }
 			return true;
 		} catch( GeotransError e ) {
 			sbError.append( e.getMessage() );
@@ -191,9 +210,9 @@ public class Geodesy {
 	}
 
 	/** assumes that the input/output parameters have already been set */
-	public Projection convert( Projection in, Projection.ProjectionType projection, StringBuffer sbError ){
+	public Projection convert( Projection in_coordinates, Projection.ProjectionType projection, StringBuffer sbError ){
 		try {
-            if( ! in.setAsInput( geotrans_engine, sbError ) ){ sbError.insert( 0, "input: " ); return null; }
+            if( ! in_coordinates.setAsInput_Coordinates( geotrans_engine, sbError ) ){ sbError.insert( 0, "input: " ); return null; }
 			geotrans_engine.JNIConvert( ConversionState.INTERACTIVE );
 			return Projection.getOutput( geotrans_engine, projection, sbError );
 		} catch( GeotransError e ) {
