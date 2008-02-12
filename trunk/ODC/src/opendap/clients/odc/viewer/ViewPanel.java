@@ -29,6 +29,7 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 	Animator animator = null;
 	Model2D_Raster raster = null;
 	Model3D_Network network = null;
+	Model3D_Featureset featureset = null;
 
 	public ViewPanel(){
 		super(caps, null, null);
@@ -58,6 +59,11 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 
 	boolean _setNetwork( Model3D_Network network, StringBuffer sbError ){
 		this.network = network;
+		return true;
+	}
+
+	boolean _setFeatureset( Model3D_Featureset featureset, StringBuffer sbError ){
+		this.featureset = featureset;
 		return true;
 	}
 	
@@ -98,6 +104,7 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 
 	private long startTime;
 	private int frameCount;
+	int ctPaint = 0;
 	public void paintComponent( Graphics g ){
 		super.paintComponent(g);
 
@@ -127,6 +134,9 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 		if( network != null ){
 			network.render( g, view_manager.iVP_x, view_manager.iVP_y, getWidth(), getHeight(), view_manager.getScale() );
 		}
+		if( featureset != null ){
+			featureset.render( g, view_manager.iVP_x, view_manager.iVP_y, getWidth(), getHeight(), view_manager.getScale(), view_manager.iTimeslice );
+		}
 		if( hud != null ) hud.render( g, raster );
 	}
 	
@@ -146,6 +156,8 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 			view_manager.movePanHorizontal(px);
 		} else if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
 			view_manager.movePanVertical(px);
+		} else if( (iModifiers & java.awt.event.InputEvent.ALT_DOWN_MASK) == java.awt.event.InputEvent.ALT_DOWN_MASK ){
+			view_manager.moveTimeslice(px);
 		} else {
 			view_manager.setZoom( e.getWheelRotation() ); // up is negative, down is positive
 		}

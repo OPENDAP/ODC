@@ -34,6 +34,7 @@ public class HUD {
 	HUD_Element_CursorBox cursor_box;
 	HUD_Element_NavBox nav_box;
 	HUD_Element_Dimensions dimensions;
+	HUD_Element_Animation animation;
 	
 	private int miMousePosition_X = 0;
 	private int miMousePosition_Y = 0;
@@ -48,6 +49,7 @@ public class HUD {
 			cursor_box = new HUD_Element_CursorBox( this );
 			nav_box = new HUD_Element_NavBox( vm );
 			dimensions = new HUD_Element_Dimensions( vm );
+			animation = new HUD_Element_Animation( vm );
 			
 			// define location of each element
 			cursor_box.setRelativeLayout( new RelativeLayout( vm,
@@ -62,11 +64,16 @@ public class HUD {
 					RelativeLayout.Orientation.TopLeft,
 					RelativeLayout.Orientation.TopLeft,
 					10, 10, 0 ) );
+			animation.setRelativeLayout( new RelativeLayout( vm,
+					RelativeLayout.Orientation.RightMiddle,
+					RelativeLayout.Orientation.RightMiddle,
+					10, 10, 0 ) );
 			
 			// add elements to management list
 			listElements.add( dimensions );
 			listElements.add( cursor_box );
 			listElements.add( nav_box );
+			listElements.add( animation );
 			
 			return true;
 		} catch( Exception t ) {
@@ -97,6 +104,7 @@ public class HUD {
 		} else {
 			nav_box.setRaster( rasterNavBox );
 			for( HUD_Element element : listElements ){
+				element.drawBackground( g );
 				element.draw( g );
 			}
 		}
@@ -143,6 +151,12 @@ abstract class HUD_Element {
 	abstract void draw( Graphics g );
 	void mouseClick( int x, int y ){}
 
+	void drawBackground( Graphics g ){
+		g.setColor( Color.BLACK );
+		g.fillRect( x, y, width, height );
+		g.setColor( Color.WHITE );
+	}
+	
 	void setRelativeLayout( RelativeLayout layout ){ this.layout = layout; } 
 	java.awt.Rectangle getRect(){
 		return new java.awt.Rectangle( x, y, width, height ); 
@@ -196,6 +210,25 @@ class HUD_Element_CursorBox extends HUD_Element {
 		int offY = y;
 		g.drawString( "x: " + theHUD.getMouseX(), offX, offY + iLineHeight * ++xLineNumber ); 
 		g.drawString( "y: " + theHUD.getMouseY(), offX, offY + iLineHeight * ++xLineNumber ); 
+	}
+}
+
+class HUD_Element_Animation extends HUD_Element {
+	private ViewManager view_manager = null;
+	HUD_Element_Animation(  ViewManager vm ){ 
+		view_manager = vm;
+	} 
+	void draw( Graphics g ){
+		if( ! g.hitClip( x, y, width, height ) ) return;
+		int xLineNumber = 0;
+		int iLineHeight = g.getFontMetrics( font ).getHeight();
+		int offX = x;
+		int offY = y;
+		String s = "timeslice: " + view_manager.iTimeslice;
+		g.drawString( s, offX, offY + iLineHeight * ++xLineNumber );
+		java.awt.Graphics2D g2 = (java.awt.Graphics2D)g;
+//		width = g2.getFontMetrics().stringWidth( s );
+		height = g2.getFontMetrics().getHeight();
 	}
 }
 
