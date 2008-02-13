@@ -248,7 +248,7 @@ public class Catalog extends JPanel implements ActionListener {
 					// get data DDS
 					DataDDS data = null;
 					try {
-						opendap.dap.DConnect connection = new opendap.dap.DConnect(sURL_final);
+						opendap.dap.DConnect2 connection = new opendap.dap.DConnect2(sURL_final);
 						data = connection.getData(sSubsetExpression, null);
 					} catch(Exception e) {
 					    ApplicationController.getInstance().vShowError("Failed to make data connection: " + e);
@@ -385,7 +385,7 @@ class CatalogInformation {
     private boolean mzIsFileServer;
 
 	// DODS DAP objects
-    private opendap.dap.DConnect connect;
+    private opendap.dap.DConnect2 connect;
     private opendap.dap.DAS mDAS;
     private opendap.dap.DDS mDDS;
 
