@@ -215,7 +215,14 @@ public class OpendapConnection {
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
-			ver = new ServerVersion(sServerVersion);
+            try{
+                ver = new ServerVersion(sServerVersion,ServerVersion.XDODS_SERVER);
+            }
+            catch(opendap.dap.DAP2Exception e){
+                sbError.append("not a valid OPeNDAP server, cannot parse field xdods-server header: "+sServerVersion);
+                try { socket_channel.close(); } catch( Throwable t_is ){}
+                return null;
+            }
 			String sTransferEncoding = getHeaderField(sHeader, "transfer-encoding");
 			if( sTransferEncoding != null ){
 				if( sProtocol.equals("HTTP/1.0") ){
