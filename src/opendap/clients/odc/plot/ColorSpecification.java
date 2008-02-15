@@ -266,7 +266,7 @@ class ColorSpecification extends AbstractListModel {
 			File fileNewPlotsDirectory = file.getParentFile();
 			if( fileNewPlotsDirectory != null ) if( !fileNewPlotsDirectory.equals(filePlotsDirectory) ){
 				String sNewPlotsDirectory = fileNewPlotsDirectory.getCanonicalPath();
-				ConfigurationManager.getInstance().setOption(ConfigurationManager.getInstance().PROPERTY_DIR_Plots, sNewPlotsDirectory );
+				ConfigurationManager.getInstance().setOption(ConfigurationManager.PROPERTY_DIR_Plots, sNewPlotsDirectory );
 			}
 
 			// open file
@@ -325,7 +325,7 @@ class ColorSpecification extends AbstractListModel {
 			File fileNewPlotsDirectory = file.getParentFile();
 			if( fileNewPlotsDirectory != null ) if( !fileNewPlotsDirectory.equals(filePlotsDirectory) ){
 				String sNewPlotsDirectory = fileNewPlotsDirectory.getCanonicalPath();
-				ConfigurationManager.getInstance().setOption(ConfigurationManager.getInstance().PROPERTY_DIR_Plots, sNewPlotsDirectory );
+				ConfigurationManager.getInstance().setOption(ConfigurationManager.PROPERTY_DIR_Plots, sNewPlotsDirectory );
 			}
 
 			// load the lines of the file
@@ -533,7 +533,7 @@ class ColorSpecification extends AbstractListModel {
 			// validate
 			if( eState < 6 ){
 				String sProblem = ( eState == 1 ? "name" : ( eState == 2 ? "type" : ( eState == 3 ? "range header" : ( eState == 4 ? "ranges" : "missing" ))));
-				sbError.append("Error loading, " + eState + " field was missing or invalid");
+				sbError.append("Error loading, " + sProblem + " field was missing or invalid");
 				return false;
 			}
 
@@ -547,7 +547,7 @@ class ColorSpecification extends AbstractListModel {
 
 	void setMissingColor( int hsbColor ){
 		miMissingColor = hsbColor;
-		mrgbMissingColor = iHSBtoRGBA(hsbColor);
+		mrgbMissingColor = Color_HSB.iHSBtoRGBA(hsbColor);
 		mcolorMissing = new Color(mrgbMissingColor);
 		this.vMakeSwatch(0);
 	}
@@ -1210,7 +1210,7 @@ class ColorSpecification extends AbstractListModel {
 		int[] ahsbBands = getColorBands1_HSB( ctBands );
 		Color[] aColors = new Color[ ctBands + 1 ];
 		for( int xBand = 1; xBand <= ctBands; xBand++ ){
-			aColors[xBand] = new Color( iHSBtoRGB(ahsbBands[xBand]), true );
+			aColors[xBand] = new Color( Color_HSB.iHSBtoRGB(ahsbBands[xBand]), true );
 		}
 		return aColors;
 	}
@@ -1219,7 +1219,6 @@ class ColorSpecification extends AbstractListModel {
 		int[] ahsbBands = new int [ctBands + 1];
 		int iHue = 0; int fHueInterval = (int)((float)0xFF / (float)ctBands);
 		int iSat = 0x7F; int fSatInterval = (int)((float)0xFF / (float)ctBands);
-		StringBuffer sbError = new StringBuffer(80);
 		float fProFrom = 0;
 		for( int xBand = 1; xBand <= ctBands; xBand++ ){
 			int hsbBand = 0xFF << 24 | iHue << 16 | iSat << 8 | 0xFF;
@@ -1496,7 +1495,7 @@ class ColorSpecification extends AbstractListModel {
 	int[] aiRender( short[] ashData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage, StringBuffer sbError ){
 		int iDataType = getDataType();
 		if( iDataType != DATA_TYPE_Byte && iDataType != DATA_TYPE_Int16 ){
-			ApplicationController.getInstance().vShowError("cannot render short data for type " + DAP.getType_String(getDataType()));
+			ApplicationController.vShowError("cannot render short data for type " + DAP.getType_String(getDataType()));
 			return null;
 		}
 		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
@@ -1822,16 +1821,16 @@ Ranges:
 		if( fDataProportion == -1 ){ // unitary color mapping using components
 			if( iHue >= 0 && iSaturation >= 0 && iBrightness >= 0 && iAlpha >= 0 ){ // constant color
 				int iHSB = (iAlpha << 24) | (iHue << 16) | (iSaturation << 8) | iBrightness;
-				return iHSBtoRGBA( iHSB );
+				return Color_HSB.iHSBtoRGBA( iHSB );
 			} else {
-				return iHSBtoRGBA( ahsbColorFrom[xRange] ); // by convention the color-from is used for unitary mappings
+				return Color_HSB.iHSBtoRGBA( ahsbColorFrom[xRange] ); // by convention the color-from is used for unitary mappings
 			}
 		} else {
 			long iColorFrom = ((long)ahsbColorFrom[xRange]) & 0xFFFFFFFF;
 			long iColorTo   = ((long)ahsbColorTo[xRange]) & 0xFFFFFFFF;
-			if( iColorFrom == iColorTo ) return iHSBtoRGBA(ahsbColorFrom[xRange]); // unitary color mapping
+			if( iColorFrom == iColorTo ) return Color_HSB.iHSBtoRGBA(ahsbColorFrom[xRange]); // unitary color mapping
 			if( iHue >= 0 && iSaturation >= 0 && iBrightness >= 0 && iAlpha >= 0 ){ // constant color
-				return iHSBtoRGBA( iAlpha, iHue, iSaturation, iBrightness );
+				return Color_HSB.iHSBtoRGBA( iAlpha, iHue, iSaturation, iBrightness );
 			} else {
 				int eColorStep = aeColorStep[xRange];
 				int hsbRaw;
@@ -1962,115 +1961,10 @@ Ranges:
 				if( iHue != -1 )        hsbRaw = (hsbRaw & 0xFF00FFFF) | (iHue << 16);
 				if( iSaturation != -1 ) hsbRaw = (hsbRaw & 0xFFFF00FF) | (iSaturation << 8);
 				if( iBrightness != -1 ) hsbRaw = (hsbRaw & 0xFFFFFF00) | iBrightness;
-				return iHSBtoRGBA( hsbRaw );
+				return Color_HSB.iHSBtoRGBA( hsbRaw );
 			}
 		}
 	}
-
-    public static int iHSBtoRGBA( int iHSB ) {
-		int iAlpha      = (int)((iHSB & 0xFF000000L) >> 24);
-		int iHue        = (iHSB & 0x00FF0000) >> 16;
-		int iSaturation = (iHSB & 0x0000FF00) >> 8;
-		int iBrightness =  iHSB & 0x000000FF;
-		return iHSBtoRGBA( iAlpha, iHue, iSaturation, iBrightness );
-	}
-
-    public static int iHSBtoRGB( int iHSB ) {
-		int iHue        = (iHSB & 0x00FF0000) >> 16;
-		int iSaturation = (iHSB & 0x0000FF00) >> 8;
-		int iBrightness =  iHSB & 0x000000FF;
-		return iHSBtoRGBA( iHSB, iHue, iSaturation, iBrightness );
-	}
-
-    public static int iHSBtoRGBA(int iAlpha, int ihue, int isaturation, int ibrightness) {
-		float hue = (float)ihue/255;
-		float saturation = (float)isaturation/255;
-		float brightness = (float)ibrightness/255;
-		int r = 0, g = 0, b = 0;
-    	if (saturation == 0) {
-			r = g = b = (int) (brightness * 255.0f + 0.5f);
-		} else {
-			float h = (hue - (float)Math.floor(hue)) * 6.0f;
-			float f = h - (float)java.lang.Math.floor(h);
-			float p = brightness * (1.0f - saturation);
-			float q = brightness * (1.0f - saturation * f);
-			float t = brightness * (1.0f - (saturation * (1.0f - f)));
-			switch ((int) h) {
-				case 0:
-					r = (int) (brightness * 255.0f + 0.5f);
-					g = (int) (t * 255.0f + 0.5f);
-					b = (int) (p * 255.0f + 0.5f);
-					break;
-				case 1:
-					r = (int) (q * 255.0f + 0.5f);
-					g = (int) (brightness * 255.0f + 0.5f);
-					b = (int) (p * 255.0f + 0.5f);
-					break;
-				case 2:
-					r = (int) (p * 255.0f + 0.5f);
-					g = (int) (brightness * 255.0f + 0.5f);
-					b = (int) (t * 255.0f + 0.5f);
-					break;
-				case 3:
-					r = (int) (p * 255.0f + 0.5f);
-					g = (int) (q * 255.0f + 0.5f);
-					b = (int) (brightness * 255.0f + 0.5f);
-					break;
-				case 4:
-					r = (int) (t * 255.0f + 0.5f);
-					g = (int) (p * 255.0f + 0.5f);
-					b = (int) (brightness * 255.0f + 0.5f);
-					break;
-				case 5:
-					r = (int) (brightness * 255.0f + 0.5f);
-					g = (int) (p * 255.0f + 0.5f);
-					b = (int) (q * 255.0f + 0.5f);
-					break;
-			}
-		}
-		return (iAlpha << 24) | (r << 16) | (g << 8) | (b << 0);
-    }
-
-	public static int iRGBtoHSB( int rgb ){
-		int iAlpha      = (int)((rgb & 0xFF000000L) >> 24);
-		int iRed        = (rgb & 0x00FF0000) >> 16;
-		int iGreen      = (rgb & 0x0000FF00) >> 8;
-		int iBlue       =  rgb & 0x000000FF;
-		return iRGBtoHSB(iAlpha, iRed, iGreen, iBlue);
-	}
-
-	// could be wrong check carefully by doing inversions
-	public static int iRGBtoHSB(int alpha, int r, int g, int b) {
-		int hue, saturation, brightness;
-		int iLargestComponent = (r > g) ? r : g;
-		if (b > iLargestComponent) iLargestComponent = b;
-		int iSmallestComponent = (r < g) ? r : g;
-		if (b < iSmallestComponent) iSmallestComponent = b;
-		brightness = iLargestComponent;
-		if (iLargestComponent == 0){
-	        saturation = 0;
-		    hue = 0;
-		} else {
-			float huec;
-			float fSpread = (float) (iLargestComponent - iSmallestComponent);
-			saturation = (int)(255 * fSpread / iLargestComponent);
-			float redc = ((float) (iLargestComponent - r)) / fSpread;
-			float greenc = ((float) (iLargestComponent - g)) / fSpread;
-			float bluec = ((float) (iLargestComponent - b)) / fSpread;
-			if (r == iLargestComponent)
-			    huec = bluec - greenc;
-		    else if (g == iLargestComponent)
-			    huec = 2.0f + redc - bluec;
-		    else
-			    huec = 4.0f + greenc - redc;
-		    huec = huec / 6.0f;
-		    if (huec < 0)
-			huec = huec + 1.0f;
-			hue = (int)(huec * 255f);
-		}
-		return (alpha << 24) & ( hue << 16 ) & ( saturation << 8 ) & brightness;
-    }
-
 }
 
 class Panel_ColorSpecification extends JPanel implements IRangeChanged {
@@ -3408,7 +3302,7 @@ class Panel_ColorPicker extends JPanel {
 			new ActionListener(){
 				public void actionPerformed(ActionEvent e) {
 					mHSBpicker.setColor(miHSB);
-					jd.show();
+					jd.setVisible( true );
 					Object oValue = jop.getValue();
 					if( oValue == null || oValue.toString().equals("2")){ // todo figure this out
 						return; // cancel
@@ -3441,7 +3335,7 @@ class Panel_ColorPicker extends JPanel {
 		labelColor.setText( sbColorText.toString() );
 	}
 	int getHSB(){ return miHSB; }
-	int getRGB(){ return ColorSpecification.iHSBtoRGBA(miHSB); }
+	int getRGB(){ return Color_HSB.iHSBtoRGBA(miHSB); }
 	int getAlpha(){ return miHSB >> 24; }
 	int getHue(){ return (miHSB & 0x00FF0000) >> 16; }
 	int getSat(){ return (miHSB & 0x0000FF00) >> 8; }
@@ -3451,7 +3345,7 @@ class Panel_ColorPicker extends JPanel {
 		Graphics2D g2 = (Graphics2D)bi.getGraphics();
 		g2.setColor(Color.BLACK);
 		g2.drawString("alpha", 2, 2);
-		Color color = new Color(ColorSpecification.iHSBtoRGBA(iHSB));
+		Color color = new Color( Color_HSB.iHSBtoRGBA(iHSB));
 		g2.setColor(color);
 		g2.fillRect(0, 0, 20, 15);
 		return new javax.swing.ImageIcon(bi);

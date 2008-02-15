@@ -57,7 +57,7 @@ public class PlotText extends javax.swing.AbstractListModel {
 	public int getSize(){ return mlistText.size(); }
 	public Object getElementAt(int index){ return mlistText.get(index); }
 
-	private ArrayList mlistText = new ArrayList(); // contains PlotTextItems
+	private ArrayList<PlotTextItem> mlistText = new ArrayList<PlotTextItem>(); // contains PlotTextItems
 	PlotText(){}
 	PlotTextItem newItem(String sID){
 		PlotTextItem item = new PlotTextItem(sID);
@@ -136,7 +136,7 @@ class PlotTextItem {
 	void setFont( Font f ){ mFont = f; }
 	void setColor( int hsb ){
 		mColor_HSB = hsb;
-		mColor = new Color(ColorSpecification.iHSBtoRGBA(hsb), true);
+		mColor = new Color( Color_HSB.iHSBtoRGBA(hsb), true);
 	}
 	public String toString(){ return getTextValue(); }
 	String getTextValue(){
@@ -209,7 +209,7 @@ class Panel_PlotText extends JPanel {
 		// Do layout
 		this.setLayout(new java.awt.GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.fill = gbc.BOTH;
+		gbc.fill = GridBagConstraints.BOTH;
 
 		// top margin
 		gbc.gridy = 0;
@@ -298,8 +298,8 @@ class Panel_PlotText extends JPanel {
 		);
 		jtfExpression.addKeyListener(
 	    	new java.awt.event.KeyListener(){
-		    	public void keyPressed(java.awt.event.KeyEvent ke){
-			    	if( ke.getKeyCode() == ke.VK_ENTER ){
+		    	public void keyPressed( java.awt.event.KeyEvent ke ){
+			    	if( ke.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER ){
 						vUpdateExpression();
 	    			}
 		    	}
@@ -339,7 +339,7 @@ class FontPicker extends JPanel implements IColorChanged {
 		jcbSize.setSelectedItem("10"); // default size
 		mColorPicker = new Panel_ColorPicker(this, "", 0xFFFFFF00, true);
 		JLabel labFont = new JLabel("Family:", JLabel.RIGHT);
-		JLabel labSize = new JLabel("Size:", JLabel.RIGHT);
+//		JLabel labSize = new JLabel("Size:", JLabel.RIGHT);
 		vSetupListeners();
 		setTextItem(null);
 
@@ -348,7 +348,7 @@ class FontPicker extends JPanel implements IColorChanged {
 
 		setLayout(new java.awt.GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.fill = gbc.NONE;
+		gbc.fill = GridBagConstraints.NONE;
 
 		// separator
 		gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.0; gbc.weighty = 0.0; gbc.gridwidth = 6;

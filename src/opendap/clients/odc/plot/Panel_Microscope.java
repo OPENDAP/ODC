@@ -200,7 +200,7 @@ public class Panel_Microscope extends JPanel implements MouseListener {
 				int iRasterIndex = 6 * (xRow-1) + (xColumn-1);
 				maColors[xRow][xColumn] = new Color(rgbRaster[iRasterIndex]);
 				masValues[xRow][xColumn] = asValues[iRasterIndex];
-				masColors[xRow][xColumn] = Utility.sToHex(ColorSpecification.iRGBtoHSB(rgbRaster[iRasterIndex]), 8);
+				masColors[xRow][xColumn] = Utility.sToHex( Color_HSB.iRGBtoHSB(rgbRaster[iRasterIndex]), 8);
 			}
 		}
 	}
