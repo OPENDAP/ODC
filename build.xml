@@ -100,8 +100,9 @@
       -
       -
       -->
-    <property name="opendap.lib"        value="opendap-0.0.7.jar"/>
-
+    <property name="opendap.lib"        value="opendap-0.0.8.jar"/>
+    
+    <property name="httpclient.lib"     value="commons-httpclient-3.0.1.jar"/>
     <property name="regexp.lib"         value="gnu-regexp-1.1.4.jar"/>
     <property name="getopt.lib"         value="gnu-getopt-1.0.6.jar"/>
     <property name="jdom.lib"           value="jdom-1.0.jar"/>
@@ -150,6 +151,7 @@
 			<include name="${mail.lib}"/>
 			<include name="${mailapi.lib}"/>
 			<include name="${opendap.lib}"/>
+			<include name="${httpclient.lib}"/>
 			<include name="${regexp.lib}"/>
 			<include name="${jython.lib}"/>
 		</fileset>
