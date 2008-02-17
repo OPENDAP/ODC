@@ -52,8 +52,6 @@ public class Catalog extends JPanel implements ActionListener {
     private String[] varNames;
     private String[][] varContents;
 
-    private Vector actionListeners;
-
     // String of URLs
 	private String msExampleURL;
     private DodsURL[] URLs;
@@ -85,7 +83,6 @@ public class Catalog extends JPanel implements ActionListener {
 	boolean zInitialize( DodsURL url, DDS dds, DAS das, StringBuffer sbError ){
 		try {
 			msURL = url.getBaseURL();
-			actionListeners = new Vector();
 
 			// Remove the constraint expression from the url
 			int endOfURL = msURL.indexOf(".ascii?");
@@ -248,14 +245,14 @@ public class Catalog extends JPanel implements ActionListener {
 					// get data DDS
 					DataDDS data = null;
 					try {
-						opendap.dap.DConnect2 connection = new opendap.dap.DConnect2(sURL_final);
+						opendap.dap.DConnect2 connection = new opendap.dap.DConnect2( sURL_final );
 						data = connection.getData(sSubsetExpression, null);
 					} catch(Exception e) {
-					    ApplicationController.getInstance().vShowError("Failed to make data connection: " + e);
+					    ApplicationController.vShowError("Failed to make data connection: " + e);
 						return;
 					}
 					if (data == null) {
-					    ApplicationController.getInstance().vShowError("Data DDS unexpectedly null");
+					    ApplicationController.vShowError("Data DDS unexpectedly null");
 						return;
 					}
 
@@ -364,14 +361,6 @@ public class Catalog extends JPanel implements ActionListener {
         }
     }
 
-    // --- Returns the maximum of two integers ---
-    private int getMax(int v1, int v2) {
-        if (v1 > v2) {
-            return v1;
-        } else {
-            return v2;
-        }
-    }
 }
 
 class CatalogInformation {
@@ -446,12 +435,6 @@ class CatalogInformation {
 
 	// Gather the dataset information
     private boolean zLoad( StringBuffer sbError ) {
-
-		opendap.dap.AttributeTable dods_inventory = null;
-		opendap.dap.Attribute attr = null;
-
-        String temp = null;
-		boolean dateSpecified = false;
 
 		return false;
 
