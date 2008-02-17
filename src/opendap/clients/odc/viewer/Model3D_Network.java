@@ -104,11 +104,11 @@ public class Model3D_Network {
 		int iCircleWidth = 10;
 		int iCircleOffset = iCircleWidth / 2;
 		g2.setPaint( java.awt.Color.CYAN );
-		for( int xNode = 1; xNode <= ctNodes; xNode++ ){
-			int x = (int)((ax[xNode] - x_VP)*fScale) - iCircleOffset;
-			int y = (int)((ay[xNode] - y_VP)*fScale) - iCircleOffset;
-			if( x >= 0 && y >= 0 && x < w_VP && y < h_VP ) g.fillOval( x, y, iCircleWidth, iCircleWidth);
-		}
+//		for( int xNode = 1; xNode <= ctNodes; xNode++ ){
+//			int x = (int)((ax[xNode] - x_VP)*fScale) - iCircleOffset;
+//			int y = (int)((ay[xNode] - y_VP)*fScale) - iCircleOffset;
+//			if( x >= 0 && y >= 0 && x < w_VP && y < h_VP ) g.fillOval( x, y, iCircleWidth, iCircleWidth);
+//		}
 		for( int xSegment = 1; xSegment <= ctSegments; xSegment++ ){
 			int x_from = (int)((ax[afrom[xSegment]] - x_VP) * fScale);
 			int y_from = (int)((ay[afrom[xSegment]] - y_VP) * fScale);
@@ -118,12 +118,11 @@ public class Model3D_Network {
 				x_to >= 0 && y_to >= 0 && x_to < w_VP && y_to < h_VP )
 					g.drawLine(x_from, y_from, x_to, y_to);
 		}
-		for( int xNode = 1; xNode <= ctNodes; xNode++ ){
-			int x = (int)((ax[xNode] - x_VP) * fScale) + iCircleWidth + 2;
-			int y = (int)((ay[xNode] - y_VP) * fScale);
-//			System.out.println("node at " + x + " " + y ); 
-			if( x >= 0 && y >= 0 && x < w_VP && y < h_VP ) g2.drawString( Integer.toString(xNode), x, y);;
-		}
+//		for( int xNode = 1; xNode <= ctNodes; xNode++ ){
+//			int x = (int)((ax[xNode] - x_VP) * fScale) + iCircleWidth + 2;
+//			int y = (int)((ay[xNode] - y_VP) * fScale);
+//			if( x >= 0 && y >= 0 && x < w_VP && y < h_VP ) g2.drawString( Integer.toString(xNode), x, y);;
+//		}
 	}
 
 }

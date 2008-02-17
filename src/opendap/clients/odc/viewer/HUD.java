@@ -46,7 +46,7 @@ public class HUD {
 			view_manager = vm;
 			
 			// create elements
-			cursor_box = new HUD_Element_CursorBox( this );
+			cursor_box = new HUD_Element_CursorBox( this, vm );
 			nav_box = new HUD_Element_NavBox( vm );
 			dimensions = new HUD_Element_Dimensions( vm );
 			animation = new HUD_Element_Animation( vm );
@@ -152,8 +152,9 @@ abstract class HUD_Element {
 	void mouseClick( int x, int y ){}
 
 	void drawBackground( Graphics g ){
+		int pxBorder = 2;  // border is not added to top because the top tends to have enough margin already
 		g.setColor( Color.BLACK );
-		g.fillRect( x, y, width, height );
+		g.fillRect( x - pxBorder, y, width + pxBorder * 2, height + pxBorder );
 		g.setColor( Color.WHITE );
 	}
 	
@@ -201,7 +202,11 @@ class HUD_Element_Dimensions extends HUD_Element {
 
 class HUD_Element_CursorBox extends HUD_Element {
 	HUD theHUD = null;
-	HUD_Element_CursorBox( HUD hud ){ theHUD = hud; } 
+	ViewManager vm = null;
+	HUD_Element_CursorBox( HUD hud, ViewManager vm ){
+		theHUD = hud;
+		this.vm = vm;
+	}
 	void draw( Graphics g ){
 		if( ! g.hitClip( x, y, width, height ) ) return;
 		int xLineNumber = 0;
@@ -210,6 +215,17 @@ class HUD_Element_CursorBox extends HUD_Element {
 		int offY = y;
 		g.drawString( "x: " + theHUD.getMouseX(), offX, offY + iLineHeight * ++xLineNumber ); 
 		g.drawString( "y: " + theHUD.getMouseY(), offX, offY + iLineHeight * ++xLineNumber ); 
+	}
+	void resize(){
+		Graphics2D g2 = vm.getGraphics();
+		if( g2 == null ){
+			System.err.println("attempt to resize cursor box with no graphics available");
+			return;
+		}
+		FontMetrics fm = g2.getFontMetrics( font );
+		this.width = fm.stringWidth( "x: 99999" );
+		this.height = 2 * fm.getHeight();
+		super.resize();
 	}
 }
 
