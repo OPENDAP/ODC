@@ -80,6 +80,8 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 		return manager;
 	}
 	
+	public Graphics2D getGraphics(){ return (Graphics2D)this.panelViewPort.getGraphics(); }
+	
 	public final HUD getHUD(){ return hud; }
 	
 	public final void frameSetVisible( boolean z ){
