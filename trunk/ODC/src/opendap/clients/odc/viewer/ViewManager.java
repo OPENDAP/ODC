@@ -1,5 +1,6 @@
 package opendap.clients.odc.viewer;
 
+import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -16,7 +17,9 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	int ZOOM_min = -10;
 	int TIMESLICE_max = 0;
 	int iZoomLevel = 0;
-	int iTimeslice = 0;
+	int iTimeslice_begin = -1;
+	int iTimeslice_end = -1;
+	int iTimeslice_depth = 0;
 	int iVP_x = 0;
 	int iVP_y = 0;
 	int iVP_w = 0;
@@ -83,6 +86,27 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	public Graphics2D getGraphics(){ return (Graphics2D)this.panelViewPort.getGraphics(); }
 	
 	public final HUD getHUD(){ return hud; }
+	
+	ArrayList<CommandInterface> listCommandObjects = new ArrayList<CommandInterface>();
+	public final void command(){
+		String sCommand = JOptionPane.showInputDialog( frame, "Enter command:", "Enter command", JOptionPane.OK_CANCEL_OPTION );
+		if( sCommand == null ) return;
+		String[] asCommand = Utility.splitCommaWhiteSpace( sCommand );
+		for( CommandInterface layer : listCommandObjects ){
+			String[] asLayerCommands = layer.getCommands();
+			if( Utility.arrayStartsWithMember( asLayerCommands, asCommand[0] ) ){
+				int[] aiArg = new int[asCommand.length - 1];
+				for( int xArg = 0; xArg < aiArg.length; xArg++ ){
+					try {
+						int iValue = Integer.parseInt( asCommand[xArg + 1] );
+						aiArg[xArg] = iValue;
+					} catch( Throwable t ) {
+					}
+				}
+				layer.command( asCommand[0], aiArg );
+			}
+		}
+	}
 	
 	public final void frameSetVisible( boolean z ){
 		frame.setVisible( z );
@@ -193,11 +217,28 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 		panelViewPort.repaint();
 	}
 
-	public final void moveTimeslice( int px ){
-		if( iTimeslice == 0 ) return; // in this case timeslice is not application, ie, not an animated rendering
-		iTimeslice += px > 0 ? -1 : 1;
-		if( iTimeslice < 1 ) iTimeslice = 1;
-		if( iTimeslice > TIMESLICE_max ) iTimeslice = TIMESLICE_max;  
+	public final void animateSetTimeslice( int px ){
+		if( iTimeslice_begin == -1 ) return; // in this case timeslice is not application, ie, not an animated rendering
+		iTimeslice_begin += px > 0 ? -1 : 1;
+		if( iTimeslice_begin < 0 ) iTimeslice_begin = 0;
+		if( iTimeslice_begin > TIMESLICE_max ) iTimeslice_begin = TIMESLICE_max;
+		if( iTimeslice_depth == 0 ){ // show all time slices
+			iTimeslice_end = TIMESLICE_max;
+		} else {
+			iTimeslice_end = iTimeslice_begin + iTimeslice_depth - 1; 
+		}
+		panelViewPort.repaint();
+	}
+
+	public final void animateSetFrameCount( int iFrameCount ){
+		iTimeslice_depth = iFrameCount;
+		iTimeslice_end   = iTimeslice_begin + iTimeslice_depth - 1;
+		if( iTimeslice_end > TIMESLICE_max ) iTimeslice_end = TIMESLICE_max; 
+		panelViewPort.repaint();
+	}
+
+	public final void animateShowAllTimeslices(){
+		iTimeslice_depth = 0;
 		panelViewPort.repaint();
 	}
 	
@@ -239,10 +280,12 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 			return false;
 		}
 		if( featureset.getTimesliceCount() > 0 ){ // then featureset is animated
-			iTimeslice = 1;
+			iTimeslice_begin = 1;
+			iTimeslice_depth = 1;
 			TIMESLICE_max = featureset.getTimesliceCount(); 
 		}
 		mFeatureset = featureset;
+		listCommandObjects.add( mFeatureset );
 		return true;
 	}
 	
@@ -316,6 +359,9 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
     			break;
     		case KeyEvent.VK_DOWN:
     			movePanVertical( 1 );
+    			break;
+    		case KeyEvent.VK_F10:
+    			command();
     			break;
     		case KeyEvent.VK_F5:
     			moveCenter();

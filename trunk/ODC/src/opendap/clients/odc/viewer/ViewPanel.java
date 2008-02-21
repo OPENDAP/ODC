@@ -135,7 +135,13 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 			network.render( g, view_manager.iVP_x, view_manager.iVP_y, getWidth(), getHeight(), view_manager.getScale() );
 		}
 		if( featureset != null ){
-			featureset.render( g, view_manager.iVP_x, view_manager.iVP_y, getWidth(), getHeight(), view_manager.getScale(), view_manager.iTimeslice );
+			if( view_manager.iTimeslice_depth == 0 ){ // show all
+//System.out.println("showing all" + view_manager.TIMESLICE_max);
+				featureset.render( g, view_manager.iVP_x, view_manager.iVP_y, getWidth(), getHeight(), view_manager.getScale(), 1, view_manager.TIMESLICE_max );
+			} else {
+//System.out.println("showing " + view_manager.iTimeslice_begin + " " + view_manager.iTimeslice_end);
+				featureset.render( g, view_manager.iVP_x, view_manager.iVP_y, getWidth(), getHeight(), view_manager.getScale(), view_manager.iTimeslice_begin, view_manager.iTimeslice_end );
+			}
 		}
 		if( hud != null ) hud.render( g, raster );
 	}
@@ -157,7 +163,7 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 		} else if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
 			view_manager.movePanVertical(px);
 		} else if( (iModifiers & java.awt.event.InputEvent.ALT_DOWN_MASK) == java.awt.event.InputEvent.ALT_DOWN_MASK ){
-			view_manager.moveTimeslice(px);
+			view_manager.animateSetTimeslice(px);
 		} else {
 			view_manager.setZoom( e.getWheelRotation() ); // up is negative, down is positive
 		}
@@ -167,7 +173,12 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 	public void mousePressed( MouseEvent e ){
 		final int x = e.getX();
 		final int y = e.getY();
-		hud.mouseClick( x, y );		
+		int iModifiers = e.getModifiersEx();
+		if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
+			hud.mouseClick_Control( x, y );
+		} else {
+			hud.mouseClick( x, y );
+		}
 	}
 	public void mouseDragged( MouseEvent evt ){ }
 	public void mouseReleased( MouseEvent evt ){ }

@@ -1,5 +1,6 @@
 package opendap.clients.odc.viewer;
 
+import java.awt.BasicStroke;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -21,7 +22,15 @@ public class Model3D_Network {
 	int[] ato;
 	int[] aweight;
 	String[] alabel_segment;
+	
+	boolean mzShowNodes = false;
+	boolean mzShowNodeLabels = false;
+	boolean mzShowSegments = true;
 
+	private final BasicStroke strokeRoad = new BasicStroke(
+      3f 
+	);
+	
 	public Model3D_Network(){
 		ctNodes = 0;
 		ax = new int[1001]; // one-based arrays
@@ -104,25 +113,34 @@ public class Model3D_Network {
 		int iCircleWidth = 10;
 		int iCircleOffset = iCircleWidth / 2;
 		g2.setPaint( java.awt.Color.CYAN );
-//		for( int xNode = 1; xNode <= ctNodes; xNode++ ){
-//			int x = (int)((ax[xNode] - x_VP)*fScale) - iCircleOffset;
-//			int y = (int)((ay[xNode] - y_VP)*fScale) - iCircleOffset;
-//			if( x >= 0 && y >= 0 && x < w_VP && y < h_VP ) g.fillOval( x, y, iCircleWidth, iCircleWidth);
-//		}
-		for( int xSegment = 1; xSegment <= ctSegments; xSegment++ ){
-			int x_from = (int)((ax[afrom[xSegment]] - x_VP) * fScale);
-			int y_from = (int)((ay[afrom[xSegment]] - y_VP) * fScale);
-			int x_to   = (int)((ax[ato[xSegment]] - x_VP) * fScale);
-			int y_to   = (int)((ay[ato[xSegment]] - y_VP) * fScale);
-			if( x_from >= 0 && y_from >= 0 && x_from < w_VP && y_from < h_VP ||   // todo case where line is in square but both nodes are not
-				x_to >= 0 && y_to >= 0 && x_to < w_VP && y_to < h_VP )
-					g.drawLine(x_from, y_from, x_to, y_to);
+		if( mzShowNodes ){
+			for( int xNode = 1; xNode <= ctNodes; xNode++ ){
+				int x = (int)((ax[xNode] - x_VP)*fScale) - iCircleOffset;
+				int y = (int)((ay[xNode] - y_VP)*fScale) - iCircleOffset;
+				if( x >= 0 && y >= 0 && x < w_VP && y < h_VP ) g.fillOval( x, y, iCircleWidth, iCircleWidth);
+			}
 		}
-//		for( int xNode = 1; xNode <= ctNodes; xNode++ ){
-//			int x = (int)((ax[xNode] - x_VP) * fScale) + iCircleWidth + 2;
-//			int y = (int)((ay[xNode] - y_VP) * fScale);
-//			if( x >= 0 && y >= 0 && x < w_VP && y < h_VP ) g2.drawString( Integer.toString(xNode), x, y);;
-//		}
+		if( mzShowSegments ){
+			java.awt.Stroke strokeDefault = ((Graphics2D)g).getStroke(); 
+			((Graphics2D)g).setStroke( strokeRoad );
+			for( int xSegment = 1; xSegment <= ctSegments; xSegment++ ){
+				int x_from = (int)((ax[afrom[xSegment]] - x_VP) * fScale);
+				int y_from = (int)((ay[afrom[xSegment]] - y_VP) * fScale);
+				int x_to   = (int)((ax[ato[xSegment]] - x_VP) * fScale);
+				int y_to   = (int)((ay[ato[xSegment]] - y_VP) * fScale);
+				if( x_from >= 0 && y_from >= 0 && x_from < w_VP && y_from < h_VP ||   // todo case where line is in square but both nodes are not
+					x_to >= 0 && y_to >= 0 && x_to < w_VP && y_to < h_VP )
+						g.drawLine(x_from, y_from, x_to, y_to);
+			}
+			((Graphics2D)g).setStroke( strokeDefault ); // restore default stroke
+		}
+		if( mzShowNodeLabels ){
+			for( int xNode = 1; xNode <= ctNodes; xNode++ ){
+				int x = (int)((ax[xNode] - x_VP) * fScale) + iCircleWidth + 2;
+				int y = (int)((ay[xNode] - y_VP) * fScale);
+				if( x >= 0 && y >= 0 && x < w_VP && y < h_VP ) g2.drawString( Integer.toString(xNode), x, y);;
+			}
+		}
 	}
 
 }
