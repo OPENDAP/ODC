@@ -129,11 +129,15 @@ public class HUD {
 			}
 		}
 	}
+
+	void mouseClick_Control( int x, int y ){
+		view_manager.setCenter( miMousePosition_X, miMousePosition_Y );
+	}
 	
 	// mouse move
 	void mouseMove( int x, int y ){
-		miMousePosition_X = x + view_manager.iVP_x;
-		miMousePosition_Y = y + view_manager.iVP_y;
+		miMousePosition_X = (int)(x / view_manager.getScale()) + view_manager.iVP_x;
+		miMousePosition_Y = (int)(y / view_manager.getScale()) +  view_manager.iVP_y;
 		view_manager.getViewport().repaint( cursor_box.getRect() );
 	}
 }
@@ -145,6 +149,7 @@ abstract class HUD_Element {
 	protected int height = 100;
 	protected Font font = new Font("SansSerif", Font.PLAIN, 12);
 	protected FontMetrics metrics = null;
+	protected boolean zDrawBackground = true;
 	
 	protected RelativeLayout layout = null;
 
@@ -152,10 +157,12 @@ abstract class HUD_Element {
 	void mouseClick( int x, int y ){}
 
 	void drawBackground( Graphics g ){
-		int pxBorder = 2;  // border is not added to top because the top tends to have enough margin already
-		g.setColor( Color.BLACK );
-		g.fillRect( x - pxBorder, y, width + pxBorder * 2, height + pxBorder );
-		g.setColor( Color.WHITE );
+		if( zDrawBackground ){
+			int pxBorder = 2;  // border is not added to top because the top tends to have enough margin already
+			g.setColor( Color.BLACK );
+			g.fillRect( x - pxBorder, y, width + pxBorder * 2, height + pxBorder );
+			g.setColor( Color.WHITE );
+		}
 	}
 	
 	void setRelativeLayout( RelativeLayout layout ){ this.layout = layout; } 
@@ -240,10 +247,12 @@ class HUD_Element_Animation extends HUD_Element {
 		int iLineHeight = g.getFontMetrics( font ).getHeight();
 		int offX = x;
 		int offY = y;
-		String s = "timeslice: " + view_manager.iTimeslice;
+		String s = "timeslice: " + view_manager.iTimeslice_begin + ":" + view_manager.iTimeslice_end;
 		g.drawString( s, offX, offY + iLineHeight * ++xLineNumber );
 		java.awt.Graphics2D g2 = (java.awt.Graphics2D)g;
-//		width = g2.getFontMetrics().stringWidth( s );
+		int iStringWidth = g2.getFontMetrics().stringWidth( s );
+//		System.out.println("string width: " + iStringWidth + " " + s);
+		width = iStringWidth;
 		height = g2.getFontMetrics().getHeight();
 	}
 }
@@ -270,6 +279,7 @@ class HUD_Element_NavBox extends HUD_Element {
 	
 	HUD_Element_NavBox( ViewManager vm ){
 		view_manager = vm;
+		zDrawBackground = false;
 	}
 
 	// draw nav box (1 pixel width) if image size exceeds viewport size
