@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-2008
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.70
+ * @version      3.00
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1366,11 +1366,6 @@ ScanForStartOfMatch:
 		return sText.substring(sText.length()-iWidth);
 	}
 
-	/** determines the cartesian distance between two sets of coordinates */
-	public static double getDistance( int x1, int y1, int x2, int y2 ){
-		return Math.sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
-	}
-	
 	/** number of decimal places, 0 means integer pecision */
 	public static String sDoubleToPrecisionString( double d, int iPrecision ){
 		if( Double.isNaN(d) ) return "NaN";
@@ -1498,6 +1493,18 @@ ScanForStartOfMatch:
 	public static boolean equalsUPPER( String s1, String s2 ){
 		if( s1 == null || s2 == null ) return false;
 		return s1.equalsIgnoreCase(s2);
+	}
+	public static boolean arrayHasMember( int[] ai, int value ){
+		for( int x = 0; x < ai.length; x++ ) if( ai[x] == value ) return true;
+		return false;
+	}
+	public static boolean arrayHasMember( String[] as, String s ){
+		for( int x = 0; x < as.length; x++ ) if( as[x] == null ? s == null : as[x].equalsIgnoreCase( s ) ) return true;
+		return false;
+	}
+	public static boolean arrayStartsWithMember( String[] as, String s ){
+		for( int x = 0; x < as.length; x++ ) if( as[x] == null ? s == null : as[x].startsWith( s ) ) return true;
+		return false;
 	}
 	public static String dumpArray( double[] ad, int from, int to ){
 		if( ad == null ) return "null";
