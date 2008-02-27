@@ -42,6 +42,7 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	public final java.awt.Rectangle getLayoutRect(){ return new java.awt.Rectangle( 0, 0, iVP_w, iVP_h ); }  
 	public final JFrame getFrame(){ return frame; }
 	public final ViewPanel getViewport(){ return panelViewPort; }
+	public final void redraw(){ panelViewPort.repaint(); }
 	
 	public final boolean zInitialize( StringBuffer sbError ){
 		try {
@@ -281,6 +282,7 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 		}
 		if( featureset.getTimesliceCount() > 0 ){ // then featureset is animated
 			iTimeslice_begin = 1;
+			iTimeslice_end = 1;
 			iTimeslice_depth = 1;
 			TIMESLICE_max = featureset.getTimesliceCount(); 
 		}

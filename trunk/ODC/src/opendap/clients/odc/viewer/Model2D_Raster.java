@@ -14,6 +14,9 @@ public class Model2D_Raster {
 	int iWidth = 0;
 	int iHeight = 0;
 
+	public int getWidth(){ return iWidth; }
+	public int getHeight(){ return iHeight; }
+	
 	void render(  Graphics g, int x_VP, int y_VP, int w_VP, int h_VP, int zoom, int iSubImage_x, int iSubImage_y ){
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setRenderingHint(

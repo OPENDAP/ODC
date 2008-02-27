@@ -252,7 +252,8 @@ class HUD_Element_Animation extends HUD_Element {
 		java.awt.Graphics2D g2 = (java.awt.Graphics2D)g;
 		int iStringWidth = g2.getFontMetrics().stringWidth( s );
 //		System.out.println("string width: " + iStringWidth + " " + s);
-		width = iStringWidth;
+//		width = iStringWidth;
+		width = 100;
 		height = g2.getFontMetrics().getHeight();
 	}
 }

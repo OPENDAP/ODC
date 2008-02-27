@@ -23,8 +23,8 @@ public class Model3D_Network {
 	int[] aweight;
 	String[] alabel_segment;
 	
-	boolean mzShowNodes = false;
-	boolean mzShowNodeLabels = false;
+	boolean mzShowNodes = true;
+	boolean mzShowNodeLabels = true;
 	boolean mzShowSegments = true;
 
 	private final BasicStroke strokeRoad = new BasicStroke(
