@@ -544,7 +544,7 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 		// send to plotter
 		DataDDS ddds = new DataDDS(null, null);
 		ddds.addVariable(darray);
-		final DodsURL url = new DodsURL();
+		final Model_Dataset url = new Model_Dataset();
 		url.setTitle("[table data]");
 		url.setData(ddds);
 		javax.swing.SwingUtilities.invokeLater(

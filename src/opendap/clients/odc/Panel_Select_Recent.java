@@ -45,7 +45,7 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 	JScrollPane jscrollpaneList;
 	JScrollPane mjscrollInfo;
 	Model_URLList mListModel;
-	DodsURL[] maURLs = null;
+	Model_Dataset[] maURLs = null;
 	JTextArea mjtaInfo;
 
     public boolean zInitialize(StringBuffer sbError){
@@ -134,7 +134,7 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 	}
 
 	void vRefreshRecentList(){
-		maURLs = DodsURL.getPreferenceURLs_Recent();
+		maURLs = Model_Dataset.getPreferenceURLs_Recent();
 		mListModel.vDatasets_DeleteAll();
 		mListModel.vDatasets_Add(maURLs, false);
 		return;
@@ -144,7 +144,7 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 // TODO		mjlistRecent.getSelectionModel().addListSelectionListener(listener);
 	}
 
-	public DodsURL[] getURLs( StringBuffer sbError ){
+	public Model_Dataset[] getURLs( StringBuffer sbError ){
 		if( mListModel == null ){
 		    sbError.append("unable to add selected recent, internal error: no model");
 			return null;
@@ -153,7 +153,7 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 	}
 
 	/** Returns -1 if not found. Returns zero-based index if is found. */
-	int xIndexOfMatchingBaseURL( DodsURL url ){
+	int xIndexOfMatchingBaseURL( Model_Dataset url ){
 		if( url == null ){
 			ApplicationController.getInstance().vShowError("internal error: null supplied to zInList");
 			return -1;
@@ -166,7 +166,7 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 		return -1;
 	}
 
-	static void vAddRecent( DodsURL url ){
+	static void vAddRecent( Model_Dataset url ){
 		StringBuffer sbError = new StringBuffer();
 		int iRecentCount = ConfigurationManager.getInstance().getProperty_RecentCount();
 		if( iRecentCount < 1 ) return; // no recents at all

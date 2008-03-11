@@ -161,14 +161,14 @@ public class Panel_Select_Favorites extends SearchInterface implements IControlP
 	}
 
 	void vRefreshFavoritesList(){
-		DodsURL[] maURLs = DodsURL.getPreferenceURLs_Favorites();
+		Model_Dataset[] maURLs = Model_Dataset.getPreferenceURLs_Favorites();
 		mListModel.vDatasets_DeleteAll();
 		if( maURLs != null && maURLs.length > 0 ) mListModel.vDatasets_Add(maURLs, false);
 		mListPanel.repaint();
 		return;
 	}
 
-	public DodsURL[] getURLs( StringBuffer sbError ){
+	public Model_Dataset[] getURLs( StringBuffer sbError ){
 		if( mListModel == null ){
 		    sbError.append("unable to add selected, internal error: no model");
 			return null;
@@ -178,11 +178,11 @@ public class Panel_Select_Favorites extends SearchInterface implements IControlP
 
 	void vRemoveSelected( boolean zRemoveAll ){
 		StringBuffer sbError = new StringBuffer(250);
-		DodsURL[] aurlSelected = mListModel.getSelectedURLs( sbError );
+		Model_Dataset[] aurlSelected = mListModel.getSelectedURLs( sbError );
 		if( aurlSelected == null ) return; // forget about error
 		int ctRemovals = aurlSelected.length;
 		for( int xSelected = 0; xSelected < ctRemovals; xSelected++ ){
-			DodsURL urlCurrent = aurlSelected[xSelected];
+			Model_Dataset urlCurrent = aurlSelected[xSelected];
 			if( urlCurrent == null ){
 				ApplicationController.vShowWarning("element at " + xSelected + " unexpectedly null");
 				continue;
@@ -211,7 +211,7 @@ public class Panel_Select_Favorites extends SearchInterface implements IControlP
 		mjscrollInfo.scrollRectToVisible(new Rectangle(0,0, 1,1));
 	}
 
-	static void vAddFavorite( DodsURL url ){
+	static void vAddFavorite( Model_Dataset url ){
 		FavoritesFilter filter = new FavoritesFilter();
 		File[] afile = ConfigurationManager.getPreferencesFiles(filter);
 		String sFilename;

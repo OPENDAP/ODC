@@ -140,13 +140,13 @@ public class Panel_View_Command extends JPanel implements IControlPanel {
 			JPanel jpanelCommandButtons = new JPanel();
 
 			jpanelCommand.setLayout( new BorderLayout() );
-			jpanelCommand.add( jtfCommand, BorderLayout.NORTH );
+//			jpanelCommand.add( jtfCommand, BorderLayout.NORTH ); 
 
 			// Command
 			jtfCommand.addKeyListener(
 				new KeyListener(){
 					public void keyPressed(KeyEvent ke){
-						if( ke.getKeyCode() == ke.VK_ENTER ){
+						if( ke.getKeyCode() == KeyEvent.VK_ENTER ){
 							String sCommand = jtfCommand.getText();
 							ApplicationController.getInstance().vCommand( sCommand, null );
 							jtfCommand.setText("");
@@ -347,12 +347,12 @@ public class Panel_View_Command extends JPanel implements IControlPanel {
 		private void vAppendToScreen(){
 			javax.swing.SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					if (jtaDisplay.getText().length() > MAX_ViewCharacters) {
-						ApplicationController.vShowStatus("View panel limit of " + MAX_ViewCharacters +
-							" characters exceeded. Remaining output omitted.");
-						zMaxedOut = true;
-						try { close(); } catch(Exception ex){}
-					}
+//					if (jtaDisplay.getText().length() > MAX_ViewCharacters) {
+//						ApplicationController.vShowStatus("View panel limit of " + MAX_ViewCharacters +
+//							" characters exceeded. Remaining output omitted.");
+//						zMaxedOut = true;
+//						try { close(); } catch(Exception ex){}
+//					}
 					synchronized(mabBuffer){
 						String sToAppend = new String(mabBuffer, 0, mlenData);
 						mlenData = 0;

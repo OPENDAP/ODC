@@ -393,7 +393,7 @@ public class ApplicationController {
 	public int getWarningCount(){ return listWarnings.size(); }
 	public int getErrorCount(){ return listErrors.size(); }
 
-	public DodsURL[] getSelectedThumbs(){
+	public Model_Dataset[] getSelectedThumbs(){
 		if( getAppFrame() == null ) return null;
 		if( getAppFrame().getPlotter() == null ) return null;
 		return getAppFrame().getPlotter().getPanel_Thumbnails().getSelectedURLs0();

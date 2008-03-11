@@ -428,7 +428,7 @@ public class ApplicationFrame extends JFrame {
 		return panelTableView.getOutputStream(sbError);
 	}
 
-	public boolean zAddDataToPlotter_Invoked( DodsURL url, StringBuffer sbError ){
+	public boolean zAddDataToPlotter_Invoked( Model_Dataset url, StringBuffer sbError ){
 		return panelPlotter.zAddData_Invoked(url, sbError);
 	}
 
@@ -442,9 +442,11 @@ public class ApplicationFrame extends JFrame {
 		return mStatusBar;
 	}
 
-	Panel_Select_Recent getPanel_Recent(){ return this.panelRecent; }
+	public Panel_View_Command getPanel_Command(){ return this.panelCommand; }
+	
+	public Panel_Select_Recent getPanel_Recent(){ return this.panelRecent; }
 
-	Panel_Retrieve getPanel_Retrieve(){ return jpanelRetrieve; }
+	public Panel_Retrieve getPanel_Retrieve(){ return jpanelRetrieve; }
 
 	void vUpdateFavorites(){
 		panelFavorites.vRefreshFavoritesList();

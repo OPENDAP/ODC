@@ -48,33 +48,33 @@ public class InterprocessServer extends Thread {
 		try {
 			msocketServer = new ServerSocket(miPort);
 			if(msocketServer == null) {
-				ApplicationController.getInstance().vShowError("Failed to create server socket on port " + miPort + ". This port may be in use (on PCs use netstat -a to find out).");
+				ApplicationController.vShowError("Failed to create server socket on port " + miPort + ". This port may be in use (on PCs use netstat -a to find out).");
 				return;
 			}
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowErrorDialog("Warning! You may have another instance of the Data Connector running on your machine. (Failed to open server socket, see errors).");
-			ApplicationController.getInstance().vShowError("While creating server socket on port " + miPort + ": " + ex);
+			ApplicationController.vShowErrorDialog("Warning! You may have another instance of the Data Connector running on your machine. (Failed to open server socket, see errors).");
+			ApplicationController.vShowError("While creating server socket on port " + miPort + ": " + ex);
 			return;
 		}
-		ApplicationController.getInstance().vShowStatus("Interprocess server listening on port " + miPort);
+		ApplicationController.vShowStatus("Interprocess server listening on port " + miPort);
 		while(true){
 			try {
 				socketClient = msocketServer.accept();
-				InetAddress inetClientAddress = socketClient.getInetAddress();
+//				InetAddress inetClientAddress = socketClient.getInetAddress();
 			} catch(Exception ex) {
-				ApplicationController.getInstance().vShowError("Failed on attempt to accept command server connection: " + ex);
+				ApplicationController.vShowError("Failed on attempt to accept command server connection: " + ex);
 				return;
 			}
 			try {
 				StringBuffer sbError = new StringBuffer(250);
 				final CommandListener theNewListener = new CommandListener();
 				if( !theNewListener.zInitialize_Remote(this, socketClient, sbError) ){
-					ApplicationController.getInstance().vShowError("Error while initializing a command listener: " + sbError);
+					ApplicationController.vShowError("Error while initializing a command listener: " + sbError);
 					socketClient.close();
 					return;
 				}
 				theNewListener.start();
-				ApplicationController.getInstance().vShowStatus("Accepted connection from " +  socketClient.getInetAddress().getHostAddress());
+				ApplicationController.vShowStatus("Accepted connection from " +  socketClient.getInetAddress().getHostAddress());
 			} catch(Exception ex) {
 				ApplicationController.vUnexpectedError(ex, new StringBuffer("Unexpected error while creating command listener"));
 			}
@@ -91,7 +91,7 @@ public class InterprocessServer extends Thread {
 			try {
 				msocketServer.close();
 			} catch(Exception ex) {
-				ApplicationController.getInstance().vShowError("Failed to close command server socket.");
+				ApplicationController.vShowError("Failed to close command server socket.");
 			}
 			msocketServer = null;
 		}
@@ -117,7 +117,6 @@ public class InterprocessServer extends Thread {
 // this class can be used in two modes: remote and local
 class CommandListener extends Thread {
 	final static String FORMATTING_ResponseTermination = "/~/\n";
-	private boolean mzEcho = false;
 	private InterprocessServer mServer;
 	private Socket mClientSocket;
 	private OutputStream mos;
@@ -159,8 +158,6 @@ class CommandListener extends Thread {
 	}
 	public void run() {
 		try {
-			boolean zEscapeMode = false;
-			char[] acEscapeBuffer = new char[2];
 			InputStreamReader reader = new InputStreamReader(mClientSocket.getInputStream());
 			BufferedReader breader = new BufferedReader(reader);
 			while(true){
@@ -192,7 +189,7 @@ class CommandListener extends Thread {
 				ApplicationController.vShowWarning("internal error, null command supplied to execute");
 				return;
 			}
-			ApplicationController.getInstance().vLogActivity( "command: " + sCommand );
+			ApplicationController.vLogActivity( "command: " + sCommand );
 			if( os == null ){
 				// use existing os
 			} else {
@@ -211,23 +208,24 @@ class CommandListener extends Thread {
 			if( urllist == null ){
 				String sError = "[Error: no url list]";
 				writeLine(sError);
-				ApplicationController.getInstance().vShowError(sError);
+				ApplicationController.vShowError(sError);
 			}
 			if( sCommandUpper == null ){
 				String sError = "[Error: command was null]";
 				writeLine(sError);
-				ApplicationController.getInstance().vShowError(sError);
+				ApplicationController.vShowError(sError);
 			} else if( sCommandUpper.length() == 0 ) {
 				String sError = "[Error: command was blank]";
 				writeLine(sError);
-				ApplicationController.getInstance().vShowError(sError);
+				ApplicationController.vShowError(sError);
 			} else if( sCommandUpper.equals("?") || sCommandUpper.equals("HELP") ){
 				writeLine(ApplicationController.getInstance().getAppName() + " version " + ApplicationController.getInstance().getAppVersion());
 				writeLine("--- ODC Commands (case-insensitive) ---");
 				writeLine("? or Help          - this information");
 				writeLine("exit or quit       - end the application");
 				writeLine("about              - about this application");
-				writeLine("again              - repeat the previous command");
+				writeLine("again              - repeat the previous command (up arrow also works)");
+				writeLine("clear              - clears the command window");
 				writeLine("reset              - creates a new Python interpreter");
 				writeLine("show config        - displays current configuration settings");
 				writeLine("show splash        - displays the splash screen (click it to close)");
@@ -264,7 +262,7 @@ class CommandListener extends Thread {
 				writeLine("  \nFor more information visit: http://OPeNDAP.org");
 				writeLine("  \nFor software updates and tutorials: http://dodsdev.gso.uri.edu/ODC");
 			} else if( sCommandUpper.equals("EXIT") || sCommandUpper.equals("QUIT") ){
-				ApplicationController.getInstance().vForceExit();
+				ApplicationController.vForceExit();
 			} else if( sCommandUpper.startsWith("AGAIN") ){
 				if( msLastCommand == null ){
 					writeLine("[no existing command]");
@@ -272,6 +270,8 @@ class CommandListener extends Thread {
 					sCommand = msLastCommand;
 					vExecute( sCommand, os, sTerminator );
 				}
+			} else if( sCommandUpper.startsWith("CLEAR") ){
+				ApplicationController.getInstance().getAppFrame().getPanel_Command().vClearDisplay();
 			} else if( sCommandUpper.startsWith("RESET") ){
 				if( ApplicationController.getInstance().getInterpreter().zCreateInterpreter( os, sbError ) ){
 					writeLine("new interpreter created");
@@ -371,14 +371,14 @@ class CommandListener extends Thread {
 					}
 				}
 			} else if( sCommandUpper.startsWith("DUMPDAS")){
-				DodsURL[] aURLs = urllist.getSelectedURLs(sbError);
+				Model_Dataset[] aURLs = urllist.getSelectedURLs(sbError);
 				if( aURLs == null ){
 					String sError = "[Error: failed to serve selected URLs: " + sbError + "]";
 					writeLine(sError);
-					ApplicationController.getInstance().vShowError(sError);
+					ApplicationController.vShowError(sError);
 				} else {
 					for( int xURL = 0; xURL < aURLs.length; xURL++ ){
-						DodsURL url = aURLs[xURL];
+						Model_Dataset url = aURLs[xURL];
 						opendap.dap.DAS das = url.getDAS();
 						if( das == null ){
 							writeLine("no DAS for: " + url.toString());
@@ -387,133 +387,133 @@ class CommandListener extends Thread {
 							writeLine(DAP.dumpDAS(das));
 						}
 					}
-					ApplicationController.getInstance().vShowStatus("" + aURLs.length + " selected URLs sent");
+					ApplicationController.vShowStatus("" + aURLs.length + " selected URLs sent");
 				}
 			} else if( sCommandUpper.startsWith("ADDURL") ){
 				String sURL = sCommandUpper.substring(6).trim();
 				if( sURL.length() == 0 ){
 					writeLine("no URL specified");
 				} else {
-					int iType = sURL.endsWith("/") ? DodsURL.TYPE_Directory : DodsURL.TYPE_Data;
-					DodsURL[] aURL = new DodsURL[1];
-					aURL[0] = new DodsURL(sURL, iType);
+					int iType = sURL.endsWith("/") ? Model_Dataset.TYPE_Directory : Model_Dataset.TYPE_Data;
+					Model_Dataset[] aURL = new Model_Dataset[1];
+					aURL[0] = new Model_Dataset(sURL, iType);
 					aURL[0].setTitle("[untitled]");
 					ApplicationController.getInstance().getRetrieveModel().getURLList().vDatasets_Add(aURL);
-					writeLine(((iType==DodsURL.TYPE_Directory) ? "Directory" : "Data") + " URL added: " + aURL[0].toString());
+					writeLine(((iType==Model_Dataset.TYPE_Directory) ? "Directory" : "Data") + " URL added: " + aURL[0].toString());
 				}
 			} else if( sCommandUpper.startsWith("GETSELECTIONCOUNT")){
 				int iCount = urllist.getSelectedURLsCount();
 				writeLine(Integer.toString(iCount));
 			} else if( sCommandUpper.startsWith("GETSELECTEDURLS")){
-				DodsURL[] aURLs = urllist.getSelectedURLs(sbError);
+				Model_Dataset[] aURLs = urllist.getSelectedURLs(sbError);
 				if( aURLs == null ){
 					String sError = "[Error: failed to serve selected URLs: " + sbError + "]";
 					writeLine(sError);
-					ApplicationController.getInstance().vShowError(sError);
+					ApplicationController.vShowError(sError);
 				} else {
 					for( int xURL = 0; xURL < aURLs.length; xURL++ ){
 						writeLine(aURLs[xURL].getFullURL());
 					}
-					ApplicationController.getInstance().vShowStatus("" + aURLs.length + " selected URLs sent");
+					ApplicationController.vShowStatus("" + aURLs.length + " selected URLs sent");
 				}
 				writeLine(FORMATTING_ResponseTermination);
 			} else if( sCommandUpper.startsWith("GETSELECTEDTHUMBS")){
-				DodsURL[] aURLs = ApplicationController.getInstance().getSelectedThumbs();
+				Model_Dataset[] aURLs = ApplicationController.getInstance().getSelectedThumbs();
 				if( aURLs == null ){
 					String sError = "[Error: no thumbnail urls available]";
 					writeLine(sError);
-					ApplicationController.getInstance().vShowError(sError);
+					ApplicationController.vShowError(sError);
 				} else {
 					for( int xURL = 0; xURL < aURLs.length; xURL++ ){
 						writeLine(aURLs[xURL].getFullURL());
 					}
-					ApplicationController.getInstance().vShowStatus("" + aURLs.length + " selected URLs sent");
+					ApplicationController.vShowStatus("" + aURLs.length + " selected URLs sent");
 				}
 				writeLine(FORMATTING_ResponseTermination);
 			} else if( sCommandUpper.startsWith("GETSELECTEDURLINFO")){
-				DodsURL[] aURLs = urllist.getSelectedURLs(sbError);
+				Model_Dataset[] aURLs = urllist.getSelectedURLs(sbError);
 				if( aURLs == null ){
 					String sError = "[Error: failed to serve selected URLs: " + sbError + "]";
 					writeLine(sError);
-					ApplicationController.getInstance().vShowError(sError);
+					ApplicationController.vShowError(sError);
 				} else {
 					for( int xURL = 0; xURL < aURLs.length; xURL++ ){
 						writeLine(aURLs[xURL].getFullURL() + "  " + aURLs[xURL].getTypeString());
 					}
-					ApplicationController.getInstance().vShowStatus("" + aURLs.length + " selected URLs sent");
+					ApplicationController.vShowStatus("" + aURLs.length + " selected URLs sent");
 				}
 			} else if( sCommandUpper.startsWith("GETALLURLS")){
-				DodsURL[] aURLs = urllist.getAllURLs();
+				Model_Dataset[] aURLs = urllist.getAllURLs();
 				if( aURLs == null ){
 					String sError = "[Error: failed to get all URLs: " + sbError + "]";
 					writeLine(sError);
-					ApplicationController.getInstance().vShowError(sError);
+					ApplicationController.vShowError(sError);
 				} else {
 					for( int xURL = 0; xURL < aURLs.length; xURL++ ){
 						writeLine(aURLs[xURL].getFullURL());
 					}
-					ApplicationController.getInstance().vShowStatus("All " + aURLs.length + " top-level URLs sent");
+					ApplicationController.vShowStatus("All " + aURLs.length + " top-level URLs sent");
 				}
 				writeLine(FORMATTING_ResponseTermination);
 			} else if( sCommandUpper.startsWith("GETSELECTEDDATA")){
-				DodsURL[] aURLs = urllist.getSelectedURLs(sbError);
+				Model_Dataset[] aURLs = urllist.getSelectedURLs(sbError);
 				if( aURLs == null ){
 					String sError = "[Error: failed to get selected data: " + sbError + "]";
 					writeLine(sError);
-					ApplicationController.getInstance().vShowError(sError);
+					ApplicationController.vShowError(sError);
 				} else {
 					OutputProfile op = new OutputProfile( aURLs, mos, OutputProfile.FORMAT_Data_ASCII_text, null);
 					if( !ApplicationController.getInstance().getOutputEngine().zOutputProfile(null, null, op, sbError) ){
 						String sError = "[Error: failed to output selected data: " + sbError + "]";
 						writeLine(sError);
-						ApplicationController.getInstance().vShowError(sError);
+						ApplicationController.vShowError(sError);
 					} else {
-						ApplicationController.getInstance().vShowStatus("" + aURLs.length + " data set" + (aURLs.length==1?"":"s") + " sent");
+						ApplicationController.vShowStatus("" + aURLs.length + " data set" + (aURLs.length==1?"":"s") + " sent");
 					}
 				}
 			} else if( sCommandUpper.startsWith("GETDATARECORDS")){
-				DodsURL[] aURLs = urllist.getSelectedURLs(sbError);
+				Model_Dataset[] aURLs = urllist.getSelectedURLs(sbError);
 				if( aURLs == null ){
 					String sError = "[Error: failed to get selected data: " + sbError + "]";
 					writeLine(sError);
-					ApplicationController.getInstance().vShowError(sError);
+					ApplicationController.vShowError(sError);
 				} else {
 					OutputProfile op = new OutputProfile( aURLs, mos, OutputProfile.FORMAT_Data_ASCII_records, FORMATTING_ResponseTermination);
 					if( !ApplicationController.getInstance().getOutputEngine().zOutputProfile(null, null, op, sbError) ){
 						String sError = "[Error: failed to output selected data: " + sbError + "]";
 						writeLine(sError);
-						ApplicationController.getInstance().vShowError(sError);
+						ApplicationController.vShowError(sError);
 					} else {
-						ApplicationController.getInstance().vShowStatus("" + aURLs.length + " data records" + (aURLs.length==1?"":"s") + " sent");
+						ApplicationController.vShowStatus("" + aURLs.length + " data records" + (aURLs.length==1?"":"s") + " sent");
 					}
 				}
 			} else if( sCommandUpper.startsWith("GETALLDATA")){
-				DodsURL[] aURLs = urllist.getAllURLs();
+				Model_Dataset[] aURLs = urllist.getAllURLs();
 				if( aURLs == null ){
 					String sError = "[Error: failed to get all data: " + sbError + "]";
 					writeLine(sError);
-					ApplicationController.getInstance().vShowError(sError);
+					ApplicationController.vShowError(sError);
 				} else {
 					OutputProfile op = new OutputProfile( aURLs, mos, OutputProfile.FORMAT_Data_ASCII_text, null);
 					if( !ApplicationController.getInstance().getOutputEngine().zOutputProfile(null, null, op, sbError) ){
 						String sError = "[Error: failed to output all selected data: " + sbError + "]";
 						writeLine(sError);
-						ApplicationController.getInstance().vShowError(sError);
+						ApplicationController.vShowError(sError);
 					} else {
-						ApplicationController.getInstance().vShowStatus("" + aURLs.length + " all data sets" + (aURLs.length==1?"":"s") + " sent");
+						ApplicationController.vShowStatus("" + aURLs.length + " all data sets" + (aURLs.length==1?"":"s") + " sent");
 					}
 				}
 			} else if( sCommandUpper.startsWith("GETURL") || sCommandUpper.startsWith("GETDATA") || sCommandUpper.startsWith("GETINFO") ){
-				DodsURL[] aURLs = urllist.getAllURLs();
-				DodsURL[] aURLsToOutput;
+				Model_Dataset[] aURLs = urllist.getAllURLs();
+				Model_Dataset[] aURLsToOutput;
 				if( aURLs == null ){
 					String sError = "[Error: failed to get URLs for " + sCommand + ": " + sbError + "]";
 					writeLine(sError);
-					ApplicationController.getInstance().vShowError(sError);
+					ApplicationController.vShowError(sError);
 				} else {
 					int posParamDelimiter = sCommand.indexOf("?");
 					int iURLIndex = -1;
-					DodsURL url = null;
+					Model_Dataset url = null;
 					if( posParamDelimiter == -1 ){
 						url = urllist.getSelectedURL();
 					} else {
@@ -542,11 +542,11 @@ class CommandListener extends Thread {
 								if( aURLsToOutput == null ){
 									String sError = "[Error: failed to get sub selected URLs: " + sbError + "]";
 									writeLine(sError);
-									ApplicationController.getInstance().vShowError(sError);
+									ApplicationController.vShowError(sError);
 									return;
 								}
 							} else {
-								aURLsToOutput = new DodsURL[1];
+								aURLsToOutput = new Model_Dataset[1];
 								aURLsToOutput[0] = aURLs[iURLIndex-1];
 							}
 						}
@@ -555,21 +555,21 @@ class CommandListener extends Thread {
 						} else {
 							if( sCommandUpper.startsWith("GETURL") ){
 								writeLine(aURLsToOutput[0].getFullURL());
-								ApplicationController.getInstance().vShowStatus("URL " + iURLIndex + " sent");
+								ApplicationController.vShowStatus("URL " + iURLIndex + " sent");
 							} else if( sCommandUpper.startsWith("GETINFO") ){
 								writeLine(aURLsToOutput[0].getInfo());
-								ApplicationController.getInstance().vShowStatus("Info " + iURLIndex + " sent");
+								ApplicationController.vShowStatus("Info " + iURLIndex + " sent");
 							} else if( sCommandUpper.startsWith("GETDATA") ){
 								OutputProfile op = new OutputProfile( aURLsToOutput, mos, OutputProfile.FORMAT_Data_ASCII_text, null );
 								if( !ApplicationController.getInstance().getOutputEngine().zOutputProfile(null, null, op, sbError) ){
 									String sError = "[Error: failed to get data set #" + iURLIndex + " of selection: " + sbError + "]";
 									writeLine(sError);
-									ApplicationController.getInstance().vShowError(sError);
+									ApplicationController.vShowError(sError);
 								} else {
-									ApplicationController.getInstance().vShowStatus("data set #" + iURLIndex + " of selection sent");
+									ApplicationController.vShowStatus("data set #" + iURLIndex + " of selection sent");
 								}
 							} else {
-								ApplicationController.getInstance().vShowStatus("unknown command: " + sCommand);
+								ApplicationController.vShowStatus("unknown command: " + sCommand);
 							}
 						}
 					}
@@ -636,7 +636,7 @@ class CommandListener extends Thread {
 			} else {
 				String sError = "[Error: unknown command: " + sCommand + "]";
 				writeLine(sError);
-				ApplicationController.getInstance().vShowError(sError);
+				ApplicationController.vShowError(sError);
 			}
 			if( sTerminator != null ) mbwriter.write(sTerminator); // command reponse terminator
 			mbwriter.flush();

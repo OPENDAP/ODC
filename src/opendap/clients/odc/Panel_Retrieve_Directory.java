@@ -43,8 +43,8 @@ public class Panel_Retrieve_Directory extends JPanel {
 
 	private Model_Retrieve modelRetrieve;
 
-	private DodsURL murlDirectory = null;
-	private DodsURL murlFile = null;
+	private Model_Dataset murlDirectory = null;
+	private Model_Dataset murlFile = null;
 	private JPanel mpanelRegex = null;
 	private JTree mtreeDirectory = null;
 	private JList mlistDirectory = null;
@@ -232,14 +232,14 @@ public class Panel_Retrieve_Directory extends JPanel {
 								} else {
 									int eTYPE;
 									if( Utility.isImage(sBaseURL) ){
-										eTYPE = DodsURL.TYPE_Image;
+										eTYPE = Model_Dataset.TYPE_Image;
 									} else {
-										eTYPE = DodsURL.TYPE_Data; // todo see if we can make more discrimination
+										eTYPE = Model_Dataset.TYPE_Data; // todo see if we can make more discrimination
 									}
-									murlFile = new DodsURL(sBaseURL, eTYPE);
+									murlFile = new Model_Dataset(sBaseURL, eTYPE);
 									murlFile.setTitle(mActiveNode.getFileName(xItem));
 									mActiveNode.setFileURL(xItem, murlFile);
-									DodsURL[] aURL = new DodsURL[1];
+									Model_Dataset[] aURL = new Model_Dataset[1];
 									aURL[0]	= murlFile;
 									modelRetrieve.vShowURL(murlFile, null);
 								}
@@ -298,7 +298,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 			else { // an item is selected (the index is effectively one-based because of the header)
 
 				// if item has DDS use it
-				DodsURL url = null;
+				Model_Dataset url = null;
 				if (mActiveNode.getFileURL(xIndex) != null) {
 					url = mActiveNode.getFileURL(xIndex);
 				}
@@ -331,15 +331,15 @@ public class Panel_Retrieve_Directory extends JPanel {
 		mscrollpane_DirectoryTree.setViewportView( mjtaMessage );
 	}
 
-	DodsURL getURL_directory(){
+	Model_Dataset getURL_directory(){
 		return murlDirectory;
 	}
 
-	DodsURL getURL_file(){
+	Model_Dataset getURL_file(){
 		return murlFile;
 	}
 
-	boolean setURL( final DodsURL url, StringBuffer sbError ){
+	boolean setURL( final Model_Dataset url, StringBuffer sbError ){
 		try {
 			if( url == null ){
 				sbError.append("no url supplied");

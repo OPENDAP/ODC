@@ -33,7 +33,7 @@ package opendap.clients.odc;
 
 import opendap.dap.*;
 
-public class Model_URLList extends javax.swing.DefaultListModel implements Model_URL_control {
+public class Model_URLList extends javax.swing.DefaultListModel implements Model_Datasets {
 
 	private Panel_URLList mpanelList = null;
 
@@ -44,8 +44,8 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 
 	private final static int MAX_URLs_TO_DISPLAY = 100;
 	private boolean zDisplayingSubset = false;
-	private DodsURL[] madodsurlDisplay = new DodsURL[0]; // URLs displayed in list (may be only a subset of selected if many are selected)
-	private DodsURL[] madodsurlSelected = new DodsURL[0]; // all the URLs selected
+	private Model_Dataset[] madodsurlDisplay = new Model_Dataset[0]; // URLs displayed in list (may be only a subset of selected if many are selected)
+	private Model_Dataset[] madodsurlSelected = new Model_Dataset[0]; // all the URLs selected
 	private boolean mzShowTypes = true;
 
 	public void setControl( Panel_URLList list_panel ){
@@ -56,9 +56,9 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 	}
 
 	boolean zDisplayingSubset(){ return zDisplayingSubset; }
-	public DodsURL[] getDisplayURLs(){ return madodsurlDisplay; }
-	public DodsURL[] getAllURLs(){ return madodsurlSelected; }
-	public DodsURL getSelectedURL(){
+	public Model_Dataset[] getDisplayURLs(){ return madodsurlDisplay; }
+	public Model_Dataset[] getAllURLs(){ return madodsurlSelected; }
+	public Model_Dataset getSelectedURL(){
 		if( madodsurlDisplay == null ) return null;
 		if( mpanelList == null ){
 			ApplicationController.getInstance().vShowWarning( "selection list control was undefined");
@@ -66,7 +66,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		}
 		int iSelectedIndex = mpanelList.getSelectedIndex();
 		if (iSelectedIndex == -1)return null;
-		DodsURL urlSelected = madodsurlDisplay[iSelectedIndex];
+		Model_Dataset urlSelected = madodsurlDisplay[iSelectedIndex];
 		if (urlSelected == null) {
 			ApplicationController.getInstance().vShowWarning( "internal error: selected item " + iSelectedIndex + " was null");
 			return null;
@@ -74,7 +74,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		return urlSelected;
 	}
 	boolean getShowTypes(){ return mzShowTypes; }
-	DodsURL getURL(int index){
+	Model_Dataset getURL(int index){
 		if( madodsurlDisplay == null ) return null;
 		if( index < 0 ) return null;
 		if( index >= madodsurlDisplay.length ) return null;
@@ -90,15 +90,15 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		return aiIndices.length;
 	}
 
-	public DodsURL getDisplayURL( int xURL_0 ){
-		DodsURL[] aurlDisplay = this.getDisplayURLs();
+	public Model_Dataset getDisplayURL( int xURL_0 ){
+		Model_Dataset[] aurlDisplay = this.getDisplayURLs();
 		if( aurlDisplay == null ) return null;
 		if( aurlDisplay.length < 0 || aurlDisplay.length < xURL_0 ) return null;
 		return aurlDisplay[xURL_0];
 	}
 
 	// gets the currently user-selected URLs
-	public DodsURL[] getSelectedURLs_NamedList( StringBuffer sbError ){ // zero-based
+	public Model_Dataset[] getSelectedURLs_NamedList( StringBuffer sbError ){ // zero-based
 		if( madodsurlDisplay == null ) return null;
 		if( mpanelList == null ){
 			sbError.append("internal error, model has no control");
@@ -123,7 +123,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 			if( madodsurlSelected.length == ctURLsToGet ){
 				return madodsurlSelected;
 			} else {
-				DodsURL[] adodsurl = new DodsURL[ctURLsToGet];
+				Model_Dataset[] adodsurl = new Model_Dataset[ctURLsToGet];
 				for( int xIndex = 0; xIndex < ctURLsToGet; xIndex++ ){
 					adodsurl[xIndex] = madodsurlSelected[aiIndices[xIndex]]; // risky consider validating
 				}
@@ -135,11 +135,11 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		}
 	}
 
-	public void vDatasets_Add( DodsURL[] aURLsToAdd ){
+	public void vDatasets_Add( Model_Dataset[] aURLsToAdd ){
 		vDatasets_Add( aURLsToAdd, true );
 	}
 
-	public void vDatasets_Add( DodsURL[] aURLsToAdd0, boolean zAddToRecent ){
+	public void vDatasets_Add( Model_Dataset[] aURLsToAdd0, boolean zAddToRecent ){
 		if(aURLsToAdd0 == null){
 			return; // nothing to add
 		}
@@ -157,7 +157,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		if( ctURLsExisting == 0 ){
 			madodsurlSelected = aURLsToAdd0;
 		} else {
-			DodsURL[] adodsurlNew = new DodsURL[madodsurlSelected.length + ctURLsToAdd];
+			Model_Dataset[] adodsurlNew = new Model_Dataset[madodsurlSelected.length + ctURLsToAdd];
 
 			// add existing URLs to new array
 			for( int xURL = 0; xURL < ctURLsExisting; xURL++ ){
@@ -195,7 +195,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 			// determine if the list will only contain a subset of the selected URLs
 			if (madodsurlSelected.length > MAX_URLs_TO_DISPLAY) {
 				zDisplayingSubset = true;
-				madodsurlDisplay = new DodsURL[MAX_URLs_TO_DISPLAY];
+				madodsurlDisplay = new Model_Dataset[MAX_URLs_TO_DISPLAY];
 				for (int xURL = 0; xURL < MAX_URLs_TO_DISPLAY; xURL++) {
 					madodsurlDisplay[xURL] = madodsurlSelected[xURL];
 				}
@@ -204,7 +204,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 				zDisplayingSubset = false;
 				madodsurlDisplay = madodsurlSelected;
 			}
-			DodsURL[] aDisplayedURLs = this.getDisplayURLs();
+			Model_Dataset[] aDisplayedURLs = this.getDisplayURLs();
 			if (aDisplayedURLs == null) {
 				this.removeAllElements();
 				return;
@@ -268,11 +268,11 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		}
 	}
 
-	void vAddToRecent( DodsURL[] aURLsToAdd ){
+	void vAddToRecent( Model_Dataset[] aURLsToAdd ){
 		// not implemented
 	}
 
-	void vAddToFavorites( DodsURL[] aURLsToAdd ){
+	void vAddToFavorites( Model_Dataset[] aURLsToAdd ){
 		if( aURLsToAdd == null ){
 			ApplicationController.getInstance().vShowWarning("Internal error, attempt to add null to favorites.");
 			return;
@@ -287,14 +287,14 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 	void vAddToFavorites(int[] aiIndicesToAdd){
 		if( aiIndicesToAdd == null ) return;
 		int ctURLs = aiIndicesToAdd.length;
-		DodsURL[] aSelectedURLs = new DodsURL[ctURLs];
+		Model_Dataset[] aSelectedURLs = new Model_Dataset[ctURLs];
 		for( int xSelection = 0; xSelection < ctURLs; xSelection++ ){
 			aSelectedURLs[xSelection] = madodsurlSelected[aiIndicesToAdd[xSelection]];
 		}
 		vAddToFavorites( aSelectedURLs );
 	}
 
-	void vAddToFavorites( DodsURL url ){
+	void vAddToFavorites( Model_Dataset url ){
 		Panel_Select_Favorites.vAddFavorite(url);
 		ApplicationController.getInstance().getAppFrame().vUpdateFavorites();
 	}
@@ -309,8 +309,8 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 	}
 
 	public void vDatasets_DeleteAll(){
-		madodsurlDisplay = new DodsURL[0]; // URLs displayed in list (may be only a subset of selected if many are selected)
-		madodsurlSelected = new DodsURL[0]; // all the URLs selected
+		madodsurlDisplay = new Model_Dataset[0]; // URLs displayed in list (may be only a subset of selected if many are selected)
+		madodsurlSelected = new Model_Dataset[0]; // all the URLs selected
 		zDisplayingSubset = false;
 		this.vSynchronizeJList();
 	}
@@ -338,7 +338,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 				vDatasets_DeleteAll();
 			} else {
 				int ctRemainingURLs = madodsurlSelected.length - ctURLsToRemove;
-				DodsURL[] adodsurlNew = new DodsURL[ctRemainingURLs];
+				Model_Dataset[] adodsurlNew = new Model_Dataset[ctRemainingURLs];
 
 				// copy existing URLs to new array omitting those being deleted
 				int xNewURL = 0;
@@ -373,14 +373,14 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 
 	void vApplyCE(String sConstraintExpression, int iDigest){
 		StringBuffer sbError = new StringBuffer(80);
-		DodsURL[] urls = getSelectedURLs( sbError );
+		Model_Dataset[] urls = getSelectedURLs( sbError );
 		if( urls == null ){
 			ApplicationController.vShowWarning("nothing selected: " + sbError);
 			return;
 		}
 		int ctWarning = 0;
 		for( int xSelectedURL = 0; xSelectedURL < urls.length; xSelectedURL++ ){
-			DodsURL urlCurrent = urls[xSelectedURL];
+			Model_Dataset urlCurrent = urls[xSelectedURL];
 			if( urlCurrent.getDigest() == iDigest ){
 				urlCurrent.setConstraintExpression(sConstraintExpression);
 				if( urlCurrent.getFullURL().length() > 1024 ){
@@ -409,7 +409,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 					if( madodsurlSelected[i].getDigest() != 0 ) continue;
 					int iURLType = madodsurlSelected[i].getType();
 					String sBaseURL = madodsurlSelected[i].getBaseURL();
-					if( iURLType  == DodsURL.TYPE_Directory ){
+					if( iURLType  == Model_Dataset.TYPE_Directory ){
 						sBaseURL = ApplicationController.getInstance().getRetrieveModel().sFetchDirectoryTree_GetFirstFile( sBaseURL, null );
 						if( sBaseURL == null ){
 							madodsurlSelected[i].setUnreachable(true, "could not find file in directory tree");
@@ -441,23 +441,23 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		}
 	}
 
-	public DodsURL[] getSelectedURLs( StringBuffer sbError ){ // zero-based
-		DodsURL[] aurlNamedSelections = getSelectedURLs_NamedList( sbError );
+	public Model_Dataset[] getSelectedURLs( StringBuffer sbError ){ // zero-based
+		Model_Dataset[] aurlNamedSelections = getSelectedURLs_NamedList( sbError );
 		if( aurlNamedSelections == null ) return null;
 		return getSubSelectedURLs( aurlNamedSelections, sbError );
 	}
 
 	// zero-based
-	DodsURL[] getSubSelectedURLs( DodsURL[] aurlSelected, StringBuffer sbError ){
+	Model_Dataset[] getSubSelectedURLs( Model_Dataset[] aurlSelected, StringBuffer sbError ){
 		if( aurlSelected == null ) return null;
 		int ctDataURLs = 0;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == DodsURL.TYPE_Data || aurlSelected[xURL].getType() == DodsURL.TYPE_Image )
+			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Data || aurlSelected[xURL].getType() == Model_Dataset.TYPE_Image )
 			    ctDataURLs++;
 		}
 		int ctDirectoryURLs = 0;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == DodsURL.TYPE_Directory ){
+			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Directory ){
 				Model_DirectoryTree tree = aurlSelected[xURL].getDirectoryTree();
                 if( tree == null ) continue;
 				DirectoryTreeNode nodeRoot = (DirectoryTreeNode)tree.getRoot();
@@ -465,27 +465,27 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 				String sDirTitle = aurlSelected[xURL].getTitle();
 				String sBaseURL = aurlSelected[xURL].getBaseURL();
 				String sCE = aurlSelected[xURL].getConstraintExpression_Encoded();
-				DodsURL[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
+				Model_Dataset[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
 			}
 		}
-		DodsURL[] aurlCumulative = new DodsURL[ctDataURLs + ctDirectoryURLs];
+		Model_Dataset[] aurlCumulative = new Model_Dataset[ctDataURLs + ctDirectoryURLs];
 		int xDataURL = -1;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == DodsURL.TYPE_Data  || aurlSelected[xURL].getType() == DodsURL.TYPE_Image ){
+			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Data  || aurlSelected[xURL].getType() == Model_Dataset.TYPE_Image ){
 				xDataURL++;
 				aurlCumulative[xDataURL] = aurlSelected[xURL];
 			}
 		}
 		int xDirectoryURL = -1;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == DodsURL.TYPE_Directory ){
+			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Directory ){
 				Model_DirectoryTree tree = aurlSelected[xURL].getDirectoryTree();
                 if( tree == null ) continue;
 				DirectoryTreeNode nodeRoot = (DirectoryTreeNode)tree.getRoot();
 				String sDirTitle = aurlSelected[xURL].getTitle();
 				String sBaseURL = aurlSelected[xURL].getBaseURL();
 				String sCE = aurlSelected[xURL].getConstraintExpression_Encoded();
-				DodsURL[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
+				Model_Dataset[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
 				if( aDirectoryURLs == null ) continue;
 				for( int xCurrentDirectory = 0; xCurrentDirectory < aDirectoryURLs.length; xCurrentDirectory++ ){
 					xDirectoryURL++;
@@ -510,13 +510,13 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		}
 		return ctSelectedFiles;
 	}
-	private DodsURL[] getSubSelectedURLs_Recursive( String sDirTitle, String sBaseURL, DirectoryTreeNode node, String sCE){
+	private Model_Dataset[] getSubSelectedURLs_Recursive( String sDirTitle, String sBaseURL, DirectoryTreeNode node, String sCE){
 		if( node == null ) return null;
 		int ctSelectedFiles = 0;
 		if( node.isSelected() ) ctSelectedFiles += node.getFileList_SelectedCount();
-		DodsURL[] aURLselected = null;
+		Model_Dataset[] aURLselected = null;
 		if( ctSelectedFiles > 0 ){
-			aURLselected = new DodsURL[ctSelectedFiles];
+			aURLselected = new Model_Dataset[ctSelectedFiles];
 			String[] asSelectedFiles = node.getFileList_Selected(); // one-based
 			String[] asSelectedHREFs = node.getHREFList_Selected(); // one-based
 			for( int xFile = 1; xFile <= ctSelectedFiles; xFile++ ){
@@ -526,10 +526,10 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 					sURL = Utility.sConnectPaths(sDirectory, "/", asSelectedFiles[xFile]);
 				}
 				if( Utility.isImage( sURL ) ){
-					aURLselected[xFile-1] = new DodsURL(sURL, DodsURL.TYPE_Image);
+					aURLselected[xFile-1] = new Model_Dataset(sURL, Model_Dataset.TYPE_Image);
 					aURLselected[xFile-1].setTitle(asSelectedFiles[xFile]);
 				} else {
-					aURLselected[xFile-1] = new DodsURL(sURL, DodsURL.TYPE_Data);
+					aURLselected[xFile-1] = new Model_Dataset(sURL, Model_Dataset.TYPE_Data);
 					aURLselected[xFile-1].setTitle(sDirTitle + " " + asSelectedFiles[xFile] + " " + sCE);
 					aURLselected[xFile-1].setConstraintExpression(sCE);
 				}
@@ -537,13 +537,13 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		}
 		for( int xChild = 0; xChild < node.getChildCount(); xChild++ ){
 			DirectoryTreeNode nodeChild = node.getChild(xChild);
-			DodsURL[] aURLsubselected = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeChild, sCE);
+			Model_Dataset[] aURLsubselected = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeChild, sCE);
 			if( aURLsubselected != null ){
 				if( aURLselected == null ){
 					aURLselected = aURLsubselected;
 				} else {
 					int ctTotalURLs = aURLselected.length + aURLsubselected.length;
-					DodsURL[] aurlBuffer = new DodsURL[ctTotalURLs];
+					Model_Dataset[] aurlBuffer = new Model_Dataset[ctTotalURLs];
 					System.arraycopy(aURLselected, 0, aurlBuffer, 0, aURLselected.length);
 					System.arraycopy(aURLsubselected, 0, aurlBuffer, aURLselected.length, aURLsubselected.length);
 					aURLselected = aurlBuffer;

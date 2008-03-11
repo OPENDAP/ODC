@@ -119,7 +119,7 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 			);
 
 			// Save and Close
-			JButton jbuttonSaveAndClose = new JButton("Save and Close (ctrl+X)");
+			JButton jbuttonSaveAndClose = new JButton("Save and Close (ctrl+alt+X)");
 			jbuttonSaveAndClose.addActionListener(
 				new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
@@ -164,11 +164,13 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 		});
 	}
 	
-	public void updateSelectedTab(){
-		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
-		if( editor == null ) return;
-		String sNewName = editor.getFileName() + (editor.isDirty() ? '*' : "");
-		jtpEditors.setTitleAt( jtpEditors.getSelectedIndex(), sNewName );
+	public void updateTabTitles(){
+		for( Component component : jtpEditors.getComponents() ){
+			if( ( component == null ) || ! (component instanceof Panel_View_Text_Editor) ) continue; 			
+			Panel_View_Text_Editor editor = (Panel_View_Text_Editor)component;	
+			String sNewName = editor.getFileName() + (editor.isDirty() ? '*' : "");
+			jtpEditors.setTitleAt( jtpEditors.getSelectedIndex(), sNewName );
+		}
 	}
 	
 	public void editorNew(){

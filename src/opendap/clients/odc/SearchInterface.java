@@ -37,12 +37,12 @@ import javax.swing.JPanel;
 import javax.swing.event.ListSelectionListener;
 
 public abstract class SearchInterface extends JPanel {
-	public abstract DodsURL[] getURLs( StringBuffer sbError );
+	public abstract Model_Dataset[] getURLs( StringBuffer sbError );
 	public abstract void addListSelectionListener( ListSelectionListener listener );
 	public abstract boolean zInitialize( StringBuffer sbError );
 	public void vAddSelected(){
 		StringBuffer sbError = new StringBuffer(80);
-		DodsURL[] urls = getURLs(sbError);
+		Model_Dataset[] urls = getURLs(sbError);
 		if( urls == null ){
 			ApplicationController.getInstance().vShowError("failed to get selected urls for retrieval: " + sbError);
 		} else {

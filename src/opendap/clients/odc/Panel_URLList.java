@@ -34,8 +34,8 @@ package opendap.clients.odc;
 import javax.swing.JPanel;
 
 abstract public class Panel_URLList extends JPanel {
-	protected Model_URL_control mControlModel;
-    public Panel_URLList( Model_URL_control control ){ mControlModel = control; }
+	protected Model_Datasets mControlModel;
+    public Panel_URLList( Model_Datasets control ){ mControlModel = control; }
 	abstract public int getSelectedIndex();
 	abstract public int[] getSelectedIndices();
 	abstract public void vSelectIndex( int iIndex );

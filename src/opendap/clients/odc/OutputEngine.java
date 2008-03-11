@@ -50,7 +50,7 @@ public class OutputEngine implements ByteCounter {
 		mTotalBytes = nByteCount;
 	}
 
-	public boolean zOutputToImageViewer(DodsURL[] aURLs, javax.swing.JButton jbuttonActivator, ActionListener action, StringBuffer sbError){
+	public boolean zOutputToImageViewer(Model_Dataset[] aURLs, javax.swing.JButton jbuttonActivator, ActionListener action, StringBuffer sbError){
 		try {
 			if( aURLs == null ){
 				sbError.append("internal error, no URLs supplied");
@@ -63,17 +63,17 @@ public class OutputEngine implements ByteCounter {
 			}
 			int ctValidURLs = 0;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
-				if( aURLs[xURL].getType() == DodsURL.TYPE_Image ) ctValidURLs++;
+				if( aURLs[xURL].getType() == Model_Dataset.TYPE_Image ) ctValidURLs++;
 			}
 			if( ctValidURLs < 1 ){
 				ApplicationController.vShowWarning("None of the selected URLs point to image files.");
 				return true;
 			}
-			DodsURL[] aImageURLs = new DodsURL[ctValidURLs];
+			Model_Dataset[] aImageURLs = new Model_Dataset[ctValidURLs];
 			String[] asTargetOption = new String[ctValidURLs];
 			int xImageURL = -1;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
-				if( aURLs[xURL].getType() == DodsURL.TYPE_Image ){
+				if( aURLs[xURL].getType() == Model_Dataset.TYPE_Image ){
 					xImageURL++;
 					aImageURLs[xImageURL] = aURLs[xURL];
 					asTargetOption[xImageURL] = aURLs[xURL].getFileName();
@@ -92,7 +92,7 @@ public class OutputEngine implements ByteCounter {
 		}
 	}
 
-	public boolean zOutputToTextView(DodsURL[] aURLs, javax.swing.JButton jbuttonActivator, ActionListener action, StringBuffer sbError){
+	public boolean zOutputToTextView(Model_Dataset[] aURLs, javax.swing.JButton jbuttonActivator, ActionListener action, StringBuffer sbError){
 		try {
 			if( aURLs == null ){
 				sbError.append("internal error, no URLs supplied");
@@ -106,18 +106,18 @@ public class OutputEngine implements ByteCounter {
 			int ctValidURLs = 0;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
 				int iTYPE = aURLs[xURL].getType();
-				if( iTYPE == DodsURL.TYPE_Data || iTYPE == DodsURL.TYPE_Text ) ctValidURLs++;
+				if( iTYPE == Model_Dataset.TYPE_Data || iTYPE == Model_Dataset.TYPE_Text ) ctValidURLs++;
 			}
 			if( ctValidURLs < 1 ){
 				ApplicationController.vShowWarning("None of the selected URLs point to OPeNDAP data (or text).");
 				return true;
 			}
-			DodsURL[] aDataURLs = new DodsURL[ctValidURLs];
+			Model_Dataset[] aDataURLs = new Model_Dataset[ctValidURLs];
 			String[] asTargetOption = new String[ctValidURLs];
 			int xDataURL = -1;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
 				int iTYPE = aURLs[xURL].getType();
-				if( iTYPE == DodsURL.TYPE_Data || iTYPE == DodsURL.TYPE_Text ){
+				if( iTYPE == Model_Dataset.TYPE_Data || iTYPE == Model_Dataset.TYPE_Text ){
 					xDataURL++;
 					aDataURLs[xDataURL] = aURLs[xURL];
 					asTargetOption[xDataURL] = null;
@@ -137,7 +137,7 @@ public class OutputEngine implements ByteCounter {
 		}
 	}
 
-	public boolean zOutputToTableView(DodsURL[] aURLs, javax.swing.JButton jbuttonActivator, ActionListener action, StringBuffer sbError){
+	public boolean zOutputToTableView(Model_Dataset[] aURLs, javax.swing.JButton jbuttonActivator, ActionListener action, StringBuffer sbError){
 		try {
 			if( aURLs == null ){
 				sbError.append("internal error, no URLs supplied");
@@ -151,18 +151,18 @@ public class OutputEngine implements ByteCounter {
 			int ctValidURLs = 0;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
 				int iTYPE = aURLs[xURL].getType();
-				if( iTYPE == DodsURL.TYPE_Data || iTYPE == DodsURL.TYPE_Text ) ctValidURLs++;
+				if( iTYPE == Model_Dataset.TYPE_Data || iTYPE == Model_Dataset.TYPE_Text ) ctValidURLs++;
 			}
 			if( ctValidURLs < 1 ){
 				ApplicationController.vShowWarning("None of the selected URLs point to OPeNDAP data (or text) for table");
 				return true;
 			}
-			DodsURL[] aDataURLs = new DodsURL[ctValidURLs];
+			Model_Dataset[] aDataURLs = new Model_Dataset[ctValidURLs];
 			String[] asTargetOption = new String[ctValidURLs];
 			int xDataURL = -1;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
 				int iTYPE = aURLs[xURL].getType();
-				if( iTYPE == DodsURL.TYPE_Data || iTYPE == DodsURL.TYPE_Text ){
+				if( iTYPE == Model_Dataset.TYPE_Data || iTYPE == Model_Dataset.TYPE_Text ){
 					xDataURL++;
 					aDataURLs[xDataURL] = aURLs[xURL];
 					asTargetOption[xDataURL] = null;
@@ -187,7 +187,7 @@ public class OutputEngine implements ByteCounter {
 		}
 	}
 
-	public boolean zOutputToFile(final DodsURL[] aURLs, final String sPath, int eFormat, final javax.swing.JButton jbuttonActivator, final ActionListener action, StringBuffer sbError){
+	public boolean zOutputToFile(final Model_Dataset[] aURLs, final String sPath, int eFormat, final javax.swing.JButton jbuttonActivator, final ActionListener action, StringBuffer sbError){
 		try {
 			if( aURLs == null ){
 				sbError.append("internal error, no URLs supplied");
@@ -203,16 +203,16 @@ public class OutputEngine implements ByteCounter {
 				String sLabel = aURLs[xURL].getBaseURL();
 				int iTYPE = aURLs[xURL].getType();
 				switch( iTYPE ){
-					case DodsURL.TYPE_Catalog :
+					case Model_Dataset.TYPE_Catalog :
 						ApplicationController.vShowWarning("Unable to save " + sLabel + ", catalog URLs not savable.");
 						break;
-					case DodsURL.TYPE_Directory :
+					case Model_Dataset.TYPE_Directory :
 						ApplicationController.vShowWarning("Unable to save " + sLabel + ", directory URLs not savable.");
 						break;
-					case DodsURL.TYPE_HTML :
+					case Model_Dataset.TYPE_HTML :
 						ApplicationController.vShowWarning("Unable to save " + sLabel + ", HTML URLs not savable.");
 						break;
-					case DodsURL.TYPE_Data :
+					case Model_Dataset.TYPE_Data :
 						if( ((eFormat & OutputProfile.FORMAT_Data_ASCII_text) > 0 ||
 						     (eFormat & OutputProfile.FORMAT_Data_ASCII_records) > 0) ){
 							ctValidURLs++;
@@ -220,9 +220,9 @@ public class OutputEngine implements ByteCounter {
 							ApplicationController.vShowWarning("Unable to save " + sLabel + ", data URLs can only be saved as ASCII");
 						}
     					break;
-					case DodsURL.TYPE_Binary :
-					case DodsURL.TYPE_Image :
-					case DodsURL.TYPE_Text :
+					case Model_Dataset.TYPE_Binary :
+					case Model_Dataset.TYPE_Image :
+					case Model_Dataset.TYPE_Text :
 					default :
 						if( (eFormat & OutputProfile.FORMAT_Data_Raw) > 0 ){
 							ctValidURLs++;
@@ -248,17 +248,17 @@ public class OutputEngine implements ByteCounter {
 				return false;
 			}
 
-			DodsURL[] aDataURLs = new DodsURL[ctValidURLs];
+			Model_Dataset[] aDataURLs = new Model_Dataset[ctValidURLs];
 			String[] asTargetOption = new String[ctValidURLs];
 			int xDataURL = -1;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
 				int iTYPE = aURLs[xURL].getType();
 				switch( iTYPE ){
-					case DodsURL.TYPE_Catalog :
-					case DodsURL.TYPE_Directory :
-					case DodsURL.TYPE_HTML :
+					case Model_Dataset.TYPE_Catalog :
+					case Model_Dataset.TYPE_Directory :
+					case Model_Dataset.TYPE_HTML :
 						continue;
-					case DodsURL.TYPE_Data :
+					case Model_Dataset.TYPE_Data :
 						if( ((eFormat & OutputProfile.FORMAT_Data_ASCII_text) > 0 ||
 						     (eFormat & OutputProfile.FORMAT_Data_ASCII_records) > 0) ){
 							xDataURL++;
@@ -273,9 +273,9 @@ public class OutputEngine implements ByteCounter {
 							}
 						}
 						break;
-					case DodsURL.TYPE_Binary :
-					case DodsURL.TYPE_Image :
-					case DodsURL.TYPE_Text :
+					case Model_Dataset.TYPE_Binary :
+					case Model_Dataset.TYPE_Image :
+					case Model_Dataset.TYPE_Text :
 					default :
 						if( (eFormat & OutputProfile.FORMAT_Data_Raw) > 0 ){
 							ctValidURLs++;
@@ -307,10 +307,10 @@ public class OutputEngine implements ByteCounter {
 
 	}
 
-	public boolean zOutputToPlotter(final DodsURL[] aURLs, final javax.swing.JButton jbuttonActivator, final ActionListener action, StringBuffer sbError){
+	public boolean zOutputToPlotter(final Model_Dataset[] aURLs, final javax.swing.JButton jbuttonActivator, final ActionListener action, StringBuffer sbError){
 		try {
 
-			final ArrayList<DodsURL> listValidURLs = new ArrayList<DodsURL>();
+			final ArrayList<Model_Dataset> listValidURLs = new ArrayList<Model_Dataset>();
 
 			// get selection established
 			if( aURLs == null ){
@@ -325,7 +325,7 @@ public class OutputEngine implements ByteCounter {
 			int ctValidURLs = 0;
 			for (int xURL = 0; xURL < ctSelectedURLs; xURL++) {
 				int iTYPE = aURLs[xURL].getType();
-				if (iTYPE == DodsURL.TYPE_Data){
+				if (iTYPE == Model_Dataset.TYPE_Data){
 					ctValidURLs++;
 					listValidURLs.add( aURLs[xURL] );
 				}
@@ -350,14 +350,14 @@ public class OutputEngine implements ByteCounter {
 			final Continuation_DoCancel conNextURL = new Continuation_DoCancel(){
 				public void Do(){
 					if( listValidURLs.size() == 0 ) return;
-					DodsURL url = (DodsURL)listValidURLs.get(0);
+					Model_Dataset url = (Model_Dataset)listValidURLs.get(0);
 					listValidURLs.remove(0);
 					loadURLToPlotter(url, jbuttonActivator, action, this);
 				}
 				public void Cancel(){
 				}
 			};
-			DodsURL url = (DodsURL)listValidURLs.get(0);
+			Model_Dataset url = (Model_Dataset)listValidURLs.get(0);
 			listValidURLs.remove(0);
 			loadURLToPlotter(url, jbuttonActivator, action, conNextURL);
 
@@ -419,7 +419,7 @@ public class OutputEngine implements ByteCounter {
 					return;
 				}
 				for( int xURL = 1; xURL <= ctURLs; xURL++ ){
-					DodsURL url = mOutputProfile.getURL(xURL);
+					Model_Dataset url = mOutputProfile.getURL(xURL);
 					if( url == null ) continue;
 					int iTarget = mOutputProfile.getTarget(xURL);
 					int iFormat = mOutputProfile.getFormat(xURL);
@@ -635,7 +635,7 @@ public class OutputEngine implements ByteCounter {
 			}
 		}
 
-		private void vOutput(DodsURL url, OutputStream os, int iFormat){
+		private void vOutput(Model_Dataset url, OutputStream os, int iFormat){
 			final byte[] abNewline = { '\n' };
             StringBuffer sbError = new StringBuffer(250);
             if( url == null ){
@@ -670,17 +670,17 @@ public class OutputEngine implements ByteCounter {
 			}
 		}
 
-		private void vOutput_URL(DodsURL url, OutputStream os){
+		private void vOutput_URL(Model_Dataset url, OutputStream os){
 			StringBuffer sbError = new StringBuffer(80);
 			try {
 				final byte[] abNewline = { '\n' };
 				int iType = url.getType();
-				if( iType == DodsURL.TYPE_Data || iType == DodsURL.TYPE_Directory ){
+				if( iType == Model_Dataset.TYPE_Data || iType == Model_Dataset.TYPE_Directory ){
 					os.write(url.getFullURL().getBytes());
 					os.write(abNewline);
-				} else if( iType == DodsURL.TYPE_Catalog ){
+				} else if( iType == Model_Dataset.TYPE_Catalog ){
 					Catalog catalog = url.getCatalog();
-					DodsURL[] urlsCatalog = null;
+					Model_Dataset[] urlsCatalog = null;
 					if( catalog != null ) urlsCatalog = catalog.getURLs();
 					if( urlsCatalog == null ){
 						String sFullURL = url.getFullURL();
@@ -705,13 +705,13 @@ public class OutputEngine implements ByteCounter {
 			}
 		}
 
-		private void vOutput_Info(DodsURL url, OutputStream os){
+		private void vOutput_Info(Model_Dataset url, OutputStream os){
 			StringBuffer sbError = new StringBuffer(80);
 			try {
 				int iType = url.getType();
 				String sDDS = null;
 				String sDAS = null;
-				if( iType == DodsURL.TYPE_Data ){
+				if( iType == Model_Dataset.TYPE_Data ){
 					String sBaseURL = url.getBaseURL();
 //					sDDS = Utility.sFetchHttpString(sBaseURL + ".dds", sbError);
 //					sDAS = Utility.sFetchHttpString(sBaseURL + ".das", sbError);
@@ -723,7 +723,7 @@ public class OutputEngine implements ByteCounter {
 					os.write(sDDS.getBytes());
 					sDAS += "\n";
 					os.write(sDAS.getBytes());
-				} else if( iType == DodsURL.TYPE_Directory ){
+				} else if( iType == Model_Dataset.TYPE_Directory ){
 					String sDirectoryInfo;
 					Model_DirectoryTree dt = url.getDirectoryTree();
 					if( dt == null ){
@@ -733,7 +733,7 @@ public class OutputEngine implements ByteCounter {
 					}
 					sDirectoryInfo += "\n";
 					os.write(sDirectoryInfo.getBytes());
-				} else if( iType == DodsURL.TYPE_Catalog ){
+				} else if( iType == Model_Dataset.TYPE_Catalog ){
 					ApplicationController.vShowWarning("catalog info not supported");
 				}
 			} catch(Exception ex) {
@@ -742,9 +742,9 @@ public class OutputEngine implements ByteCounter {
 			}
 		}
 
-		private DataDDS getDataDDS(DodsURL url, Activity activity, StringBuffer sbError){
+		private DataDDS getDataDDS(Model_Dataset url, Activity activity, StringBuffer sbError){
 			try {
-				if( url.getType() != DodsURL.TYPE_Data ){
+				if( url.getType() != Model_Dataset.TYPE_Data ){
 					sbError.append("Currently data output is supported for data urls only; not catalogs or directories");
 					return null;
 				}
@@ -794,7 +794,7 @@ public class OutputEngine implements ByteCounter {
 			return ctIndex;
 		}
 
-		private void vOutput_FormattedASCII(DodsURL url, OutputStream os, Activity activity){
+		private void vOutput_FormattedASCII(Model_Dataset url, OutputStream os, Activity activity){
 			String sFullURL = url.getFullURL();
 			StringBuffer sbError = new StringBuffer(80);
 			DataDDS datadds = getDataDDS(url, activity, sbError);
@@ -1237,7 +1237,7 @@ public class OutputEngine implements ByteCounter {
 			}
 		}
 
-		public void vOutput_ASCII(DodsURL url, OutputStream os){
+		public void vOutput_ASCII(Model_Dataset url, OutputStream os){
 			String sFullURL = url.getFullURL();
 			StringBuffer sbError = new StringBuffer(80);
 			DataDDS datadds = getDataDDS(url, mActivity, sbError);
@@ -1314,7 +1314,7 @@ public class OutputEngine implements ByteCounter {
 		}
 		--- end 1.4.1 version --- */
 
-		public void vOutput_Raw(DodsURL url, OutputStream os){
+		public void vOutput_Raw(Model_Dataset url, OutputStream os){
 			StringBuffer sbError = new StringBuffer(80);
 			java.net.HttpURLConnection connection = null;
 			try {
@@ -1367,11 +1367,11 @@ public class OutputEngine implements ByteCounter {
 
 	}
 
-	private boolean zAddToPlotter_Invoked( DodsURL url, StringBuffer sbError ){
+	private boolean zAddToPlotter_Invoked( Model_Dataset url, StringBuffer sbError ){
 		return ApplicationController.getInstance().getAppFrame().zAddDataToPlotter_Invoked( url, sbError );
 	}
 
-	private void loadURLToPlotter( final DodsURL url, final javax.swing.JButton jbuttonActivator, java.awt.event.ActionListener action, final Continuation_DoCancel con){
+	private void loadURLToPlotter( final Model_Dataset url, final javax.swing.JButton jbuttonActivator, java.awt.event.ActionListener action, final Continuation_DoCancel con){
 		try {
 			if( url == null ){
 				ApplicationController.vShowError("Unable to load, no URL provided.");
@@ -1386,7 +1386,7 @@ public class OutputEngine implements ByteCounter {
 				    public void Do(){
 						try {
 							int iURLType = url.getType();
-							if( iURLType != DodsURL.TYPE_Data ){
+							if( iURLType != Model_Dataset.TYPE_Data ){
 								ApplicationController.vShowError("Cannot load; not a data URL");
 								return;
 							}
@@ -1468,12 +1468,12 @@ class OutputProfile {
 	public final static int FORMAT_URLs = 6;
 	public final static int FORMAT_IDL = 7;
 	private OutputStream mos;
-	private DodsURL[] maurls; // 0-based
+	private Model_Dataset[] maurls; // 0-based
 	private int[] maiTarget;
 	private int[] maiFormat;
 	private String[] masTargetOption; // file name
 	private String msTerminator; // string to be appended to output
-	OutputProfile( DodsURL[] urls, OutputStream os, int iFormat, String sTerminator){
+	OutputProfile( Model_Dataset[] urls, OutputStream os, int iFormat, String sTerminator){
 		maurls = urls;
 		maiTarget = new int[urls.length];
 		maiFormat = new int[urls.length];
@@ -1486,8 +1486,8 @@ class OutputProfile {
 		mos = os;
 		msTerminator = sTerminator;
 	}
-	OutputProfile( DodsURL url, int iTarget, String sTargetOption, int iFormat, OutputStream os ){
-		maurls = new DodsURL[1];
+	OutputProfile( Model_Dataset url, int iTarget, String sTargetOption, int iFormat, OutputStream os ){
+		maurls = new Model_Dataset[1];
 		maiTarget = new int[1];
 		maiFormat = new int[1];
 		masTargetOption = new String[1];
@@ -1497,8 +1497,8 @@ class OutputProfile {
 		maiFormat[0] = iFormat;
 		mos = os;
 	}
-	OutputProfile( DodsURL url, int iTarget, String sTargetOption, int iFormat ){
-		maurls = new DodsURL[1];
+	OutputProfile( Model_Dataset url, int iTarget, String sTargetOption, int iFormat ){
+		maurls = new Model_Dataset[1];
 		maiTarget = new int[1];
 		maiFormat = new int[1];
 		masTargetOption = new String[1];
@@ -1507,7 +1507,7 @@ class OutputProfile {
 		masTargetOption[0] = sTargetOption;
 		maiFormat[0] = iFormat;
 	}
-	OutputProfile( DodsURL[] urls, int iTarget, int iFormat, String[] asTargetOption, OutputStream os ){
+	OutputProfile( Model_Dataset[] urls, int iTarget, int iFormat, String[] asTargetOption, OutputStream os ){
 		maurls = urls;
 		maiTarget = new int[urls.length];
 		maiFormat = new int[urls.length];
@@ -1518,14 +1518,14 @@ class OutputProfile {
 		masTargetOption = asTargetOption;
 		mos = os;
 	}
-	OutputProfile( DodsURL[] urls, int[] aiTarget, int[] aiFormat, String[] asTargetOption, OutputStream os ){
+	OutputProfile( Model_Dataset[] urls, int[] aiTarget, int[] aiFormat, String[] asTargetOption, OutputStream os ){
 		maurls = urls;
 		maiTarget = aiTarget;
 		maiFormat = aiFormat;
 		masTargetOption = asTargetOption;
 		mos = os;
 	}
-	OutputProfile( DodsURL[] urls, int iTarget, String sTargetOption, int iFormat ){
+	OutputProfile( Model_Dataset[] urls, int iTarget, String sTargetOption, int iFormat ){
 		maurls = urls;
 		maiTarget = new int[urls.length];
 		maiFormat = new int[urls.length];
@@ -1541,7 +1541,7 @@ class OutputProfile {
 	String getTargetOption(int x){ if( masTargetOption == null ) return null; else return masTargetOption[x-1]; }
 	int getFormat(int x){ if( maiFormat == null ) return 0; else return maiFormat[x-1]; }
 	int getURLCount(){ if( maurls == null ) return 0; else return maurls.length; }
-    DodsURL getURL(int x){ if( maurls == null ) return null; else return maurls[x-1]; }
+    Model_Dataset getURL(int x){ if( maurls == null ) return null; else return maurls[x-1]; }
 	OutputStream getTargetOS(){ return mos; }
 	public static String sTargetDescription( final int TARGET ){
 		switch( TARGET ){
