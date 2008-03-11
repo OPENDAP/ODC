@@ -54,7 +54,7 @@ class TreePopupListener extends MouseAdapter {
                 DefaultMutableTreeNode n = (DefaultMutableTreeNode)t.getLastPathComponent();
                 if(n.isLeaf())
                     leafPopup.show(e.getComponent(), e.getX(), e.getY());
-                else if(n.getUserObject() instanceof DodsURL)
+                else if(n.getUserObject() instanceof Model_Dataset)
                     nodePopup.show(e.getComponent(), e.getX(), e.getY());
             }
 	}

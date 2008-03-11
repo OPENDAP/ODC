@@ -174,7 +174,7 @@ class DirectoryTreeNode extends DefaultMutableTreeNode {
 	private String[] masHREFList;
 	private String[] masFileList; // one-based
 	private String[] masFileDescriptions; // one-based
-	private DodsURL[] maURLs; // one-based
+	private Model_Dataset[] maURLs; // one-based
 	private int[] maiSelectedFileIndices; // zero-based
 	private boolean mzSelected = false;
 	private boolean mzTerminal = false; // == terminal node / used instead of isLeaf because isLeaf controls default icon
@@ -242,7 +242,7 @@ class DirectoryTreeNode extends DefaultMutableTreeNode {
 	void setFileList( String[] asFileList ){
 		masFileList = asFileList;
 		maiSelectedFileIndices = new int[0];
-		maURLs = new DodsURL[asFileList.length];
+		maURLs = new Model_Dataset[asFileList.length];
 	}
 	void setFileDescriptions( String[] asFileDescriptions ){
 		masFileDescriptions = asFileDescriptions;
@@ -293,10 +293,10 @@ class DirectoryTreeNode extends DefaultMutableTreeNode {
 	public void setSelectedFileIndices( int[] aiSelected ){
 		maiSelectedFileIndices = aiSelected;
 	}
-	public void setFileURL( int xFile, DodsURL url ){
+	public void setFileURL( int xFile, Model_Dataset url ){
 		maURLs[xFile] = url;
 	}
-	public DodsURL getFileURL( int xFile ){
+	public Model_Dataset getFileURL( int xFile ){
 		if( xFile < 1 || xFile >= masFileList.length ) return null;
 		return maURLs[xFile];
 	}
@@ -304,7 +304,7 @@ class DirectoryTreeNode extends DefaultMutableTreeNode {
 		if( xFile < 1 || xFile >= masFileList.length ) return "[error " + xFile + "]";
 		return masFileList[xFile];
 	}
-	public DodsURL getFirstFileURL( int xFile ){
+	public Model_Dataset getFirstFileURL( int xFile ){
 		for( int xURL = 1; xURL < maURLs.length; xURL++ ){
 			if( maURLs[xURL] != null ) return maURLs[xURL];
 		}

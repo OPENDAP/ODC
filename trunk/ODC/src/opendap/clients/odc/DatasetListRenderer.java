@@ -45,7 +45,7 @@ class DatasetListRenderer extends JLabel implements ListCellRenderer, TableCellR
 	protected Insets mInsets = new Insets(1, 1, 1, 1);
 	private int mCategoryX, mTextX, mTextY;
 	protected boolean isURL;
-	protected DodsURL mURL;  // these two values are either/or: either the cell is an URL or its treated as a string
+	protected Model_Dataset mURL;  // these two values are either/or: either the cell is an URL or its treated as a string
 	protected int mIndex;
 	protected String sTextValue = "";
 	private boolean mzDiscovered = false;
@@ -129,9 +129,9 @@ class DatasetListRenderer extends JLabel implements ListCellRenderer, TableCellR
 		if( value == null ){
 			isURL = false;
 			sTextValue = "[internal error]";
-		} else if( value instanceof DodsURL ){
+		} else if( value instanceof Model_Dataset ){
 			isURL = true;
-			mURL = (DodsURL)value;
+			mURL = (Model_Dataset)value;
 			sTextValue = mURL.getTitle() + ( mURL.isUnreachable() ? " [unreachable]" : "") ;
 			mzDiscovered = (mURL.getDDS_Full() != null);
 		} else {
@@ -162,9 +162,9 @@ class DatasetListRenderer extends JLabel implements ListCellRenderer, TableCellR
 		if( value == null ){
 			isURL = false;
 			sTextValue = "[internal error]";
-		} else if( value instanceof DodsURL ){
+		} else if( value instanceof Model_Dataset ){
 			isURL = true;
-			mURL = (DodsURL)value;
+			mURL = (Model_Dataset)value;
 			sTextValue = mURL.getTitle();
 		} else {
 			isURL = false;
@@ -212,13 +212,13 @@ class DatasetListRenderer extends JLabel implements ListCellRenderer, TableCellR
 				}
 			}
 			g.setColor(getForeground());
-			if( this.mURL.getType() == DodsURL.TYPE_Directory ){
+			if( this.mURL.getType() == Model_Dataset.TYPE_Directory ){
 				g.drawImage(imageIndicator_Directory, mCategoryX, mInsets.top, Color.white, null);
-			} else if( this.mURL.getType() == DodsURL.TYPE_Catalog ) {
+			} else if( this.mURL.getType() == Model_Dataset.TYPE_Catalog ) {
 				g.drawImage(imageIndicator_Catalog, mCategoryX, mInsets.top, Color.white, null);
-			} else if( this.mURL.getType() == DodsURL.TYPE_Binary ) {
+			} else if( this.mURL.getType() == Model_Dataset.TYPE_Binary ) {
 				g.drawImage(imageIndicator_Binary, mCategoryX, mInsets.top, Color.white, null);
-			} else if( this.mURL.getType() == DodsURL.TYPE_Image ) {
+			} else if( this.mURL.getType() == Model_Dataset.TYPE_Image ) {
 				g.drawImage(imageIndicator_Image, mCategoryX, mInsets.top, Color.white, null);
 			} else {
 				g.drawImage(imageIndicator_Granule, mCategoryX, mInsets.top, Color.white, null);

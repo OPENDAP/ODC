@@ -40,7 +40,7 @@ import java.awt.event.MouseEvent;
 
 public class Panel_URLList_JList extends Panel_URLList {
 	private JList mjlist;
-    public Panel_URLList_JList( final Model_URL_control control_model ){
+    public Panel_URLList_JList( final Model_Datasets control_model ){
 		super( control_model );
 
 		this.setLayout( new BorderLayout() );
@@ -79,9 +79,9 @@ public class Panel_URLList_JList extends Panel_URLList {
 				public void mousePressed( MouseEvent me ){
 					if( me.getClickCount() == 1 ){
 						Object oSelectedItem = mjlist.getSelectedValue();
-						DodsURL urlSelected = null;
-						if( oSelectedItem instanceof DodsURL ){
-							urlSelected = (DodsURL)oSelectedItem;
+						Model_Dataset urlSelected = null;
+						if( oSelectedItem instanceof Model_Dataset ){
+							urlSelected = (Model_Dataset)oSelectedItem;
 						} else {
 							return; // there can be entries in the list that are not URLs -- ignore them
 						}
@@ -101,7 +101,7 @@ public class Panel_URLList_JList extends Panel_URLList {
 								retrieve_model.vShowDDS( urlSelected, null );
 							}
 						} else {
-							if( urlSelected.getType() == DodsURL.TYPE_Data ){
+							if( urlSelected.getType() == Model_Dataset.TYPE_Data ){
 								retrieve_model.getRetrievePanel().vShowDirectory( false );
 							}
 							retrieve_model.vShowURL( urlSelected, null );

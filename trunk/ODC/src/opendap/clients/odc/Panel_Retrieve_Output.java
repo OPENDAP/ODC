@@ -107,7 +107,7 @@ public class Panel_Retrieve_Output extends JPanel {
 						if( xSelection < 0 ) return;
 						StringBuffer sbError = new StringBuffer(80);
 						Model_URLList url_model = theModel.getURLList();
-						DodsURL[] aURLs  = url_model.getSelectedURLs(sbError);
+						Model_Dataset[] aURLs  = url_model.getSelectedURLs(sbError);
 						if( aURLs == null ){
 							ApplicationController.vShowError("Failed to get selected URLs: " + sbError);
 							return;

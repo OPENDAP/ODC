@@ -63,16 +63,16 @@ public class Panel_View_Data extends JPanel {
 class Model_LoadedDatasets implements ListModel {
 	private int miCapacity = 1000;
 	private int mctDatasets = 0;
-	private DodsURL[] maDatasets = new DodsURL[ 1000 ];
+	private Model_Dataset[] maDatasets = new Model_Dataset[ 1000 ];
 
-	void addDataset( DodsURL url ){
+	void addDataset( Model_Dataset url ){
 		if( url == null ){
 			ApplicationController.getInstance().vShowWarning("attempt to null dataset");
 			return;
 		}
 		if( mctDatasets == miCapacity ){
 			int iNewCapacity = 2 * miCapacity;
-			DodsURL[] aEnlargedDatasetBuffer = new DodsURL[ iNewCapacity ];
+			Model_Dataset[] aEnlargedDatasetBuffer = new Model_Dataset[ iNewCapacity ];
 			System.arraycopy(maDatasets, 0, aEnlargedDatasetBuffer, 0, miCapacity);
 			maDatasets = aEnlargedDatasetBuffer;
 		}
@@ -92,7 +92,7 @@ class Model_LoadedDatasets implements ListModel {
 		// TODO xxx make event
 	}
 
-	void removeDataset( DodsURL url ){
+	void removeDataset( Model_Dataset url ){
 		for( int xList = 0; xList < mctDatasets; xList++ ){
 			if( maDatasets[xList] == url ){
 				for( ; xList < mctDatasets - 1; xList++ ) maDatasets[xList] = maDatasets[xList + 1];

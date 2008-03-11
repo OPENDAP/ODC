@@ -39,7 +39,7 @@ import javax.swing.table.*;
 public class Panel_URLList_JTable extends JPanel {
 	private JTable mjtable;
 	private JTable mjtableSelected;
-    public Panel_URLList_JTable( Model_URL_control control_model ){
+    public Panel_URLList_JTable( Model_Datasets control_model ){
 		super();
 
 		// Setup List

@@ -44,7 +44,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 
 	private Model_Retrieve model;
 
-	private DodsURL mURL = null;
+	private Model_Dataset mURL = null;
 	private DDSSelector mDDSS = null;
 	private JPanel mpanelControl;
 	private JScrollPane mscrollpane_Criteria;
@@ -194,7 +194,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 
 	String getRetrieveMessage(){ return jtaMessage.getText(); }
 
-	boolean setStructure( DodsURL url, StringBuffer sbError ){
+	boolean setStructure( Model_Dataset url, StringBuffer sbError ){
 		try {
 			if( url == null ){
 				vClear();
@@ -242,7 +242,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 		if( mDDSS != null ) mDDSS.vUpdateStep( iStep );
 	}
 
-	public DodsURL getURL(){ return mURL; }
+	public Model_Dataset getURL(){ return mURL; }
 
 	/* when a CE is changed this becomes the master CE for the active top-level URL, thus
 	   for a directory, all files in the directory will share the same CE which is the master
@@ -266,7 +266,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 				}
 				String sCE = mDDSS.generateCE("");
 				mURL.setConstraintExpression(sCE);
-				DodsURL urlDirectory = model.retrieve_panel.getPanelDirectory().getURL_directory();
+				Model_Dataset urlDirectory = model.retrieve_panel.getPanelDirectory().getURL_directory();
 				if( urlDirectory == null ){
 					ApplicationController.getInstance().vShowWarning("unable to set constraint, no directory URL defined");
 				} else {

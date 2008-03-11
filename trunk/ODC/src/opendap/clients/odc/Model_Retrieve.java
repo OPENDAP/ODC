@@ -44,22 +44,22 @@ public class Model_Retrieve {
 
 	public Panel_Retrieve getRetrievePanel(){ return retrieve_panel; }
 
-	public void vShowURL( DodsURL url, Activity activity ){
-		if( url.getType() == DodsURL.TYPE_Data ){
+	public void vShowURL( Model_Dataset url, Activity activity ){
+		if( url.getType() == Model_Dataset.TYPE_Data ){
 			vShowConstraintEditor( url, activity );
 			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Data();
-		} else if( url.getType() == DodsURL.TYPE_Directory ){
+		} else if( url.getType() == Model_Dataset.TYPE_Directory ){
 			vShowDirectory( url, activity );
-		} else if( url.getType() == DodsURL.TYPE_Catalog ){
+		} else if( url.getType() == Model_Dataset.TYPE_Catalog ){
 			vShowMessage( "[catalogs not currently supported]" );
-		} else if( url.getType() == DodsURL.TYPE_HTML ||
-				   url.getType() == DodsURL.TYPE_Text
+		} else if( url.getType() == Model_Dataset.TYPE_HTML ||
+				   url.getType() == Model_Dataset.TYPE_Text
 				  ){
 			vShowContent(url);
-		} else if( url.getType() == DodsURL.TYPE_Image ){
+		} else if( url.getType() == Model_Dataset.TYPE_Image ){
 			vShowMessage( "URL is image, output to image viewer to see" );
 			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Image();
-		} else if( url.getType() == DodsURL.TYPE_Binary ){
+		} else if( url.getType() == Model_Dataset.TYPE_Binary ){
 			vShowMessage( "URL seems to be a binary file of unknown type" );
 			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Blank();
 		} else {
@@ -68,7 +68,7 @@ public class Model_Retrieve {
 		}
 	}
 
-	public void vShowConstraintEditor( final DodsURL url, final Activity activity ){
+	public void vShowConstraintEditor( final Model_Dataset url, final Activity activity ){
 		final StringBuffer sbError = new StringBuffer(80);
 		if( url.getDDS_Full() == null ){
 			final Continuation_SuccessFailure con = new Continuation_SuccessFailure(){
@@ -94,7 +94,7 @@ public class Model_Retrieve {
 		}
 	}
 
-	public void vShowDirectory( final DodsURL url, Activity activity ){
+	public void vShowDirectory( final Model_Dataset url, Activity activity ){
 		final StringBuffer sbError = new StringBuffer(80);
 		if( url.getDirectoryTree() == null ){
 			Continuation_SuccessFailure con = new Continuation_SuccessFailure(){
@@ -126,7 +126,7 @@ public class Model_Retrieve {
 		}
 	}
 
-	public void vShowDDS( DodsURL url, Activity activity ){
+	public void vShowDDS( Model_Dataset url, Activity activity ){
 		if( url == null ){ vShowMessage("internal error, URL missing (ShowDDS)"); return; }
 		String sBaseURL = url.getBaseURL();
 		if( sBaseURL == null ){ vShowMessage("internal error, URL lacks address (ShowDDS)"); return; }
@@ -153,7 +153,7 @@ public class Model_Retrieve {
 		}
 	}
 
-	public void vShowDAS( DodsURL url, Activity activity ){
+	public void vShowDAS( Model_Dataset url, Activity activity ){
 		if( url == null ){ vShowMessage("internal error, URL missing (ShowDAS)"); return; }
 		String sBaseURL = url.getBaseURL();
 		if( sBaseURL == null ){ vShowMessage("internal error, URL lacks address (ShowDAS)"); return; }
@@ -180,7 +180,7 @@ public class Model_Retrieve {
 		}
 	}
 
-	public void vShowContent( DodsURL url ){
+	public void vShowContent( Model_Dataset url ){
 		StringBuffer sbError = new StringBuffer(80);
 		try {
 			String sBaseURL = url.getBaseURL();
@@ -206,9 +206,9 @@ public class Model_Retrieve {
 
 	// updates the DDS and DAS for an URL
 	// starts a thread
-	final private void vUpdateStructure( final DodsURL url, final Continuation_SuccessFailure con, Activity preexisting_activity ){
+	final private void vUpdateStructure( final Model_Dataset url, final Continuation_SuccessFailure con, Activity preexisting_activity ){
 		if( url == null ){ con.Failure("internal error, URL was missing"); return; }
-		if( url.getType() != DodsURL.TYPE_Data ){ con.Failure("internal error, URL was not of the data type"); return; }
+		if( url.getType() != Model_Dataset.TYPE_Data ){ con.Failure("internal error, URL was not of the data type"); return; }
 		final Activity activity = preexisting_activity == null ? new Activity() : preexisting_activity;
 		final String sMessage = "Updating data URL: " + url.getTitle();
 		final OpendapConnection connection = new OpendapConnection();
@@ -254,7 +254,7 @@ public class Model_Retrieve {
 						// get DAS
 						activity.vUpdateStatus("getting DAS");
 						das = connection.getDAS(sBaseURL, sCE, activity, sbError);
-						if( das == null && url.getType() == DodsURL.TYPE_Catalog ){
+						if( das == null && url.getType() == Model_Dataset.TYPE_Catalog ){
 							ApplicationController.vShowError("Connection returned no DAS for catalog " + sBaseURL + ": " + sbError);
 							return;
 						}
@@ -283,9 +283,9 @@ public class Model_Retrieve {
 
 	// updates the directory root for an URL
 	// starts a thread
-	final private void vUpdateDirectory( final DodsURL url, final Continuation_SuccessFailure con, Activity preexisting_activity ){
+	final private void vUpdateDirectory( final Model_Dataset url, final Continuation_SuccessFailure con, Activity preexisting_activity ){
 		if( url == null ){ con.Failure("internal error, URL was missing"); return; }
-		if( url.getType() != DodsURL.TYPE_Directory ){ con.Failure("internal error, URL was not of the directory type"); return; }
+		if( url.getType() != Model_Dataset.TYPE_Directory ){ con.Failure("internal error, URL was not of the directory type"); return; }
 		final Activity activity = preexisting_activity == null ? new Activity() : preexisting_activity;
 		final String sMessage = "Updating directory root for: " + url.getTitle();
 		Continuation_DoCancel conUpdate = new Continuation_DoCancel(){
@@ -373,14 +373,14 @@ public class Model_Retrieve {
 
 	void vUpdateOutputSize(){
 		StringBuffer sbError = new StringBuffer(80);
-		DodsURL[] urls = getURLList().getSelectedURLs( sbError ); // zero-based
+		Model_Dataset[] urls = getURLList().getSelectedURLs( sbError ); // zero-based
 		if( urls == null || urls.length == 0 ){
 			retrieve_panel.setEstimatedDownloadSize("000");
 			return;
 		}
 		long nTotalSize = 0;
 		for( int xURL = 0; xURL < urls.length; xURL++ ){
-			DodsURL urlCurrent = urls[xURL];
+			Model_Dataset urlCurrent = urls[xURL];
 //			opendap.dap.DDS dds = urlCurrent.getDDS_Full();
 //			opendap.dap.Server.CEEvaluator ce = new opendap.dap.Server.CEEvaluator(dds);
 //			ce.parseConstraint(rs.getConstraintExpression());
@@ -404,7 +404,7 @@ public class Model_Retrieve {
 //	}
 
 	public void vShowURLInfo( int xURL_0 ){
-		DodsURL url = getURLList().getDisplayURL(xURL_0);
+		Model_Dataset url = getURLList().getDisplayURL(xURL_0);
 		if( url == null ){
 			ApplicationController.vShowError("internal error; display info URL " + xURL_0 + " does not exist");
 			return;
@@ -412,7 +412,7 @@ public class Model_Retrieve {
 		StringBuffer sbError = new StringBuffer(80);
 		int eURLtype = url.getType();
 		switch( eURLtype ){
-			case( DodsURL.TYPE_Data ):
+			case( Model_Dataset.TYPE_Data ):
 				ApplicationController.vShowStatus("Getting data info for " + url.getTitle() + "...");
 				String sBaseURL = url.getBaseURL();
 				if( url.getDDS_Text() == null ){
@@ -460,12 +460,12 @@ public class Model_Retrieve {
 		}
 		String sTitle = javax.swing.JOptionPane.showInputDialog("Enter a title for URL:");
 		if( sTitle == null || sTitle.length() == 0 ) return;
-		DodsURL[] aURL = new DodsURL[1];
+		Model_Dataset[] aURL = new Model_Dataset[1];
 		boolean zIsDirectory = sURL.endsWith("/");
 		if( zIsDirectory ){
-			aURL[0]	= new DodsURL(sURL, DodsURL.TYPE_Directory);
+			aURL[0]	= new Model_Dataset(sURL, Model_Dataset.TYPE_Directory);
 		} else {
-			aURL[0]	= new DodsURL(sURL, DodsURL.TYPE_Data);
+			aURL[0]	= new Model_Dataset(sURL, Model_Dataset.TYPE_Data);
 		}
 /* code for constrained dir not implemented currently
 			sURL = sURL.substring(0, posDirectoryEnd - 1);

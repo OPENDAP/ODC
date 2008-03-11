@@ -37,17 +37,17 @@ public class Model_URLs_implementation {
 
 	private final static int MAX_URLs_TO_DISPLAY = 100;
 	private boolean zDisplayingSubset = false;
-	private DodsURL[] madodsurlDisplay = new DodsURL[0]; // URLs displayed in list (may be only a subset of selected if many are selected)
-	private DodsURL[] madodsurlSelected = new DodsURL[0]; // all the URLs selected
+	private Model_Dataset[] madodsurlDisplay = new Model_Dataset[0]; // URLs displayed in list (may be only a subset of selected if many are selected)
+	private Model_Dataset[] madodsurlSelected = new Model_Dataset[0]; // all the URLs selected
 	private boolean mzShowTypes = false;
 	private boolean mzAutoSubset = false;
 
     public Model_URLs_implementation() {}
 
-	DodsURL[] getDisplayURLs(){ return madodsurlDisplay; }
-	DodsURL getDisplayURL( int iURL ){ return madodsurlDisplay[iURL]; }
-	DodsURL[] getAllURLs(){ return madodsurlSelected; }
-	DodsURL getSelectedURL(){
+	Model_Dataset[] getDisplayURLs(){ return madodsurlDisplay; }
+	Model_Dataset getDisplayURL( int iURL ){ return madodsurlDisplay[iURL]; }
+	Model_Dataset[] getAllURLs(){ return madodsurlSelected; }
+	Model_Dataset getSelectedURL(){
 		return null;
 /* NO LONGER FUNCTIONAL
             if( madodsurlDisplay == null ) return null;
@@ -67,7 +67,7 @@ public class Model_URLs_implementation {
         }
 	boolean getShowTypes(){ return mzShowTypes; }
 	boolean getAutoSubset(){ return mzAutoSubset; }
-	DodsURL getURL(int index){
+	Model_Dataset getURL(int index){
 		if( madodsurlDisplay == null ) return null;
 		if( index < 0 ) return null;
 		if( index >= madodsurlDisplay.length ) return null;
@@ -87,7 +87,7 @@ public class Model_URLs_implementation {
 	}
 
 	// zero-based
-	DodsURL[] getSelectedURLs(StringBuffer sbError){
+	Model_Dataset[] getSelectedURLs(StringBuffer sbError){
 return null;
 /* NO LONGER FUNCTIONAL
 		if( madodsurlDisplay == null ) return null;
@@ -131,10 +131,10 @@ return null;
 
 	// gets all sub selections in case of a directory
 	// zero-based
-	DodsURL[] getSubSelectedURLs(int iIndex, StringBuffer sbError){
-		DodsURL[] aurlSelected = this.getAllURLs();
+	Model_Dataset[] getSubSelectedURLs(int iIndex, StringBuffer sbError){
+		Model_Dataset[] aurlSelected = this.getAllURLs();
 		if( aurlSelected == null ) return null;
-		DodsURL[] egg = new DodsURL[1];
+		Model_Dataset[] egg = new Model_Dataset[1];
 		if( iIndex < 0 || iIndex >= aurlSelected.length ){
 			sbError.append("Index " + iIndex + " out of range (" + 1 + " to " + aurlSelected.length + " )");
 			return null;
@@ -144,23 +144,23 @@ return null;
 	}
 
 	// zero-based
-	DodsURL[] getSubSelectedURLs(StringBuffer sbError){
-		DodsURL[] aurlSelected = getSelectedURLs(sbError);
+	Model_Dataset[] getSubSelectedURLs(StringBuffer sbError){
+		Model_Dataset[] aurlSelected = getSelectedURLs(sbError);
 		if( aurlSelected == null ) return null;
 		return getSubSelectedURLs( aurlSelected, sbError );
 	}
 
 	// zero-based
-	DodsURL[] getSubSelectedURLs(DodsURL[] aurlSelected, StringBuffer sbError){
+	Model_Dataset[] getSubSelectedURLs(Model_Dataset[] aurlSelected, StringBuffer sbError){
 		if( aurlSelected == null ) return null;
 		int ctDataURLs = 0;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == DodsURL.TYPE_Data || aurlSelected[xURL].getType() == DodsURL.TYPE_Image )
+			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Data || aurlSelected[xURL].getType() == Model_Dataset.TYPE_Image )
 			    ctDataURLs++;
 		}
 		int ctDirectoryURLs = 0;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == DodsURL.TYPE_Directory ){
+			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Directory ){
 				Model_DirectoryTree tree = aurlSelected[xURL].getDirectoryTree();
                 if( tree == null ) continue;
 				DirectoryTreeNode nodeRoot = (DirectoryTreeNode)tree.getRoot();
@@ -168,27 +168,27 @@ return null;
 				String sDirTitle = aurlSelected[xURL].getTitle();
 				String sBaseURL = aurlSelected[xURL].getBaseURL();
 				String sCE = aurlSelected[xURL].getConstraintExpression_Encoded();
-				DodsURL[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
+				Model_Dataset[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
 			}
 		}
-		DodsURL[] aurlCumulative = new DodsURL[ctDataURLs + ctDirectoryURLs];
+		Model_Dataset[] aurlCumulative = new Model_Dataset[ctDataURLs + ctDirectoryURLs];
 		int xDataURL = -1;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == DodsURL.TYPE_Data  || aurlSelected[xURL].getType() == DodsURL.TYPE_Image ){
+			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Data  || aurlSelected[xURL].getType() == Model_Dataset.TYPE_Image ){
 				xDataURL++;
 				aurlCumulative[xDataURL] = aurlSelected[xURL];
 			}
 		}
 		int xDirectoryURL = -1;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == DodsURL.TYPE_Directory ){
+			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Directory ){
 				Model_DirectoryTree tree = aurlSelected[xURL].getDirectoryTree();
                 if( tree == null ) continue;
 				DirectoryTreeNode nodeRoot = (DirectoryTreeNode)tree.getRoot();
 				String sDirTitle = aurlSelected[xURL].getTitle();
 				String sBaseURL = aurlSelected[xURL].getBaseURL();
 				String sCE = aurlSelected[xURL].getConstraintExpression_Encoded();
-				DodsURL[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
+				Model_Dataset[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
 				if( aDirectoryURLs == null ) continue;
 				for( int xCurrentDirectory = 0; xCurrentDirectory < aDirectoryURLs.length; xCurrentDirectory++ ){
 					xDirectoryURL++;
@@ -213,13 +213,13 @@ return null;
 		}
 		return ctSelectedFiles;
 	}
-	private DodsURL[] getSubSelectedURLs_Recursive( String sDirTitle, String sBaseURL, DirectoryTreeNode node, String sCE){
+	private Model_Dataset[] getSubSelectedURLs_Recursive( String sDirTitle, String sBaseURL, DirectoryTreeNode node, String sCE){
 		if( node == null ) return null;
 		int ctSelectedFiles = 0;
 		if( node.isSelected() ) ctSelectedFiles += node.getFileList_SelectedCount();
-		DodsURL[] aURLselected = null;
+		Model_Dataset[] aURLselected = null;
 		if( ctSelectedFiles > 0 ){
-			aURLselected = new DodsURL[ctSelectedFiles];
+			aURLselected = new Model_Dataset[ctSelectedFiles];
 			String[] asSelectedFiles = node.getFileList_Selected(); // one-based
 			String[] asSelectedHREFs = node.getHREFList_Selected(); // one-based
 			for( int xFile = 1; xFile <= ctSelectedFiles; xFile++ ){
@@ -229,10 +229,10 @@ return null;
 					sURL = Utility.sConnectPaths(sDirectory, "/", asSelectedFiles[xFile]);
 				}
 				if( Utility.isImage( sURL ) ){
-					aURLselected[xFile-1] = new DodsURL(sURL, DodsURL.TYPE_Image);
+					aURLselected[xFile-1] = new Model_Dataset(sURL, Model_Dataset.TYPE_Image);
 					aURLselected[xFile-1].setTitle(asSelectedFiles[xFile]);
 				} else {
-					aURLselected[xFile-1] = new DodsURL(sURL, DodsURL.TYPE_Data);
+					aURLselected[xFile-1] = new Model_Dataset(sURL, Model_Dataset.TYPE_Data);
 					aURLselected[xFile-1].setTitle(sDirTitle + " " + asSelectedFiles[xFile] + " " + sCE);
 					aURLselected[xFile-1].setConstraintExpression(sCE);
 				}
@@ -240,13 +240,13 @@ return null;
 		}
 		for( int xChild = 0; xChild < node.getChildCount(); xChild++ ){
 			DirectoryTreeNode nodeChild = node.getChild(xChild);
-			DodsURL[] aURLsubselected = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeChild, sCE);
+			Model_Dataset[] aURLsubselected = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeChild, sCE);
 			if( aURLsubselected != null ){
 				if( aURLselected == null ){
 					aURLselected = aURLsubselected;
 				} else {
 					int ctTotalURLs = aURLselected.length + aURLsubselected.length;
-					DodsURL[] aurlBuffer = new DodsURL[ctTotalURLs];
+					Model_Dataset[] aurlBuffer = new Model_Dataset[ctTotalURLs];
 					System.arraycopy(aURLselected, 0, aurlBuffer, 0, aURLselected.length);
 					System.arraycopy(aURLsubselected, 0, aurlBuffer, aURLselected.length, aURLsubselected.length);
 					aURLselected = aurlBuffer;

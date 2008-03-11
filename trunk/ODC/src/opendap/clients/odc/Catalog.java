@@ -54,7 +54,7 @@ public class Catalog extends JPanel implements ActionListener {
 
     // String of URLs
 	private String msExampleURL;
-    private DodsURL[] URLs;
+    private Model_Dataset[] URLs;
 
     private String msURL;
 
@@ -80,7 +80,7 @@ public class Catalog extends JPanel implements ActionListener {
 		return msExampleURL;
 	}
 
-	boolean zInitialize( DodsURL url, DDS dds, DAS das, StringBuffer sbError ){
+	boolean zInitialize( Model_Dataset url, DDS dds, DAS das, StringBuffer sbError ){
 		try {
 			msURL = url.getBaseURL();
 
@@ -267,10 +267,10 @@ public class Catalog extends JPanel implements ActionListener {
 							dateName = ((DString) tvar.nextElement()).getName();
 						}
 
-						Catalog.this.URLs = new DodsURL[seq.getRowCount()];
+						Catalog.this.URLs = new Model_Dataset[seq.getRowCount()];
 						for (int i = 0; i < seq.getRowCount(); i++) {
 							String sURL = ((DString) seq.getVariable(i,urlName)).getValue();
-							Catalog.this.URLs[i] = new DodsURL(sURL, DodsURL.TYPE_Data);
+							Catalog.this.URLs[i] = new Model_Dataset(sURL, Model_Dataset.TYPE_Data);
 							if (dateName != "") {
 								URLs[i].setTitle( ((DString) seq.getVariable(i,dateName)).getValue()
 										+ " - " + datasetName + " - " + URLs[i].getBaseURL() );
@@ -348,7 +348,7 @@ public class Catalog extends JPanel implements ActionListener {
     }
 
     // --- URL access method ---
-    public DodsURL[] getURLs() {
+    public Model_Dataset[] getURLs() {
         return URLs;
     }
 

@@ -105,15 +105,16 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
 									if( (iModifiers & java.awt.event.InputEvent.SHIFT_DOWN_MASK) == java.awt.event.InputEvent.SHIFT_DOWN_MASK ){
 										Panel_View_Text_Editor.this.parent.editorCloseNoSave();
-									} else {
+										ke.consume();
+									} else if( (iModifiers & java.awt.event.InputEvent.ALT_DOWN_MASK) == java.awt.event.InputEvent.ALT_DOWN_MASK ){
 										save();
 										Panel_View_Text_Editor.this.parent.editorCloseNoSave();
+										ke.consume();
 									}
-									ke.consume();
 								}
 								break;
 						}
-						if( ! isDirty() ) Panel_View_Text_Editor.this.parent.updateSelectedTab();						
+						if( ! isDirty() ) Panel_View_Text_Editor.this.parent.updateTabTitles();						
 					}
 					public void keyReleased(KeyEvent ke){}
 					public void keyTyped(KeyEvent ke){}
@@ -217,7 +218,7 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 		this.mzDirty = false;
 		ApplicationController.vShowStatus( "Saved file as " + fileSaved );
 		setClean();
-		parent.updateSelectedTab(); // update the name of the tab
+		parent.updateTabTitles(); // update the name of the tab
 		return true;
 
     }

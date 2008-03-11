@@ -37,17 +37,17 @@ import java.awt.event.*;
 
 // **** CLASS CURRENTLY NOT IN USE ****
 
-public class Model_URLTable extends javax.swing.table.AbstractTableModel implements Model_URL_control {
+public class Model_URLTable extends javax.swing.table.AbstractTableModel implements Model_Datasets {
 
 	final private static int MAX_URLs_TO_DISPLAY = 100;
 
-	DodsURL[] madodsurlDisplay = null; // TODO this is wrong
-	DodsURL[] madodsurlSelected = null;
+	Model_Dataset[] madodsurlDisplay = null; // TODO this is wrong
+	Model_Dataset[] madodsurlSelected = null;
 	boolean mzShowTypes = false;
 	boolean mzAutoSubset = false;
 	boolean mzDisplayingSubset = false;
 
-	DodsURL[] getDisplayURLs(){ return null; } // NO LONGER FUNCTIONAL
+	Model_Dataset[] getDisplayURLs(){ return null; } // NO LONGER FUNCTIONAL
 
 //***************** table model stuff
 	public int getRowCount(){
@@ -69,7 +69,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 		if( madodsurlDisplay == null ) return null;
 		if( row < 0 || row > madodsurlDisplay.length ) return null;
 		if( col < 0 || col > 1 ) return null;
-		DodsURL url = madodsurlDisplay[row];
+		Model_Dataset url = madodsurlDisplay[row];
 		switch(col){
 			case 0:
 				if( url == null ) return null;
@@ -108,8 +108,8 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 						if( me.getClickCount() == 1 ){
 							int iRowSelected = Model_URLTable.this.mjtableControl.getSelectedRow();
 							Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
-							Model_URL_control urllist = retrieve_model.getURLList(); // xxx wrong
-							DodsURL urlSelected = null; // NONE OF THIS WORKS -- old logic urllist.getURL(iRowSelected);
+							Model_Datasets urllist = retrieve_model.getURLList(); // xxx wrong
+							Model_Dataset urlSelected = null; // NONE OF THIS WORKS -- old logic urllist.getURL(iRowSelected);
 							if( urlSelected == null ){ // can happen because of a bug in the table component
 								ApplicationController.getInstance().getRetrieveModel().vClearSelection();
 								return;
@@ -133,11 +133,11 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 
 	boolean zDisplayingSubset(){ return mzDisplayingSubset; }
 
-	public void vDatasets_Add( DodsURL[] aURLsToAdd ){
+	public void vDatasets_Add( Model_Dataset[] aURLsToAdd ){
 		vDatasets_Add( aURLsToAdd, true );
 	}
 
-	public void vDatasets_Add( final DodsURL[] aURLsToAdd, boolean zAddToRecent ){
+	public void vDatasets_Add( final Model_Dataset[] aURLsToAdd, boolean zAddToRecent ){
 
 		if(aURLsToAdd == null){
 			ApplicationController.getInstance().vShowStatus("Warning, null object sent to dataset add in URLTable: ");
@@ -163,7 +163,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 				ApplicationController.getInstance().vShowStatus("Selected URL " + sTitle + " " + aURLsToAdd[xURL].getFullURL() );
 			}
 		} else {
-			DodsURL[] adodsurlNew = new DodsURL[madodsurlSelected.length + ctURLsToAdd];
+			Model_Dataset[] adodsurlNew = new Model_Dataset[madodsurlSelected.length + ctURLsToAdd];
 
 			// add existing URLs to new array
 			for( int xURL = 0; xURL < ctURLsExisting; xURL++ ){
@@ -196,7 +196,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 		}
 
 		// show the first URL that was added
-		DodsURL urlFirstAdded = aURLsToAdd[0];
+		Model_Dataset urlFirstAdded = aURLsToAdd[0];
 		int xSelection = ctURLsExisting;
 		mjtableControl.getSelectionModel().setSelectionInterval( xSelection, xSelection );
 		ApplicationController.getInstance().getRetrieveModel().vShowURL( urlFirstAdded, null );
@@ -228,7 +228,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 	}
 
 	// gets the URL from the list active in the control
-	public DodsURL getDisplayURL( int xURL_0){
+	public Model_Dataset getDisplayURL( int xURL_0){
 		// TODO
 		return null;
 	}
@@ -238,7 +238,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 	}
 
 	// gets the currently user-selected URLs
-	public DodsURL[] getSelectedURLs( StringBuffer sbError ){
+	public Model_Dataset[] getSelectedURLs( StringBuffer sbError ){
 		// TODO
 		sbError.append("not implemented");
 		return null;
@@ -251,7 +251,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 			// determine if the list will only contain a subset of the selected URLs
 			if( madodsurlSelected.length > MAX_URLs_TO_DISPLAY ){
 				mzDisplayingSubset = true;
-				madodsurlDisplay = new DodsURL[MAX_URLs_TO_DISPLAY];
+				madodsurlDisplay = new Model_Dataset[MAX_URLs_TO_DISPLAY];
 				for( int xURL = 0; xURL < MAX_URLs_TO_DISPLAY; xURL++ ){
 					madodsurlDisplay[xURL] = madodsurlSelected[xURL];
 				}
@@ -259,7 +259,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 				mzDisplayingSubset = false;
 				madodsurlDisplay = madodsurlSelected;
 			}
-			DodsURL[] aDisplayedURLs = getDisplayURLs();
+			Model_Dataset[] aDisplayedURLs = getDisplayURLs();
 			if( aDisplayedURLs == null ) return;
         } catch(Exception ex) {
 		   ApplicationController.vUnexpectedError( ex, "Unexpected error synchronizing display list");
@@ -275,7 +275,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 		ApplicationController.getInstance().getAppFrame().vUpdateFavorites();
 	}
 
-	void vAddToFavorites( DodsURL url ){
+	void vAddToFavorites( Model_Dataset url ){
 		Panel_Select_Favorites.vAddFavorite(url);
 		ApplicationController.getInstance().getAppFrame().vUpdateFavorites();
 	}
@@ -294,14 +294,14 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 			iRowSelected = 0;
 		}
 		Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
-		Model_URL_control urllist = retrieve_model.getURLList();
-		DodsURL urlSelected = urllist.getDisplayURL(iRowSelected);
+		Model_Datasets urllist = retrieve_model.getURLList();
+		Model_Dataset urlSelected = urllist.getDisplayURL(iRowSelected);
 		ApplicationController.getInstance().getRetrieveModel().vShowURL(urlSelected, null);
 	}
 
 	public void vDatasets_DeleteAll(){
-		madodsurlDisplay = new DodsURL[0];
-		madodsurlSelected = new DodsURL[0];
+		madodsurlDisplay = new Model_Dataset[0];
+		madodsurlSelected = new Model_Dataset[0];
 		mzDisplayingSubset = false;
 		mjtableControl.invalidate();
 		fireTableDataChanged();
@@ -330,12 +330,12 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 			}
 
 			if( madodsurlSelected.length == ctURLsToRemove ){
-				madodsurlSelected = new DodsURL[0];;
-				madodsurlDisplay = new DodsURL[0];;
+				madodsurlSelected = new Model_Dataset[0];;
+				madodsurlDisplay = new Model_Dataset[0];;
 				ctURLsExisting = 0;
 			} else {
 				int ctRemainingURLs = madodsurlSelected.length - ctURLsToRemove;
-				DodsURL[] adodsurlNew = new DodsURL[ctRemainingURLs];
+				Model_Dataset[] adodsurlNew = new Model_Dataset[ctRemainingURLs];
 
 				// copy existing URLs to new array omitting those being deleted
 				int xNewURL = 0;
@@ -375,14 +375,14 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 	// no longer used - wasn't really reliable because the digests sometimes matched
 	void vApplyCE(String sConstraintExpression, int iDigest){
 		StringBuffer sbError = new StringBuffer(80);
-		DodsURL[] urls = getSelectedURLs(sbError);
+		Model_Dataset[] urls = getSelectedURLs(sbError);
 		if( urls == null ){
 			ApplicationController.vShowWarning("nothing selected: " + sbError);
 			return;
 		}
 		int ctWarning = 0;
 		for( int xSelectedURL = 0; xSelectedURL < urls.length; xSelectedURL++ ){
-			DodsURL urlCurrent = urls[xSelectedURL];
+			Model_Dataset urlCurrent = urls[xSelectedURL];
 			if( urlCurrent.getDigest() == iDigest ){
 				urlCurrent.setConstraintExpression(sConstraintExpression);
 				if( urlCurrent.getFullURL().length() > 1024 ){
@@ -400,14 +400,14 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 	}
 
 	private ArrayList mlistKnownURLs = new ArrayList();
-	void addKnownURL( DodsURL url ){
+	void addKnownURL( Model_Dataset url ){
 		if( url != null ){
 			mlistKnownURLs.add( url );
 		}
 	}
-	DodsURL getKnownURL( String sFullURL ){
+	Model_Dataset getKnownURL( String sFullURL ){
 		for( int xList = 0; xList < mlistKnownURLs.size(); xList++ ){
-			DodsURL urlKnown = (DodsURL)mlistKnownURLs.get(xList);
+			Model_Dataset urlKnown = (Model_Dataset)mlistKnownURLs.get(xList);
 			if( urlKnown.getFullURL().equals( sFullURL ) ) return urlKnown;
 		}
 		return null;
@@ -472,7 +472,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 					if( madodsurlSelected[i].getDigest() != 0 ) continue;
 					int iURLType = madodsurlSelected[i].getType();
 					String sBaseURL = madodsurlSelected[i].getBaseURL();
-					if( iURLType  == DodsURL.TYPE_Directory ){
+					if( iURLType  == Model_Dataset.TYPE_Directory ){
 						sBaseURL = ApplicationController.getInstance().getRetrieveModel().sFetchDirectoryTree_GetFirstFile( sBaseURL, null );
 						if( sBaseURL == null ){
 							madodsurlSelected[i].setUnreachable(true, "could not find file in directory tree");

@@ -116,7 +116,7 @@ public class Panel_Retrieve_AdditionalCriteria extends JPanel {
 
 
 	/** In the case that the url is a directory then the dds should be the DDS of a typical file in the directory */
-    public boolean zShowStructure( DodsURL url, StringBuffer sbError) {
+    public boolean zShowStructure( Model_Dataset url, StringBuffer sbError) {
 		try {
 			vClear();
 			if( url == null ){

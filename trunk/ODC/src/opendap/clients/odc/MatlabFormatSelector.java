@@ -33,7 +33,7 @@ public class MatlabFormatSelector extends JPanel implements ActionListener
 
     private JPanel mainPanel;
 
-    private DodsURL[] urls;
+    private Model_Dataset[] urls;
     private JList urlList;
     private JScrollPane urlScroller;
     private JPanel urlPanel;
@@ -233,11 +233,11 @@ public class MatlabFormatSelector extends JPanel implements ActionListener
 	return names;
     }
 
-    public DodsURL[] getURLs() {
+    public Model_Dataset[] getURLs() {
 	return urls;
     }
 
-    public void setURLs(DodsURL[] newURLs) {
+    public void setURLs(Model_Dataset[] newURLs) {
 	urls = newURLs;
 	urlList.setListData(urls);
     }

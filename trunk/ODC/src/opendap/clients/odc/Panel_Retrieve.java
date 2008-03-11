@@ -168,7 +168,7 @@ public class Panel_Retrieve extends JPanel implements IControlPanel {
 		);
 	}
 
-	final public boolean zShowStructure( DodsURL url, StringBuffer sbError ){
+	final public boolean zShowStructure( Model_Dataset url, StringBuffer sbError ){
 		return panelAdditionalCriteria.zShowStructure(url, sbError);
 	}
 

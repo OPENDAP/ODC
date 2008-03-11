@@ -93,7 +93,7 @@ public class Panel_Retrieve_SelectedDatasets extends JPanel {
 				new ActionListener(){
 					public void actionPerformed(ActionEvent event) {
 						StringBuffer sbError_favorite = new StringBuffer(80);
-						DodsURL[] aSelectedURLs = theListModel.getSelectedURLs( sbError_favorite );
+						Model_Dataset[] aSelectedURLs = theListModel.getSelectedURLs( sbError_favorite );
 						if( aSelectedURLs == null ){
 							if( sbError_favorite.length() > 0 ){
 								ApplicationController.getInstance().vShowError( sbError_favorite.toString() );
