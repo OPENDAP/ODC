@@ -53,9 +53,9 @@ public abstract class Plot_Definition {
 	String getPlotID(){ return msPlotID; }
 	void setPlotID(String s){ msPlotID = s; }
 	void setDimensionalType( int TYPE ){}
-	DodsURL mURL = null;
-	DodsURL getURL(){ return mURL; }
-	void setURL( DodsURL url ){ mURL = url; }
+	Model_Dataset mURL = null;
+	Model_Dataset getURL(){ return mURL; }
+	void setURL( Model_Dataset url ){ mURL = url; }
 }
 
 class PlottingDefinition_DataDDS extends Plot_Definition {
@@ -66,7 +66,7 @@ class PlottingDefinition_DataDDS extends Plot_Definition {
 	DataDDS getDataDDS(){
 		return mddds;
 	}
-	boolean zSetDataDDS( int ePlotType, DodsURL url, StringBuffer sbError ){
+	boolean zSetDataDDS( int ePlotType, Model_Dataset url, StringBuffer sbError ){
 		try {
 			Panel_VariableTab panel_variables = Panel_View_Plot.getPanel_VariableTab();
 			if( panel_variables == null ){

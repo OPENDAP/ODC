@@ -33,7 +33,7 @@ package opendap.clients.odc.plot;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Utility;
-import opendap.clients.odc.DodsURL;
+import opendap.clients.odc.Model_Dataset;
 
 import java.awt.Graphics2D;
 import java.awt.Color;
@@ -46,7 +46,7 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 	private int mpxRenderedCanvasWidth, mpxRenderedCanvasHeight;
 	private int mpxRenderedPlotWidth, mpxRenderedPlotHeight;
 
-	Panel_Plot_Pseudocolor( PlotScale scale, String sID, String sCaption, DodsURL url ){
+	Panel_Plot_Pseudocolor( PlotScale scale, String sID, String sCaption, Model_Dataset url ){
 		super(scale, sID, sCaption, url);
 //		addMouseListener(this); // interfering with full screen cancel
 	}

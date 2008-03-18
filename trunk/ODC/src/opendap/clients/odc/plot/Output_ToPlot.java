@@ -210,7 +210,7 @@ public class Output_ToPlot {
 				}
 			}
 
-			final DodsURL url = def.getURL();
+			final Model_Dataset url = def.getURL();
 			String sCaption = url.getTitle();
 
 			final VariableInfo varAxisX = pdat.getAxis_X();
@@ -267,7 +267,7 @@ public class Output_ToPlot {
 //     1 x/y/slice       n slices
 //       n slices        n slices    (number of slices must match for both variables)
 
-	static boolean zPlot_XY( PlotScale scale, DodsURL url, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
+	static boolean zPlot_XY( PlotScale scale, Model_Dataset url, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
 		try {
 
 			// initialize panel
@@ -401,7 +401,7 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot_Histogram( DodsURL url, String sCaption, PlottingVariable pv, PlotOptions po, int eOutputOption, PlotScale ps, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_Histogram( Model_Dataset url, String sCaption, PlottingVariable pv, PlotOptions po, int eOutputOption, PlotScale ps, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
 
 			if( eOutputOption == FORMAT_Thumbnail ){
@@ -438,7 +438,7 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot_PseudoColor( DodsURL url, String sCaption, PlottingVariable pv, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_PseudoColor( Model_Dataset url, String sCaption, PlottingVariable pv, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
 
 			int eDATA_TYPE   = pv.getDataType();
@@ -557,7 +557,7 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot_Vector( DodsURL url, String sCaption, PlottingVariable pv, PlottingVariable pv2, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_Vector( Model_Dataset url, String sCaption, PlottingVariable pv, PlottingVariable pv2, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
 			Panel_Plot_Vector panelVector = new Panel_Plot_Vector(ps, null, sCaption, url);
 			if( pv == null || pv2 == null ){
@@ -1024,14 +1024,14 @@ class PlottingVariable {
 class DataConnectorFile implements Serializable {
 	static final long serialVersionUID = 1;
 	private String msTitle;
-	private DodsURL mURL;
+	private Model_Dataset mURL;
 	private DataDDS mData;
 	String getTitle(){ return msTitle; }
 	DataDDS getData(){ return mData; }
-	DodsURL getURL(){ return mURL; }
+	Model_Dataset getURL(){ return mURL; }
 	void setTitle(String sTitle){ msTitle = sTitle; }
 	void setData(DataDDS ddds){ mData = ddds; }
-	void setURL(DodsURL url){ mURL = url; }
+	void setURL(Model_Dataset url){ mURL = url; }
 }
 
 

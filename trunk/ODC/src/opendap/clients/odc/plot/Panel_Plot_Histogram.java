@@ -32,7 +32,7 @@ package opendap.clients.odc.plot;
  */
 
 import opendap.clients.odc.*;
-import opendap.clients.odc.DodsURL;
+import opendap.clients.odc.Model_Dataset;
 
 import java.awt.event.*;
 import java.awt.*;
@@ -50,7 +50,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 	private final static Dimension MIN_DIMENSION = new Dimension(200, 400);
 	private String mDisplay_sMessage = null;
 
-	Panel_Plot_Histogram( PlotScale scale, String sID, String sCaption, DodsURL url ){
+	Panel_Plot_Histogram( PlotScale scale, String sID, String sCaption, Model_Dataset url ){
 		super(scale, sID, sCaption, url);
 		addMouseListener(this);
 	}

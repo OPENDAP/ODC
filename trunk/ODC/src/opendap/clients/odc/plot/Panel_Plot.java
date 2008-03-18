@@ -35,7 +35,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.Styles;
-import opendap.clients.odc.DodsURL;
+import opendap.clients.odc.Model_Dataset;
 import java.awt.event.*;
 import java.awt.*;
 import java.awt.image.*;
@@ -131,13 +131,13 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	final private static String FORMAT_ID_date = "yyyyMMdd";
 	private String msID;
 	private String msCaption = null;
-	private DodsURL mURL = null;
+	private Model_Dataset mURL = null;
 
 	abstract public void vGenerateImage(int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight );
 	abstract public String getDescriptor();
 	abstract public boolean zCreateRGBArray(int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError);
 
-	Panel_Plot(PlotScale ps, String sID_descriptive, String sCaption, DodsURL url){
+	Panel_Plot(PlotScale ps, String sID_descriptive, String sCaption, Model_Dataset url){
 		if( ps == null ){
 			ApplicationController.vShowError("system error, invalid plot panel, no scale");
 		}
@@ -170,7 +170,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	BufferedImage getImage(){ return mbi; }
 	String getID(){ return msID; }
 	String getCaption(){ return msCaption; }
-	DodsURL getURL(){ return mURL; }
+	Model_Dataset getURL(){ return mURL; }
 
 	// the way printing works is that the printer keeps asking for pages and when you return no_such_page it stops
 	// in the current implementation the Java printer always asks for the same page twice (with different
