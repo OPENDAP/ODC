@@ -52,6 +52,7 @@ public class ApplicationFrame extends JFrame {
 	private Panel_Retrieve jpanelRetrieve;
 	private Panel_View_Command panelCommand;
 	private Panel_View_Text panelTextEditor;
+	private Panel_View_Data panelDataView;
 	private Panel_View_Table panelTableView;
 	private Panel_View_Image panelImageView;
 	private Panel_View_Plot panelPlotter;
@@ -197,6 +198,12 @@ public class ApplicationFrame extends JFrame {
 			sbError.insert(0, "Failed to initialize text editor panel: ");
 			return false;
 		}
+		ApplicationController.getInstance().vShowStartupMessage("creating data viewer");
+		panelDataView = new Panel_View_Data();
+		if( !panelDataView.zInitialize( ApplicationController.getInstance().getDatasets(), sbError ) ){
+			sbError.insert(0, "Failed to initialize data view panel: ");
+			return false;
+		}
 		ApplicationController.getInstance().vShowStartupMessage("creating table viewer");
 		panelTableView = new Panel_View_Table();
 		if( !panelTableView.zInitialize( sbError ) ){
@@ -285,7 +292,8 @@ public class ApplicationFrame extends JFrame {
 
 		jtpView.addTab(" Command", panelCommand);
 		jtpView.addTab(" Editor", panelTextEditor);
-		jtpView.addTab(" Table", panelTableView);
+		jtpView.addTab(" Data", panelDataView);
+//		jtpView.addTab(" Table", panelTableView);
 		jtpView.addTab(" Image File", panelImageView);
 		jtpView.addTab(" Plotter", panelPlotter);
 
@@ -355,7 +363,7 @@ public class ApplicationFrame extends JFrame {
 	public void vSaveDisplayPositioning(){
 		Point locCurrent = this.getLocation();
 		Dimension dimCurrentSize = this.getSize();
-		if( (this.getExtendedState() & this.MAXIMIZED_BOTH) == this.MAXIMIZED_BOTH ){ // if maximized reset startup dims
+		if( (this.getExtendedState() & MAXIMIZED_BOTH) == MAXIMIZED_BOTH ){ // if maximized reset startup dims
 			ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DISPLAY_StartupLocation_X, "0" );
 			ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DISPLAY_StartupLocation_Y, "0" );
 			ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DISPLAY_StartupSize_Width, "0" );
@@ -382,6 +390,17 @@ public class ApplicationFrame extends JFrame {
 		jtpView.setSelectedIndex(0);
 	}
 
+	public void vActivateViewDataPanel(){
+	   SwingUtilities.invokeLater(
+			new Runnable(){
+				public void run(){
+					jtpMain.setSelectedIndex(2); // activate the view tab
+					jtpView.setSelectedIndex(2); // activate the table tab
+				}
+			}
+		);
+	}
+	
 	public void vActivateViewTablePanel(){
 	   SwingUtilities.invokeLater(
 			new Runnable(){
@@ -399,7 +418,7 @@ public class ApplicationFrame extends JFrame {
 				public void run(){
 					jtpMain.setSelectedIndex(2); // activate the view tab
 					jtpView.setSelectedIndex(4); // activate the plotting tab
-					panelPlotter.getPanel_Definition().vActivateVariableSelector();
+					Panel_View_Plot.getPanel_Definition().vActivateVariableSelector();
 				}
 			}
 		);
@@ -473,10 +492,10 @@ public class ApplicationFrame extends JFrame {
 		vShowAlert( sError );
 	}
 
-	private final static Font fontMessage = new java.awt.Font("SansSerif", Font.BOLD, 12);
-	private final static LayoutManager layoutAlert = new GridBagLayout();
-	private final static GridBagConstraints constraintAlert = new GridBagConstraints();
-	private final static LayoutManager layoutBL = new BorderLayout();
+//	private final static Font fontMessage = new java.awt.Font("SansSerif", Font.BOLD, 12);
+//	private final static LayoutManager layoutAlert = new GridBagLayout();
+//	private final static GridBagConstraints constraintAlert = new GridBagConstraints();
+//	private final static LayoutManager layoutBL = new BorderLayout();
 
 	private void vShowAlert(final String sMessage){
 		SwingUtilities.invokeLater(
@@ -494,7 +513,6 @@ public class ApplicationFrame extends JFrame {
 
 class StatusBar extends JPanel {
 
-	private JPanel jpanelStatus;
 	private JLabel jlabelStatus;
 	private JPanel jpanelMemory;
 	private JPanel jpanelProgress;
@@ -563,7 +581,7 @@ class StatusBar extends JPanel {
 			new MouseAdapter(){
 				public void mousePressed( MouseEvent me ){
 					if( me.getClickCount() == 2 ){
-						ApplicationController.getInstance().vClearStatus();
+						ApplicationController.vClearStatus();
 					}
 				}
 			}

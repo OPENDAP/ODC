@@ -44,7 +44,7 @@ public class ApplicationController {
 	private static final ApplicationController thisSingleton = new ApplicationController();
 
 	private static final String msAppName = "OPeNDAP Data Connector";
-	private static final String msAppVersion = "2.70";
+	private static final String msAppVersion = "3.00";
 	private static final String msAppReleaseDate = "5 February 2007"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
@@ -52,6 +52,7 @@ public class ApplicationController {
 	public final String getAppVersion(){ return msAppVersion; }
 	public final String getAppReleaseDate(){ return msAppReleaseDate; }
 	public final String getVersionString(){ return "ODC " + msAppVersion; }
+	public final String getVersionString_FileFormat(){ return "ODC300"; }
 
 	private ApplicationFrame appframe;
 	private InterprocessServer server;
@@ -67,10 +68,14 @@ public class ApplicationController {
 	private Model_Retrieve mRetrieve;
 	public Model_Retrieve getRetrieveModel(){ return mRetrieve; }
 
-	private ArrayList listStatusMessages = new ArrayList();
-	private ArrayList listWarnings = new ArrayList();
-	private ArrayList listErrors = new ArrayList();
-	private ArrayList mlistActivities = new ArrayList();
+	private Model_LoadedDatasets mDatasets;
+	public Model_LoadedDatasets getDatasets(){ return mDatasets; }
+	
+	public ArrayList<String> listStatusMessages = new ArrayList<String>();
+	public ArrayList<String> listWarnings = new ArrayList<String>();
+	public ArrayList<String> listErrors = new ArrayList<String>();
+	public ArrayList<String> listDumps = new ArrayList<String>();
+	private ArrayList<Activity> mlistActivities = new ArrayList<Activity>();
 
 	private Environment mEnvironment = new Environment();
 
@@ -126,6 +131,7 @@ public class ApplicationController {
 			thisInstance.vShowStartupMessage("creating models");
 			thisInstance.mOutputEngine = new OutputEngine();
 			thisInstance.mRetrieve     = new Model_Retrieve();
+			thisInstance.mDatasets     = new Model_LoadedDatasets();
 			
 			thisInstance.vShowStartupMessage("initializing geodesy");
 			thisInstance.geodesy = opendap.clients.odc.geo.Geodesy.getInstance();
@@ -392,6 +398,7 @@ public class ApplicationController {
 	public int getStatusCount(){ return listStatusMessages.size(); }
 	public int getWarningCount(){ return listWarnings.size(); }
 	public int getErrorCount(){ return listErrors.size(); }
+	public int getDumpCount(){ return listDumps.size(); }
 
 	public Model_Dataset[] getSelectedThumbs(){
 		if( getAppFrame() == null ) return null;
@@ -428,6 +435,7 @@ public class ApplicationController {
 		this.listErrors.clear();
 		this.listWarnings.clear();
 		this.listStatusMessages.clear();
+		this.listDumps.clear();
 	}
 
 	/** outputs status without putting it in the messages collection
@@ -513,7 +521,7 @@ public class ApplicationController {
 
 	public static void vShowStartupDialog( String sErrorMessage ){
 		String sWrappedMessage = Utility.sWrap(sErrorMessage, 60, false, "\n");
-		javax.swing.JOptionPane.showMessageDialog(ApplicationController.getInstance().windowSplash, sWrappedMessage);
+		javax.swing.JOptionPane.showMessageDialog(ApplicationController.windowSplash, sWrappedMessage);
 	}
 
 	public static void vShowErrorDialog( String sErrorMessage ){
@@ -582,7 +590,7 @@ public class ApplicationController {
 	}
 
 	public void vDumpMessages(){
-		OutputStream osTextView = this.getInstance().getAppFrame().getTextViewerOS();
+		OutputStream osTextView = getInstance().getAppFrame().getTextViewerOS();
 		String sHeader = "\nErrors:"; // start on new line
 		Iterator iterator = listErrors.iterator();
 		if( iterator.hasNext() ){
@@ -629,7 +637,7 @@ public class ApplicationController {
 	}
 
 	public void vDumpLog(){
-		OutputStream osTextView = this.getInstance().getAppFrame().getTextViewerOS();
+		OutputStream osTextView = getInstance().getAppFrame().getTextViewerOS();
 		String sHeader = "\nStatus Log:"; // start on new line
 		Iterator iterator = listStatusMessages.iterator();
 		if( iterator.hasNext() ){
@@ -648,7 +656,7 @@ public class ApplicationController {
 	}
 
 	public void vDumpErrors(){
-		OutputStream osTextView = this.getInstance().getAppFrame().getTextViewerOS();
+		OutputStream osTextView = getInstance().getAppFrame().getTextViewerOS();
 		String sHeader = "\nErrors:";
 		Iterator iterator = listErrors.iterator();
 		if( iterator.hasNext() ){
@@ -742,7 +750,7 @@ public class ApplicationController {
 		if( mSearch_XML == null ){
 			String urlXML = ConfigurationManager.getInstance().getOption("url.XML");
 			if( urlXML == null ){
-				this.vShowError("Failed to initialize retrieve XML url from configuration file");
+				vShowError("Failed to initialize retrieve XML url from configuration file");
 				return null;
 			} else {
 				mSearch_XML = new opendap.clients.odc.DatasetList.DatasetList();
@@ -764,7 +772,7 @@ public class ApplicationController {
 	}
 
 	public void vCancelActivities(){
-		ApplicationController.getInstance().vShowStatus("cancelling all activities");
+		ApplicationController.vShowStatus("cancelling all activities");
 		Iterator iteratorActivities = mlistActivities.iterator();
 		while( iteratorActivities.hasNext() ){
 			Activity activityCurrent = (Activity)iteratorActivities.next();

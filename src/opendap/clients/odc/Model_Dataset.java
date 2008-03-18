@@ -61,6 +61,7 @@ public class Model_Dataset implements java.io.Serializable {
 
 	private String msDDS_Text;
 	private String msDAS_Text;
+	private String msDDX_Text;
 	private String msInfo_Text;
 
 	transient private boolean mzUnreachable = false;
@@ -219,10 +220,18 @@ public class Model_Dataset implements java.io.Serializable {
 
 	public String getDDS_Text(){ return msDDS_Text; }
 
+	public String getDDX_Text(){ return msDDX_Text; }
+	
+	public String getServerVersion(){ if( mDataDDS == null ) return null; else return mDataDDS.getServerVersion().getVersionString(); }
+	
 	public void setDDS_Text(String dds_text){
 		msDDS_Text = dds_text;
 	}
 
+	public void setDDX_Text(String ddx_text){
+		msDDS_Text = ddx_text;
+	}
+	
 	public String getDAS_Text(){ return msDAS_Text; }
 
 	public void setDAS_Text(String das_text){ msDAS_Text = das_text; }
@@ -372,11 +381,17 @@ public class Model_Dataset implements java.io.Serializable {
      * @return The full URL.
      */
     public String toString() {
-		if(msTitle != null) {
-			return msTitle + "(" + getFullURL() + ")";
-		} else {
-            return getFullURL();
-		}
+    	if( getFileName() == null ){
+    		if( msTitle == null ){
+    			return "[unnamed]";
+    		} else return msTitle;
+    	} else {
+			if( msTitle == null ){
+	            return getFileName();
+			} else {
+				return msTitle + " (" + getFileName() + ")";
+			}
+    	}
     }
 
     /**

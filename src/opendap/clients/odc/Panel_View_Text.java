@@ -31,16 +31,22 @@ package opendap.clients.odc;
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 /////////////////////////////////////////////////////////////////////////////
 import java.awt.event.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.io.File;
+import java.util.ArrayList;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.BorderFactory;
+import javax.swing.SwingUtilities;
+import javax.swing.JButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class Panel_View_Text extends JPanel implements IControlPanel {
 
 	private int mctFilesOpened; // used to generate default file name of new window
+	public ArrayList<Panel_View_Text_Editor> listEditors = null;
 	
     public Panel_View_Text() {}
 
@@ -55,6 +61,7 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 			setBorder(borderStandard);
 			setLayout(new java.awt.BorderLayout());
 
+			listEditors =  new ArrayList<Panel_View_Text_Editor>();
 
 			// Create and intialize the command panel
 			JPanel jpanelCommand = new JPanel();
@@ -168,7 +175,7 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 		for( Component component : jtpEditors.getComponents() ){
 			if( ( component == null ) || ! (component instanceof Panel_View_Text_Editor) ) continue; 			
 			Panel_View_Text_Editor editor = (Panel_View_Text_Editor)component;	
-			String sNewName = editor.getFileName() + (editor.isDirty() ? '*' : "");
+			String sNewName = editor._getFileName() + (editor._isDirty() ? '*' : "");
 			jtpEditors.setTitleAt( jtpEditors.getSelectedIndex(), sNewName );
 		}
 	}
@@ -183,12 +190,21 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 			mctFilesOpened++;
 			if( sName == null ) sName = "" + mctFilesOpened + ".txt";
 			if( sDirectory == null ) sDirectory = ConfigurationManager.getInstance().getDefault_DIR_Scripts();
-			Panel_View_Text_Editor editor = new Panel_View_Text_Editor();
-			if( ! editor.zInitialize( this, sDirectory, sName, sContent, sbError ) ){
+			Panel_View_Text_Editor editorNew = new Panel_View_Text_Editor();
+			if( ! editorNew._zInitialize( this, sDirectory, sName, sContent, sbError ) ){
 				ApplicationController.vShowError( "Error creating new editor window for directory: " + sDirectory + " file: " + sName + " " + sContent.length() + " bytes: " + sbError );
 			}
-			jtpEditors.addTab( editor.getFileName(), editor );
-			jtpEditors.setSelectedComponent( editor );
+			jtpEditors.addTab( editorNew._getFileName(), editorNew );
+			jtpEditors.setSelectedComponent( editorNew );
+			listEditors.add( editorNew );
+			if( listEditors.size() > 1 ){
+				for( Panel_View_Text_Editor editor : listEditors ){
+					if( editor == editorNew ) continue;
+					if( editor._getText().length() == 0 ){
+						editorCloseNoSave();
+					}
+				}
+			}
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, "while opening new editor" );
 		}
@@ -223,8 +239,8 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 				ApplicationController.vShowError( "Error opening file " + file + ": " + sbError );
 				return;
 			}
-			editorNew(  file.getParent(), file.getName(), sContent );
-
+			editorNew(  file.getParent(), file.getName(), sContent );			
+			
 		} catch(Exception ex) {
 			ApplicationController.vUnexpectedError( ex, "while opening file" );
 		}
@@ -232,12 +248,12 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 	
 	void editorSave(){
 		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
-		editor.save();
+		editor._save();
 	}
 	
 	void editorSaveAs(){
 		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
-		editor.saveAs();		
+		editor._saveAs();		
 	}
 	void editorSaveClose(){
 		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
@@ -245,16 +261,21 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 			ApplicationController.vShowStatus_NoCache( "no active editor to save/close" );
 			return;
 		}
-		if( ! editor.save() ) return; // do not close if action was cancelled or failed
+		if( ! editor._save() ) return; // do not close if action was cancelled or failed
 		jtpEditors.remove( editor );
+		listEditors.remove( editor );
 	}
 	void editorCloseNoSave(){
 		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
+		editorCloseNoSave( editor );
+	}
+	void editorCloseNoSave( Panel_View_Text_Editor editor ){
 		if( editor == null ){
 			ApplicationController.vShowStatus_NoCache( "no active editor to close" );
 			return;
 		}
 		jtpEditors.remove( editor );
+		listEditors.remove( editor );
 	}
 
 }
