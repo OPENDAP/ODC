@@ -52,7 +52,7 @@ public class ECHOSearchWindow extends opendap.clients.odc.SearchInterface implem
     private JButton previousButton;
     private JButton submitButton;
     private JButton cancelButton;
-    private DodsURL[] urls;
+    private Model_Dataset[] urls;
 
     /**
      * Create a new <code>DiscoverySearchPanel/code>
@@ -292,7 +292,7 @@ public class ECHOSearchWindow extends opendap.clients.odc.SearchInterface implem
     }
 
     //To be implemented
-    public DodsURL[] getURLs( StringBuffer sbError ){
+    public Model_Dataset[] getURLs( StringBuffer sbError ){
 		return urls;
     }
 
