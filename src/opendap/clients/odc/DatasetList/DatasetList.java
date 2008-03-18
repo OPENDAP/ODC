@@ -236,20 +236,20 @@ public class DatasetList extends SearchInterface {
 	private final void vAddSelectedURLs(){
 		try {
 			StringBuffer sbError = new StringBuffer(80);
-			DodsURL[] urls = DatasetList.this.getURLs(sbError);
+			Model_Dataset[] urls = DatasetList.this.getURLs(sbError);
 			if( urls == null ) return;
 			Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
 			retrieve_model.getURLList().vDatasets_Add( urls );
 			ApplicationController.getInstance().getAppFrame().vActivateRetrievalPanel();
 
 			// select the first URL in the added ones, and activate it
-			DodsURL urlFirst = urls[0];
+			Model_Dataset urlFirst = urls[0];
 			Model_URLList modelURLList = retrieve_model.getURLList();
 			Panel_URLList panelList = modelURLList.getControl();
 			for( int iListIndex = 0; iListIndex < modelURLList.getSize(); iListIndex++ ){
 				if( modelURLList.get( iListIndex ) == urlFirst ){
 					panelList.vSelectIndex(iListIndex);
-					if( urlFirst.getType() == DodsURL.TYPE_Data )
+					if( urlFirst.getType() == Model_Dataset.TYPE_Data )
 						ApplicationController.getInstance().getRetrieveModel().getRetrievePanel().vShowDirectory( false ); // data URLs do not have directories
 					ApplicationController.getInstance().getRetrieveModel().vShowURL( urlFirst, null );
 				}
@@ -510,7 +510,7 @@ public class DatasetList extends SearchInterface {
 	}
 
     // Returns DodsUrl object with selected URLs
-	public DodsURL[] getURLs( StringBuffer sbError ) {
+	public Model_Dataset[] getURLs( StringBuffer sbError ) {
         Hashtable urlshash = new Hashtable();
         Vector urlsvect = new Vector();
         Object[] nodes = xmlDOMTree.getSelection();
@@ -558,16 +558,16 @@ public class DatasetList extends SearchInterface {
         }
 
         if (urlsvect.size() > 0) {
-            DodsURL[] urls = new DodsURL[urlsvect.size()];
+            Model_Dataset[] urls = new Model_Dataset[urlsvect.size()];
             for (int i=0; i < urlsvect.size(); i++) {
-                urls[i] = new DodsURL();
+                urls[i] = new Model_Dataset();
                 DOMTree.AdapterNode thisnode = (DOMTree.AdapterNode) urlsvect.elementAt(i);
                 if (thisnode.getAttributes().getNamedItem(DOMTree.ATTR_CATALOG) != null ||
 					thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null) {
-                    urls[i].setType(DodsURL.TYPE_Directory);
+                    urls[i].setType(Model_Dataset.TYPE_Directory);
 					urls[i].setURL(thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR).getNodeValue());
                 } else {
-                    urls[i].setType(DodsURL.TYPE_Data);
+                    urls[i].setType(Model_Dataset.TYPE_Data);
 					urls[i].setURL(thisnode.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL).getNodeValue());
                 }
                 urls[i].setTitle(thisnode.getAttributes().getNamedItem(DOMTree.ATTR_NAME).getNodeValue());
