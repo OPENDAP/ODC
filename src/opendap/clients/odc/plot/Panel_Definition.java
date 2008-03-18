@@ -104,9 +104,9 @@ public class Panel_Definition extends JPanel {
 			new ChangeListener(){
 			    public void stateChanged( ChangeEvent e ){
 					if( mjtpPlotDefinition.getSelectedIndex() == 6){
-						parent.getTN_Controls().setVisible(true);
+						Panel_View_Plot.getTN_Controls().setVisible(true);
 					} else {
-						parent.getTN_Controls().setVisible(false);
+						Panel_View_Plot.getTN_Controls().setVisible(false);
 					}
 				}
 			}
@@ -132,19 +132,19 @@ public class Panel_Definition extends JPanel {
 
 	public void vActivateVariableSelector(){
 		mjtpPlotDefinition.setSelectedIndex(PANEL_INDEX_Variables);
-		mParent.getTN_Controls().setVisible(false);
+		Panel_View_Plot.getTN_Controls().setVisible(false);
 	}
 
 	public void vActivatePreview(){
 		mjtpPlotDefinition.setSelectedIndex(PANEL_INDEX_Preview);
-		mParent.getTN_Controls().setVisible(false);
+		Panel_View_Plot.getTN_Controls().setVisible(false);
 		mjtpPlotDefinition.invalidate();
 		this.validate();
 	}
 
 	public void vActivateThumbnails(){
 		mjtpPlotDefinition.setSelectedIndex(PANEL_INDEX_Thumbnails);
-		mParent.getTN_Controls().setVisible(true);
+		Panel_View_Plot.getTN_Controls().setVisible(true);
 		mjtpPlotDefinition.invalidate();
 		this.validate();
 	}
@@ -155,14 +155,14 @@ public class Panel_Definition extends JPanel {
 
 	void setPlotType( int ePlotType ){
 		if( mPlottingDefinition != null ){
-			DodsURL url = mPlottingDefinition.getURL();
+			Model_Dataset url = mPlottingDefinition.getURL();
 			mPlottingDefinition.setPlotType( ePlotType );
 			mpanelVariables.vShowDDDSForm(ePlotType, url);
 		}
 	}
 
 	boolean zSetting = false;
-	void setData( DodsURL urlEntry, int eMODE, int ePlotType ){
+	void setData( Model_Dataset urlEntry, int eMODE, int ePlotType ){
 		if( zSetting ){ // reentrant
 			Thread.dumpStack();
 			return;
@@ -218,7 +218,7 @@ public class Panel_Definition extends JPanel {
 	void vTN_SelectAll(){ mpanelThumbnails.vSelectAll(); }
 	void vTN_DeleteSelected(){ mpanelThumbnails.vDeleteSelected(); }
 	void vTN_ReRetrieve(){ mpanelThumbnails.vReRetrieve(); }
-	public DodsURL[] getSelectedThumbs(){ return mpanelThumbnails.getSelectedURLs0(); }
+	public Model_Dataset[] getSelectedThumbs(){ return mpanelThumbnails.getSelectedURLs0(); }
 
 }
 
@@ -285,7 +285,7 @@ class Panel_VariableTab extends JPanel {
 		setActiveDefinition( null );
 		vShowMessage("Table view not supported");
 	}
-	void vShowDDDSForm(int ePlotType, DodsURL url){
+	void vShowDDDSForm(int ePlotType, Model_Dataset url){
 		setActiveDefinition( null );
 		if( url == null ){
 			removeAll();  // todo

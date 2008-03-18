@@ -32,7 +32,7 @@ package opendap.clients.odc.plot;
  */
 
 import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.DodsURL;
+import opendap.clients.odc.Model_Dataset;
 import opendap.clients.odc.Utility;
 
 import java.awt.*;
@@ -41,7 +41,7 @@ class Panel_Plot_Vector extends Panel_Plot {
 
 	private String mDisplay_sMessage = null;
 
-	Panel_Plot_Vector( PlotScale scale, String sID, String sCaption, DodsURL url ){
+	Panel_Plot_Vector( PlotScale scale, String sID, String sCaption, Model_Dataset url ){
 		super(scale, sID, sCaption, url);
 	}
 

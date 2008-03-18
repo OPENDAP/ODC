@@ -34,7 +34,7 @@ package opendap.clients.odc.plot;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.DAP;
-import opendap.clients.odc.DodsURL;
+import opendap.clients.odc.Model_Dataset;
 
 import java.util.ArrayList;
 import java.awt.event.*;
@@ -50,7 +50,7 @@ class Panel_Plot_Line extends Panel_Plot {
 	public final static int TYPE_Scatter = 2;
 	public final static int TYPE_HiLo = 3;
 
-	Panel_Plot_Line( PlotScale scale, String sID, String sCaption, DodsURL url ){
+	Panel_Plot_Line( PlotScale scale, String sID, String sCaption, Model_Dataset url ){
 		super(scale, sID, sCaption, url);
 	}
 

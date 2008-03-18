@@ -360,14 +360,14 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		mzFreezeDefinition = z;
 	}
 
-	void vPlot(DodsURL urlToPlot){
+	void vPlot(Model_Dataset urlToPlot){
 		int eOutputOption = getOutputOption();
 		vPlot( urlToPlot, eOutputOption );
 	}
 
-	void vPlot(DodsURL urlToPlot, int eOutput){
+	void vPlot(Model_Dataset urlToPlot, int eOutput){
 		for( int xListItem = 0; xListItem < lmSelectedURLs.getSize(); xListItem++ ){
-			DodsURL urlCurrent = (DodsURL)lmSelectedURLs.get(xListItem);
+			Model_Dataset urlCurrent = (Model_Dataset)lmSelectedURLs.get(xListItem);
 			if( urlCurrent == urlToPlot ){
 				vActivateListItem(xListItem);
 				zPlot(eOutput);
@@ -477,7 +477,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	// this method must be invoked on the event thread
-	public boolean zAddData_Invoked( DodsURL url, StringBuffer sbError ){
+	public boolean zAddData_Invoked( Model_Dataset url, StringBuffer sbError ){
 		return this.source_Add(url, sbError);
 	}
 
@@ -671,7 +671,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	void vSetDataToDefinition(int xDataset_0){
-		final DodsURL url = (DodsURL)Panel_View_Plot.this.listPlotterData.get(xDataset_0);
+		final Model_Dataset url = (Model_Dataset)Panel_View_Plot.this.listPlotterData.get(xDataset_0);
 		int ePlotType = getPlotType();
 		mDefinitionPanel.setData(url, Panel_Definition.VARIABLE_MODE_DDS, ePlotType);
 		Plot_Definition pd = mDefinitionPanel.getActivePlottingDefinition();
@@ -687,7 +687,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 				ApplicationController.vShowWarning("nothing selected");
 				return;
 			}
-			final DodsURL url = (DodsURL)Panel_View_Plot.this.listPlotterData.get(xURL_0);
+			final Model_Dataset url = (Model_Dataset)Panel_View_Plot.this.listPlotterData.get(xURL_0);
 			String sTitle = url.getTitle();
 			DataConnectorFile dcf = new DataConnectorFile();
 			dcf.setTitle(url.getTitle());
@@ -759,7 +759,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			}
 			if( o instanceof opendap.clients.odc.plot.DataConnectorFile ){
 				DataConnectorFile dcf = (DataConnectorFile)o;
-				DodsURL url = dcf.getURL();
+				Model_Dataset url = dcf.getURL();
 				url.setData(dcf.getData());
 				if( Panel_View_Plot.this.source_Add(url, sbError) ){
 					ApplicationController.vShowStatus("File loaded to plotter: " + url);
@@ -805,7 +805,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		return null;
 	}
 	StringBuffer sbItem = new StringBuffer(80);
-	boolean source_Add( DodsURL url, StringBuffer sbError ){
+	boolean source_Add( Model_Dataset url, StringBuffer sbError ){
 		try {
 			if( url == null ){ sbError.append("no source supplied"); return false; }
 			if( url.getData() == null ){ sbError.append("source has no data"); return false; }
@@ -824,7 +824,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			if( xURL_0 >= this.listPlotterData.size() ){
 				ApplicationController.vShowError("system error; url index outside loaded range");
 			} else {
-				DodsURL urlEntry = (DodsURL)listPlotterData.get(xURL_0);
+				Model_Dataset urlEntry = (Model_Dataset)listPlotterData.get(xURL_0);
 				DataDDS ddds = urlEntry.getData();
 				lmSelectedURLs.removeElement(urlEntry);
 				listPlotterData.remove(xURL_0);
@@ -845,7 +845,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 				ApplicationController.vShowError("system error; url index outside loaded range");
 				return;
 			}
-			DodsURL urlEntry = (DodsURL)listPlotterData.get(xURL_0);
+			Model_Dataset urlEntry = (Model_Dataset)listPlotterData.get(xURL_0);
 			StringBuffer sbInfo = new StringBuffer(120);
 			sbInfo.append(urlEntry.getTitle());
 			sbInfo.append("\n");

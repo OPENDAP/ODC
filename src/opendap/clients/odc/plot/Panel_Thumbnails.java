@@ -31,7 +31,7 @@ package opendap.clients.odc.plot;
  * @version      2.38
  */
 
-import opendap.clients.odc.DodsURL;
+import opendap.clients.odc.Model_Dataset;
 import java.util.ArrayList;
 
 import opendap.clients.odc.ApplicationController;
@@ -225,7 +225,7 @@ public class Panel_Thumbnails extends JPanel implements Printable, MouseListener
 
 	}
 
-	public void addThumbnail(DodsURL url, String sCaption, Image imageThumbnail){
+	public void addThumbnail(Model_Dataset url, String sCaption, Image imageThumbnail){
 		if( url == null ){
 			ApplicationController.vShowError("system error: attempt to add thumbnail with null URL");
 			return;
@@ -273,7 +273,7 @@ public class Panel_Thumbnails extends JPanel implements Printable, MouseListener
 				ctSelected++;
 			}
 		}
-		DodsURL[] listURLsToReRetrieve = new DodsURL[ctSelected];
+		Model_Dataset[] listURLsToReRetrieve = new Model_Dataset[ctSelected];
 		int xSelected = -1;
 		for( int xThumbnail = 1; xThumbnail <= ctThumbnails; xThumbnail++ ){
 			Thumbnail tn = (Thumbnail)listThumbnails.get(xThumbnail - 1);
@@ -294,14 +294,14 @@ public class Panel_Thumbnails extends JPanel implements Printable, MouseListener
 		}
 	}
 
-	public DodsURL[] getSelectedURLs0(){
+	public Model_Dataset[] getSelectedURLs0(){
 		int ctSelected = 0;
 		int ctThumbnails = listThumbnails.size();
 		for( int xThumbnail = 1; xThumbnail <= ctThumbnails; xThumbnail++ ){
 			Thumbnail tn = (Thumbnail)listThumbnails.get(xThumbnail - 1);
 			if( tn.zSelected ) ctSelected++;
 		}
-		DodsURL[] urls = new DodsURL[ctSelected];
+		Model_Dataset[] urls = new Model_Dataset[ctSelected];
 		int xSelection = -1;
 		for( int xThumbnail = 1; xThumbnail <= ctThumbnails; xThumbnail++ ){
 			Thumbnail tn = (Thumbnail)listThumbnails.get(xThumbnail - 1);
@@ -376,7 +376,7 @@ System.out.println("click plotting url: " + tn.url);
 }
 
 class Thumbnail {
-	DodsURL url;
+	Model_Dataset url;
 	Image image;
 	boolean zSelected;
 	String sCaption;
