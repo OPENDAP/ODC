@@ -204,7 +204,7 @@ public class Dif {
 
     public String getDodsURL() {
 		 StringBuffer sbError = new StringBuffer();
-		 DodsURL url = getDodsURL(sbError);
+		 Model_Dataset url = getDodsURL(sbError);
 		 if( url == null ) return "[" + sbError.toString() + "]";
 		 return url.getFullURL();
 	}
@@ -215,9 +215,9 @@ public class Dif {
      *
      * @return the Dods URL of the dataset
      */
-    public DodsURL getDodsURL( StringBuffer sbError ) {
+    public Model_Dataset getDodsURL( StringBuffer sbError ) {
 		String url = "";
-		DodsURL dodsURL;
+		Model_Dataset dodsURL;
 		int index = 1;
 
 //		for(int i=0;i<contentTypes.size();i++) {
@@ -231,7 +231,7 @@ public class Dif {
 //		} else
 	    if ( (index = contentTypes.indexOf("DODS_URL")) != -1) {
 			url = (String)urls.elementAt(index);
-			dodsURL = new DodsURL(url, DodsURL.TYPE_Data);
+			dodsURL = new Model_Dataset(url, Model_Dataset.TYPE_Data);
 		}
 
 		// DODS_INFO and DODS_HTML both point to the dods dataset, but
@@ -240,17 +240,17 @@ public class Dif {
 		else if( (index = contentTypes.indexOf("DODS_HTML")) != -1) {
 			url = (String)urls.elementAt(index);
 			url = url.substring(0,url.length() - 5);
-			dodsURL = new DodsURL(url, DodsURL.TYPE_Data);
+			dodsURL = new Model_Dataset(url, Model_Dataset.TYPE_Data);
 		} else if( (index = contentTypes.indexOf("DODS_INFO")) != -1) {
 			url = (String)urls.elementAt(index);
 			url = url.substring(0,url.length() - 5);
-			dodsURL = new DodsURL(url, DodsURL.TYPE_Data);
+			dodsURL = new Model_Dataset(url, Model_Dataset.TYPE_Data);
 		} else if( (index = contentTypes.indexOf("DODS_DIR")) != -1) {
 			url = (String)urls.elementAt(index);
-			dodsURL = new DodsURL(url, DodsURL.TYPE_Directory);
+			dodsURL = new Model_Dataset(url, Model_Dataset.TYPE_Directory);
 		} else if( (index = contentTypes.indexOf("GET DATA")) != -1) {
 			url = (String)urls.elementAt(index);
-			dodsURL = new DodsURL(url, DodsURL.TYPE_Directory);
+			dodsURL = new Model_Dataset(url, Model_Dataset.TYPE_Directory);
 		}
 
 		// Often, the DODS_SITEINFO url can become the dods url by adding
@@ -261,7 +261,7 @@ public class Dif {
 		{
 			url = (String)urls.elementAt(index);
 			url += "dods";
-			dodsURL = new DodsURL(url, DodsURL.TYPE_Data);
+			dodsURL = new Model_Dataset(url, Model_Dataset.TYPE_Data);
 		} else {
 			sbError.append("Unable to form URL; no recognized content type for entry id " + this.getID() + " " + this.getTitle());
 			return null;

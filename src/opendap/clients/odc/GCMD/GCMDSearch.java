@@ -37,7 +37,7 @@ public class GCMDSearch extends JPanel {
 	private final JTabbedPane tabbedPane = new JTabbedPane();
     private JPanel freeTextSearch;
     private JPanel keywordSearch;
-    private DodsURL[] urls;
+    private Model_Dataset[] urls;
 
     /**
      * Create a new <code>GCMDSearch</code>

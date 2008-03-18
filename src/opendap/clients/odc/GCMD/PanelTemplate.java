@@ -497,7 +497,7 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 					Dif dif = (Dif)jtableURLs.getModel().getValueAt(index,0);
 					String sBaseURL;
 					StringBuffer sbError = new StringBuffer();
-					DodsURL url = dif.getDodsURL(sbError);
+					Model_Dataset url = dif.getDodsURL(sbError);
 					if( url == null ){
 						sBaseURL = "Error: " + sbError;
 					} else {
@@ -517,11 +517,11 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
      * Returns all the selected urls.
      * @return all the selected urls
      */
-    public DodsURL[] getURLs( StringBuffer sbError ) {
+    public Model_Dataset[] getURLs( StringBuffer sbError ) {
 		int[] aiSelectedRows = jtableURLs.getSelectedRows();
 		if( aiSelectedRows == null ) return null;
 		int ctURLs = aiSelectedRows.length;
-		DodsURL[] urls = new DodsURL[ctURLs];
+		Model_Dataset[] urls = new Model_Dataset[ctURLs];
 		for( int xSelectedRow = 0; xSelectedRow < ctURLs; xSelectedRow++ ){
 			Dif dif = (Dif)jtableURLs.getValueAt(aiSelectedRows[xSelectedRow],0);
 			urls[xSelectedRow] = dif.getDodsURL(sbError);
@@ -534,7 +534,7 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 		if( ctValidURLs < ctURLs ){ // there were errors
 			ApplicationController.getInstance().vShowWarning("One or more selected URLs was invalid, check GCMD info for errors");
 			if( ctValidURLs == 0 ) return null;
-			DodsURL[] urlsValid = new DodsURL[ctValidURLs];
+			Model_Dataset[] urlsValid = new Model_Dataset[ctValidURLs];
 			int xValidURL = -1;
 			for( int xURL = 0; xURL < ctURLs; xURL++ ){
 				if( urls[xURL] != null ){
