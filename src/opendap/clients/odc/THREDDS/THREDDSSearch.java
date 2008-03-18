@@ -124,9 +124,9 @@ public class THREDDSSearch extends SearchInterface {
 		}
 	}
 
-	DodsURL[] mSelectedURLs = null;
+	Model_Dataset[] mSelectedURLs = null;
 
-	public DodsURL[] getURLs( StringBuffer sbError ){
+	public Model_Dataset[] getURLs( StringBuffer sbError ){
 		return mSelectedURLs;
 	}
 	public void addListSelectionListener( javax.swing.event.ListSelectionListener listener ){
