@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // This file is part of the OPeNDAP Data Connector project.
 //
-// Copyright (c) 2007 OPeNDAP, Inc.
+// Copyright (c) 2007-8 OPeNDAP, Inc.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -22,30 +22,53 @@
 
 package opendap.clients.odc;
 
+import opendap.dap.BaseType;
+
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JButton;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTree;
 import javax.swing.ListModel;
-import javax.swing.event.ListDataListener;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreePath;
 
-public class Panel_View_Data extends JPanel {
+public class Panel_View_Data extends JPanel implements IControlPanel {	
+	Panel_LoadedDatasets panelLoadedDatasets = new Panel_LoadedDatasets();
+	Panel_StructureView panelStructureView = new Panel_StructureView();
+	Panel_VarView panelVarView = new Panel_VarView();	
     public Panel_View_Data() {}
-	public boolean zInitialize( StringBuffer sbError ){
+	public boolean _zInitialize( Model_LoadedDatasets data_list, StringBuffer sbError ){
 		try {
 
 			Model_DataView model = new Model_DataView();
-			if( ! model.zInitialize(sbError) ){
+			if( ! model.zInitialize( data_list, sbError ) ){
 				sbError.insert(0, "failed to initialize model: ");
 				return false;
 			}
-
-			Panel_LoadedDatasets panelLoadedDatasets = new Panel_LoadedDatasets();
-			Panel_StructureView panelStructureView = new Panel_StructureView();
-			Panel_VarView panelVarView = new Panel_VarView();
+			if( ! panelLoadedDatasets.zInitialize( model, sbError ) ){
+				sbError.insert(0, "failed to initialize loaded datasets panel: ");
+				return false;
+			}
 			JPanel panelTop = new JPanel();
 			panelTop.setLayout( new BorderLayout() );
 			panelTop.add( panelLoadedDatasets, BorderLayout.NORTH );
@@ -53,87 +76,52 @@ public class Panel_View_Data extends JPanel {
 			JSplitPane jsplitTreeVar = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
 			jsplitTreeVar.setTopComponent( panelTop );
 			jsplitTreeVar.setBottomComponent( panelVarView );
+			this.add( jsplitTreeVar );
 		} catch( Exception ex ) {
 			return false;
 		}
 		return true;
 	}
-}
-
-class Model_LoadedDatasets implements ListModel {
-	private int miCapacity = 1000;
-	private int mctDatasets = 0;
-	private Model_Dataset[] maDatasets = new Model_Dataset[ 1000 ];
-
-	void addDataset( Model_Dataset url ){
-		if( url == null ){
-			ApplicationController.getInstance().vShowWarning("attempt to null dataset");
-			return;
-		}
-		if( mctDatasets == miCapacity ){
-			int iNewCapacity = 2 * miCapacity;
-			Model_Dataset[] aEnlargedDatasetBuffer = new Model_Dataset[ iNewCapacity ];
-			System.arraycopy(maDatasets, 0, aEnlargedDatasetBuffer, 0, miCapacity);
-			maDatasets = aEnlargedDatasetBuffer;
-		}
-		mctDatasets++;
-		maDatasets[mctDatasets] = url;
+	
+	public void _showVariable( BaseType bt ){
 	}
-
-	void removeDataset( int iIndex0 ){
-		if( iIndex0 < 0 || iIndex0 >= mctDatasets ){
-			ApplicationController.getInstance().vShowWarning("attempt to unload non-existent dataset " + iIndex0);
-			return;
-		}
-		for( int xList = iIndex0; xList < mctDatasets - 1; xList++ ){
-			maDatasets[xList] = maDatasets[xList + 1];
-		}
-		mctDatasets--;
-		// TODO xxx make event
-	}
-
-	void removeDataset( Model_Dataset url ){
-		for( int xList = 0; xList < mctDatasets; xList++ ){
-			if( maDatasets[xList] == url ){
-				for( ; xList < mctDatasets - 1; xList++ ) maDatasets[xList] = maDatasets[xList + 1];
-				mctDatasets--;
-				// TODO xxx make event
+	
+	public void vSetFocus(){    	
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				panelLoadedDatasets.requestFocus();
 			}
-		}
-		ApplicationController.getInstance().vShowWarning("attempt to unload non-existent dataset " + url);
-		return;
+		});
 	}
-
-	// ListModel Interface
-	public Object getElementAt( int iIndex0 ){
-		if( iIndex0 < 0 || iIndex0 >= mctDatasets ){
-			ApplicationController.getInstance().vShowWarning("attempt to get non-existent dataset element " + iIndex0);
-			return null;
-		}
-		return maDatasets[iIndex0];
-	}
-	public void addListDataListener( ListDataListener ldl){
-	}
-	public void removeListDataListener( ListDataListener ldl ){
-	}
-	public int getSize(){ return mctDatasets; }
+	
 }
 
 class Model_DataView {
+	int ctNewDatasets = 0;
 	Model_LoadedDatasets mDatasetList = null;
-	boolean zInitialize( StringBuffer sbError ){
-		// Model_LoadedDatasets data_list -- get this from application controller
-/* NOT FUNCTIONAL
+	boolean zInitialize( Model_LoadedDatasets data_list, StringBuffer sbError ){
 		if( data_list == null ){
 			sbError.append("dataset list not supplied");
 			return false;
 		}
 		mDatasetList = data_list;
-*/
-	  sbError.append("not implemented");
-		return false;
+		return true;
 	}
 	void action_New(){
+		try {
+			String sServerVersion = "2.1.5";
+			int iHeaderType = opendap.dap.ServerVersion.XDAP; // this is the simple version (eg "2.1.5"), server version strings are like "XDODS/2.1.5", these are only used in HTTP, not in files
+			opendap.dap.ServerVersion server_version = new opendap.dap.ServerVersion( sServerVersion, iHeaderType );
+			opendap.dap.DataDDS datadds = new opendap.dap.DataDDS( server_version );
+			ctNewDatasets++;
+			String sName = "data" + ctNewDatasets;
+			datadds.setName( sName );
+			Model_Dataset model = new Model_Dataset();
+			model.setTitle( sName );
+			mDatasetList.addDataset( model );
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while trying to create new dataset: " );
+		}
 	}
 	void action_Load(){
 	}
@@ -146,7 +134,7 @@ class Model_DataView {
 }
 
 class Panel_LoadedDatasets extends JPanel {
-	boolean zInitialize( final Model_DataView model, StringBuffer sbError ){
+	boolean zInitialize( final Model_DataView model, final StringBuffer sbError ){
 
 		if( model == null ){
 			sbError.append("no model supplied");
@@ -154,13 +142,15 @@ class Panel_LoadedDatasets extends JPanel {
 		}
 
 		// create controls
-		JComboBox jcbLoadedVariables = new JComboBox();
+		JComboBox jcbLoadedVariables = new JComboBox( model.mDatasetList );
 		JButton buttonNew = new JButton( "New" );
 		JButton buttonLoad = new JButton( "Load" );
 		JButton buttonUnload = new JButton( "Unload" );
 		JButton buttonSave = new JButton( "Save" );
 		JButton buttonSaveAs = new JButton( "Save as..." );
 
+		model.mDatasetList.addListDataListener( jcbLoadedVariables );
+		
 		// layout controls
 		this.setLayout( new BoxLayout(this, BoxLayout.X_AXIS) );
 		this.add( jcbLoadedVariables );
@@ -211,10 +201,61 @@ class Panel_LoadedDatasets extends JPanel {
 }
 
 class Panel_StructureView extends JPanel {
-	// create tree
-	// create scroll pane
-	// add tree to scroll pane
-	// hook up events to model
+	private Model_DataTree mTreeModel = null;
+	private JScrollPane mscrollpane_DataTree;
+	private Panel_View_Data mParent;
+	private Dimension dimMinimum = new Dimension(100, 80);
+	private JTree mtreeData = null;
+	public Dimension getMinimumSize(){
+		return dimMinimum;
+	}
+	void setModel( Model_DataTree model ){
+		mTreeModel = model;
+		if( mtreeData != null ) mtreeData.setModel( mTreeModel );
+	}
+	boolean zInitialize( Panel_View_Data parent, StringBuffer sbError ){
+		try {
+			mParent = parent;
+
+			Border borderEtched = BorderFactory.createEtchedBorder();
+
+			// tree
+			mtreeData = new JTree();
+			TreeCellRenderer rendererLeaflessTreeCell = new LeaflessTreeCellRenderer();
+			mtreeData.setCellRenderer(rendererLeaflessTreeCell);
+			mtreeData.setMinimumSize(new Dimension(60, 60));
+
+			// scroll panes
+			mscrollpane_DataTree = new JScrollPane();
+			mscrollpane_DataTree.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			mscrollpane_DataTree.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+			// set up panel
+			setLayout( new BorderLayout() );
+			setBorder( BorderFactory.createTitledBorder(borderEtched, "Dataset", TitledBorder.RIGHT, TitledBorder.TOP) );
+			removeAll();
+    		add( mscrollpane_DataTree, BorderLayout.CENTER );
+
+			// selection listener for directory tree
+			mtreeData.addTreeSelectionListener(
+				new TreeSelectionListener(){
+				    public void valueChanged(TreeSelectionEvent e){
+						TreePath tp = mtreeData.getSelectionPath();
+						if( tp == null ) return;
+						Object oSelectedNode = tp.getLastPathComponent();
+						DataTreeNode node = (DataTreeNode)oSelectedNode;
+						mParent._showVariable( node.getBaseType() );
+					}
+				}
+			);
+
+			return true;
+
+		} catch( Exception ex ) {
+			ApplicationController.vUnexpectedError(ex, sbError);
+			return false;
+		}
+	}
 }
 
 class Panel_VarView extends JPanel {

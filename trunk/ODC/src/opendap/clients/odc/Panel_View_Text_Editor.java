@@ -44,10 +44,10 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 	
 	public Panel_View_Text_Editor(){}
 
-	JScrollPane jspDisplay = new JScrollPane();
+	private JScrollPane jspDisplay = new JScrollPane();
 	private final JTextArea jtaDisplay = new JTextArea("");
 
-	boolean zInitialize( Panel_View_Text parent, String sDirectory, String sName, String sContent, StringBuffer sbError ){
+	boolean _zInitialize( Panel_View_Text parent, String sDirectory, String sName, String sContent, StringBuffer sbError ){
 
 		try {
 			if( parent == null ){
@@ -82,9 +82,9 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 							case KeyEvent.VK_S:
 								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
 									if( (iModifiers & java.awt.event.InputEvent.SHIFT_DOWN_MASK) == java.awt.event.InputEvent.SHIFT_DOWN_MASK ){
-										saveAs();
+										_saveAs();
 									} else {
-										save();
+										_save();
 									}
 									ke.consume();
 								} 
@@ -107,14 +107,14 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 										Panel_View_Text_Editor.this.parent.editorCloseNoSave();
 										ke.consume();
 									} else if( (iModifiers & java.awt.event.InputEvent.ALT_DOWN_MASK) == java.awt.event.InputEvent.ALT_DOWN_MASK ){
-										save();
+										_save();
 										Panel_View_Text_Editor.this.parent.editorCloseNoSave();
 										ke.consume();
 									}
 								}
 								break;
 						}
-						if( ! isDirty() ) Panel_View_Text_Editor.this.parent.updateTabTitles();						
+						if( ! _isDirty() ) Panel_View_Text_Editor.this.parent.updateTabTitles();						
 					}
 					public void keyReleased(KeyEvent ke){}
 					public void keyTyped(KeyEvent ke){}
@@ -139,43 +139,45 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 		});
 	}	
 
+	public String _getText(){ return jtaDisplay.getText(); }
+	
     /** file name only, example: "image_processing.py" */
-	public String getFileName(){ return msFileName; }
+	public String _getFileName(){ return msFileName; }
 
     /** returns the directory for the file with the terminating separator usually
      *  example: "c:\odc\scripts\" */
-	public String getFileDirectory(){ return msFileDirectory; }
+	public String _getFileDirectory(){ return msFileDirectory; }
 
     /** set file name only, example: "image_processing.py" */
-	public void setFileName( String sNewName ){ msFileName = sNewName; }
+	public void _setFileName( String sNewName ){ msFileName = sNewName; }
 
     /** sets the directory for the file (including terminating separator is optional)
      *  example: "c:\odc\scripts\" */
-	public void setFileDirectory( String sNewDirectory ){ msFileDirectory = sNewDirectory; }
+	public void _setFileDirectory( String sNewDirectory ){ msFileDirectory = sNewDirectory; }
     
     /** indicates that the file may not be saved / may be changed */
-	public boolean isDirty(){ return mzDirty; }
+	public boolean _isDirty(){ return mzDirty; }
 	
-	public void setClean(){
+	public void _setClean(){
 	}
     
 	/** returns false if the action was cancelled or failed */
-	boolean save(){
-		String sDirectory = getFileDirectory();
-		String sFileName  = getFileName();
+	boolean _save(){
+		String sDirectory = _getFileDirectory();
+		String sFileName  = _getFileName();
 		if( sDirectory == null || sFileName == null ){
-			return saveAs();
+			return _saveAs();
 		} else {
 			try {
 				StringBuffer sbError = new StringBuffer();
 				File file = Utility.fileDefine( sDirectory, sFileName, sbError);
 				if( file == null ){					
 					ApplicationController.vShowWarning( "error defining file (dir: " + sDirectory + " name: " + sFileName + "): " );
-					return saveAs();
+					return _saveAs();
 				} else {
 					if( Utility.fileSave( file, jtaDisplay.getText(), sbError ) ){
 						ApplicationController.vShowStatus( "Saved " + file );
-						setClean();
+						_setClean();
 						return true;
 					} else {
 						ApplicationController.vShowError( "Error saving file [" + file + "]: " + sbError );
@@ -190,11 +192,11 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 	}
 
 	/** returns false if the action was cancelled or failed */
-	boolean saveAs(){
+	boolean _saveAs(){
 		StringBuffer sbError = new StringBuffer();
-		String sSuggestedDirectory = getFileDirectory();
+		String sSuggestedDirectory = _getFileDirectory();
 		if( sSuggestedDirectory == null ) sSuggestedDirectory = ConfigurationManager.getInstance().getProperty_DIR_Scripts();
-		File fileSaved = Utility.fileSaveAs( ApplicationController.getInstance().getAppFrame(), "Save As...", sSuggestedDirectory, getFileName(), jtaDisplay.getText(), sbError );
+		File fileSaved = Utility.fileSaveAs( ApplicationController.getInstance().getAppFrame(), "Save As...", sSuggestedDirectory, _getFileName(), jtaDisplay.getText(), sbError );
 		if( fileSaved == null ){
 			if( sbError.length() == 0 ){
 				ApplicationController.vShowStatus_NoCache( "save cancelled" );
@@ -217,7 +219,7 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 
 		this.mzDirty = false;
 		ApplicationController.vShowStatus( "Saved file as " + fileSaved );
-		setClean();
+		_setClean();
 		parent.updateTabTitles(); // update the name of the tab
 		return true;
 
