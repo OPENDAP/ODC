@@ -200,7 +200,7 @@ public class ApplicationFrame extends JFrame {
 		}
 		ApplicationController.getInstance().vShowStartupMessage("creating data viewer");
 		panelDataView = new Panel_View_Data();
-		if( !panelDataView.zInitialize( ApplicationController.getInstance().getDatasets(), sbError ) ){
+		if( !panelDataView._zInitialize( ApplicationController.getInstance().getDatasets(), sbError ) ){
 			sbError.insert(0, "Failed to initialize data view panel: ");
 			return false;
 		}
