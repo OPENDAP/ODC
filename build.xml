@@ -100,7 +100,7 @@
       -
       -
       -->
-    <property name="opendap.lib"        value="opendap-0.0.8.jar"/>
+    <property name="opendap.lib"        value="opendap-0.0.9.jar"/>
     
     <property name="httpclient.lib"     value="commons-httpclient-3.0.1.jar"/>
     <property name="regexp.lib"         value="gnu-regexp-1.1.4.jar"/>
