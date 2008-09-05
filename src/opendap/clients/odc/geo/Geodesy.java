@@ -16,6 +16,7 @@ public class Geodesy {
 	private String masDatumCode[];
 	private String masEllipsoidName[];
 	private String masEllipsoidCode[];
+	
 	public final JNIEngine getGeoTransEngine(){ return geotrans_engine; }
 	private Geodesy(){} // private constructor to enforce singleton -- needed for default datum initialization
 	public static Geodesy getInstance(){ return singleton; }
