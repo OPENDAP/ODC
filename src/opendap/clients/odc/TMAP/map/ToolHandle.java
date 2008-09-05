@@ -1,7 +1,6 @@
 /*
  * @(#)ToolHandle.java    0.1 96/08/15 Jonathan Callahan
  * @(#)ToolHandle.java    2.3 97/10/13 Jonathan Callahan
- * 20080905 JSC eliminated use of deprecated method 'inside'
  *
  *
  *  This software was developed by the Thermal Modeling and Analysis
@@ -47,7 +46,7 @@ import java.awt.Rectangle;
 import java.awt.Point;
 
 /**
- * A rectangular tool handle to be used by a MapTool and defined by 
+ * A rectangular tool handle to be used by a MapTool and defined by
  * <dl>
  * <dt><b>x, y, width, height</b>
  * <dd>the position and size of the visible handle
@@ -89,7 +88,7 @@ public class ToolHandle extends Rectangle {
    */
   public ToolHandle() {
   }
- 
+
   /**
    * Constructs and initializes a ToolHandle with the specified parameters.
    *
@@ -108,7 +107,7 @@ public class ToolHandle extends Rectangle {
     this.color = color;
     this.type = type;
   }
- 
+
   /**
    * Constructs a ToolHandle and initializes it with the specified parameters.
    *
@@ -120,7 +119,7 @@ public class ToolHandle extends Rectangle {
   public ToolHandle(int width, int height, Color color, int type) {
     this(0, 0, width, height, color, type);
   }
- 
+
   /**
    * Constructs a ToolHandle and initializes it to a specified parameters.
    *
@@ -132,7 +131,7 @@ public class ToolHandle extends Rectangle {
   public ToolHandle(Point p, Dimension d, Color color, int type) {
     this(p.x, p.y, d.width, d.height, color, type);
   }
- 
+
   /**
    * Constructs a ToolHandle and initializes it to the specified parameters.
    * @param p the value of the x and y coordinate
@@ -142,7 +141,7 @@ public class ToolHandle extends Rectangle {
   public ToolHandle(Point p, Color color, int type) {
     this(p.x, p.y, 0, 0, color, type);
   }
- 
+
   /**
    * Constructs a ToolHandle and initializes it to the specified parameters.
    *
@@ -153,7 +152,7 @@ public class ToolHandle extends Rectangle {
   public ToolHandle(Dimension d, Color color, int type) {
     this(0, 0, d.width, d.height, color, type);
   }
- 
+
 
   /**
    * Overrides the Rectangle.contains() method to allow for definition
@@ -165,16 +164,8 @@ public class ToolHandle extends Rectangle {
   public boolean contains(int x, int y) {
     Rectangle target = new Rectangle(this.x, this.y, this.width, this.height);
     target.grow(x_target, y_target);
-	int w = this.width;
-	int h = this.height;
-	if ((w | h) < 0) return false;
-	// Note: if either dimension is zero, tests below must return false...
-	int xTarget = this.x;
-	int yTarget = this.y;
-	if( x < xTarget || y < yTarget ) return false;
-	w += xTarget;
-	h += yTarget;
-	return ((w < xTarget || w > x) && (h < yTarget || h > y)); //    overflow || intersect
+    return target.inside(x, y); //1.0
+    //1.1 return target.contains(x, y);
   }
 
   /**
@@ -249,9 +240,7 @@ public class ToolHandle extends Rectangle {
     g.setColor(color);
     g.fillRect(x, y, width, height);
   }
- 
+
 }
-
-
 
 

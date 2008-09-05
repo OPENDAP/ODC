@@ -40,7 +40,6 @@ package opendap.clients.odc.TMAP.map;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-//import opendap.clients.odc.TMAP.map.MapConstants;
 
 /**
  * A grid for use with the MapCanvas.
@@ -55,7 +54,7 @@ import java.awt.Rectangle;
  */
 
 public class MapGrid extends Object implements MapConstants {
-  
+
   /**
    * The data domain along X [in user coordinates].
    */
@@ -85,7 +84,7 @@ public class MapGrid extends Object implements MapConstants {
    * Full "user" domain of y in the base image.
    */
   public double y_factor=1.0;
-	
+
   /**
    * The grid spacing (in "user" coordinates) in the x dimension.
    */
@@ -132,7 +131,7 @@ public class MapGrid extends Object implements MapConstants {
    */
   public MapGrid() {
   }
- 
+
   /**
    * Constructs and initializes a MapGrid with the specified parameters.
    * @param x_lo the "user" value of the low end of the data domain along x.
@@ -389,7 +388,7 @@ public class MapGrid extends Object implements MapConstants {
     // Snap to the nearest grid point.
     //
     return_val = snapUser_X(user_val, style, shift);
- 
+
     // Undo the top calculation
     //
     if ( pixel_x > (imageRect.x + imageRect.width) )
@@ -581,5 +580,3 @@ public class MapGrid extends Object implements MapConstants {
   }
 
 }
-
-

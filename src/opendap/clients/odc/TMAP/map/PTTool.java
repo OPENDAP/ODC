@@ -42,9 +42,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
-//import opendap.clients.odc.TMAP.map.MapTool;
-//import opendap.clients.odc.TMAP.map.ToolHandle;
-
 /**
  * A rectangular map tool defined by x, y, width and height.
  *
@@ -54,7 +51,7 @@ import java.awt.Rectangle;
  * @author      Jonathan Callahan
  */
 public class PTTool extends MapTool {
- 
+
   /**
    * Constructs and initializes an PTTool with the specified parameters.
    * @param x the x coordinate
@@ -74,9 +71,9 @@ public class PTTool extends MapTool {
     this.width = width;
     this.height = height;
     this.color = color;
-    this.saveHandles();		
+    this.saveHandles();
   }
- 
+
   /**
    * Constructs an PTTool and initializes it to the specified rectangle.
    * @param rect the rectangle of the PTTool
@@ -84,7 +81,7 @@ public class PTTool extends MapTool {
   public PTTool(Rectangle rect, Color color) {
     this(rect.x, rect.y, rect.width, rect.height, color);
   }
- 
+
 
   /**
    * Draws an PTTool.
@@ -101,8 +98,8 @@ public class PTTool extends MapTool {
     for (i=0; i<numHandles; i++)
       handle[i].draw(g);
   }
- 
- 
+
+
   /**
    * Saves the current positions of all the handles.
    */
@@ -110,7 +107,7 @@ public class PTTool extends MapTool {
     handle = new ToolHandle[numHandles];
     handle[0]  = new ToolHandle(x+width/2-hw/2, y+height/2-hh/2, hw, hh, color, C);
   }
- 
+
   /**
    * Adjust the width or height for those tools which don't
    * specify an extent of width or height.
@@ -242,5 +239,3 @@ public class PTTool extends MapTool {
 
 
 }
-
-

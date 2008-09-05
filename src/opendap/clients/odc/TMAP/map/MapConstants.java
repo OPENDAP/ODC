@@ -49,7 +49,7 @@ package opendap.clients.odc.TMAP.map;
  * <pre>
 
  ...
- 
+
   public boolean mouseDrag(Event evt, int x, int y) {
         text_label.setText("from:  " + map.user_x[LO] + ", " + map.user_y[LO] +
         " to:  " + map.user_x[HI] + ", " + map.user_y[HI]);
@@ -132,5 +132,3 @@ public interface MapConstants {
 
 
 }
-
-

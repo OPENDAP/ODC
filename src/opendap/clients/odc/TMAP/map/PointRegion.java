@@ -41,8 +41,6 @@ package opendap.clients.odc.TMAP.map;
 import java.awt.Color;
 import java.awt.Graphics;
 
-//import opendap.clients.odc.TMAP.map.MapRegion;
-
 /**
  * A region on the map which can be drawn and which may
  * listen to mouse events.
@@ -99,6 +97,4 @@ public class PointRegion extends MapRegion {
   }
 
 }
-
-
 
