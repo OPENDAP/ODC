@@ -25,27 +25,20 @@ package opendap.clients.odc;
 import opendap.dap.BaseType;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JButton;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JTree;
-import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -53,13 +46,17 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
 public class Panel_View_Data extends JPanel implements IControlPanel {	
-	Panel_LoadedDatasets panelLoadedDatasets = new Panel_LoadedDatasets();
-	Panel_StructureView panelStructureView = new Panel_StructureView();
-	Panel_VarView panelVarView = new Panel_VarView();	
+	Panel_LoadedDatasets panelLoadedDatasets;
+	Panel_StructureView panelStructureView;
+	Panel_VarView panelVarView;	
     public Panel_View_Data() {}
 	public boolean _zInitialize( Model_LoadedDatasets data_list, StringBuffer sbError ){
 		try {
 
+			panelLoadedDatasets = new Panel_LoadedDatasets();
+			panelStructureView = new Panel_StructureView();
+			panelVarView = new Panel_VarView();	
+			
 			Model_DataView model = new Model_DataView();
 			if( ! model.zInitialize( data_list, sbError ) ){
 				sbError.insert(0, "failed to initialize model: ");
@@ -69,6 +66,17 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 				sbError.insert(0, "failed to initialize loaded datasets panel: ");
 				return false;
 			}
+			
+			if( ! panelStructureView.zInitialize( this, sbError) ){
+				sbError.insert( 0, "failed to initialize structure view: " );
+				return false;
+			}
+			
+			if( ! panelVarView._zInitialize( sbError ) ){
+				sbError.insert( 0, "failed to initialize var view: " );
+				return false;
+			}
+			
 			JPanel panelTop = new JPanel();
 			panelTop.setLayout( new BorderLayout() );
 			panelTop.add( panelLoadedDatasets, BorderLayout.NORTH );
@@ -76,7 +84,8 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 			JSplitPane jsplitTreeVar = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
 			jsplitTreeVar.setTopComponent( panelTop );
 			jsplitTreeVar.setBottomComponent( panelVarView );
-			this.add( jsplitTreeVar );
+			this.setLayout( new BorderLayout() );
+			this.add( jsplitTreeVar, BorderLayout.CENTER );
 		} catch( Exception ex ) {
 			return false;
 		}
@@ -259,6 +268,11 @@ class Panel_StructureView extends JPanel {
 }
 
 class Panel_VarView extends JPanel {
+	public Panel_VarView(){}
+	public boolean _zInitialize( StringBuffer sbError ){
+		this.add( new JLabel("var view") );
+		return true;
+	}
 	// depending on mode/selected variable type
 	// draw on canvas
 	// on click/double click events

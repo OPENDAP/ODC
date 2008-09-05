@@ -132,13 +132,6 @@ import javax.swing.*;
 
 public class FormLayout implements LayoutManager2 {
 
-	public static final void main( String[] args ){
-		JFrame frameTest = new JFrame();
-		FormTestPanel panelTest = new FormTestPanel();
-		frameTest.getContentPane().add( panelTest );
-		frameTest.setVisible( true );
-	}
-
 	/** custom formatting (all one-based arrays) */
 	public static final int ALIGNMENT_None = 0;
 	public static final int ALIGNMENT_Left = 1;
@@ -156,7 +149,7 @@ public class FormLayout implements LayoutManager2 {
 	public int MARGIN_right = 0;
 	public int MARGIN_top = 0;
 	public int MARGIN_bottom = 0;
-	ArrayList listDefinedElements = new ArrayList();
+	ArrayList<FormElement> listDefinedElements = new ArrayList<FormElement>();
 	int[] maiColumnAlignment = new int[1000]; // each index is a column
 	boolean mzGlobalFill = false;
 	FormElement mVerticalFill = null;
@@ -177,6 +170,7 @@ public class FormLayout implements LayoutManager2 {
 		int widthCanvas  = dimContainerSize.width - insetsContainer.left - insetsContainer.right;
 		int heightCanvas = dimContainerSize.height - insetsContainer.top - insetsContainer.bottom;
 
+System.out.println("\n---------------layoutContainer begins----------------\n");
 		// eliminate any defined elments that are no longer in the container
 		// define any components in the container that are not defined
 		layout_1_IdentifyElements();
@@ -282,7 +276,6 @@ System.out.println("max elements per row: " + ctMaxElementsPerRow);
 		// repeat the row process for columns with the difference that elements in
 		// the same row and the same column will be adjusted to the last column
 		int[] aiColumnMapping = new int[ctElement + 1]; // maps elements to Columns (one-based)
-		int iColumnMax = 1;
 		int ctColumns = 0;
 		for( int xElement = 1; xElement <= ctElement; xElement++ ){ // find the max Column
 			FormElement element = (FormElement)listDefinedElements.get( xElement - 1 );
@@ -737,6 +730,7 @@ System.out.println("control x y: " + element.iBounds_control_x + " " + element.i
 		}
 
 		// set the component bounds
+System.out.println("setting component bounds for " + ctElement + " elements");
 		for( int xElement = 1; xElement <= ctElement; xElement++ ){
 			FormElement element = (FormElement)listDefinedElements.get( xElement - 1 );
 System.out.println("element: " + xElement + " label x: " + element.iBounds_label_x + " label y: " + element.iBounds_label_y + " label width: " + element.iBounds_label_width + " label height: " + element.iBounds_label_height );
@@ -807,10 +801,9 @@ System.out.println("putting control component " + xComponent + " in element with
 					componentControl = componentCurrent;
 System.out.println("putting control component " + xComponent + " in element");
 				}
-//				setOrder(componentLabel, componentControl, false);
-//System.out.println("set order");
+				add( componentLabel, componentControl );
 			} else {
-				// element is defined
+				// element is already defined
 			}
 		}
 	}
@@ -862,6 +855,20 @@ System.out.println("returning preferred size: " + dimPreferred );
 		return null;
 	}
 
+	public void setMargin( int left, int top ){
+		MARGIN_left = left;
+		MARGIN_right = left;
+		MARGIN_top = top;
+		MARGIN_bottom = top;
+	}
+
+	public void setMargin( int iMargin ){
+		MARGIN_left = iMargin;
+		MARGIN_right = iMargin;
+		MARGIN_top = iMargin;
+		MARGIN_bottom = iMargin;
+	}
+	
 	public void setMargin( int left, int right, int top, int bottom ){
 		MARGIN_left = left;
 		MARGIN_right = right;
@@ -1060,20 +1067,26 @@ class FormTestPanel extends JPanel {
 	JPanel panelDisplay = new JPanel();
 	public static void main( String[] args )
 	{
-		FormTestPanel test_panel = new FormTestPanel();
+		System.out.println("FormTestPanel main, tests FormLayout");
 		JFrame frame = new JFrame();
-
 		java.awt.event.WindowListener listenerCloser = new java.awt.event.WindowAdapter(){
+			@Override
 			public void windowClosing( java.awt.event.WindowEvent e ){
+				System.out.println("closed");
 				System.exit(0);
 			}
 		};
 		frame.addWindowListener( listenerCloser );
-
+		FormTestPanel test_panel = new FormTestPanel();
 		frame.add(test_panel);
 		frame.pack();
+		final int iFrameWidth = frame.getWidth();
+		final int iFrameHeight = frame.getHeight();
+		java.awt.Dimension dimScreenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setLocation( dimScreenSize.width/2 - (iFrameWidth/2), dimScreenSize.height/2 - (iFrameHeight/2) );
 		frame.setVisible( true );
 	}
+	
 	FormTestPanel(){
 
 //	for( int a = 1; a < 50; a++ ){
@@ -1132,14 +1145,14 @@ System.out.println("label 1 preferred size: " + label1.getPreferredSize().getWid
 		panelDisplay.add( new JLabel("label 3") );
 		panelDisplay.add( new JTextField("text field 3") );
 		panelDisplay.add( new JLabel("label 4") );
-		panelDisplay.add( new JTextField("text field 4") );
+		panelDisplay.add( new JTextField("text field 4xyzt") );
 		panelDisplay.add( new JLabel("label 5") );
 		panelDisplay.add( new JTextField("text field 5") );
 		panelDisplay.add( new JLabel("label 6") );
 		panelDisplay.add( new JTextField("text field 6") );
 
 //		layout.setSpacing_Default( 0, 5, 0, 0, 10 );
-//		layout.setMargin( 30, 20, 25, 25 );
+		layout.setMargin( 0 );
 
 //		this.setLayout( new java.awt.BorderLayout() );
 //		this.add( panelControls, java.awt.BorderLayout.NORTH );

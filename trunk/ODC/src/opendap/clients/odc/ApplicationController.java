@@ -44,8 +44,8 @@ public class ApplicationController {
 	private static final ApplicationController thisSingleton = new ApplicationController();
 
 	private static final String msAppName = "OPeNDAP Data Connector";
-	private static final String msAppVersion = "3.00";
-	private static final String msAppReleaseDate = "5 February 2007"; // todo create ANT substitution
+	private static final String msAppVersion = "3.01";
+	private static final String msAppReleaseDate = "29 June 2008"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	public final String getAppName(){ return msAppName; }
@@ -96,7 +96,10 @@ public class ApplicationController {
 				ApplicationController.vShowStartupDialog(sJavaVersionError);
 				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
 			}
-
+			
+			// output version information
+			vShowStatus( thisSingleton.getAppName() + " " + thisSingleton.getAppVersion() + " " + thisSingleton.getAppReleaseDate() );   
+	
 			// get configuration manager going
 			String sBaseDirectory = null;
 			if( args != null ){

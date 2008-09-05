@@ -201,7 +201,7 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 				for( Panel_View_Text_Editor editor : listEditors ){
 					if( editor == editorNew ) continue;
 					if( editor._getText().length() == 0 ){
-						editorCloseNoSave();
+						editorCloseNoSave( editor );
 					}
 				}
 			}
