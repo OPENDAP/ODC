@@ -164,8 +164,16 @@ public class ToolHandle extends Rectangle {
   public boolean contains(int x, int y) {
     Rectangle target = new Rectangle(this.x, this.y, this.width, this.height);
     target.grow(x_target, y_target);
-    return target.inside(x, y); //1.0
-    //1.1 return target.contains(x, y);
+	int w = this.width;
+	int h = this.height;
+	if ((w | h) < 0) return false;
+	// Note: if either dimension is zero, tests below must return false...
+	int xTarget = this.x;
+	int yTarget = this.y;
+	if( x < xTarget || y < yTarget ) return false;
+	w += xTarget;
+	h += yTarget;
+	return ((w < xTarget || w > x) && (h < yTarget || h > y)); //    overflow || intersect
   }
 
   /**
