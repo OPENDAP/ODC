@@ -134,6 +134,7 @@ public class Activity extends Thread {
 		*/
 //		dialogActivity.setMaximumSize( new Dimension( iDialogWidth, iDialogHeight) );
 //		dialogActivity.setLocation( 200, 200 );
+		System.out.println("setting message text: " + sText);
 		jtaMessage.setText( Utility.sLineBreak( sText, 120, "\n" ) );
 	}
 
