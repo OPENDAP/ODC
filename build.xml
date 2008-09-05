@@ -31,7 +31,7 @@
 
 
 <!DOCTYPE project [
-    <!ENTITY globalprops   SYSTEM "file:./buildfiles/globalprops.xml">
+    <!ENTITY globalprops   SYSTEM "./buildfiles/globalprops.xml">
 ]>
 
 
@@ -73,8 +73,9 @@
     <property name="mailapi.lib"        value="javamail-1.4_mailapi.jar"/>
     <property name="jaf.lib"            value="jaf-1.1_activation.jar"/>
     <property name="jython.lib"         value="jython.jar"/>
-
-
+    <property name="jogl.lib"           value="jogl.jar"/>
+    <property name="geotrans2.lib"      value="geotrans2.jar"/>
+    <property name="netcdf.lib"         value="netcdf-4.0.jar"/>
 
 
     <!--
@@ -98,6 +99,7 @@
       - xercesXmlApis.lib - Xerces 2 XML API implmentation. Used to handle DDX
       -                     parsing in both client and server DAP.
       -
+      - jogl.lib          - JOGL library. OpenGL for Java (native graphics).
       -
       -->
     <property name="opendap.lib"        value="opendap-0.0.9.jar"/>
@@ -109,11 +111,9 @@
     <property name="xercesImpl.lib"     value="xercesImpl-2.9.0.jar"/>
     <property name="xercesXmlApis.lib"  value="xml-apis-2.9.0.jar"/>
     <property name="jython.lib"         value="jython.jar"/>
-
-
-
-
-
+    <property name="jogl.lib"           value="jogl.jar"/>
+    <property name="geotrans2.lib"      value="geotrans2.jar"/>
+    <property name="netcdf.lib"         value="netcdf-4.0.jar"/>
 
 
 <!-- ************************ Build Targets ************************** -->
@@ -154,6 +154,9 @@
 			<include name="${httpclient.lib}"/>
 			<include name="${regexp.lib}"/>
 			<include name="${jython.lib}"/>
+			<include name="${jogl.lib}"/>
+			<include name="${geotrans2.lib}"/>
+			<include name="${netcdf.lib}"/>
 		</fileset>
 	</path>
 
@@ -253,6 +256,9 @@
 		<copy file="${lib.dir}/${mailapi.lib}"     tofile="${dist.dir}/ODC-${DSTAMP}/lib/${mailapi.lib}" />
 		<copy file="${lib.dir}/${jython.lib}"      tofile="${dist.dir}/ODC-${DSTAMP}/lib/${jython.lib}" />
 		<copy file="${lib.dir}/${opendap.lib}"     tofile="${dist.dir}/ODC-${DSTAMP}/lib/${opendap.lib}" />
+		<copy file="${lib.dir}/${opendap.lib}"     tofile="${dist.dir}/ODC-${DSTAMP}/lib/${jogl.lib}" />
+		<copy file="${lib.dir}/${opendap.lib}"     tofile="${dist.dir}/ODC-${DSTAMP}/lib/${geotrans2.lib}" />
+		<copy file="${lib.dir}/${opendap.lib}"     tofile="${dist.dir}/ODC-${DSTAMP}/lib/${netcdf.lib}" />
 
 		<mkdir dir="${dist.dir}/ODC-${DSTAMP}/doc"/>
 		<copy todir="${dist.dir}/ODC-${DSTAMP}/doc" >
