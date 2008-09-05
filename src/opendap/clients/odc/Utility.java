@@ -1749,6 +1749,7 @@ ScanForStartOfMatch:
 				sb.append( sBreakChars );
 				ctCharsSinceLastBreak = 0;
 			}
+			xChar++;
 		}
 		return sb.toString();
 	}

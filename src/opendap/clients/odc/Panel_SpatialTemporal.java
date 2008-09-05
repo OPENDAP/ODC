@@ -23,8 +23,8 @@
 
 package opendap.clients.odc;
 
-import tmap_30.map.*;
-import tmap_30.convert.*;
+import opendap.clients.odc.TMAP.convert.*;
+import opendap.clients.odc.TMAP.map.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -34,7 +34,8 @@ import java.awt.event.*;
 import java.util.*;
 
 public class Panel_SpatialTemporal extends JPanel implements MouseListener, MouseMotionListener, MapConstants {
-	private final static String RESOURCE_PATH_WorldMap = "/tmap_30/images/java_0_world.gif";
+
+	private final static String RESOURCE_PATH_WorldMap = "/opendap/clients/odc/tmap/images/java_0_world.gif";
 
 	final static int IMAGE_SIZE_X = 500;
 	final static int IMAGE_SIZE_Y = 240;
@@ -90,7 +91,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 	public boolean zInitialize( StringBuffer sbError ) {
 
 		if( !zInitializeGUI( sbError ) ){
-			sbError.insert(0, "failed to initialize canvas: ");
+			sbError.insert(0, "failed to initialize spatial-temporal GUI: ");
 			return false;
 		}
 
@@ -173,7 +174,7 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 				sbError.append("failed to load map " + RESOURCE_PATH_WorldMap + ": " + sbError);
 				return false;
 			}
-			mMapCanvas = new MapCanvas(mMapImage, IMAGE_SIZE_X, IMAGE_SIZE_Y, toolArray, grid);
+			mMapCanvas = new MapCanvas( mMapImage, IMAGE_SIZE_X, IMAGE_SIZE_Y, toolArray, grid );
 
 			mMapCanvas.setToolArray(toolArray);
 
