@@ -214,8 +214,8 @@
 		<copy todir="${build.classes}/opendap/clients/odc/images">
 			<fileset dir="${src.dir}/opendap/clients/odc/images"></fileset>
 		</copy>
-		<copy todir="${build.classes}/tmap_30/images">
-			<fileset dir="${src.dir}/tmap_30/images"></fileset>
+		<copy todir="${build.classes}/opendap/clients/odc/TMAP/images">
+			<fileset dir="${src.dir}/opendap/clients/odc/TMAP/images"></fileset>
 		</copy>
 		<copy todir="${build.classes}/opendap/clients/odc/doc">
 			<fileset dir="${src.dir}/opendap/clients/odc/doc">
