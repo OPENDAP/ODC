@@ -1,5 +1,5 @@
 #Introduction
-(help file revised 6 February 2008)
+(help file revised 13 March 2008)
 
 This is the OPeNDAP Data Connector (ODC). Using the ODC you can search for and retrieve datasets published by OPeNDAP data servers. OPeNDAP servers (also known as DODS servers) located at major institutions around the world serve a wide variety of data including: climatic data, satellite imagery, and ocean sensor results. The ODC allows you to find these datasets, download them to your machine, save them, and import them into client applications like IDL, Matlab, SPSS, Excel, or into databases such as Access and Oracle. The ODC is your gateway to terabytes of scientific data and imagery.
 
@@ -217,6 +217,8 @@ Example: type "print 2+5" and press the enter key. The result 7 will appear on t
 The system automatically defines a script directory. By default this is "scripts" in your ODC base directory. You can place Python script files here to be imported. Type "print sys.path" to see the directories which scripts are accessible from. You can append to the path normally as in Python to add an additional directory for imports.
 
 The file editing capabilities of the ODC are useful for interactively building scripts. See the topic "Editor" for more information.
+
+For more information on scripting see the help topics for Interpreter.
 
 #Editor
 
@@ -646,9 +648,11 @@ IMPORTANT: any resolution smaller than low (5 km) will use significant memory an
 
 The ODC uses the Jython interpreter as its scripting engine. Jython is a full-featured implementation of the Python programming language. This allows you to program the ODC with Python to manipulate data, generate plots, and do calculations. Python is the most powerful interpretive language available and there are many libraries written in Python which you can use to do calculations.
 
-The interpreter is accessible from the View / Text window which acts as a command console. In this window you can enter commands and press Enter to execute them. If you want to execute a group of lines as a unit separate them with a backslash (\). You can also load complete files, called "modules". For more information about loading modules and blocks of code see the help topic "Interpreter - Modules". For more information about manipulating data using the interpreter see the help topic "Interpreter - Data Access".
+You can use the Editor window to interactively write Jython scripts (see Editor).
 
-As a simple example of using the interpreter go to the View / Text window and type:
+The interpreter is accessible from the View / Command window which acts as a command console. In this window you can enter commands and press Enter to execute them. If you want to execute a group of lines as a unit separate them with a backslash (\). You can also load complete files, called "modules". For more information about loading modules and blocks of code see the help topic "Interpreter - Modules". For more information about manipulating data using the interpreter see the help topic "Interpreter - Data Access".
+
+As a simple example of using the interpreter go to the View / Command window and type:
 
 	print 2+2
 
@@ -660,18 +664,48 @@ Python is complex object-oriented language that you can find more information ab
 
 The ODC interpreter has two main modes: ODC native commands and Jython interpreter commands. By default anything typed into the interpreter will be interpreted as a Python expression unless it begins with an exclamation point (!) in which case it is treated as an ODC native command. Examples of commands:
 
-!             ODC native commands begin with an exclamation point
-!help         ODC command help
-!reset        reset the interpreter environment, all variables deleted
+   !             ODC native commands begin with an exclamation point
+   !help         ODC command help
+   !reset        reset the interpreter environment, all variables deleted
 
-print [expr]       prints the value of an expression
-print sys.version  prints the version of Python being used
-print sys.modules  prints a list of the currently loaded modules
-print 2+2          prints '4'
+   print [expr]       prints the value of an expression
+   print sys.version  prints the version of Python being used
+   print sys.modules  prints a list of the currently loaded modules
+   print 2+2          prints '4'
+
+The ODC built in commands are not case-sensitive, but all expressions in Java and Python are case sensitive.
 
 Complete list of Python built-in functions:
 
-http://www.python.org/doc/current/lib/built-in-funcs.html
+   http://www.python.org/doc/current/lib/built-in-funcs.html
+
+#Interpreter  - Scripts
+
+When working with Python you typically use a combination of pre-existing modules and scripts that you write. The default directory for such scripts is the /scripts directory which is in the ODC base directory. You may find some example scripts in this directory after you install the software.
+
+To find out what modules are already imported into the current Python environment use the dir function, eg:
+
+   >>> print dir()
+   ['__doc__', '__name__', 'odcapi', 'opendap', 'sys']
+
+You can also find out the functions in a module with the dir function, eg:
+
+   >>> print dir(odcapi)
+   ['dumps', 'help']
+
+The editor (View / Editor) can be used to edit scripts or you can edit them in an outside text editor. To load the scripts you have created use the import function, eg:
+
+   >>> import batch
+
+Note that the ".py" extension is NOT included in the import command. The above statement would import the script named "batch.py" in the scripts directory.
+
+Once a module is imported you can run functions in the script.
+
+   >>> batch.replace()
+
+If you make a change to your script and save the change you can reload the new version with the reload() function:
+
+   >>> reload(batch)
 
 #Interpreter  - Modules
 
@@ -679,7 +713,31 @@ Master list of standard Python modules: http://docs.python.org/modindex.html
 
 List of nearly 3000 importable Python modules: http://cheeseshop.python.org
 
-#Interpreter  - Data Access
+#Interpreter  - Java and ODC Data Access
+
+To get access to any Java method import it using the full class name. For example, to determine the day of the week of January 17, 1823, you could give the following commands:
+
+   >>> import java.util.GregorianCalendar
+   >>> date18230117 = java.util.GregorianCalendar(1823,1,17)
+   >>> import java.text.SimpleDateFormat
+   >>> print java.text.SimpleDateFormat('EEEE').format(date18230117.getTime())
+   Monday
+
+Notice that in Python to create a new object instance you just use the constructor directly like a function; there is no "new" keyword as in Java.
+
+To access data from the ODC an API object has been added to the environment called "odcapi". This object has its own help:
+
+   >>> print odcapi.help()
+
+The API class exposes data and functionality which we consider public and want to maintain permanently going forward. The methods in this class are designed for easy access and provide shortcuts to commonly needed data structures.
+
+You are not restricted to using the public API to get information from the ODC. You can access any data structure or method in the application directly from the command window. The advantage to doing this is that it allows you to access any public variable in the application. The disadvantage to doing this is that there is no guarantee your code will work in future versions and most functionality inside of the application is undocumented so you will need to read the project source code in most cases to figure out what is accessible and how to access it.
+
+As an example of accessing the ODC directly suppose you wanted to get the system memory status. You can get this information by double clicking the memory status bar anyway, but to do it with the command interpreter:
+
+   >>> import opendap.clients.odc.ApplicationController
+   >>> print opendap.clients.odc.ApplicationController.getInstance().sMemoryStatus()
+
 
 
 
