@@ -42,8 +42,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
-//import opendap.clients.odc.TMAP.map.MapTool;
-
 /**
  * A rectangular map tool defined by x, y, width and height.
  *
@@ -53,7 +51,7 @@ import java.awt.Rectangle;
  * @author      Jonathan Callahan
  */
 public class XTool extends MapTool {
- 
+
   /**
    * Constructs and initializes an XTool with the specified parameters.
    * @param x the x coordinate
@@ -71,9 +69,9 @@ public class XTool extends MapTool {
     this.width = width;
     this.height = height;
     this.color = color;
-    this.saveHandles();		
+    this.saveHandles();
   }
- 
+
   /**
    * Constructs an XTool and initializes it to the specified rectangle.
    * @param rect the rectangle of the XTool
@@ -81,7 +79,7 @@ public class XTool extends MapTool {
   public XTool(Rectangle rect, Color color) {
     this(rect.x, rect.y, rect.width, rect.height, color);
   }
- 
+
 
   /**
    * Draws an XTool.
@@ -99,8 +97,8 @@ public class XTool extends MapTool {
         handle[i].draw(g);
     }
   }
- 
- 
+
+
   /**
    * Saves the current positions of all the handles.
    */
@@ -136,7 +134,7 @@ public class XTool extends MapTool {
 
   }
 
- 
+
 
   public void bump_against_sides(int mouse_x, int mouse_y) {
     // left edge against left edge of the boundingRect
@@ -218,9 +216,7 @@ public class XTool extends MapTool {
     }
 
   }
- 
+
 
 
 }
-
-

@@ -44,8 +44,6 @@ import java.awt.Graphics;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 
-//import opendap.clients.odc.TMAP.map.MapGrid;
-
 /**
  * A region on the map which can be drawn and which may
  * listen to mouse events.
@@ -69,34 +67,34 @@ public abstract class MapRegion extends Rectangle {
   public double user_Y;
 
   /**
-   * The grid on which this tool acts.  This is just a reference to 
+   * The grid on which this tool acts.  This is just a reference to
    * the MapGrid associated with the MapCanvas.
    */
   public MapGrid grid;
- 
+
   /**
    * The region which is sensitive to mouse events.
    */
   protected Polygon sensitiveArea;
- 
+
   /**
-   * The area of the map canvas occupied by the map. 
+   * The area of the map canvas occupied by the map.
    */
   protected Rectangle canvas_clipRect;
- 
+
   /**
    * The color of the tool.
    */
   protected Color color;
- 
- 
+
+
   /**
    * Constructs a new MapRegion.
    */
   public MapRegion() {
     setLocation(1,1);
   }
- 
+
   /**
    * Constructs and initializes a MapRegion with the specified parameters.
    * @param x the x coordinate
@@ -146,7 +144,7 @@ public abstract class MapRegion extends Rectangle {
     this.grid = grid;
   }
 
- 
+
   /**
    * Moves the region to a new x, y location interpreting
    * x and y as pixels.
@@ -207,7 +205,7 @@ public abstract class MapRegion extends Rectangle {
    * @param g the graphics context for the drawing operation.
    */
   public abstract void draw(Graphics g);
- 
+
 
   /**
    * Notifies tool of a mouseMove event.  Returns <code>Frame.MOVE_CURSOR</code> if the
@@ -240,6 +238,4 @@ public abstract class MapRegion extends Rectangle {
 
 
 }
-
-
 

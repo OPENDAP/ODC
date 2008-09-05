@@ -48,12 +48,9 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Point;
 
-//import opendap.clients.odc.TMAP.map.MapConstants;
-//import opendap.clients.odc.TMAP.map.MapGrid;
-//import opendap.clients.odc.TMAP.map.ToolHandle;
-import opendap.clients.odc.TMAP.convert.*;
-//import opendap.clients.odc.TMAP.convert.ConvertLength;
-//import opendap.clients.odc.TMAP.convert.ConvertLongitude;
+import opendap.clients.odc.TMAP.convert.Convert;
+import opendap.clients.odc.TMAP.convert.ConvertLength;
+import opendap.clients.odc.TMAP.convert.ConvertLongitude;
 
 /**
  * A rectangular map tool defined by x, y, width and height.
@@ -67,7 +64,7 @@ import opendap.clients.odc.TMAP.convert.*;
  * @version     3.0 Sept 09 1999
  * @author      Jonathan Callahan
  */
-public abstract class MapTool extends Rectangle 
+public abstract class MapTool extends Rectangle
 	implements MapConstants
 {
 
@@ -110,7 +107,7 @@ public abstract class MapTool extends Rectangle
   /**
    * Current "user" values for the left, middle and right edges of this tool.
    * <p>
-   * Access these values with <code>LO</code>, <code>MID</code> 
+   * Access these values with <code>LO</code>, <code>MID</code>
    * or <code>HI</code> as in: <code>user_X[LO]</code>.<br>
    * <b>DO NOT SET THESE VALUES.</b>  They should only be read.
    */
@@ -170,85 +167,85 @@ public abstract class MapTool extends Rectangle
    * Whether the tool handles should be drawn or not.
    */
   protected boolean drawHandles = false;
- 
+
   /**
    * Whether the tool snaps to the underlying grid or not.
    */
   protected boolean snap_X = false;
- 
+
   /**
    * Whether the tool snaps to the underlying grid or not.
    */
   protected boolean snap_Y = false;
- 
+
   /**
    * Whether or not the tool should always have a range of
    * values along the X axis.
    */
   public boolean needsRange_X = true;
- 
+
   /**
    * Whether or not the tool should always have a range of
    * values along the Y axis.
    */
   public boolean needsRange_Y = true;
- 
+
   /**
-   * The grid on which this tool acts.  This is just a reference to 
+   * The grid on which this tool acts.  This is just a reference to
    * the MapGrid associated with the MapCanvas.
    */
   public MapGrid grid;
- 
+
   /**
    * The bounding rectangle in which this tool moves freely.
    *
    * The boundingRect is the intersection of the
    * canvas_clipRect and the tool X and Y ranges.  The
    * boundingRect defines the area of free movement
-   * before the tool either 1) bumps against a side or 
+   * before the tool either 1) bumps against a side or
    * 2) causes the image to scroll.
    */
   protected Rectangle boundingRect;
- 
+
   /**
    * The area of the map canvas occupied by the map.  The
    * bounding rectangle will be some rectangular subset of this area.
    */
   protected Rectangle canvas_clipRect;
- 
+
   /**
    * The color of the tool.
    */
   protected Color color;
- 
+
   /**
    * Returns <code>true</code> if the tool is "active".
    * An "active" tool is one that is currently being dragged
    * or resized by the mouse.
    */
   protected boolean active = false;
- 
+
   /**
    * The array of handles for this tool.
    */
   protected ToolHandle [] handle;
- 
+
   /**
    * The number of handles in this tool.
    */
   protected int numHandles = 9;
- 
+
   /**
    * The type of the active handle (eg. <code>NW</code>).
    */
   private int selectedHandle;
- 
+
   /**
-   * The handle type to return when mouseDown doesn't activate 
+   * The handle type to return when mouseDown doesn't activate
    * one of the handles.(eg. <code>NW</code>).
    */
   protected int mouseDownHandle = NW;
- 
+
   /**
    * If a tool has an extent along an axis, then it should snap to grid
    * midpoints on that axis IF the CENTER handle is selected AND the
@@ -257,23 +254,23 @@ public abstract class MapTool extends Rectangle
    */
   boolean snapMid_X = true;
   boolean snapMid_Y = true;
- 
+
   /**
    * The width for the handles of this tool.
    */
   int hw=5;
- 
+
   /**
    * The height for the handles of this tool.
    */
   int hh=5;
- 
+
   /**
    * Constructs a new MapTool.
    */
   public MapTool() {
   }
- 
+
   /**
    * Constructs and initializes a MapTool with the specified parameters.
    * @param x the x coordinate
@@ -286,7 +283,7 @@ public abstract class MapTool extends Rectangle
     setBounds(x, y, width,  height);
     setColor(color);
   }
- 
+
   /**
    * Constructs a MapTool and initializes it with the specified parameters.
    * @param rect the rectangle of the MapTool
@@ -295,7 +292,7 @@ public abstract class MapTool extends Rectangle
   public MapTool(Rectangle rect, Color color) {
     this(rect.x, rect.y, rect.width, rect.height, color);
   }
- 
+
   /**
    * Constructs a MapTool and initializes it with the specified  parameters.
    * @param width the width of the MapTool
@@ -305,7 +302,7 @@ public abstract class MapTool extends Rectangle
   public MapTool(int width, int height, Color color) {
     this(0, 0, width, height, color);
   }
- 
+
   /**
    * Constructs a MapTool and initializes it with a specified parameters.
    * @param p the point
@@ -315,7 +312,7 @@ public abstract class MapTool extends Rectangle
   public MapTool(Point p, Dimension d, Color color) {
     this(p.x, p.y, d.width, d.height, color);
   }
- 
+
   /**
    * Constructs a MapTool and initializes it with the specified parameters.
    * @param p the value of the x and y coordinate
@@ -324,7 +321,7 @@ public abstract class MapTool extends Rectangle
   public MapTool(Point p, Color color) {
     this(p.x, p.y, 0, 0, color);
   }
- 
+
   /**
    * Constructs a MapTool and initializes it with the specified parameters.
    * @param d the value of the width and height
@@ -385,7 +382,7 @@ public abstract class MapTool extends Rectangle
    }
 
 
- 
+
   /**
    * Returns the grid on which this tool acts.
    * @return the MapGrid on which this tool acts.
@@ -394,7 +391,7 @@ public abstract class MapTool extends Rectangle
     return grid;
   }
 
- 
+
   /**
    * Sets the grid on which this tool acts.
    * @param new_grid the new grid
@@ -403,7 +400,7 @@ public abstract class MapTool extends Rectangle
     this.grid = grid;
   }
 
- 
+
   /**
    * Sets the X range of this tool in "user" coordinates.
    * <p>
@@ -432,7 +429,7 @@ public abstract class MapTool extends Rectangle
 
   /**
    * Sets delta_X for this tool in "user" coordinates.  This delta_X
-   * value will override the default value calculated in 
+   * value will override the default value calculated in
    * MapGrid.setDomain_X.
    * @param delta the "user" value of of the grid spacing along X.
    */
@@ -450,7 +447,7 @@ public abstract class MapTool extends Rectangle
 
   /**
    * Sets delta_Y for this tool in "user" coordinates.  This delta_X
-   * value will override the default value calculated in 
+   * value will override the default value calculated in
    * MapGrid.setDomain_Y.
    * @param delta the "user" value of of the grid spacing along Y.
    */
@@ -467,7 +464,7 @@ public abstract class MapTool extends Rectangle
 
 
   /**
-   * Resizes the tool to the intersection of the current tool 
+   * Resizes the tool to the intersection of the current tool
    * rectangle and the specified rectangle.
    *
    * @param x the x location in pixels
@@ -503,7 +500,7 @@ public abstract class MapTool extends Rectangle
    * @param x the x location in user values
    * @param y the y location in user values
    * @see Rectangle
-// JC_TODO: This method should do the same checks found in 
+// JC_TODO: This method should do the same checks found in
 // JC_TODO: setUserBounds().
    */
   public void setUserLocation(double x, double y) {
@@ -597,7 +594,7 @@ public abstract class MapTool extends Rectangle
       width = (int) ( (right-left) * ((grid.imageRect.width-1)/grid.x_factor) );
 
     height = grid.userToPixel_Y(bottom) - grid.userToPixel_Y(top);
- 
+
     setBounds(grid.userToPixel_X(left), grid.userToPixel_Y(top), width, height);
     setUser_XY(left, right, bottom, top);
   }
@@ -792,7 +789,7 @@ public abstract class MapTool extends Rectangle
       if ( Math.abs(range_X[HI]-range_X[LO]) < Math.abs(grid.domain_X[HI]-grid.domain_X[LO]) ) {
 
         // If the range is a subset of the domain, the
-        // test is as expected. 
+        // test is as expected.
 
         if (c_r_xlo > r_xlo) {
           b_r_xlo = c_r_xlo;
@@ -809,7 +806,7 @@ public abstract class MapTool extends Rectangle
           right_edge_scroll = false;
         }
 
-        // If the range straddles the domain boundaries, an 
+        // If the range straddles the domain boundaries, an
         // additional check is needed.
         if ( (range_X[HI]-range_X[LO]) < 0 ) {
           if (b_r_xlo > c_r_xhi) {
@@ -853,7 +850,7 @@ public abstract class MapTool extends Rectangle
     int b_r_width = b_r_xhi - b_r_xlo;
     int b_r_height = b_r_yhi - b_r_ylo;
 
- 
+
     boundingRect = new Rectangle(b_r_xlo, b_r_ylo, b_r_width, b_r_height);
   }
 
@@ -873,7 +870,7 @@ public abstract class MapTool extends Rectangle
       mouse_x = grid.snap_X(mouse_x, SNAP_ON);
       if ( mouse_x > boundingRect.x+boundingRect.width )
         mouse_x = grid.snap_X(mouse_x, SNAP_ON, -1);
-      else if ( mouse_x < boundingRect.x )  
+      else if ( mouse_x < boundingRect.x )
         mouse_x = grid.snap_X(mouse_x, SNAP_ON, 1);
     }
 
@@ -927,7 +924,7 @@ public abstract class MapTool extends Rectangle
 	break;
       }
     }
-	
+
     if ( handle_overtook_opposite_side ) {
       if ( selectedHandle == NE ) selectedHandle = NW;
       else if ( selectedHandle == E ) selectedHandle = W;
@@ -945,7 +942,7 @@ public abstract class MapTool extends Rectangle
 	  mouse_y = grid.snap_Y(mouse_y, SNAP_ON);
       if ( mouse_y > boundingRect.y+boundingRect.height )
         mouse_y = grid.snap_Y(mouse_y, SNAP_ON, 1);
-      else if ( mouse_y < boundingRect.y )  
+      else if ( mouse_y < boundingRect.y )
         mouse_y = grid.snap_Y(mouse_y, SNAP_ON, -1);
     }
 
@@ -1056,11 +1053,11 @@ public abstract class MapTool extends Rectangle
     // It's quite possible for the pixelToUser_ code or the
     // snapUser_ code to return a value which lies outside
     // the range.  This can happen when there are fewer pixels
-    // than grid points.  If we've gotten outside the range, 
+    // than grid points.  If we've gotten outside the range,
     // get back in.
     //
     // Don't forget that we might be a Longitude axes where
-    // (hi < lo) is acceptable for the range or the user values. 
+    // (hi < lo) is acceptable for the range or the user values.
     // Use the logic in ConvertLongitude to check for this.
 
     XConvert.setRange(range_X[LO], range_X[HI]);
@@ -1092,7 +1089,7 @@ public abstract class MapTool extends Rectangle
     if ( grid.rangeToPixels_X(x_range) < (width/2) ) {
       user_X[HI] = user_X[LO] + (grid.domain_X[HI]-grid.domain_X[LO]);
     }
-      
+
 
   }
 
@@ -1119,7 +1116,7 @@ public abstract class MapTool extends Rectangle
     // It's quite possible for the pixelToUser_ code or the
     // snapUser_ code to return a value which lies outside
     // the range.  This can happen when there are fewer pixels
-    // than grid points.  If we've gotten outside the range, 
+    // than grid points.  If we've gotten outside the range,
     // get back in.
     if ( user_Y[LO] < range_Y[LO] ) user_Y[LO] = range_Y[LO];
     if ( user_Y[HI] > range_Y[HI] ) user_Y[HI] = range_Y[HI];
@@ -1205,7 +1202,7 @@ public abstract class MapTool extends Rectangle
    * @param g the graphics context for the drawing operation.
    */
   public abstract void draw(Graphics g);
- 
+
 
   /**
    * Notifies tool of a mouseMove event.  Returns <code>Frame.MOVE_CURSOR</code> if the
@@ -1215,9 +1212,9 @@ public abstract class MapTool extends Rectangle
    * @return the type of cursor to display.
    */
   public int mouseMove(int mouse_x, int mouse_y) {
-    
+
     int i=0;
-    
+
     for (i=0; i<numHandles; i++) {
       if ( handle[i].contains(mouse_x,mouse_y) ) {
 	if ( handle[i].get_type() == C )
@@ -1236,7 +1233,7 @@ public abstract class MapTool extends Rectangle
    * @param mouse_y current mouse Y
    */
   public void mouseDown(int mouse_x, int mouse_y) {
-    
+
     int i=0;
 
     // Go through all the handles to see where the mouse is.
@@ -1301,10 +1298,10 @@ public abstract class MapTool extends Rectangle
 
       // Keep the mouse within the bounding rectangle
       mouse_x = (mouse_x < boundingRect.x) ? boundingRect.x : mouse_x;
-      mouse_x = (mouse_x > boundingRect.x+boundingRect.width) ? 
+      mouse_x = (mouse_x > boundingRect.x+boundingRect.width) ?
                 (boundingRect.x+boundingRect.width) : mouse_x;
       mouse_y = (mouse_y < boundingRect.y) ? boundingRect.y : mouse_y;
-      mouse_y = (mouse_y > boundingRect.y+boundingRect.height) ? 
+      mouse_y = (mouse_y > boundingRect.y+boundingRect.height) ?
                 (boundingRect.y+boundingRect.height) : mouse_y;
 
       if ( selectedHandle == C )
@@ -1334,7 +1331,7 @@ public abstract class MapTool extends Rectangle
 
     if ( active ) {
 
-      
+
       if ( selectedHandle == C ) {
 
         // Recalculate the bounding rectangle because of potential scrolling
@@ -1342,7 +1339,7 @@ public abstract class MapTool extends Rectangle
         this.applyClipRect(this.canvas_clipRect);
 
         // This is for the special case where a non-XY tool has been
-        // moved close to the edge.  These tools are drawn in the 
+        // moved close to the edge.  These tools are drawn in the
         // center of the width or height range and this range must
         // shrink near the boundaries.
 
@@ -1369,16 +1366,16 @@ public abstract class MapTool extends Rectangle
         // you have moved the tool by the central handle.  If you dragged
         // the handle all the way to the edge, you will have "snapped" to
         // the edge of the boundingRect even though that may not represent
-        // a gridpoint.  (This behavior is needed to allow scrolling to 
+        // a gridpoint.  (This behavior is needed to allow scrolling to
         // happen.)  Now we need to snap to the next gridpoint inwards.
 
         if ( snap_X ) {
- 
+
           // 0) check for odd (SNAP_MID) or even (SNAP_ON) number of grid cells
-          // 1) snap 
+          // 1) snap
           // 3) make sure the left and right edges are within boundingRect
 
-          user_range = grid.pixelToUser_X(this.x+this.width) - 
+          user_range = grid.pixelToUser_X(this.x+this.width) -
                        grid.pixelToUser_X(this.x);
 
           // Center handle and ODD number of grid cells
@@ -1388,7 +1385,7 @@ public abstract class MapTool extends Rectangle
             new_mouse = mouse_x;
             while ( mouse_x+this.width/2 > boundingRect.x+boundingRect.width ) {
               mouse_x = grid.snap_X(--new_mouse, SNAP_MID);
-            } 
+            }
             while ( mouse_x-this.width/2 < boundingRect.x ) {
               mouse_x = grid.snap_X(++new_mouse, SNAP_MID);
             }
@@ -1401,19 +1398,19 @@ public abstract class MapTool extends Rectangle
             new_mouse = mouse_x;
             while ( mouse_x+this.width/2 > boundingRect.x+boundingRect.width ) {
               mouse_x = grid.snap_X(--new_mouse, SNAP_ON);
-            } 
+            }
             while ( mouse_x-this.width/2 < boundingRect.x ) {
               mouse_x = grid.snap_X(++new_mouse, SNAP_ON);
             }
             this.x = mouse_x - this.width/2;
 
           }
- 
+
         }
 
         if ( snap_Y ) {
- 
-          user_range = grid.pixelToUser_Y(this.y+this.height) - 
+
+          user_range = grid.pixelToUser_Y(this.y+this.height) -
                        grid.pixelToUser_Y(this.y);
           user_range = Math.abs(user_range);
 
@@ -1424,7 +1421,7 @@ public abstract class MapTool extends Rectangle
             new_mouse = mouse_y;
             while ( mouse_y+this.height/2 > boundingRect.y+boundingRect.height ) {
               mouse_y = grid.snap_Y(--new_mouse, SNAP_MID);
-            } 
+            }
             while ( mouse_y-this.height/2 < boundingRect.y ) {
               mouse_y = grid.snap_Y(++new_mouse, SNAP_MID);
             }
@@ -1437,20 +1434,20 @@ public abstract class MapTool extends Rectangle
             new_mouse = mouse_y;
             while ( mouse_y+this.height/2 > boundingRect.y+boundingRect.height ) {
               mouse_y = grid.snap_Y(--new_mouse, SNAP_ON);
-            } 
+            }
             while ( mouse_y-this.height/2 < boundingRect.y ) {
               mouse_y = grid.snap_Y(++new_mouse, SNAP_ON);
             }
             this.y = mouse_y - this.height/2;
 
           }
- 
+
         }
 
       }
 
       // We need to check for zero width/height selections.
-      // If we have zero width or height in conflict with 
+      // If we have zero width or height in conflict with
       // the needs of the tool, we must reset the tool width/height
       // or x/y to maintain the minimum delta_X/Y.
       //
@@ -1481,7 +1478,7 @@ public abstract class MapTool extends Rectangle
    * @param y current mouseY
    */
   public void bump_against_sides(int mouse_x, int mouse_y) {
-      
+
     double user_range = 0.0;
 
    /*
@@ -1492,16 +1489,16 @@ public abstract class MapTool extends Rectangle
     */
 
     if ( snap_X ) {
-      user_range = grid.pixelToUser_X(this.x+this.width) - 
+      user_range = grid.pixelToUser_X(this.x+this.width) -
                    grid.pixelToUser_X(this.x);
       if ( ((int)(user_range/grid.delta_X))%2 == 1 && snapMid_X )
  	    mouse_x = grid.snap_X(mouse_x, SNAP_MID);
       else
  	    mouse_x = grid.snap_X(mouse_x, SNAP_ON);
     }
-       
+
     if ( snap_Y ) {
-      user_range = grid.pixelToUser_Y(this.y+this.height) - 
+      user_range = grid.pixelToUser_Y(this.y+this.height) -
                     grid.pixelToUser_Y(this.y);
       user_range = Math.abs(user_range);
       if ( ((int)(user_range/grid.delta_Y))%2 == 1 && snapMid_Y )
@@ -1514,7 +1511,7 @@ public abstract class MapTool extends Rectangle
      * Now we're done with snapping and we can decide whether
      * scrolling should be performed.
      */
-      
+
     // left edge against left edge of the boundingRect
     if ( (mouse_x-width/2) < (boundingRect.x) ) {
       this.pan_right = false;
@@ -1595,6 +1592,4 @@ public abstract class MapTool extends Rectangle
 
 
 }
-
-
 

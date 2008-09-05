@@ -46,5 +46,3 @@ public class MaxZoomException extends Exception {
   public MaxZoomException(String s) { super(s); }
 }
 
-
-

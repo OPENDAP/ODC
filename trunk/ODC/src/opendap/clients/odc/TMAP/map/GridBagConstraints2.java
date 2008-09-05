@@ -45,7 +45,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
 //---------------------------------------------------------------------------
-public class GridBagConstraints2 extends GridBagConstraints 
+public class GridBagConstraints2 extends GridBagConstraints
 {
 	// set the 12 specified fields in this object
 	public void set(int gridx, int gridy, int gridwidth, int gridheight,
@@ -126,5 +126,3 @@ public class GridBagConstraints2 extends GridBagConstraints
 	}
 }
 //---------------------------------------------------------------------------
-
-

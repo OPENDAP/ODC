@@ -42,8 +42,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
-//import opendap.clients.odc.TMAP.map.XTool;
-
 /**
  * A rectangular map tool defined by x, y, width and height.
  *
@@ -53,7 +51,7 @@ import java.awt.Rectangle;
  * @author      Jonathan Callahan
  */
 public class PTcXTool extends XTool {
- 
+
   /**
    * Constructs and initializes an PTcXTool with the specified parameters.
    * @param x the x coordinate
@@ -64,7 +62,7 @@ public class PTcXTool extends XTool {
   public PTcXTool(int x, int y, int width, int height, Color color) {
     super(x, y, width, height, color);
   }
- 
+
   /**
    * Constructs an PTcXTool and initializes it to the specified rectangle.
    * @param rect the rectangle of the PTcXTool
@@ -72,7 +70,7 @@ public class PTcXTool extends XTool {
   public PTcXTool(Rectangle rect, Color color) {
     this(rect.x, rect.y, rect.width, rect.height, color);
   }
- 
+
   /**
    * Draws an PTcXTool.
    *
@@ -86,14 +84,14 @@ public class PTcXTool extends XTool {
     int [] y_array = {0, 0, 0, 0, 0, 0, 0};
     int poly_x, poly_y, poly_num=7;
     int poly_width=5, poly_height=3;
- 
+
     g.setColor(color);
 
     if ( drawHandles ) {
       handle[0].draw(g);
       handle[2].draw(g);
     }
- 
+
     poly_x = x+width/2;
     poly_y = y+height/2;
     x_array[0] =poly_x-poly_width;
@@ -113,12 +111,10 @@ public class PTcXTool extends XTool {
     x_array[0] =poly_x-poly_width;
     g.fillPolygon(x_array, y_array, poly_num);
     g.drawLine(x, y+height/2, x+width, y+height/2);
- 
+
 
   }
- 
+
 }
- 
- 
 
 

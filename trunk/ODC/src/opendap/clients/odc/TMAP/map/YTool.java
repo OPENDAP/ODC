@@ -42,8 +42,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
-//import opendap.clients.odc.TMAP.map.MapTool;
-
 /**
  * A rectangular map tool defined by x, y, width and height.
  *
@@ -53,7 +51,7 @@ import java.awt.Rectangle;
  * @author      Jonathan Callahan
  */
 public class YTool extends MapTool {
- 
+
   /**
    * Constructs and initializes an YTool with the specified parameters.
    * @param x the x coordinate
@@ -71,9 +69,9 @@ public class YTool extends MapTool {
     this.width = width;
     this.height = height;
     this.color = color;
-    this.saveHandles();		
+    this.saveHandles();
   }
- 
+
   /**
    * Constructs an YTool and initializes it to the specified rectangle.
    * @param rect the rectangle of the YTool
@@ -81,7 +79,7 @@ public class YTool extends MapTool {
   public YTool(Rectangle rect, Color color) {
     this(rect.x, rect.y, rect.width, rect.height, color);
   }
- 
+
 
   /**
    * Draws an YTool.
@@ -135,7 +133,7 @@ public class YTool extends MapTool {
     handle[1]  = new ToolHandle(x+width/2-hw/2, y+height/2-hh/2, hw, hh, color, C);
     handle[2]  = new ToolHandle(x+width/2-hw/2, y+height-hh/2, hw, hh, color, S);
   }
- 
+
 
   /**
    * Allows movement of the tool within the specified boundaries.
@@ -226,5 +224,3 @@ public class YTool extends MapTool {
 
 
 }
-
-

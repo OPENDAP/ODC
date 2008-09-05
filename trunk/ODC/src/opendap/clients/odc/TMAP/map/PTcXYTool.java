@@ -42,7 +42,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
-//import opendap.clients.odc.TMAP.map.XYTool;
 
 /**
  * A rectangular map tool defined by x, y, width and height.
@@ -53,7 +52,7 @@ import java.awt.Rectangle;
  * @author      Jonathan Callahan
  */
 public class PTcXYTool extends XYTool {
- 
+
   /**
    * Constructs and initializes an PTcXYTool with the specified parameters.
    * @param x the x coordinate
@@ -64,7 +63,7 @@ public class PTcXYTool extends XYTool {
   public PTcXYTool(int x, int y, int width, int height, Color color) {
     super(x, y, width, height, color);
   }
- 
+
   /**
    * Constructs an PTcXYTool and initializes it to the specified rectangle.
    * @param rect the rectangle of the PTcXYTool
@@ -72,7 +71,7 @@ public class PTcXYTool extends XYTool {
   public PTcXYTool(Rectangle rect, Color color) {
     this(rect.x, rect.y, rect.width, rect.height, color);
   }
- 
+
   /**
    * Draws an PTcXYTool.
    *
@@ -86,7 +85,7 @@ public class PTcXYTool extends XYTool {
     int [] y_array = {0, 0, 0, 0, 0, 0, 0};
     int poly_x, poly_y, poly_num=7;
     int poly_width=5, poly_height=3;
- 
+
     g.setColor(color);
 
     if ( drawHandles ) {
@@ -95,7 +94,7 @@ public class PTcXYTool extends XYTool {
       handle[5].draw(g);
       handle[7].draw(g);
     }
- 
+
     poly_x = x+width/2;
     poly_y = y+height/2;
     x_array[0] =poly_x-poly_width;
@@ -114,7 +113,7 @@ public class PTcXYTool extends XYTool {
     y_array[6] =poly_y-poly_height;
     g.fillPolygon(x_array, y_array, poly_num);
     g.drawLine(x, y+height/2, x+width, y+height/2);
- 
+
     poly_width=3; poly_height=5;
     x_array[0] =poly_x-poly_width;
     x_array[1] =poly_x+poly_width;
@@ -132,11 +131,9 @@ public class PTcXYTool extends XYTool {
     y_array[6] =poly_y-poly_height;
     g.fillPolygon(x_array, y_array, poly_num);
     g.drawLine(x+width/2, y, x+width/2, y+height);
- 
+
   }
- 
+
 }
- 
- 
 
 

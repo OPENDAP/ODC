@@ -46,5 +46,3 @@ public class MinZoomException extends Exception {
   public MinZoomException(String s) { super(s); }
 }
 
-
-
