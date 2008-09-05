@@ -552,6 +552,9 @@ ScanForStartOfMatch:
 		ArrayList<String[]> listRecords = new ArrayList<String[]>( listLines.size() );
 		int ctLines = listLines.size();
 		for( int xLine = 1; xLine <= ctLines; xLine++ ){
+			if( xLine == 130 ){
+				System.out.println("130");
+			}
 			String sLine = (String) listLines.get( xLine - 1 );
 			String[] asLine = zParseCSVLine( sLine, zRecognizeComments );
 			if( asLine == null ) continue; // ignore blank lines
@@ -584,6 +587,7 @@ ScanForStartOfMatch:
 					ctFields = 0;
 					zWriting = true;
 					pos = 0;
+					state = 0;
 					sbField.setLength(0);
 				}
 				char c = sLine.charAt( pos );
@@ -1095,13 +1099,23 @@ ScanForStartOfMatch:
 	}
 
 	public static String sFriendlyFileName( String sName ){
+		return sValidIdentifier( sName, true );
+	}
+
+	public static String sValidIdentifier( String sName, boolean zAllowInitialNumeral ){
 		try {
 			if( sName == null ) return "unknown";
 			if( sName.length() == 0 ) return "unknown";
 			if( sName.length() > 32 ) sName = sName.substring(0, 32);
 			StringBuffer sb = new StringBuffer(sName.length());
-			for( int xChar = 0; xChar < sName.length(); xChar++ ){
-				char c = sName.charAt(xChar);
+			char c = sName.charAt(0);
+			if( (c >= '0' && c<= '9' && zAllowInitialNumeral) || (c >= 'A' && c<= 'Z') || (c >= 'a' && c <= 'z') || c == '~' || c == '-' ){
+				sb.append(c);
+			} else {
+				sb.append('_');
+			}
+			for( int xChar = 1; xChar < sName.length(); xChar++ ){
+				c = sName.charAt(xChar);
 				if( (c >= '0' && c<= '9') || (c >= 'A' && c<= 'Z') || (c >= 'a' && c <= 'z') || c == '~' || c == '-' ){
 					sb.append(c);
 				} else {
@@ -1113,7 +1127,7 @@ ScanForStartOfMatch:
 			return "unknown_err";
 		}
 	}
-
+	
 	public static String sConnectPaths(String sPrePath, String sPostPath){
 		return sConnectPaths(sPrePath, msFileSeparator, sPostPath);
 	}

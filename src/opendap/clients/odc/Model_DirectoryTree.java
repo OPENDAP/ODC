@@ -135,6 +135,7 @@ public class Model_DirectoryTree extends DefaultTreeModel {
 			while(true){
 				if( xChild == ctChild ){
 					sbError.append("directory " + asDirs[xDir] + " not found in path: " + sPathCurrent);
+					return null;
 				}
 				DirectoryTreeNode nodeCurrentChild = (DirectoryTreeNode)nodeCurrent.getChildAt(xChild);
 				if( nodeCurrentChild == null ) continue;
