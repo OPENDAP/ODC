@@ -32,7 +32,6 @@ package opendap.clients.odc.plot;
  */
 
 import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.Utility;
 import opendap.clients.odc.Model_Dataset;
 
 import java.awt.Graphics2D;
@@ -205,7 +204,7 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 		final JOptionPane jop = new JOptionPane(microscope, JOptionPane.INFORMATION_MESSAGE);
 		final JDialog jd = jop.createDialog(ApplicationController.getInstance().getAppFrame(), "Data Microscope ( " + xPlot + ", " + yPlot + " )");
 		microscope.set(aRGB, as);
-		jd.show();
+		jd.setVisible( true );
 	}
 
 	/** Do not use this currently because we need to receive mouse events
