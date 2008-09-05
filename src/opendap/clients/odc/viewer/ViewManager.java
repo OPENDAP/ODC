@@ -33,6 +33,12 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	int iVPM_l = 0;
 	int iVPM_r = 0;
 
+	enum enumViewMode {
+		NAV,
+		COMMAND
+	}
+	enumViewMode eViewMode = enumViewMode.NAV;
+	
 	Model2D_Raster mRaster;
 	Model3D_Network mNetwork;
 	Model3D_Featureset mFeatureset;
@@ -92,6 +98,10 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	public final void command(){
 		String sCommand = JOptionPane.showInputDialog( frame, "Enter command:", "Enter command", JOptionPane.OK_CANCEL_OPTION );
 		if( sCommand == null ) return;
+		command( sCommand );
+	}
+	
+	public final void command( String sCommand ){
 		String[] asCommand = Utility.splitCommaWhiteSpace( sCommand );
 		for( CommandInterface layer : listCommandObjects ){
 			String[] asLayerCommands = layer.getCommands();
@@ -108,7 +118,7 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 			}
 		}
 	}
-	
+
 	public final void frameSetVisible( boolean z ){
 		frame.setVisible( z );
 	}
@@ -218,7 +228,7 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 		panelViewPort.repaint();
 	}
 
-	public final void animateSetTimeslice( int px ){
+	public final void animateAdjustTimeslice( int px ){
 		if( iTimeslice_begin == -1 ) return; // in this case timeslice is not application, ie, not an animated rendering
 		iTimeslice_begin += px > 0 ? -1 : 1;
 		if( iTimeslice_begin < 0 ) iTimeslice_begin = 0;
@@ -231,6 +241,19 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 		panelViewPort.repaint();
 	}
 
+	public final void animateSetTimeslice( int inputTimesliceBegin ){
+		if( inputTimesliceBegin < 0 ) inputTimesliceBegin = 0;
+		if( inputTimesliceBegin > TIMESLICE_max ) inputTimesliceBegin = TIMESLICE_max;
+		iTimeslice_begin = inputTimesliceBegin;
+		if( iTimeslice_depth == 0 ){ // show all time slices
+			iTimeslice_end = TIMESLICE_max;
+		} else {
+			iTimeslice_end = iTimeslice_begin + iTimeslice_depth - 1; 
+			if( iTimeslice_end > TIMESLICE_max ) iTimeslice_end = TIMESLICE_max; 
+		}
+		panelViewPort.repaint();
+	}
+	
 	public final void animateSetFrameCount( int iFrameCount ){
 		iTimeslice_depth = iFrameCount;
 		iTimeslice_end   = iTimeslice_begin + iTimeslice_depth - 1;
@@ -258,6 +281,21 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 		return true;
 	}
 
+	public final  boolean zAddOverlay( Model2D_Raster raster, StringBuffer sbError ){
+		if( raster == null ){
+			sbError.append( "raster missing" );
+			return false;
+		}
+//		if( panelViewPort._setOverlay( raster, sbError) ){
+//			mRaster = raster;
+//			setOrigin(0, 0);
+//		} else {
+//			sbError.insert( 0, "failed to set raster: " );
+//			return false;
+//		}
+		return true;
+	}
+	
 	public final boolean zAddNetwork( Model3D_Network network, StringBuffer sbError ){
 		if( network == null ){
 			sbError.append( "network missing" );
@@ -348,29 +386,72 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	public void keyTyped( java.awt.event.KeyEvent e) {
     }
 
-    public void keyPressed( java.awt.event.KeyEvent e) {
-    	switch( e.getKeyCode() ){
-    		case KeyEvent.VK_RIGHT:
-    			movePanHorizontal( 1 );
-    			break;
-    		case KeyEvent.VK_LEFT:
-    			movePanHorizontal( -1 );
-    			break;
-    		case KeyEvent.VK_UP:
-    			movePanVertical( -1 );
-    			break;
-    		case KeyEvent.VK_DOWN:
-    			movePanVertical( 1 );
-    			break;
-    		case KeyEvent.VK_F10:
-    			command();
-    			break;
-    		case KeyEvent.VK_F5:
-    			moveCenter();
-    			break;
-    	}
+	public void keyPressed( java.awt.event.KeyEvent e) {
+		switch( e.getKeyCode() ){
+			case KeyEvent.VK_RIGHT:
+				movePanHorizontal( 1 );
+				break;
+			case KeyEvent.VK_LEFT:
+				movePanHorizontal( -1 );
+				break;
+			case KeyEvent.VK_UP:
+				movePanVertical( -1 );
+				break;
+			case KeyEvent.VK_DOWN:
+				movePanVertical( 1 );
+				break;
+			case KeyEvent.VK_F10:
+				command();
+				break;
+			case KeyEvent.VK_F5:
+				moveCenter();
+				break;
+			case KeyEvent.VK_SLASH:
+				if( eViewMode == enumViewMode.NAV ){
+					modeEnter( enumViewMode.COMMAND );
+				}
+				break;
+			case KeyEvent.VK_ENTER:
+				if( eViewMode == enumViewMode.COMMAND ){
+					vCommandBuffer_Execute();
+					modeEnter( enumViewMode.NAV );
+				}
+				break;
+			case KeyEvent.VK_ESCAPE:
+				if( eViewMode == enumViewMode.COMMAND ){
+					modeEnter( enumViewMode.NAV );
+				}
+				break;
+			default:
+				if( eViewMode == enumViewMode.COMMAND ){
+					vCommandBuffer_AddChar( e.getKeyChar() );
+				}
+		}
     }
 
+    public StringBuffer sbCommand = new StringBuffer(256);
+    
+    public void modeEnter( enumViewMode mode ){
+    	vCommandBuffer_Clear();
+    	this.eViewMode = mode;
+    }
+
+    public void vCommandBuffer_AddChar( char c ){
+    	sbCommand.append( c );
+    	redraw();
+    }
+    
+    public void vCommandBuffer_Clear(){
+    	sbCommand.setLength(0);
+    	redraw();
+    }
+    
+    public void vCommandBuffer_Execute(){
+    	String sCommand = sbCommand.toString().trim();
+    	command( sCommand );
+    	vCommandBuffer_Clear();
+    }
+    
     /** Handle the key-released event from the text field. */
     public void keyReleased( java.awt.event.KeyEvent e) {
     }

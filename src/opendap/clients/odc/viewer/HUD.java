@@ -20,6 +20,7 @@ import java.util.ArrayList;
  * 		- Scale control
  * 		- Mode notification box
  * 		- Info box
+ *      - Command display
  * 	These elements are all rendered in 2D only on the top level.
  *  Any element that renders in 3D must be on a texture layer.
  */
@@ -35,6 +36,7 @@ public class HUD {
 	HUD_Element_NavBox nav_box;
 	HUD_Element_Dimensions dimensions;
 	HUD_Element_Animation animation;
+	HUD_Element_Command command;
 	
 	private int miMousePosition_X = 0;
 	private int miMousePosition_Y = 0;
@@ -50,6 +52,7 @@ public class HUD {
 			nav_box = new HUD_Element_NavBox( vm );
 			dimensions = new HUD_Element_Dimensions( vm );
 			animation = new HUD_Element_Animation( vm );
+			command = new HUD_Element_Command( vm );
 			
 			// define location of each element
 			cursor_box.setRelativeLayout( new RelativeLayout( vm,
@@ -68,12 +71,17 @@ public class HUD {
 					RelativeLayout.Orientation.RightMiddle,
 					RelativeLayout.Orientation.RightMiddle,
 					10, 10, 0 ) );
+			command.setRelativeLayout( new RelativeLayout( vm,
+					RelativeLayout.Orientation.BottomLeft,
+					RelativeLayout.Orientation.BottomLeft,
+					10, -20, 0 ) ); // todo look at line height issue
 			
 			// add elements to management list
 			listElements.add( dimensions );
 			listElements.add( cursor_box );
 			listElements.add( nav_box );
 			listElements.add( animation );
+			listElements.add( command );
 			
 			return true;
 		} catch( Exception t ) {
@@ -249,6 +257,28 @@ class HUD_Element_Animation extends HUD_Element {
 		int offY = y;
 		String s = "timeslice: " + view_manager.iTimeslice_begin + ":" + view_manager.iTimeslice_end;
 		g.drawString( s, offX, offY + iLineHeight * ++xLineNumber );
+		java.awt.Graphics2D g2 = (java.awt.Graphics2D)g;
+		int iStringWidth = g2.getFontMetrics().stringWidth( s );
+//		System.out.println("string width: " + iStringWidth + " " + s);
+//		width = iStringWidth;
+		width = 100;
+		height = g2.getFontMetrics().getHeight();
+	}
+
+}
+
+class HUD_Element_Command extends HUD_Element {
+	private ViewManager view_manager = null;
+	HUD_Element_Command(  ViewManager vm ){ 
+		view_manager = vm;
+	} 
+	void draw( Graphics g ){
+		if( ! g.hitClip( x, y, width, height ) ) return;
+		int iLineHeight = g.getFontMetrics( font ).getHeight();
+		int offX = x;
+		int offY = y;
+		String s = view_manager.sbCommand.toString();
+		g.drawString( s, offX, offY + iLineHeight );
 		java.awt.Graphics2D g2 = (java.awt.Graphics2D)g;
 		int iStringWidth = g2.getFontMetrics().stringWidth( s );
 //		System.out.println("string width: " + iStringWidth + " " + s);
