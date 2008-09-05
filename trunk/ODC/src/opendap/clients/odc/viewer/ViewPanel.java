@@ -163,7 +163,7 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 		} else if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
 			view_manager.movePanVertical(px);
 		} else if( (iModifiers & java.awt.event.InputEvent.ALT_DOWN_MASK) == java.awt.event.InputEvent.ALT_DOWN_MASK ){
-			view_manager.animateSetTimeslice(px);
+			view_manager.animateAdjustTimeslice(px);
 		} else {
 			view_manager.setZoom( e.getWheelRotation() ); // up is negative, down is positive
 		}
