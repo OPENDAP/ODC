@@ -526,7 +526,7 @@ public class DatasetList extends SearchInterface {
 					} else {
 						org.w3c.dom.Node nodeUnusable = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_NAME);
 						String sAttributeName = nodeUnusable == null ? "[unknown]" : nodeUnusable.getNodeValue();
-						ApplicationController.getInstance().vShowWarning("Entry is not a data URL or directory URL: " + sAttributeName);
+						ApplicationController.vShowWarning("Entry is not a data URL or directory URL: " + sAttributeName);
 				    }
 					if( key != null ){
 						if (! urlshash.containsKey(key)) {
@@ -537,19 +537,24 @@ public class DatasetList extends SearchInterface {
                 } else {	// aggregated entry
                     for (int s=0; s < thisnode.childCount(); s++) {
 						String key = null;
-						if (thisnode.getChild(s).getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL) != null) {
-							key = thisnode.getChild(s).getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL).getNodeValue();
-						} else if( thisnode.getChild(s).getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null) {
-							key = thisnode.getChild(s).getAttributes().getNamedItem(DOMTree.ATTR_DIR).getNodeValue();
+						DOMTree.AdapterNode nodeChild = thisnode.getChild( s, sbError );
+						if( nodeChild == null ){
+							ApplicationController.vShowWarning("Error getting child " + s + ": " + sbError );
+							return null;
+						}
+						if( nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL) != null) {
+							key = nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL).getNodeValue();
+						} else if( nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null) {
+							key = nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_DIR).getNodeValue();
 						} else {
 							org.w3c.dom.Node nodeUnusable = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_NAME);
 							String sAttributeName = nodeUnusable == null ? "[unknown]" : nodeUnusable.getNodeValue();
-							ApplicationController.getInstance().vShowStatus_NoCache("Entry is not a data URL or directory URL: " + sAttributeName);
+							ApplicationController.vShowStatus_NoCache("Entry is not a data URL or directory URL: " + sAttributeName);
 						}
 						if( key != null ){
 							if (! urlshash.containsKey(key)) {
 								urlshash.put(key,key);
-								urlsvect.addElement(thisnode.getChild(s));
+								urlsvect.addElement( nodeChild );
 							}
 						}
                     }

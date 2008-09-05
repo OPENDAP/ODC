@@ -31,6 +31,11 @@ import java.util.regex.*;
  * @version     1.00 26 Jul 2001
  * @author      Kashan A. Shaikh
  */
+
+// JSC this whole contraption should be rewritten
+// the main problem is that it is not properly error trapped so it is generating confusing or 
+// meaningless errors when it fails
+
 public class DOMTree extends JTree {
     final static public int SEARCH_NULL = 0;
     final static public int SEARCH_NO_MATCH = 1;
@@ -143,10 +148,15 @@ public class DOMTree extends JTree {
 	}
 
 	private void vRemoveUnusableNodes( DOMTree.AdapterNode node ){
+		StringBuffer sbError = new StringBuffer();
 		try {
 			if (node == null)return;
 			for (int xChild = node.childCount() - 1; xChild >= 0; xChild--) {
-				DOMTree.AdapterNode nodeChild = node.getChild(xChild);
+				DOMTree.AdapterNode nodeChild = node.getChild( xChild, sbError );
+				if( nodeChild == null ){
+					ApplicationController.vShowWarning( "failed to remove unusable nodes: " + sbError );
+					return;
+				}
 				if (nodeChild.isLeaf()) {
 					if (nodeChild.getAttributes().getNamedItem(DOMTree.
 						ATTR_BASE_URL) != null)continue; // data url
@@ -302,16 +312,28 @@ public class DOMTree extends JTree {
 			}
 
             AdapterNode newDoc = new AdapterNode(nDoc);
-            AdapterNode root = newDoc.getChild(0);
+            AdapterNode root = newDoc.getChild( 0, sbError );
+            if( root == null ){
+            	sbError.insert( 0, "new document has no children or otherwise is invalid: " );
+            	return SEARCH_ERROR;
+            }
 
             int provcount = root.childCount();
             int provpos = 0;
             for (int p=0; p < provcount; p++) { 	// provider level
-                AdapterNode prov = root.getChild(provpos);
+                AdapterNode prov = root.getChild( provpos, sbError );
+	            if( prov == null ){
+	            	sbError.insert( 0, "provider " + provpos + " has no children or otherwise is invalid: " );
+	            	return SEARCH_ERROR;
+	            }
                 int dsetcount = prov.childCount();
                 int dsetpos = 0;
                 for (int d=0; d < dsetcount; d++) { 	// dataset level
-                    AdapterNode dset = prov.getChild(dsetpos);
+                    AdapterNode dset = prov.getChild( dsetpos, sbError );
+		            if( dset == null ){
+		            	sbError.insert( 0, "dataset " + d + " has no children or otherwise is invalid: " );
+		            	return SEARCH_ERROR;
+		            }
                     if ( dset.isLeaf() ) {
                         boolean remove_G1 = init_remove_G1;
                         for (int k=0; k < keywords_G1.length; k++) {
@@ -356,7 +378,11 @@ public class DOMTree extends JTree {
                         int subdsetcount = dset.childCount();
                         int subdsetpos = 0;
                         for (int s=0; s < subdsetcount; s++) {	// subdataset level
-                            AdapterNode subdset = dset.getChild(subdsetpos);
+                            AdapterNode subdset = dset.getChild( subdsetpos, sbError );
+				            if( subdset == null ){
+				            	sbError.insert( 0, "subdataset " + subdsetpos + " has no children or otherwise is invalid: " );
+				            	return SEARCH_ERROR;
+				            }
                             boolean remove_G1 = init_remove_G1;
                             for (int k=0; k < keywords_G1.length; k++) {
 								String sSearchText = subdset.getAttributes().getNamedItem(ATTR_NAME).getNodeValue();
@@ -568,19 +594,39 @@ public class DOMTree extends JTree {
             return true;
         }
 
-        public int index(AdapterNode child) {
+        public int index( AdapterNode child ) {
+        	StringBuffer sbError = new StringBuffer();
             //System.err.println("Looking for index of " + child);
             int count = childCount();
             for (int i=0; i<count; i++) {
-                AdapterNode n = (AdapterNode) this.getChild(i);
+                AdapterNode n = (AdapterNode) this.getChild( i, sbError );
+	            if( n == null ){
+	            	ApplicationController.vShowWarning( "node " + i + " has no children or otherwise is invalid: " +  sbError );
+	            	return -1;
+	            }
                 if (child == n) return i;
             }
             return -1; // Should never get here.
         }
 
-        public AdapterNode getChild( int searchIndex ){
+        public AdapterNode getChild( int searchIndex, StringBuffer sbError ){
+        	if( domNode == null ){
+        		sbError.append("DOM node does not exist");
+        		return null;
+        	}
+        	org.w3c.dom.NodeList listChildNodes = domNode.getChildNodes(); 
+        	if( listChildNodes == null ){
+        		sbError.append( "attempt to get child nodes of " + domNode + " failed" );
+        		return null;
+        	}
             //Note: JTree index is zero-based.
-            org.w3c.dom.Node node = domNode.getChildNodes().item( searchIndex );
+        	org.w3c.dom.Node node = null;
+        	try {
+        		node = listChildNodes.item( searchIndex );
+        	} catch( Throwable t ) {
+        		sbError.append( "invalid search index " + searchIndex + " for child nodes of " + domNode + " containing " + listChildNodes.getLength() + " items" );
+        		return null;
+        	}
             // Return Nth displayable node
             int elementNodeIndex = 0;
             for (int i=0; i < domNode.getChildNodes().getLength(); i++) {
@@ -638,9 +684,14 @@ public class DOMTree extends JTree {
             AdapterNode node = (AdapterNode) parent;
             return node.childCount();
         }
-        public Object getChild(Object parent, int index) {
+        public Object getChild( Object parent, int index ) {
             AdapterNode node = (AdapterNode) parent;
-            return node.getChild(index);
+            StringBuffer sbError = new StringBuffer();
+            AdapterNode nodeChild = node.getChild( index, sbError );
+            if( nodeChild == null ){
+            	ApplicationController.vShowError( "Error getting child " + index + " of " + parent + ": " + sbError );
+            }
+            return nodeChild;
         }
         public int getIndexOfChild(Object parent, Object child) {
             AdapterNode node = (AdapterNode) parent;
