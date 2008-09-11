@@ -129,9 +129,8 @@ public class Panel_Retrieve_AdditionalCriteria extends JPanel {
 			   model.setLocationString("");
 			   return false;
 			}
-			final int iURLType = url.getType();
-			if( !mPanel_DDX.setStructure(url, sbError) ) return false;
-			model.setLocationString(url.getFullURL());
+			if( ! mPanel_DDX.setStructure(url, sbError) ) return false;
+			model.setLocationString( url.getFullURL() );
 			add( mPanel_DDX );
 			return true;
 		} catch(Exception e) {
@@ -153,7 +152,7 @@ public class Panel_Retrieve_AdditionalCriteria extends JPanel {
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("showing retrieve text");
 			ApplicationController.vUnexpectedError( ex, sbError );
-			ApplicationController.getInstance().vShowError(sbError.toString());
+			ApplicationController.vShowError(sbError.toString());
 		}
 	}
 
