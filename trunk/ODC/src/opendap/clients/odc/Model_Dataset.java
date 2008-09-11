@@ -148,8 +148,6 @@ public class Model_Dataset implements java.io.Serializable {
 		sbInfo.append("Full URL: " + this.getFullURL() + '\n');
 		sbInfo.append("URL type: " + this.getTypeString() + '\n' );
 		if( this.isUnreachable() ) sbInfo.append("URL is unreachable: " + this.getError() + "\n");
-		String sBaseURL = this.getBaseURL();
-		StringBuffer sbError = new StringBuffer(80);
 		int iType = getType();
 		if( iType == Model_Dataset.TYPE_Data ){
 			if( this.getDDS_Text() != null ) sbInfo.append(this.getDDS_Text());
@@ -480,22 +478,22 @@ public class Model_Dataset implements java.io.Serializable {
 		if( dds == null ) dds = getDDS_Full();
 		if( dds == null && ddds == null ) return 0;
 		if( getData() == null ){
-			return nSize_recursion( dds.getVariables() );
+			return nSize_recursion( dds.getVariables() ); // get variables returns BaseType
 		} else {
 			return nSize_recursion( ddds.getVariables() );
 		}
 	}
-	private long nSize_recursion( Enumeration enumVariables ){
+	private long nSize_recursion( Enumeration<BaseType> enumVariables ){
 		try {
 			long nCount = 0;
 			while( enumVariables.hasMoreElements() ){
-				BaseType bt = (BaseType)enumVariables.nextElement();
+				BaseType bt = enumVariables.nextElement();
 				if( bt instanceof DSequence ){
 					DSequence ds = (DSequence)bt;
 					int ctRow = ds.getRowCount();
 					if( ctRow < 1 ) continue; // cannot estimate the size of sequences
 					for( int xRow = 0; xRow < ctRow; xRow++ ){
-						java.util.Vector vectorBaseTypes = ds.getRow(xRow);
+						java.util.Vector<BaseType> vectorBaseTypes = ds.getRow(xRow);
 						if( vectorBaseTypes == null ) continue;
 						nCount += nSize_recursion( vectorBaseTypes.elements() );
 					}
@@ -503,7 +501,7 @@ public class Model_Dataset implements java.io.Serializable {
 					enumVariables = ((DConstructor)bt).getVariables();
 				} else if(bt instanceof DArray) {
 					DArray darray = (DArray)bt;
-					Enumeration enumDims = darray.getDimensions();
+					Enumeration<DArrayDimension> enumDims = darray.getDimensions();
 					long nArraySize = 1;
 					while(enumDims.hasMoreElements()){
 					    DArrayDimension dim = (DArrayDimension)enumDims.nextElement();
