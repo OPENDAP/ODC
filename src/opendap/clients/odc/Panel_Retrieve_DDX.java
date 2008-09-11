@@ -31,9 +31,7 @@ package opendap.clients.odc;
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 /////////////////////////////////////////////////////////////////////////////
 
-import java.lang.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import opendap.dap.*;
@@ -61,6 +59,8 @@ public class Panel_Retrieve_DDX extends JPanel {
 		return dimMinimum;
 	}
 
+	public Panel_Retrieve_AdditionalCriteria getParent(){ return myParent; }
+	
 	boolean zInitialize( Panel_Retrieve_AdditionalCriteria theParent, StringBuffer sbError ){
 
 		try {
@@ -258,17 +258,17 @@ public class Panel_Retrieve_DDX extends JPanel {
 		try {
 			mzApplyingSubset = true;
 			if( mDDSS == null ){
-				ApplicationController.getInstance().vShowError("Internal Error, attempt to apply subset to null DDS");
+				ApplicationController.vShowError("Internal Error, attempt to apply subset to null DDS");
 			} else {
 				if( mURL == null ){
-					ApplicationController.getInstance().vShowWarning("Internal error, attempt to apply subset to null url");
+					ApplicationController.vShowWarning("Internal error, attempt to apply subset to null url");
 					return;
 				}
 				String sCE = mDDSS.generateCE("");
 				mURL.setConstraintExpression(sCE);
 				Model_Dataset urlDirectory = model.retrieve_panel.getPanelDirectory().getURL_directory();
 				if( urlDirectory == null ){
-					ApplicationController.getInstance().vShowWarning("unable to set constraint, no directory URL defined");
+					ApplicationController.vShowWarning("unable to set constraint, no directory URL defined");
 				} else {
 					urlDirectory.setConstraintExpression(sCE);
 					model.retrieve_panel.validate();
@@ -287,7 +287,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 	public void vApplySelections(){
 		try {
 			if( mDDSS == null ){
-				ApplicationController.getInstance().vShowError("Internal Error, attempt to apply selection to null DDS");
+				ApplicationController.vShowError("Internal Error, attempt to apply selection to null DDS");
 			} else {
 				mDDSS.vUpdateSelections();
 			}
