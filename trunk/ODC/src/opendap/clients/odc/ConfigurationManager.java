@@ -1066,9 +1066,10 @@ public class ConfigurationManager {
 
 	static File[] getPreferencesFiles(FilenameFilter filter){
 		String sPreferencesDirectory = ConfigurationManager.getInstance().getProperty_PreferencesDirectory();
-		File filePreferencesDirectory = new File(sPreferencesDirectory);
+		File filePreferencesDirectory = new File( sPreferencesDirectory );
 		if( filePreferencesDirectory == null ){
-			filePreferencesDirectory.mkdirs();
+			ApplicationController.vShowError("attempt to resolve preferences directory (" + sPreferencesDirectory + ") unexpectedly had a null result" );
+			return null;
 		}
 		if( !filePreferencesDirectory.exists() ){
 			filePreferencesDirectory.mkdirs();
