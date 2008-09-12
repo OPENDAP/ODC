@@ -28,9 +28,6 @@ import java.util.Locale;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
-// import for BaseDecodingException
-import java.io.*;
-
 /**
  * Implements Base64 encoding and decoding as defined by RFC 2045: "Multipurpose Internet
  * Mail Extensions (MIME) Part One: Format of Internet Message Bodies" page 23.
@@ -243,13 +240,13 @@ public class Base64 {
      */
     protected static ResourceBundle labels = ResourceBundle.getBundle("com.Ostermiller.util.Base64",  Locale.getDefault());
 
-    private static final int ACTION_GUESS = 0;
-    private static final int ACTION_ENCODE = 1;
-    private static final int ACTION_DECODE = 2;
-
-    private static final int ARGUMENT_GUESS = 0;
-    private static final int ARGUMENT_STRING = 1;
-    private static final int ARGUMENT_FILE = 2;
+//    private static final int ACTION_GUESS = 0;
+//    private static final int ACTION_ENCODE = 1;
+//    private static final int ACTION_DECODE = 2;
+//
+//    private static final int ARGUMENT_GUESS = 0;
+//    private static final int ARGUMENT_STRING = 1;
+//    private static final int ARGUMENT_FILE = 2;
 
     /**
      * Converts the line ending on files, or standard input.
