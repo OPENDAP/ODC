@@ -32,7 +32,6 @@ package opendap.clients.odc;
 /////////////////////////////////////////////////////////////////////////////
 
 import org.python.util.PythonInterpreter;
-import org.python.core.*;
 
 public class Interpreter {
 	private PythonInterpreter mInterpreter = null;
