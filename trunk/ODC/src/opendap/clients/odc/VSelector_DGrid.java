@@ -31,10 +31,8 @@
 package opendap.clients.odc;
 
 import opendap.dap.*;
-import java.lang.*;
 import java.util.*;
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import java.util.regex.*;
 
@@ -47,10 +45,10 @@ import java.util.regex.*;
  */
 public class VSelector_DGrid extends VariableSelector {
 
-    private VSelector_DArray m_vsdarray;
+//    private VSelector_DArray m_vsdarray; TODO what is this?
 	private DGrid  mDGrid;
 	private DArray mDArray;
-	private ArrayList listDimPanels;
+	private ArrayList<JPanel> listDimPanels;
 	private int miDataWidth = 1;
 	private static String msPattern_Array_NoStride = "\\[(\\d+):(\\d+)\\]"; // $1 = start $2 = stop
 	private static String msPattern_Array_WithStride = "\\[(\\d+):(\\d+):(\\d+)\\]"; // $1 = start $2 = stride $3 = stop
@@ -58,17 +56,17 @@ public class VSelector_DGrid extends VariableSelector {
 	private static java.util.regex.Pattern mPattern_Array_WithStride = null;
 
     /** Creates a new instance of GridSelector */
-    public VSelector_DGrid( String sQualifiedName, DDSSelector owner, DGrid grid, DAS das) {
-		super( owner, sQualifiedName );
+    public VSelector_DGrid( String sQualifiedName, DDSSelector owner, DGrid grid, DAS das, javax.swing.ButtonGroup bg, Model_Retrieve mr ){
+		super( owner, sQualifiedName, bg, mr );
         try {
 			mPattern_Array_NoStride = Pattern.compile(msPattern_Array_NoStride);
 			mPattern_Array_WithStride = Pattern.compile(msPattern_Array_WithStride);
         } catch( Exception ex ) {
-			ApplicationController.getInstance().vShowError("Internal error building DGrid patterns: " + ex);
+			ApplicationController.vShowError("Internal error building DGrid patterns: " + ex);
         }
 
 		if( grid == null ){
-			ApplicationController.getInstance().vShowError("Internal error, grid was missing");
+			ApplicationController.vShowError("Internal error, grid was missing");
 			return;
 		}
 
@@ -81,7 +79,7 @@ public class VSelector_DGrid extends VariableSelector {
 			if( oArrayVariable != null && oArrayVariable instanceof DArray ){
 				mDArray = (DArray)oArrayVariable;
 			} else {
-				ApplicationController.getInstance().vShowError("Internal error, could not find array content of grid " + sQualifiedName);
+				ApplicationController.vShowError("Internal error, could not find array content of grid " + sQualifiedName);
 				return;
 			}
 
@@ -91,12 +89,12 @@ public class VSelector_DGrid extends VariableSelector {
 			int ctDimensions = mDArray.numDimensions();
 			int ctMappingVariables = mDGrid.elementCount(false) - 1;
 			if( ctDimensions != ctMappingVariables ){
-				ApplicationController.getInstance().vShowError("Error: grid " + sQualifiedName + " has " + ctDimensions + " dimensions, but " + ctMappingVariables + " mapping variables");
+				ApplicationController.vShowError("Error: grid " + sQualifiedName + " has " + ctDimensions + " dimensions, but " + ctMappingVariables + " mapping variables");
 				return;
 			}
 
 // labelTitle.setBorder(javax.swing.BorderFactory.createLineBorder(Color.RED));
-			listDimPanels = new ArrayList();
+			listDimPanels = new ArrayList<JPanel>();
 
 			// create dimension panels and add them the detail
 //			mpanelDetail.setBorder( javax.swing.BorderFactory.createLineBorder(Color.BLUE) );
@@ -125,7 +123,7 @@ public class VSelector_DGrid extends VariableSelector {
 				if( panel.zInitialize(dim, darrayMapping, sDimensionDescription, sbError) ){
 					listDimPanels.add(panel);
 				} else {
-					ApplicationController.getInstance().vShowError("Error in grid creating panel for dimension " + xDimension + ": " + sbError);
+					ApplicationController.vShowError("Error in grid creating panel for dimension " + xDimension + ": " + sbError);
 					return;
 				}
 				gbc.gridwidth = 2;
@@ -235,7 +233,7 @@ public class VSelector_DGrid extends VariableSelector {
 		if( bt == null ) return "";
 		StringBuffer sbName = new StringBuffer(80);
 		sbName.append(bt.getName());
-		java.util.ArrayList listParents = new java.util.ArrayList();
+		java.util.ArrayList<BaseType> listParents = new java.util.ArrayList<BaseType>();
 		while( true ){
 			BaseType btParent = bt.getParent();
 			if( btParent == null || btParent == bt || listParents.contains(btParent) ) break; // this is to protect against circularity which appears to occur sometimes for some reason (example columbia world ocean atlas)

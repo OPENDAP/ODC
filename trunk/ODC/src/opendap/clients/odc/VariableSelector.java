@@ -29,7 +29,6 @@
 
 package opendap.clients.odc;
 
-import java.lang.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -42,27 +41,33 @@ import javax.swing.*;
  */
 public abstract class VariableSelector extends JPanel {
 
-	private final static String ENCODING = "UTF-8";
-
-    private boolean mzSelected;
-    private JCheckBox checkSelection;
-
+	private boolean mzSelected;
+	private boolean mzSelected_unique;
+	private JCheckBox checkSelection;
+	private javax.swing.JRadioButton mRadioButton = null;
+	private javax.swing.ButtonGroup mButtonGroup = null;
+	
 	protected JPanel mpanelHeader; // the name and checkbox
 	protected JPanel mpanelDescription; // DAS description
 	protected JPanel mpanelDetail; // the dimensions for grids/arrays
 	private JLabel mlabelTitle;
 	private JTextArea mjtaDescripton;
-
+	
 	protected DDSSelector mOwner;
 	protected String msQualifiedName;
+	protected Model_Retrieve mRetrieveModel = null;
 
-    /** Creates a new instance of VariableSelector */
-    public VariableSelector( DDSSelector owner, String sQualifiedName ) {
+    /** Creates a new instance of VariableSelector 
+     *  if button_group is non-null then a radio button will be added and added to the group
+     *  */
+	public VariableSelector( DDSSelector owner, String sQualifiedName, javax.swing.ButtonGroup button_group, Model_Retrieve modelRetrieve ) {
 
 		mOwner = owner;
 		msQualifiedName = sQualifiedName;
+		mButtonGroup = button_group;
+		mRetrieveModel = modelRetrieve;
 
-		// selection check box
+		// multi-selection check box
         checkSelection = new JCheckBox();
 		checkSelection.setOpaque(false);
 		checkSelection.addActionListener(
@@ -73,6 +78,13 @@ public abstract class VariableSelector extends JPanel {
 			}
 		);
 
+		// unique selection radio button
+		if( button_group != null ){
+			mRadioButton = new javax.swing.JRadioButton();
+			mRadioButton.setOpaque(false);
+			mButtonGroup.add( mRadioButton );
+		}
+		
         mzSelected = true;
 		setBackground(Color.WHITE);
 
@@ -83,6 +95,7 @@ public abstract class VariableSelector extends JPanel {
 		mlabelTitle.setOpaque(false);
 		mpanelHeader.setLayout( new BoxLayout(mpanelHeader, BoxLayout.X_AXIS) );
 		mpanelHeader.add( checkSelection );
+		if( mRadioButton != null ) mpanelHeader.add( mRadioButton );
 		mpanelHeader.add( mlabelTitle );
 		mpanelHeader.add( Box.createHorizontalGlue() );
 
@@ -193,6 +206,16 @@ public abstract class VariableSelector extends JPanel {
         return mzSelected;
     }
 
+    /**
+     * @return Whether or not this VariableSelector is selected uniquely out of all the variables.
+     *         (determined from the radio button, not the check box)
+     *         this mode is only used in the data viewer primarily to determine which data element
+     *         is to be displayed
+     */
+    public boolean isSelected_unique() {
+        return mzSelected_unique;
+    }
+    
 	abstract public void vUpdateInfo( boolean zShowDetails );
 	abstract public void vUpdateStep( int iStep );
 	abstract public boolean hasStep();
@@ -225,11 +248,14 @@ public abstract class VariableSelector extends JPanel {
 		// a vector is the only way to get the scale of a mapped dimension
 		if( ApplicationController.getInstance().isConstraintChanging() ){
 			// this is not a user change--the system is updating the radio button
+		} else if( mRetrieveModel == null ){
+			// this is not a constraint editor
 		} else {
-			ApplicationController.getInstance().getRetrieveModel().vUpdateSubset();
+			mRetrieveModel.vUpdateSubset();
 		}
 		mzSettingSelected = false;
     }
+
 }
 
 
