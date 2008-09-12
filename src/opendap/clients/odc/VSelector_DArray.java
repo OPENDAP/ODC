@@ -26,7 +26,6 @@
 
 package opendap.clients.odc;
 
-import java.lang.*;
 import java.util.*;
 import javax.swing.*;
 import java.awt.*;
@@ -37,7 +36,7 @@ import opendap.dap.*;
  */
 public class VSelector_DArray extends VariableSelector {
 
-	private final static String ENCODING = "UTF-8";
+//	private final static String ENCODING = "UTF-8";
 
 //	private JTextField[] jtfConstraint; // one-based
 //    private String[] msDefaultConstraint;
@@ -46,18 +45,18 @@ public class VSelector_DArray extends VariableSelector {
 //	private static java.util.regex.Pattern mPattern_Array_NoStride = null;
 //	private static java.util.regex.Pattern mPattern_Array_WithStride = null;
 	private DArray mDArray;
-	private ArrayList listDimPanels;
+	private ArrayList<JPanel> listDimPanels;
 	private int miDataWidth;
 
 	DArray getArray(){ return mDArray; }
 
     /** Creates a new instance of DArraySelector */
-    public VSelector_DArray( String sQualifiedName, DDSSelector owner, DArray darray, DAS das ) {
+    public VSelector_DArray( String sQualifiedName, DDSSelector owner, DArray darray, DAS das, javax.swing.ButtonGroup bg, Model_Retrieve mr ) {
 
-		super( owner, sQualifiedName );
+		super( owner, sQualifiedName, bg, mr );
 
 		if( darray == null ){
-			ApplicationController.getInstance().vShowError("Internal error, darray was missing in vselector setup");
+			ApplicationController.vShowError("Internal error, darray was missing in vselector setup");
 			return;
 		} else {
 			mDArray = darray;
@@ -66,7 +65,7 @@ public class VSelector_DArray extends VariableSelector {
 		setBackground(Color.WHITE);
 
 		String sArrayName = mDArray.getName();
-		String sTypeName = DAP.getDArrayType_String(mDArray);
+//		String sTypeName = DAP.getDArrayType_String(mDArray);
 
         setName(sArrayName);
 
@@ -75,7 +74,7 @@ public class VSelector_DArray extends VariableSelector {
 			int ctDimensions = mDArray.numDimensions();
 
 			// create dimension panels and add them the detail
-			listDimPanels = new ArrayList();
+			listDimPanels = new ArrayList<JPanel>();
 			mpanelDetail.removeAll();
 			GridBagConstraints gbc = new GridBagConstraints();
 			mpanelDetail.setLayout(new GridBagLayout());
@@ -101,7 +100,7 @@ public class VSelector_DArray extends VariableSelector {
 				if( panel.zInitialize(dim, darrayMapping, sDimensionDescription, sbError) ){
 					listDimPanels.add(panel);
 				} else {
-					ApplicationController.getInstance().vShowError("Error in grid creating panel for dimension " + xDimension + ": " + sbError);
+					ApplicationController.vShowError("Error in grid creating panel for dimension " + xDimension + ": " + sbError);
 					return;
 				}
 				gbc.gridwidth = 2;

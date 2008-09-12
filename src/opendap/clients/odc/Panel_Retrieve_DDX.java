@@ -214,7 +214,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 				sbError.append("Failed to create DDS selector");
 				return false;
 			}
-			if( !mDDSS.zSetDDS( dds, das, sbError ) ){
+			if( !mDDSS.zSetDDS( dds, das, false, sbError ) ){
 				sbError.append("Failed to set structure for DDS selector");
 				return false;
 			}

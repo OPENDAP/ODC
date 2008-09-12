@@ -3,6 +3,7 @@
  *
  * Created on December 21, 2001, 11:37 PM
  * new design April 2004 by John Chamberlain
+ * expanded to support data viewing September 2008 by John Chamberlain
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -30,7 +31,6 @@
 package opendap.clients.odc;
 
 import opendap.dap.*;
-import java.lang.*;
 import java.util.*;
 import javax.swing.*;
 import java.awt.*;
@@ -41,10 +41,11 @@ import java.awt.*;
 public class DDSSelector extends JPanel {
 
 	Panel_Retrieve_DDX mGenerator;
-	ArrayList listVariables = new ArrayList();
-	ArrayList listQualifiedNames = new ArrayList();
-	ArrayList listControls = new ArrayList();
+	ArrayList<BaseType> listVariables = new ArrayList<BaseType>();
+	ArrayList<String> listQualifiedNames = new ArrayList<String>();
+	ArrayList<JPanel> listControls = new ArrayList<JPanel>();
 	JPanel mpanelGlobalDAS;
+	private javax.swing.ButtonGroup mButtonGroup = null;
 
     public DDSSelector(Panel_Retrieve_DDX generator) {
 		mGenerator = generator;
@@ -54,20 +55,30 @@ public class DDSSelector extends JPanel {
 		setLayout( new GridBagLayout() );
     }
 
-	boolean zSetDDS( DDS dds, DAS das, StringBuffer sbError ){
+    // edit mode is used by the data viewer for editing DataDDSs, value is false for regular CE display
+	boolean zSetDDS( DDS dds, DAS das, boolean zEditMode, StringBuffer sbError ){
 		try {
 			vClear();
 			int ctVariables = dds.numVariables();
 			for( int xVariable = 1; xVariable <= ctVariables; xVariable++ ){
 				BaseType bt = dds.getVar(xVariable - 1); // zero-based
-				if( !zAddBaseType( bt, null, listVariables, listQualifiedNames, 1, sbError ) ){
+				if( !zAddBaseTypeToLists( bt, null, listVariables, listQualifiedNames, 1, sbError ) ){
 					sbError.insert(0, "error adding variable " + xVariable + ": ");
 					return false;
 				}
 			}
-			if( !zBuildInterface( listVariables, listQualifiedNames, das, sbError ) ){
-				sbError.insert(0, "error building interface: ");
-				return false;
+			if( zEditMode ){
+				mButtonGroup = new javax.swing.ButtonGroup();
+				if( !zBuildInterface( listVariables, listQualifiedNames, das, mButtonGroup, null, sbError ) ){
+					sbError.insert(0, "error building interface: ");
+					return false;
+				}
+			} else {
+				Model_Retrieve rm = ApplicationController.getInstance().getRetrieveModel();
+				if( !zBuildInterface( listVariables, listQualifiedNames, das, null, rm, sbError ) ){
+					sbError.insert(0, "error building interface: ");
+					return false;
+				}
 			}
 			return true;
 		} catch(Exception ex) {
@@ -76,7 +87,8 @@ public class DDSSelector extends JPanel {
 		}
 	}
 
-	private boolean zAddBaseType( BaseType bt, String sParentName, ArrayList listBaseTypes, ArrayList listQualifiedNames, int iLevel, StringBuffer sbError ){
+	// adds the information in the DDS to the reference lists 
+	private boolean zAddBaseTypeToLists( BaseType bt, String sParentName, ArrayList<BaseType> listBaseTypes, ArrayList<String> listQualifiedNames, int iLevel, StringBuffer sbError ){
 		try {
 
 			// create qualified name
@@ -88,7 +100,7 @@ public class DDSSelector extends JPanel {
 			}
 
 			// create variable entry
-			Enumeration enumVariables;
+			Enumeration<BaseType> enumVariables;
 		    if( bt instanceof DGrid ){
 				listQualifiedNames.add(sQualifiedName);
 				listBaseTypes.add(bt); // add variable as leaf
@@ -110,7 +122,7 @@ public class DDSSelector extends JPanel {
 			while( enumVariables.hasMoreElements() ){
 				Object o = enumVariables.nextElement();
 				BaseType btChild = (BaseType)o;
-				if( !zAddBaseType( btChild, sQualifiedName, listBaseTypes, listQualifiedNames, iLevel + 1, sbError ) ){
+				if( !zAddBaseTypeToLists( btChild, sQualifiedName, listBaseTypes, listQualifiedNames, iLevel + 1, sbError ) ){
 					return false;
 				}
 			}
@@ -127,7 +139,7 @@ public class DDSSelector extends JPanel {
 		removeAll();
 	}
 
-	boolean zBuildInterface( ArrayList listVariables, ArrayList listQualifiedNames, DAS das, StringBuffer sbError ){
+	boolean zBuildInterface( ArrayList<BaseType> listVariables, ArrayList<String> listQualifiedNames, DAS das, javax.swing.ButtonGroup bg, Model_Retrieve mr, StringBuffer sbError ){
 		int ctVariables = listVariables.size();
 		if( ctVariables == 0 ){
 			sbError.append("DDS has no variables");
@@ -141,25 +153,25 @@ public class DDSSelector extends JPanel {
 		for( int xVariable = 1; xVariable <= ctVariables; xVariable++ ){
 			BaseType bt = (BaseType)listVariables.get( xVariable - 1 ); // zero-based
 			String sName_Qualified = (String)listQualifiedNames.get( xVariable - 1 ); // zero-based
-			String sName_Simple = bt.getName();
+//			String sName_Simple = bt.getName();
 			JPanel variable_panel;
 			if( bt instanceof DGrid ){
-				variable_panel = new VSelector_DGrid( sName_Qualified, this, (DGrid)bt, das );
+				variable_panel = new VSelector_DGrid( sName_Qualified, this, (DGrid)bt, das, bg, mr );
 			} else if(  bt instanceof DArray ){
-				variable_panel = new VSelector_DArray( sName_Qualified, this, (DArray)bt, das );
+				variable_panel = new VSelector_DArray( sName_Qualified, this, (DArray)bt, das, bg, mr );
 			} else if(  bt instanceof DByte ||
 						bt instanceof DInt16 ||
 						bt instanceof DInt32 ||
 						bt instanceof DFloat32 ||
 						bt instanceof DFloat64 ||
 						bt instanceof DString ){
-				variable_panel = new VSelector_Generic( sName_Qualified, this, bt, das );
+				variable_panel = new VSelector_Generic( sName_Qualified, this, bt, das, bg, mr );
 			} else if(  bt instanceof DVector ){
 				variable_panel = new UnsupportedVariablePanel( sName_Qualified, this, bt );
-				ApplicationController.getInstance().vShowWarning("variable " + sName_Qualified + " ignored, unsupported type");
+				ApplicationController.vShowWarning("variable " + sName_Qualified + " ignored, unsupported type");
 			} else {
 				variable_panel = new UnsupportedVariablePanel( sName_Qualified, this, bt);
-				ApplicationController.getInstance().vShowWarning("variable " + sName_Qualified + " ignored, unknown type");
+				ApplicationController.vShowWarning("variable " + sName_Qualified + " ignored, unknown type");
 			}
 			variable_panel.setOpaque(false);
 			gbc.gridy = xVariable;
@@ -183,7 +195,7 @@ public class DDSSelector extends JPanel {
 		mpanelGlobalDAS.setOpaque( false );
 		boolean zShowDescriptions = mGenerator.zShowDescriptions();
 		mpanelGlobalDAS.setVisible( zShowDescriptions );
-		ArrayList listGlobalNames = new ArrayList();
+		ArrayList<String> listGlobalNames = new ArrayList<String>();
 		Enumeration enumNames = das.getNames();
 		while( enumNames.hasMoreElements() ){
 			String sAttributeName = (String)enumNames.nextElement();
@@ -364,6 +376,17 @@ public class DDSSelector extends JPanel {
 		return sProjection + sSelection;
     }
 
+    // returns the uniquely selected variable (if any)
+    public VariableSelector getSelection(){
+    	if( mButtonGroup == null ) return null;
+		int ctVariables = listControls.size();
+		for( int xVariable = 1; xVariable <= ctVariables; xVariable++ ){
+			VariableSelector vs = (VariableSelector)listControls.get(xVariable - 1);
+			if( vs.isSelected_unique() ) return vs;
+		}
+		return null;
+    }
+    
 	public void vUpdateSelections(){
 		int ctVariables = listControls.size();
 		for( int xVariable = 1; xVariable <= ctVariables; xVariable++ ){
@@ -405,7 +428,7 @@ public class DDSSelector extends JPanel {
 
 class UnsupportedVariablePanel extends VariableSelector {
 	UnsupportedVariablePanel( String sQualifiedName, DDSSelector owner, BaseType bt ){
-		super( owner, sQualifiedName );
+		super( owner, sQualifiedName, null, null );
 		JLabel label = new JLabel( sQualifiedName );
 		add( label );
 	}

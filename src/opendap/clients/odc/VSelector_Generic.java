@@ -28,7 +28,6 @@
 
 package opendap.clients.odc;
 
-import java.lang.*;
 import java.util.*;
 import javax.swing.*;
 import java.awt.*;
@@ -40,20 +39,20 @@ import opendap.dap.*;
  */
 public class VSelector_Generic extends VariableSelector {
 
-	private ArrayList listConstraint = new ArrayList();
+	private ArrayList<Constraint> listConstraint = new ArrayList<Constraint>();
 
 	BaseType mbtVariable;
 	int miDataWidth;
 
     /** Creates a new instance of GenericSelector */
-    public VSelector_Generic( String sQualifiedName, DDSSelector owner, BaseType var, DAS das ) {
+    public VSelector_Generic( String sQualifiedName, DDSSelector owner, BaseType var, DAS das, javax.swing.ButtonGroup bg, Model_Retrieve rm ) {
 
-		super( owner, sQualifiedName );
+		super( owner, sQualifiedName, bg, rm );
 
 		setBackground(Color.WHITE);
 
 		if( var == null ){
-			ApplicationController.getInstance().vShowError("Internal error, generic variable was missing");
+			ApplicationController.vShowError("Internal error, generic variable was missing");
 			return;
 		}
 
@@ -90,7 +89,7 @@ public class VSelector_Generic extends VariableSelector {
 	public void vUpdateInfo( boolean zShowDescription ){
 		msbLabel.setLength(0);
 		String sName = getQualifiedName();
-		String sSize = ""; // cannot estimate size Utility.getByteCountString( Panel_Retrieve_Dimension.getEstimatedSize(listDimPanels, miDataWidth ));
+// TODO		String sSize = ""; // cannot estimate size Utility.getByteCountString( Panel_Retrieve_Dimension.getEstimatedSize(listDimPanels, miDataWidth ));
 		msbLabel.append( sName ).append(' ');
 		msbLabel.append(' '); // cannot estimate size .append('(').append(sSize).append(')');
 
@@ -137,7 +136,7 @@ public class VSelector_Generic extends VariableSelector {
 		setSelected(true);
 		int ctConstraints = listConstraint.size();
 		for( int xConstraint = 0; xConstraint < ctConstraints; xConstraint++ ){
-			Constraint constraintCurrent = (Constraint)listConstraint.get(xConstraint);
+			Constraint constraintCurrent = listConstraint.get(xConstraint);
 			constraintCurrent.vReset();
 		}
     }
@@ -206,7 +205,7 @@ public class VSelector_Generic extends VariableSelector {
 				new KeyAdapter(){
 				    public void keyPressed( KeyEvent ke ){
 						int iKeyCode = ke.getKeyCode();
-						if( iKeyCode == ke.VK_ENTER ) Constraint.this.vEnter();
+						if( iKeyCode == KeyEvent.VK_ENTER ) Constraint.this.vEnter();
 					}
 				}
 			);
