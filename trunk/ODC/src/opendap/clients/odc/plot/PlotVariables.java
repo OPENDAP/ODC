@@ -124,7 +124,7 @@ Thread.dumpStack();
 	boolean zLoadVariables( DataDDS ddds, DAS das, int ePLOT_TYPE, int size, StringBuffer sbError ){
 		try {
 			if( ddds == null ){ sbError.append("data DDS missing"); return false; }
-			ArrayList listVariableSpecs = new ArrayList();
+			ArrayList<VariableSpecification> listVariableSpecs = new ArrayList<VariableSpecification>();
 			Enumeration enumVariables = ddds.getVariables();
 			if( !zDiscoverVariables_recursion( ePLOT_TYPE, size, null, enumVariables, das, listVariableSpecs, sbError ) ){
 				sbError.insert(0, "error traversing variable tree: " );
@@ -185,7 +185,7 @@ Thread.dumpStack();
 	// Sequences
 	// sequences are stored in a VariableSpec by specifying the BaseType of the root sequence
 	// and then the path to the non-sequence variable; the node name is stored for the root sequence
-	private boolean zDiscoverVariables_recursion( int ePLOT_TYPE, int size, String sNodeName, Enumeration enumVariables, DAS das, ArrayList listVariableSpecs, StringBuffer sbError ){
+	private boolean zDiscoverVariables_recursion( int ePLOT_TYPE, int size, String sNodeName, Enumeration enumVariables, DAS das, ArrayList<VariableSpecification> listVariableSpecs, StringBuffer sbError ){
 		try {
 		    Enumeration enumChildVariables = null;
 			while( enumVariables.hasMoreElements() ){
@@ -248,7 +248,7 @@ Thread.dumpStack();
 		}
 	}
 
-	private boolean zDiscoverVariables_sequence( DSequence sequence, String sNodeName, DAS das, ArrayList listVariableSpecs, StringBuffer sbError ){
+	private boolean zDiscoverVariables_sequence( DSequence sequence, String sNodeName, DAS das, ArrayList<VariableSpecification> listVariableSpecs, StringBuffer sbError ){
 		try {
 			String sVariableName = sequence.getName();
 			String sVariableCaption = DAP.getAttributeValue(das, sVariableName,
@@ -289,7 +289,7 @@ Thread.dumpStack();
 	Here four variable specifications must be made, one for each scalar (A, B, C, D). Each will have root_sequence as its root and a path
 	as shown (eg 2.5.3.2) which is stored in the variable specification.
 */
-	private boolean zDiscoverVariables_sequence_recursion( VariableSpecification vsParentSequence, DAS das, ArrayList listVariableSpecs, StringBuffer sbError ){
+	private boolean zDiscoverVariables_sequence_recursion( VariableSpecification vsParentSequence, DAS das, ArrayList<VariableSpecification> listVariableSpecs, StringBuffer sbError ){
 
 		// find the sequence pointed to by the path in the variable specification
 	    DSequence root_sequence = (DSequence)vsParentSequence.getBaseType();
@@ -404,8 +404,8 @@ Thread.dumpStack();
 
 class VariableDataset {
 
-	private ArrayList listValues = new ArrayList();
-	private ArrayList listValues2 = new ArrayList();
+	private ArrayList<VariableInfo> listValues = new ArrayList<VariableInfo>();
+	private ArrayList<VariableInfo> listValues2 = new ArrayList<VariableInfo>();
 	private VariableInfo mvarAxisX = null;
 	private VariableInfo mvarAxisY = null;
 	public VariableDataset(){}

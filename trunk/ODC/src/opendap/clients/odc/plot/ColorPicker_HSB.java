@@ -45,11 +45,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.Styles;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -266,7 +262,7 @@ public class ColorPicker_HSB extends JPanel implements MouseListener {
 			}
 		}
 
-		int pxColumnOffset = 20;
+//		int pxColumnOffset = 20;
 		int pxLabelY = myHueHeader - 2;
 
 		// saturation
@@ -321,7 +317,7 @@ public class ColorPicker_HSB extends JPanel implements MouseListener {
 			g2.fillRect(mxBriSwatch, myHueGrid + mpxTextHeight * xBri + 2, mpxSwatchSize, mpxSwatchSize);
 		}
 
-		pxColumnOffset = 15;
+//		pxColumnOffset = 15;
 
 		// alpha
 		xElement = 1;

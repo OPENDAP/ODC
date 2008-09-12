@@ -184,7 +184,7 @@ class Panel_Plot_Line extends Panel_Plot {
 		int ctTotalMissing_Y = 0;
 		for( int xSeries = 0; xSeries < ctSeriesY; xSeries++ ){
 			switch(eDataType_Lines){
-				case DATA_TYPE_Float64:
+				case DAP.DATA_TYPE_Float64:
 					double[] adY = (double[])list_eggSeriesY.get(xSeries);
 					int lenY = adY.length;
 					if( lenY == 0 ){
@@ -203,12 +203,12 @@ class Panel_Plot_Line extends Panel_Plot {
 						if( dValue > dMax_y ) dMax_y = dValue;
 					}
 					break;
-				case DATA_TYPE_Byte:
-				case DATA_TYPE_Float32:
-				case DATA_TYPE_Int16:
-				case DATA_TYPE_UInt16:
-				case DATA_TYPE_Int32:
-				case DATA_TYPE_UInt32:
+				case DAP.DATA_TYPE_Byte:
+				case DAP.DATA_TYPE_Float32:
+				case DAP.DATA_TYPE_Int16:
+				case DAP.DATA_TYPE_UInt16:
+				case DAP.DATA_TYPE_Int32:
+				case DAP.DATA_TYPE_UInt32:
 				default:
 					sbError.append("data type " + eDataType_Lines + " not supported");
 					return false;
@@ -228,7 +228,7 @@ class Panel_Plot_Line extends Panel_Plot {
 		int ctTotalMissing_X = 0;
 		for( int xSeries = 0; xSeries < ctSeriesX; xSeries++ ){
 			switch(eDataType_Lines){
-				case DATA_TYPE_Float64:
+				case DAP.DATA_TYPE_Float64:
 					double[] adX = (double[])list_eggSeriesX.get(xSeries);
 					int lenX = adX.length;
 					if( lenX == 0 ){
@@ -247,12 +247,12 @@ class Panel_Plot_Line extends Panel_Plot {
 						if( dValue > dMax_x ) dMax_x = dValue;
 					}
 					break;
-				case DATA_TYPE_Byte:
-				case DATA_TYPE_Float32:
-				case DATA_TYPE_Int16:
-				case DATA_TYPE_UInt16:
-				case DATA_TYPE_Int32:
-				case DATA_TYPE_UInt32:
+				case DAP.DATA_TYPE_Byte:
+				case DAP.DATA_TYPE_Float32:
+				case DAP.DATA_TYPE_Int16:
+				case DAP.DATA_TYPE_UInt16:
+				case DAP.DATA_TYPE_Int32:
+				case DAP.DATA_TYPE_UInt32:
 				default:
 					sbError.append("data type " + eDataType_Lines + " not supported");
 					return false;
