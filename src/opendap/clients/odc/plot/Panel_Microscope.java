@@ -31,7 +31,6 @@ package opendap.clients.odc.plot;
  * @version      2.25
  */
 
-import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.Styles;
 import javax.swing.JPanel;
@@ -40,11 +39,6 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
-import java.io.*;
-import java.util.*;
 
 public class Panel_Microscope extends JPanel implements MouseListener {
 	BufferedImage mbi = null;
@@ -151,7 +145,7 @@ public class Panel_Microscope extends JPanel implements MouseListener {
 				String s = masValues[xRow][xColumn];
 				int iWidth;
 				if( s == null ){
-					iWidth = iWidth = mfontmetricsSansSerifBold12.stringWidth("null");
+					iWidth = mfontmetricsSansSerifBold12.stringWidth("null");
 				} else {
 					iWidth = mfontmetricsSansSerifBold12.stringWidth(s);
 				}

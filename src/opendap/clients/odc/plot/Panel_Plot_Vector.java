@@ -25,21 +25,20 @@ package opendap.clients.odc.plot;
 /**
  * Title:        Panel_Plot_Vector
  * Description:  Plots vector grids
- * Copyright:    Copyright (c) 2003
+ * Copyright:    Copyright (c) 2003, 2008
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.31
+ * @version      3.02
  */
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Model_Dataset;
 import opendap.clients.odc.Utility;
+import opendap.clients.odc.DAP;
 
 import java.awt.*;
 
 class Panel_Plot_Vector extends Panel_Plot {
-
-	private String mDisplay_sMessage = null;
 
 	Panel_Plot_Vector( PlotScale scale, String sID, String sCaption, Model_Dataset url ){
 		super(scale, sID, sCaption, url);
@@ -50,10 +49,7 @@ class Panel_Plot_Vector extends Panel_Plot {
 	final static int PX_DEFAULT_VECTOR_SIZE = 10;
 	private float[] mafU = null; // generates max as a side effect
 	private float[] mafV = null;
-	private float[] mafMissingU = null;
-	private float[] mafMissingV = null;
 	private float mUmax, mVmax; // will be * PX_MAX_VECTOR squared
-	private float mUavg, mVavg;
 	private float mfAverageU, mfAverageV;
 
 	StringBuffer msbError = new StringBuffer();
@@ -62,7 +58,7 @@ class Panel_Plot_Vector extends Panel_Plot {
 	// being a square with the size of the nominal maximum arrow. To find the net magnitude for
 	// the arrow, all the vectors in the region are averaged.
 	public void vGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
-		if( miDataType == 0 ) return; // nothing to plot
+		if( mPlottable.getDataType() == 0 ) return; // nothing to plot
 
 		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
 		g2.setColor(Color.black);
@@ -78,9 +74,12 @@ class Panel_Plot_Vector extends Panel_Plot {
 			if( iVectorSize <= 0 ) iVectorSize = PX_DEFAULT_VECTOR_SIZE;
 		}
 
+		int iDataDim_Width = mPlottable.getDimension_x();
+		int iDataDim_Height = mPlottable.getDimension_y();
+		
 		// determine overall scale
-		float fPlotScaleX = (float)(pxPlotWidth - iVectorSize) / mDataDim_Width; // extra size is added to the top and left to accommodate vectors pointing in that direction
-		float fPlotScaleY = (float)(pxPlotHeight - iVectorSize) / mDataDim_Height;
+		float fPlotScaleX = (float)(pxPlotWidth - iVectorSize) / iDataDim_Width; // extra size is added to the top and left to accommodate vectors pointing in that direction
+		float fPlotScaleY = (float)(pxPlotHeight - iVectorSize) / iDataDim_Height;
 
 		// determine vector scaling
 		int iArrowSize_U = 0;
@@ -103,8 +102,8 @@ class Panel_Plot_Vector extends Panel_Plot {
 		int pxX_Origin = mpxMargin_Left + mpxAxisOffsetWidth + iArrowSize_U;
 //		int pxY_Origin = mpxMargin_Top + mpxAxisOffsetHeight + iArrowSize_V;
 		int pxY_Origin = mpxMargin_Top + pxPlotHeight - mpxAxisOffsetHeight - iArrowSize_V;
-		for( int xX = 0; xX < mDataDim_Width; xX += iArrowSize_U ){
-			for( int xY = 0; xY < mDataDim_Height; xY += iArrowSize_V ){
+		for( int xX = 0; xX < iDataDim_Width; xX += iArrowSize_U ){
+			for( int xY = 0; xY < iDataDim_Height; xY += iArrowSize_V ){
 				int sampleX = xX;
 				int sampleY = xY;
 				float uTotal = 0;
@@ -113,7 +112,7 @@ class Panel_Plot_Vector extends Panel_Plot {
 				int ctRegionVectors = 0;
 AbortVector:
 				while(true){ // find average of all vectors in region
-					if( xXOff == iArrowSize_U || xX + xXOff == mDataDim_Width ){ // done
+					if( xXOff == iArrowSize_U || xX + xXOff == iDataDim_Width ){ // done
 						if( ctRegionVectors == 0 ){
 							// no vectors in this region, draw nothing
 						} else {
@@ -143,8 +142,8 @@ AbortVector:
 						break;
 					}
 					for( int xYOff = 0; xYOff < iArrowSize_V; xYOff++ ){
-						if( xY + xYOff == mDataDim_Height ) break; // off boundary of data
-						int xDataPoint = (xY+xYOff)*mDataDim_Width + xX+xXOff;
+						if( xY + xYOff == iDataDim_Height ) break; // off boundary of data
+						int xDataPoint = (xY+xYOff)*iDataDim_Width + xX+xXOff;
 						if( Float.isNaN(mafU[xDataPoint]) || Float.isNaN(mafV[xDataPoint]) ) break AbortVector;
 						uTotal += mafU[xDataPoint];
 						vTotal += mafV[xDataPoint];
@@ -165,29 +164,43 @@ AbortVector:
 	}
 
 	boolean getUV( StringBuffer sbError ){
-
+		int iDataType = mPlottable.getDataType();
+		int iDataDim_Width = mPlottable.getDimension_x();
+		int iDataDim_Height = mPlottable.getDimension_y();
+		
+		short[] ashData = mPlottable.getShortArray();
+		int[] aiData = mPlottable.getIntArray();
+		long[] anData = mPlottable.getLongArray();
+		float[] afData = mPlottable.getFloatArray();
+		double[] adData = mPlottable.getDoubleArray();
+		short[] ashData2 = mPlottable.getShortArray2();
+		int[] aiData2 = mPlottable.getIntArray2();
+		long[] anData2 = mPlottable.getLongArray2();
+		float[] afData2 = mPlottable.getFloatArray2();
+		double[] adData2 = mPlottable.getDoubleArray2();
+		
 		// validate that U matches V
 		boolean zUmatchesV = false;
-		switch( miDataType ){
-			case DATA_TYPE_Byte:
-			case DATA_TYPE_Int16:
-				if( mashData.length == mashData2.length ) zUmatchesV = true;
+		switch( iDataType ){
+			case DAP.DATA_TYPE_Byte:
+			case DAP.DATA_TYPE_Int16:
+				if( ashData.length == ashData2.length ) zUmatchesV = true;
 				break;
-			case DATA_TYPE_UInt16:
-			case DATA_TYPE_Int32:
-				if( maiData.length == maiData2.length ) zUmatchesV = true;
+			case DAP.DATA_TYPE_UInt16:
+			case DAP.DATA_TYPE_Int32:
+				if( aiData.length == aiData2.length ) zUmatchesV = true;
 				break;
-			case DATA_TYPE_UInt32:
-				if( manData.length == manData2.length ) zUmatchesV = true;
+			case DAP.DATA_TYPE_UInt32:
+				if( anData.length == anData2.length ) zUmatchesV = true;
 				break;
-			case DATA_TYPE_Float32:
-				if( mafData.length == mafData2.length ) zUmatchesV = true;
+			case DAP.DATA_TYPE_Float32:
+				if( afData.length == afData2.length ) zUmatchesV = true;
 				break;
-			case DATA_TYPE_Float64:
-				if( madData.length == madData2.length ) zUmatchesV = true;
+			case DAP.DATA_TYPE_Float64:
+				if( adData.length == adData2.length ) zUmatchesV = true;
 				break;
 			default:
-				sbError.append( opendap.clients.odc.DAP.getType_String(miDataType) + " is not a valid data type for a vector plot");
+				sbError.append( opendap.clients.odc.DAP.getType_String( iDataType ) + " is not a valid data type for a vector plot");
 				return false;
 		}
 		if( ! zUmatchesV ){
@@ -195,7 +208,7 @@ AbortVector:
 			return false;
 		}
 
-		int lenData = mDataDim_Height * mDataDim_Width;
+		int lenData = iDataDim_Height * iDataDim_Width;
 		mUmax = Float.MIN_VALUE;
 		mVmax = Float.MIN_VALUE;
 		if( ! Utility.zMemoryCheck(lenData * 2, 4, sbError) ) return false;
@@ -205,24 +218,24 @@ AbortVector:
 		float fTotalV = 0;
 		int ctU = 0;
 		int ctV = 0;
-		switch(miDataType){
-			case DATA_TYPE_Byte:
-			case DATA_TYPE_Int16:
-				if( mashData.length != mashData2.length ){
+		switch( iDataType ){
+			case DAP.DATA_TYPE_Byte:
+			case DAP.DATA_TYPE_Int16:
+				if( ashData.length != ashData2.length ){
 					sbError.append("Data selection is invalid because the U variable does not have the same dimensions as the V variable");
 				}
 				for( int xData = 0; xData < lenData; xData++ ){
 					int xMissing = 1;
 					while( true ){
-						if( xMissing > mctMissing1 ){
+						if( xMissing > mPlottable.getMissingCount1() ){
 							ctU++;
-							mafU[xData] = (float)mashData[xData];
+							mafU[xData] = (float)ashData[xData];
 							if( mafU[xData] > 0 ) fTotalU += mafU[xData]; else fTotalU -= mafU[xData]; // total of absolute value
 							if( mafU[xData] > mUmax ) mUmax = mafU[xData];
 							else if( mafU[xData]*-1 > mUmax ) mUmax = mafU[xData]*-1;
 							break;
 						}
-						if( mashData[xData] == mashMissing1[xMissing] ){
+						if( ashData[xData] == mPlottable.getMissingShort1()[xMissing] ){
 							mafU[xData] = Float.NaN;
 							break;
 						}
@@ -230,15 +243,15 @@ AbortVector:
 					}
 					xMissing = 1;
 					while( true ){
-						if( xMissing > mctMissing2 ){
+						if( xMissing > mPlottable.getMissingCount1() ){
 							ctV++;
-							mafV[xData] = (float)mashData2[xData];
+							mafV[xData] = (float)ashData2[xData];
 							if( mafV[xData] > 0 ) fTotalV += mafV[xData]; else fTotalV -= mafV[xData]; // total of absolute value
 							if( mafV[xData] > mVmax ) mVmax = mafV[xData];
 							else if( mafV[xData]*-1 > mVmax ) mVmax = mafV[xData]*-1;
 							break;
 						}
-						if( mashData2[xData] == mashMissing2[xMissing] ){
+						if( ashData2[xData] == mPlottable.getMissingShort2()[xMissing] ){
 							mafV[xData] = Float.NaN;
 							break;
 						}
@@ -246,23 +259,23 @@ AbortVector:
 					}
 				}
 				break;
-			case DATA_TYPE_UInt16:
-			case DATA_TYPE_Int32:
-				if( maiData.length != maiData2.length ){
+			case DAP.DATA_TYPE_UInt16:
+			case DAP.DATA_TYPE_Int32:
+				if( aiData.length != aiData2.length ){
 					sbError.append("Data selection is invalid because the U variable does not have the same dimensions as the V variable");
 				}
 				for( int xData = 0; xData < lenData; xData++ ){
 					int xMissing = 1;
 					while( true ){
-						if( xMissing > mctMissing1 ){
+						if( xMissing > mPlottable.getMissingCount1() ){
 							ctU++;
-							mafU[xData] = (float)(maiData[xData]);
+							mafU[xData] = (float)(aiData[xData]);
 							if( mafU[xData] > 0 ) fTotalU += mafU[xData]; else fTotalU -= mafU[xData]; // total of absolute value
 							if( mafU[xData] > mUmax ) mUmax = mafU[xData];
 							else if( mafU[xData]*-1 > mUmax ) mUmax = mafU[xData]*-1;
 							break;
 						}
-						if( maiData[xData] == maiMissing1[xMissing] ){
+						if( aiData[xData] == mPlottable.getMissingInt2()[xMissing] ){
 							mafU[xData] = Float.NaN;
 							break;
 						}
@@ -270,15 +283,15 @@ AbortVector:
 					}
 					xMissing = 1;
 					while( true ){
-						if( xMissing > mctMissing2 ){
+						if( xMissing > mPlottable.getMissingCount2() ){
 							ctV++;
-							mafV[xData] = (float)(maiData2[xData]);
+							mafV[xData] = (float)(aiData2[xData]);
 							if( mafV[xData] > 0 ) fTotalV += mafV[xData]; else fTotalV -= mafV[xData]; // total of absolute value
 							if( mafV[xData] > mVmax ) mVmax = mafV[xData];
 							else if( mafV[xData]*-1 > mVmax ) mVmax = mafV[xData]*-1;
 							break;
 						}
-						if( maiData2[xData] == maiMissing2[xMissing] ){
+						if( aiData2[xData] == mPlottable.getMissingInt2()[xMissing] ){
 							mafV[xData] = Float.NaN;
 							break;
 						}
@@ -286,19 +299,19 @@ AbortVector:
 					}
 				}
 				break;
-			case DATA_TYPE_UInt32:
+			case DAP.DATA_TYPE_UInt32:
 				for( int xData = 0; xData < lenData; xData++ ){
 					int xMissing = 1;
 					while( true ){
-						if( xMissing > mctMissing1 ){
+						if( xMissing > mPlottable.getMissingCount1() ){
 							ctU++;
-							mafU[xData] = (float)(manData[xData]);
+							mafU[xData] = (float)(anData[xData]);
 							if( mafU[xData] > 0 ) fTotalU += mafU[xData]; else fTotalU -= mafU[xData]; // total of absolute value
 							if( mafU[xData] > mUmax ) mUmax = mafU[xData];
 							else if( mafU[xData]*-1 > mUmax ) mUmax = mafU[xData]*-1;
 							break;
 						}
-						if( manData[xData] == manMissing1[xMissing] ){
+						if( anData[xData] == mPlottable.getMissingLong2()[xMissing] ){
 							mafU[xData] = Float.NaN;
 							break;
 						}
@@ -306,15 +319,15 @@ AbortVector:
 					}
 					xMissing = 1;
 					while( true ){
-						if( xMissing > mctMissing2 ){
+						if( xMissing > mPlottable.getMissingCount2() ){
 							ctV++;
-							mafV[xData] = (float)(manData2[xData]);
+							mafV[xData] = (float)(anData2[xData]);
 							if( mafV[xData] > 0 ) fTotalV += mafV[xData]; else fTotalV -= mafV[xData]; // total of absolute value
 							if( mafV[xData] > mVmax ) mVmax = mafV[xData];
 							else if( mafV[xData]*-1 > mVmax ) mVmax = mafV[xData]*-1;
 							break;
 						}
-						if( manData2[xData] == manMissing2[xMissing] ){
+						if( anData2[xData] == mPlottable.getMissingLong2()[xMissing] ){
 							mafV[xData] = Float.NaN;
 							break;
 						}
@@ -322,19 +335,19 @@ AbortVector:
 					}
 				}
 				break;
-			case DATA_TYPE_Float32:
+			case DAP.DATA_TYPE_Float32:
 				for( int xData = 0; xData < lenData; xData++ ){
 					int xMissing = 1;
 					while( true ){
-						if( xMissing > mctMissing1 ){
+						if( xMissing > mPlottable.getMissingCount1() ){
 							ctU++;
-							mafU[xData] = mafData[xData];
+							mafU[xData] = afData[xData];
 							if( mafU[xData] > 0 ) fTotalU += mafU[xData]; else fTotalU -= mafU[xData]; // total of absolute value
 							if( mafU[xData] > mUmax ) mUmax = mafU[xData];
 							else if( mafU[xData]*-1 > mUmax ) mUmax = mafU[xData]*-1;
 							break;
 						}
-						if( mafData[xData] == mafMissing1[xMissing] ){
+						if( afData[xData] == mPlottable.getMissingFloat1()[xMissing] ){
 							mafU[xData] = Float.NaN;
 							break;
 						}
@@ -342,15 +355,15 @@ AbortVector:
 					}
 					xMissing = 1;
 					while( true ){
-						if( xMissing > mctMissing2 ){
+						if( xMissing > mPlottable.getMissingCount2() ){
 							ctV++;
-							mafV[xData] = mafData2[xData];
+							mafV[xData] = afData2[xData];
 							if( mafV[xData] > 0 ) fTotalV += mafV[xData]; else fTotalV -= mafV[xData]; // total of absolute value
 							if( mafV[xData] > mVmax ) mVmax = mafV[xData];
 							else if( mafV[xData]*-1 > mVmax ) mVmax = mafV[xData]*-1;
 							break;
 						}
-						if( mafData2[xData] == mafMissing2[xMissing] ){
+						if( afData2[xData] == mPlottable.getMissingFloat2()[xMissing] ){
 							mafV[xData] = Float.NaN;
 							break;
 						}
@@ -358,19 +371,19 @@ AbortVector:
 					}
 				}
 				break;
-			case DATA_TYPE_Float64:
+			case DAP.DATA_TYPE_Float64:
 				for( int xData = 0; xData < lenData; xData++ ){
 					int xMissing = 1;
 					while( true ){
-						if( xMissing > mctMissing1 ){
+						if( xMissing > mPlottable.getMissingCount1() ){
 							ctU++;
-							mafU[xData] = (float)madData[xData];
+							mafU[xData] = (float)adData[xData];
 							if( mafU[xData] > 0 ) fTotalU += mafU[xData]; else fTotalU -= mafU[xData]; // total of absolute value
 							if( mafU[xData] > mUmax ) mUmax = mafU[xData];
 							else if( mafU[xData]*-1 > mUmax ) mUmax = mafU[xData]*-1;
 							break;
 						}
-						if( madData[xData] == madMissing1[xMissing] ){
+						if( adData[xData] == mPlottable.getMissingDouble1()[xMissing] ){
 							mafU[xData] = Float.NaN;
 							break;
 						}
@@ -378,15 +391,15 @@ AbortVector:
 					}
 					xMissing = 1;
 					while( true ){
-						if( xMissing > mctMissing2 ){
+						if( xMissing > mPlottable.getMissingCount2() ){
 							ctV++;
-							mafV[xData] = (float)madData2[xData];
+							mafV[xData] = (float)adData2[xData];
 							if( mafV[xData] > 0 ) fTotalV += mafV[xData]; else fTotalV -= mafV[xData]; // total of absolute value
 							if( mafV[xData] > mVmax ) mVmax = mafV[xData];
 							else if( mafV[xData]*-1 > mVmax ) mVmax = mafV[xData]*-1;
 							break;
 						}
-						if( madData2[xData] == madMissing2[xMissing] ){
+						if( adData2[xData] == mPlottable.getMissingDouble2()[xMissing] ){
 							mafV[xData] = Float.NaN;
 							break;
 						}

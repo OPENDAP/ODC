@@ -25,10 +25,10 @@ package opendap.clients.odc.plot;
 /**
  * Title:        Output_ToPlot
  * Description:  Methods to generate plotting output
- * Copyright:    Copyright (c) 2002, 2003
+ * Copyright:    Copyright (c) 2002, 2003, 2008
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.50
+ * @version      3.02
  */
 
 import java.util.*;
@@ -36,12 +36,10 @@ import java.io.*;
 import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.print.*;
 import java.awt.Toolkit;
 import java.awt.Dimension;
-import javax.imageio.*;
 import java.awt.image.BufferedImage;
 
 import opendap.clients.odc.*;
@@ -155,7 +153,7 @@ public class Output_ToPlot {
 				StringBuffer sbErrorScreen = new StringBuffer("While setting up full screen: ");
 				if( windowFullScreen_final != null ) windowFullScreen_final.setVisible(false);
 				ApplicationController.vUnexpectedError(ex, sbErrorScreen);
-				ApplicationController.getInstance().vShowError(sbError.toString());
+				ApplicationController.vShowError(sbError.toString());
 			}
 
 			return true;
@@ -299,7 +297,6 @@ public class Output_ToPlot {
 				sbError.append("dim count for primary variable was " + iVarPrimaryDimCount + "; lines can only be plotted from one-dimensional vectors");
 				return false;
 			}
-			int lenVarPrimary = varPrimary.getDimLength(1);
 
 			// validate dim count for var 1 (dependent)
 			if( ctVariable1 > 0 ){
@@ -325,11 +322,11 @@ public class Output_ToPlot {
 				}
 			}
 
-			String sValueCaption = varPrimary.getDataCaption();
+//			String sValueCaption = varPrimary.getDataCaption();
 
 			// make dependent variable list
-			ArrayList listSeries_Y = new ArrayList();
-			ArrayList listCaptions_Y = new ArrayList();
+			ArrayList<double[]> listSeries_Y = new ArrayList<double[]>();
+			ArrayList<String> listCaptions_Y = new ArrayList<String>();
 			String sCaption_Y_data = null;
 			String sCaption_Y_units = null;
 			for( int xVariable = 1; xVariable <= ctVariable1; xVariable++ ){
@@ -344,15 +341,15 @@ public class Output_ToPlot {
 					sbError.insert(0, "Failed to convert data from variable " + xVariable + " to doubles: ");
 					return false;
 				}
-				listSeries_Y.add(adValue);
-				listCaptions_Y.add(pv1.getSliceCaption());
+				listSeries_Y.add( adValue );
+				listCaptions_Y.add( pv1.getSliceCaption() );
 			}
 
 			// x-axis
 			String sCaption_X_data = null;
 			String sCaption_X_units = null;
-			ArrayList listSeries_X = new ArrayList();
-			ArrayList listCaptions_X = new ArrayList();
+			ArrayList<double[]> listSeries_X = new ArrayList<double[]>();
+			ArrayList<String> listCaptions_X = new ArrayList<String>();
 			for( int xVariable = 1; xVariable <= ctVariable2; xVariable++ ){
 				PlottingVariable pv2 = pdat.getVariable2(xVariable);
 				sCaption_X_data = pv2.getDataCaption();
@@ -484,7 +481,12 @@ public class Output_ToPlot {
 
 			// set data
 			Object[] eggData = pv.getDataEgg();
-			if( !panelPC.setPlotData(eDATA_TYPE, eggData, null, null, null, iWidth, iHeight, sbError) ){
+			PlottableData plottable = new PlottableData();
+			if( ! plottable.setPlotData( eDATA_TYPE, eggData, null, null, null, iWidth, iHeight, sbError) ){
+				sbError.insert(0, "Failed to set pseudocolor data (type " + DAP.getType_String(eDATA_TYPE) + ") with width " + iWidth + " and height " + iHeight + ": ");
+				return false;
+			}
+			if( !panelPC.setData( plottable, sbError) ){
 				sbError.insert(0, "Failed to set pseudocolor data (type " + DAP.getType_String(eDATA_TYPE) + ") with width " + iWidth + " and height " + iHeight + ": ");
 				return false;
 			}
@@ -519,8 +521,8 @@ public class Output_ToPlot {
 					if( varAxisY == null ){
 						axisVertical = null;
 					} else {
-						String sName = varAxisY.getName();
-						String sUnits = varAxisY.getUnits();
+//						String sName = varAxisY.getName();
+//						String sUnits = varAxisY.getUnits();
 						if( varAxisY.getUseIndex() ) {
 							axisVertical = new PlotAxis();
 							axisVertical.setIndexed(1, iHeight);
@@ -596,8 +598,13 @@ public class Output_ToPlot {
 			Object[] eggDataV = pv2.getDataEgg();
 			Object[] eggMissingU = pv.getMissingEgg();
 			Object[] eggMissingV = pv2.getMissingEgg();
-			if( !panelVector.setPlotData(eDATA_TYPE, eggDataU, eggMissingU, eggDataV, eggMissingV, iWidth, iHeight, sbError) ){
+			PlottableData plottable = new PlottableData();
+			if( ! plottable.setPlotData( eDATA_TYPE, eggDataU, eggMissingU, eggDataV, eggMissingV, iWidth, iHeight, sbError) ){
 				sbError.insert(0, "Failed to set data type " + DAP.getType_String(eDATA_TYPE) + " with width " + iWidth + " and height " + iHeight + " for vector plot: ");
+				return false;
+			}
+			if( ! panelVector.setData( plottable, sbError) ){
+				sbError.insert(0, "Failed to set plottable data for vector plot: ");
 				return false;
 			}
 
@@ -666,7 +673,6 @@ public class Output_ToPlot {
 
 	static boolean zPlot( Panel_Plot panelPlot, int eOutputOption, int iFrameNumber, int ctFrames, StringBuffer sbError ){
 		try {
-			java.awt.Image imgLogo = null;
 			PlotScale scale;
 			String sOutput;
 			switch( eOutputOption ){
@@ -682,7 +688,6 @@ public class Output_ToPlot {
 					}
 
 					JFrame frame;
-					String sFormatType;
 				    if( eOutputOption == FORMAT_ExternalWindow ){
 						frame = mPlotFrame;
 						frame.getContentPane().removeAll();
@@ -793,7 +798,7 @@ public class Output_ToPlot {
 					Panel_Thumbnails panelThumbnails = Panel_View_Plot.getPanel_Thumbnails();
 					Panel_View_Plot.getPreviewPane().setContent(panelPlot);
 					int pxThumbnailWidth = panelPlot.getPlotOptions().get(PlotOptions.OPTION_ThumbnailWidth).getValue_int();
-					int pxThumbnailHeight = panelPlot.mDataDim_Height * pxThumbnailWidth / panelPlot.mDataDim_Width;
+					int pxThumbnailHeight = panelPlot.mPlottable.getDimension_y() * pxThumbnailWidth / panelPlot.mPlottable.getDimension_x();
 					int[] rgb_array = panelPlot.getRGBArray(pxThumbnailWidth, pxThumbnailHeight, sbError);
 					if( rgb_array == null ){
 						sbError.append("Unable to generate plot: " + sbError);
@@ -836,8 +841,8 @@ class PlottingData {
 	private int mctDimensions;
 	private int[] maiDim_TYPE1;
 	private int mAXES_TYPE;
-	private ArrayList listVariables1 = new ArrayList();
-	private ArrayList listVariables2 = new ArrayList();
+	private ArrayList<PlottingVariable> listVariables1 = new ArrayList<PlottingVariable>();
+	private ArrayList<PlottingVariable> listVariables2 = new ArrayList<PlottingVariable>();
 	private VariableInfo mvarAxis_X = null;
 	private VariableInfo mvarAxis_Y = null;
 	VariableInfo getAxis_X(){ return mvarAxis_X; }

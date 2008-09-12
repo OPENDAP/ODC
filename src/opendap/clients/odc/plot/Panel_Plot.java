@@ -25,10 +25,10 @@ package opendap.clients.odc.plot;
 /**
  * Title:        Panel_Plot
  * Description:  Base class for plotting
- * Copyright:    Copyright (c) 2002-4
+ * Copyright:    Copyright (c) 2002-8
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.60
+ * @version      3.02
  */
 
 import opendap.clients.odc.ApplicationController;
@@ -52,8 +52,6 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	public final static String TEXT_ID_CaptionX = "CaptionX";
 	public final static String TEXT_ID_CaptionColorBar = "CaptionColorbar";
 
-	private final static Dimension MIN_DIMENSION = new Dimension(200, 400);
-
 	protected BufferedImage mbi = null;
 	protected boolean mzMode_FullScreen = false;
 
@@ -62,45 +60,12 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	protected int mpxAxisOffsetWidth = 0;
 
 	// data
-	public final static int DATA_TYPE_Byte = 1;
-	public final static int DATA_TYPE_Int16 = 2;
-	public final static int DATA_TYPE_Int32 = 3;
-	public final static int DATA_TYPE_UInt16 = 4;
-	public final static int DATA_TYPE_UInt32 = 5;
-	public final static int DATA_TYPE_Float32 = 6;
-	public final static int DATA_TYPE_Float64 = 7;
+	protected IPlottable mPlottable;
 
-	protected int miDataType = 0; // no data
-	protected short[] mashData = null; // byte and int16
-	protected int[] maiData = null; // uint16 and int32
-	protected long[] manData = null; // uint32
-	protected float[] mafData = null; // float32
-	protected double[] madData = null; // float64
-	protected short[] mashData2 = null; // the #2's are for vector plots
-	protected int[] maiData2 = null;
-	protected long[] manData2 = null;
-	protected float[] mafData2 = null;
-	protected double[] madData2 = null;
 	protected int[] maiRGBArray = null;
-	protected int mDataDim_Width = 0;
-	protected int mDataDim_Height = 0;
 
 	protected ColorSpecification mColors = null;
 	protected GeoReference mGeoReference = null;
-
-	// Missing Values
-	int mctMissing1;
-	int mctMissing2;
-	short[] mashMissing1;
-	int[] maiMissing1;
-	long[] manMissing1;
-	float[] mafMissing1;
-	double[] madMissing1;
-	short[] mashMissing2;
-	int[] maiMissing2;
-	long[] manMissing2;
-	float[] mafMissing2;
-	double[] madMissing2;
 
 	// axes
 	protected PlotAxis axisVertical = null;
@@ -137,7 +102,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	abstract public String getDescriptor();
 	abstract public boolean zCreateRGBArray(int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError);
 
-	Panel_Plot(PlotScale ps, String sID_descriptive, String sCaption, Model_Dataset url){
+	Panel_Plot( PlotScale ps, String sID_descriptive, String sCaption, Model_Dataset url ){
 		if( ps == null ){
 			ApplicationController.vShowError("system error, invalid plot panel, no scale");
 		}
@@ -228,6 +193,10 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		int pxPlotWidth = mScale.getPlot_Width(zFill);
 		int pxPlotHeight = mScale.getPlot_Height(zFill);
 
+		if( mOptions != null ){
+			mzBoxed = mOptions.getValue_boolean(PlotOptions.OPTION_Boxed);
+		}
+		
 		// special requirements
 		if( this instanceof Panel_Plot_Vector ){
 			PlotOptions po = this.getPlotOptions();
@@ -236,6 +205,13 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			if( pxPlotHeight < iVectorSize * 2 ) pxPlotHeight = iVectorSize * 2;
 		}
 
+		// establish scale
+		mScale.setDataDimension( mPlottable.getDimension_x(), mPlottable.getDimension_y() );
+		mpxMargin_Left   = mScale.getMarginLeft_px();
+		mpxMargin_Right  = mScale.getMarginLeft_px();
+		mpxMargin_Top    = mScale.getMarginTop_px();
+		mpxMargin_Bottom = mScale.getMarginBottom_px();		
+		
 		if( mbi == null ){
 			mbi = new BufferedImage( pxCanvasWidth, pxCanvasHeight, BufferedImage.TYPE_INT_ARGB );
 		}
@@ -343,78 +319,29 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	private int mpxLegendWidth = 0;
 	private int mpxLegendKeyWidth = 10;
 
-	// Data Management
-	int getDataElementCount(){
-		switch( miDataType ){
-			case DATA_TYPE_Byte:
-			case DATA_TYPE_Int16:
-				if( mashData == null ) return 0; else return mashData.length;
-			case DATA_TYPE_UInt16:
-			case DATA_TYPE_Int32:
-				if( maiData == null ) return 0; else return maiData.length;
-			case DATA_TYPE_UInt32:
-				if( manData == null ) return 0; else return mashData.length;
-			case DATA_TYPE_Float32:
-				if( mafData == null ) return 0; else return mafData.length;
-			case DATA_TYPE_Float64:
-				if( madData == null ) return 0; else return madData.length;
-		}
-		return 0;
+	// Axes Management
+	void setAxisVertical( PlotAxis axis ){
+		axisVertical = axis;
 	}
-
-	boolean setPlotData( int eTYPE, Object[] eggData, Object[] eggMissing, Object[] eggData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
-		if( iWidth <= 0 || iHeight <= 0 ){
-			sbError.append("Width " + iWidth + " and Height " + iHeight + " cannot be zero or negative.");
+	void setAxisHorizontal( PlotAxis axis ){
+		axisHorizontal = axis;
+	}
+	
+	boolean setData( IPlottable plottable, StringBuffer sbError ){
+		if( plottable == null ){
+			sbError.append("internal error, no plottable data supplied");
 			return false;
 		}
-		if( mOptions != null ){
-			mzBoxed = mOptions.getValue_boolean(PlotOptions.OPTION_Boxed);
-		}
-		if( !zUpdateDimensions(iWidth, iHeight, sbError) ){
-			sbError.insert(0, "failed to update dimensions (" + iWidth + ", " + iHeight + "): ");
+		mPlottable = plottable;
+		if( ! zUpdateDimensions( mPlottable.getDimension_x(), mPlottable.getDimension_y(), sbError ) ){
+			sbError.insert( 0, "error updating dimensions (" + mPlottable.getDimension_x() + ", " + mPlottable.getDimension_y() + "): " );
 			return false;
 		}
-		if( eggData2 == null ){
-			switch( eTYPE ){
-				case DATA_TYPE_Byte:
-				case DATA_TYPE_Int16:
-					return setTypedPlotData( eTYPE, (short[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
-				case DATA_TYPE_UInt16:
-				case DATA_TYPE_Int32:
-					return setTypedPlotData( eTYPE, (int[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
-				case DATA_TYPE_UInt32:
-					return setTypedPlotData( (long[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
-				case DATA_TYPE_Float32:
-					return setTypedPlotData( (float[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
-				case DATA_TYPE_Float64:
-					return setTypedPlotData( (double[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
-				default:
-					sbError.append("Data type " + eTYPE + " not supported by pseudocolor plotter");
-					return false;
-			}
-		} else {
-			switch( eTYPE ){
-				case DATA_TYPE_Byte:
-				case DATA_TYPE_Int16:
-					return setTypedPlotData( eTYPE, (short[])eggData[0], eggMissing, (short[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
-				case DATA_TYPE_UInt16:
-				case DATA_TYPE_Int32:
-					return setTypedPlotData( eTYPE, (int[])eggData[0], eggMissing, (int[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
-				case DATA_TYPE_UInt32:
-					return setTypedPlotData( (long[])eggData[0], eggMissing, (long[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
-				case DATA_TYPE_Float32:
-					return setTypedPlotData( (float[])eggData[0], eggMissing, (float[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
-				case DATA_TYPE_Float64:
-					return setTypedPlotData( (double[])eggData[0], eggMissing, (double[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
-				default:
-					sbError.append("Data type " + eTYPE + " not supported by pseudocolor plotter");
-					return false;
-			}
-		}
+		return true;
 	}
 
-	boolean zUpdateDimensions(int iDataPoint_width, int iDataPoint_height, StringBuffer sbError){
-		mScale.setDataDimension(iDataPoint_width, iDataPoint_height);
+	boolean zUpdateDimensions( int iDataPoint_width, int iDataPoint_height, StringBuffer sbError){
+		mScale.setDataDimension( iDataPoint_width, iDataPoint_height );
 		mpxMargin_Left = mScale.getMarginLeft_px();
 		mpxMargin_Right = mScale.getMarginRight_px();
 		mpxMargin_Top = mScale.getMarginTop_px();
@@ -423,103 +350,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		mbi = null;
 		return true;
 	}
-
-	boolean setTypedPlotData( int eTYPE, short[] ashortData, Object[] eggMissing, short[] ashortData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
-		miDataType = eTYPE;
-		mashData = ashortData;
-		mashData2 = ashortData2;
-		if( eggMissing != null && eggMissing[0] != null ){
-			mashMissing1 = (short[])eggMissing[0];
-			mctMissing1 = mashMissing1.length - 1;
-		}
-		if( eggMissing2 != null && eggMissing2[0] != null ){
-			mashMissing2 = (short[])eggMissing2[0];
-			mctMissing2 = mashMissing2.length - 1;
-		}
-		return setPlotDimensions( iWidth, iHeight, sbError );
-	}
-	boolean setTypedPlotData( int eTYPE, int[] aiData, Object[] eggMissing, int[] aiData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
-		miDataType = eTYPE;
-		maiData = aiData;
-		maiData2 = aiData2;
-		if( eggMissing != null && eggMissing[0] != null ){
-			maiMissing1 = (int[])eggMissing[0];
-			mctMissing1 = maiMissing1.length - 1;
-		}
-		if( eggMissing2 != null && eggMissing2[0] != null ){
-			maiMissing2 = (int[])eggMissing2[0];
-			mctMissing2 = maiMissing2.length - 1;
-		}
-		return setPlotDimensions( iWidth, iHeight, sbError );
-	}
-	boolean setTypedPlotData( long[] anData, Object[] eggMissing, long[] anData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
-		miDataType = DATA_TYPE_UInt32;
-		manData = anData;
-		manData2 = anData2;
-		if( eggMissing != null && eggMissing[0] != null ){
-			manMissing1 = (long[])eggMissing[0];
-			mctMissing1 = manMissing1.length - 1;
-		}
-		if( eggMissing2 != null && eggMissing2[0] != null ){
-			manMissing2 = (long[])eggMissing2[0];
-			mctMissing2 = manMissing2.length - 1;
-		}
-		return setPlotDimensions( iWidth, iHeight, sbError );
-	}
-	boolean setTypedPlotData( float[] afData, Object[] eggMissing, float[] afData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
-		miDataType = DATA_TYPE_Float32;
-		mafData = afData;
-		mafData2 = afData2;
-		if( eggMissing != null && eggMissing[0] != null ){
-			mafMissing1 = (float[])eggMissing[0];
-			mctMissing1 = mafMissing1.length - 1;
-		}
-		if( eggMissing2 != null && eggMissing2[0] != null ){
-			mafMissing2 = (float[])eggMissing2[0];
-			mctMissing2 = mafMissing2.length - 1;
-		}
-		return setPlotDimensions( iWidth, iHeight, sbError );
-	}
-	boolean setTypedPlotData( double[] adData, Object[] eggMissing, double[] adData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
-		miDataType = DATA_TYPE_Float64;
-		madData = adData;
-		madData2 = adData2;
-		if( eggMissing != null && eggMissing[0] != null ){
-			madMissing1 = (double[])eggMissing[0];
-			mctMissing1 = madMissing1.length - 1;
-		}
-		if( eggMissing2 != null && eggMissing2[0] != null ){
-			madMissing2 = (double[])eggMissing2[0];
-			mctMissing2 = madMissing2.length - 1;
-		}
-		return setPlotDimensions( iWidth, iHeight, sbError );
-	}
-	boolean setPlotDimensions( int iWidth, int iHeight, StringBuffer sbError ){
-		try {
-			mDataDim_Width = iWidth;
-			mDataDim_Height = iHeight;
-
-			// establish scale
-			mScale.setDataDimension(iWidth, iHeight);
-			mpxMargin_Left   = mScale.getMarginLeft_px();
-			mpxMargin_Right  = mScale.getMarginLeft_px();
-			mpxMargin_Top    = mScale.getMarginTop_px();
-			mpxMargin_Bottom = mScale.getMarginBottom_px();
-			return true;
-		} catch(Throwable ex) {
-			ApplicationController.vUnexpectedError(ex, sbError);
-			return false;
-		}
-	}
-
-	// Axes Management
-	void setAxisVertical( PlotAxis axis ){
-		axisVertical = axis;
-	}
-	void setAxisHorizontal( PlotAxis axis ){
-		axisHorizontal = axis;
-	}
-
+	
 	PlotText mText = null;
 	public PlotText getText(){ return mText; }
 	void setText( PlotText pt ){

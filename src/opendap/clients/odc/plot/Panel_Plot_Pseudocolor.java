@@ -33,6 +33,7 @@ package opendap.clients.odc.plot;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Model_Dataset;
+import opendap.clients.odc.DAP;
 
 import java.awt.Graphics2D;
 import java.awt.Color;
@@ -41,8 +42,6 @@ import javax.swing.JDialog;
 
 class Panel_Plot_Pseudocolor extends Panel_Plot {
 
-	private String mDisplay_sMessage = null;
-	private int mpxRenderedCanvasWidth, mpxRenderedCanvasHeight;
 	private int mpxRenderedPlotWidth, mpxRenderedPlotHeight;
 
 	Panel_Plot_Pseudocolor( PlotScale scale, String sID, String sCaption, Model_Dataset url ){
@@ -65,8 +64,6 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 			if( pxPlotHeight < 10 ) pxPlotHeight = 10;
 		}
 
-		mpxRenderedCanvasWidth = pxCanvasWidth;
-		mpxRenderedCanvasHeight = pxCanvasHeight;
 		mpxRenderedPlotWidth = pxPlotWidth;
 		mpxRenderedPlotHeight = pxPlotHeight;
 
@@ -76,7 +73,7 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 
 			// create pixel colormap
 			if( maiRGBArray == null ){
-				if( zCreateRGBArray(pxPlotWidth, pxPlotHeight, false, msbError) ){
+				if( zCreateRGBArray( pxPlotWidth, pxPlotHeight, false, msbError ) ){
 					// created
 				} else {
 					g2.setColor(Color.BLACK);
@@ -135,68 +132,69 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 	/** if the image is scaled down then averaging will average pixels instead of sampling them */
 	// averaging is not functional currently
 	public boolean zCreateRGBArray( int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError ){
-
-		switch(miDataType){
-			case DATA_TYPE_Float32:
-				maiRGBArray = mColors.aiRender(mafData, mDataDim_Width, mDataDim_Height, pxWidth, pxHeight, zAveraged, sbError);
+		int iDataDim_Width = mPlottable.getDimension_x();
+		int iDataDim_Height = mPlottable.getDimension_y();
+		switch( mPlottable.getDataType() ){
+			case DAP.DATA_TYPE_Float32:
+				maiRGBArray = mColors.aiRender( mPlottable.getFloatArray(), iDataDim_Width, iDataDim_Height, pxWidth, pxHeight, zAveraged, sbError);
 				break;
-			case DATA_TYPE_Float64:
-				maiRGBArray = mColors.aiRender(madData, mDataDim_Width, mDataDim_Height, pxWidth, pxHeight, zAveraged, sbError);
+			case DAP.DATA_TYPE_Float64:
+				maiRGBArray = mColors.aiRender( mPlottable.getDoubleArray(), iDataDim_Width, iDataDim_Height, pxWidth, pxHeight, zAveraged, sbError);
 				break;
-			case DATA_TYPE_Byte:
-			case DATA_TYPE_Int16:
-				maiRGBArray = mColors.aiRender(mashData, mDataDim_Width, mDataDim_Height, pxWidth, pxHeight, zAveraged, sbError);
+			case DAP.DATA_TYPE_Byte:
+			case DAP.DATA_TYPE_Int16:
+				maiRGBArray = mColors.aiRender( mPlottable.getShortArray(), iDataDim_Width, iDataDim_Height, pxWidth, pxHeight, zAveraged, sbError);
 				break;
-			case DATA_TYPE_UInt16:
-			case DATA_TYPE_Int32:
-				maiRGBArray = mColors.aiRender(maiData, mDataDim_Width, mDataDim_Height, pxWidth, pxHeight, zAveraged, sbError);
+			case DAP.DATA_TYPE_UInt16:
+			case DAP.DATA_TYPE_Int32:
+				maiRGBArray = mColors.aiRender( mPlottable.getIntArray(), iDataDim_Width, iDataDim_Height, pxWidth, pxHeight, zAveraged, sbError);
 				break;
-			case DATA_TYPE_UInt32:
-				maiRGBArray = mColors.aiRender(manData, mDataDim_Width, mDataDim_Height, pxWidth, pxHeight, zAveraged, sbError);
+			case DAP.DATA_TYPE_UInt32:
+				maiRGBArray = mColors.aiRender( mPlottable.getLongArray(), iDataDim_Width, iDataDim_Height, pxWidth, pxHeight, zAveraged, sbError);
 				break;
 		}
 		return maiRGBArray != null;
 	}
 
 	void vShowDataMicroscope(int xPlot, int yPlot){
+		int iDataDim_Width = mPlottable.getDimension_x();
+		int iDataDim_Height = mPlottable.getDimension_y();
 
 		// determine data coordinates
-		int xClick = xPlot * mDataDim_Width / mpxRenderedPlotWidth;
-		int yClick = yPlot * mDataDim_Height / mpxRenderedPlotHeight;
+		int xClick = xPlot * iDataDim_Width / mpxRenderedPlotWidth;
+		int yClick = yPlot * iDataDim_Height / mpxRenderedPlotHeight;
 
 		// render colors and store values
 		int[] aRGB = new int[36];
 		String[] as = new String[36];
-		switch(miDataType){
-			case DATA_TYPE_Float32:
-				float[] afData = new float[36];
+		switch( mPlottable.getDataType() ){
+			case DAP.DATA_TYPE_Float32:
 				for( int xDataWidth = 0; xDataWidth < 6; xDataWidth++ ){
 					for( int xDataHeight = 0; xDataHeight < 6; xDataHeight++ ){
 						int xRGB = 6 * xDataHeight + xDataWidth;
-						int xData = mDataDim_Width * (yClick + xDataHeight) + (xClick + xDataWidth);
-						if( xData < 0 || xData > mafData.length ){
+						int xData = iDataDim_Width * (yClick + xDataHeight) + (xClick + xDataWidth);
+						if( xData < 0 || xData > mPlottable.getFloatArray().length ){
 							as[xRGB] = null;
 						} else {
-							as[xRGB] = Float.toString( mafData[xData] );
-							afData[xRGB] = mafData[xData];
+							as[xRGB] = Float.toString( mPlottable.getFloatArray()[xData] );
 						}
 					}
 				}
-				aRGB = mColors.aiRender(afData, 6, 6, 6, 6, false, msbError);
+				aRGB = mColors.aiRender( mPlottable.getFloatArray(), 6, 6, 6, 6, false, msbError);
 				if( aRGB == null ){
 					msbError.setLength(0);
 					return;  // todo errors
 				}
 				break;
-			case DATA_TYPE_Float64:
+			case DAP.DATA_TYPE_Float64:
 				break;
-			case DATA_TYPE_Byte:
-			case DATA_TYPE_Int16:
+			case DAP.DATA_TYPE_Byte:
+			case DAP.DATA_TYPE_Int16:
 				break;
-			case DATA_TYPE_UInt16:
-			case DATA_TYPE_Int32:
+			case DAP.DATA_TYPE_UInt16:
+			case DAP.DATA_TYPE_Int32:
 				break;
-			case DATA_TYPE_UInt32:
+			case DAP.DATA_TYPE_UInt32:
 				break;
 		}
 
