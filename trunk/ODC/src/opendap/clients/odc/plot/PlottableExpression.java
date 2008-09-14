@@ -9,6 +9,203 @@
 
 package opendap.clients.odc.plot;
 
-public class PlottableExpression {
+import opendap.clients.odc.ApplicationController;
+import opendap.clients.odc.DAP;
+import org.python.util.PythonInterpreter;
+import org.python.core.Py;
+import org.python.core.PyObject;
+import org.python.core.*;
 
+public class PlottableExpression {
+	
+	String msExpression;
+
+	private int miDataType = 0; // 0 = no data, see opendap.clients.odc.DAP for constants
+	private short[] mashData = null; // byte and int16
+	private int[] maiData = null; // uint16 and int32
+	private long[] manData = null; // uint32
+	private float[] mafData = null; // float32
+	private double[] madData = null; // float64
+	private short[] mashData2 = null; // the #2's are for vector plots
+	private int[] maiData2 = null;
+	private long[] manData2 = null;
+	private float[] mafData2 = null;
+	private double[] madData2 = null;
+	private int mDimension_x_size = 0;
+	private int mDimension_y_size = 0;
+	private int mDimension_z_size = 0;
+	private int mDimension_t_size = 0;
+	private double[] mDimension_x_value = null; // 1-based
+	private double[] mDimension_y_value = null;
+	private double[] mDimension_z_value = null;
+	private double[] mDimension_t_value = null;
+
+	// Missing Values
+	int mctMissing1;
+	int mctMissing2;
+	short[] mashMissing1;
+	int[] maiMissing1;
+	long[] manMissing1;
+	float[] mafMissing1;
+	double[] madMissing1;
+	short[] mashMissing2;
+	int[] maiMissing2;
+	long[] manMissing2;
+	float[] mafMissing2;
+	double[] madMissing2;
+	
+	boolean setExpression( String sExpression, double[] adDim_x, double[] adDim_y, double[] adDim_z, double[] adDim_t, StringBuffer sbError ){
+		msExpression = sExpression;
+		mDimension_x_value = adDim_x;
+		mDimension_y_value = adDim_y;
+		mDimension_z_value = adDim_z;
+		mDimension_t_value = adDim_t;
+		mDimension_x_size = adDim_x == null ? 0 : adDim_x.length - 1;
+		mDimension_x_size = adDim_y == null ? 0 : adDim_y.length - 1;
+		mDimension_x_size = adDim_z == null ? 0 : adDim_z.length - 1;
+		mDimension_x_size = adDim_t == null ? 0 : adDim_t.length - 1;
+		return evalExpression( sbError );
+	}
+	
+	boolean evalExpression( StringBuffer sbError ){
+		PythonInterpreter interpreter = ApplicationController.getInstance().getInterpreter().getInterpeter();
+		try {
+			if( mDimension_x_size > 0 ){
+				interpreter.exec( "x = " + mDimension_x_value[1] );
+				if( mDimension_y_size > 0 ){
+					interpreter.exec( "y = " + mDimension_y_value[1] );
+					if( mDimension_z_size > 0 ){
+						interpreter.exec( "z = " + mDimension_z_value[1] );
+						if( mDimension_t_size > 0 ){
+							interpreter.exec( "t = " + mDimension_t_value[1] );
+						}
+					}
+				}
+			}
+			PyObject pyobject = interpreter.eval( msExpression );
+			if( pyobject == Py.None ){
+				sbError.append( "expression evaluated to null" ); // TODO
+				return false;
+			} else if( pyobject instanceof PyInteger ){
+				miDataType = DAP.DATA_TYPE_Int32;
+				return evalExpression_Integer( sbError );
+			} else if( pyobject instanceof PyFloat ){
+				miDataType = DAP.DATA_TYPE_Float64;
+				return evalExpression_Double( sbError );
+			} else {
+				String sType = pyobject.getType().toString();
+				sbError.append( "expression did not evaluate to a supported type (" + sType + "): " + msExpression );
+				return false;
+			}
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			sbError.insert( 0, "syntax error: " );
+		} catch( org.python.core.PyException python_error ) {
+			sbError.insert( 0, "Python error: " );
+		} catch( Throwable t ) {
+			sbError.insert( 0, "unexpected error: " + t );
+			return false;
+		}
+
+	}
+
+	boolean evalExpression_Integer( StringBuffer sbError ){
+		PythonInterpreter interpreter = ApplicationController.getInstance().getInterpreter().getInterpeter();
+		int x_stop = mDimension_x_size == 0 ? 1 : mDimension_x_size; 
+		int y_stop = mDimension_y_size == 0 ? 1 : mDimension_y_size; 
+		int z_stop = mDimension_z_size == 0 ? 1 : mDimension_z_size; 
+		int t_stop = mDimension_t_size == 0 ? 1 : mDimension_t_size;
+		int i = 0;
+		for( int x = 1; x <= x_stop; x++ ){
+			interpreter.exec( "x = " + mDimension_x_value[x] );			
+			for( int y = 1; y <= y_stop; y++ ){
+				if( mDimension_y_size > 0 ) interpreter.exec( "y = " + mDimension_y_value[y] );			
+				for( int z = 1; z <= z_stop; z++ ){
+					if( mDimension_z_size > 0 ) interpreter.exec( "z = " + mDimension_z_value[z] );			
+					for( int t = 1; t <= t_stop; t++ ){
+						if( mDimension_t_size > 0 ) interpreter.exec( "t = " + mDimension_t_value[t] );
+						PyObject pyobject = interpreter.eval( msExpression );
+						i++;
+						maiData[i] = Py.py2int( pyobject );
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	boolean evalExpression_Double( StringBuffer sbError ){
+		PythonInterpreter interpreter = ApplicationController.getInstance().getInterpreter().getInterpeter();
+		int x_stop = mDimension_x_size == 0 ? 1 : mDimension_x_size; 
+		int y_stop = mDimension_y_size == 0 ? 1 : mDimension_y_size; 
+		int z_stop = mDimension_z_size == 0 ? 1 : mDimension_z_size; 
+		int t_stop = mDimension_t_size == 0 ? 1 : mDimension_t_size;
+		int i = 0;
+		for( int x = 1; x <= x_stop; x++ ){
+			interpreter.exec( "x = " + mDimension_x_value[x] );			
+			for( int y = 1; y <= y_stop; y++ ){
+				if( mDimension_y_size > 0 ) interpreter.exec( "y = " + mDimension_y_value[y] );			
+				for( int z = 1; z <= z_stop; z++ ){
+					if( mDimension_z_size > 0 ) interpreter.exec( "z = " + mDimension_z_value[z] );			
+					for( int t = 1; t <= t_stop; t++ ){
+						if( mDimension_t_size > 0 ) interpreter.exec( "t = " + mDimension_t_value[t] );
+						PyObject pyobject = interpreter.eval( msExpression );
+						i++;
+						madData[i] = Py.py2double( pyobject );
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	public int getDataType(){ return miDataType; } 
+	public short[] getShortArray(){ return mashData; }
+	public int[] getIntArray(){ return maiData; }
+	public long[] getLongArray(){ return manData; }
+	public float[] getFloatArray(){ return mafData; }
+	public double[] getDoubleArray(){ return madData; }
+	public short[] getShortArray2(){ return mashData2; }
+	public int[] getIntArray2(){ return maiData2; }
+	public long[] getLongArray2(){ return manData2; }
+	public float[] getFloatArray2(){ return mafData2; }
+	public double[] getDoubleArray2(){ return madData2; }
+	public int getDimension_x(){ return mDimension_x_size; }
+	public int getDimension_y(){ return mDimension_y_size; }
+	public int getDimension_z(){ return mDimension_z_size; }
+	public int getDimension_t(){ return mDimension_t_size; }
+	
+	public int getMissingCount1(){ return mctMissing1; }
+	public short[] getMissingShort1(){ return mashMissing1; }
+	public int[] getMissingInt1(){ return maiMissing1; }
+	public long[] getMissingLong1(){ return manMissing1; }
+	public float[] getMissingFloat1(){ return mafMissing1; }
+	public double[] getMissingDouble1(){ return madMissing1; }
+
+	public int getMissingCount2(){ return mctMissing2; }
+	public short[] getMissingShort2(){ return mashMissing2; }
+	public int[] getMissingInt2(){ return maiMissing2; }
+	public long[] getMissingLong2(){ return manMissing2; }
+	public float[] getMissingFloat2(){ return mafMissing2; }
+	public double[] getMissingDouble2(){ return madMissing2; }
+	
+	public int getDataElementCount(){
+		switch( getDataType() ){
+			case DAP.DATA_TYPE_Byte:
+			case DAP.DATA_TYPE_Int16:
+				if( mashData == null ) return 0; else return mashData.length;
+			case DAP.DATA_TYPE_UInt16:
+			case DAP.DATA_TYPE_Int32:
+				if( maiData == null ) return 0; else return maiData.length;
+			case DAP.DATA_TYPE_UInt32:
+				if( manData == null ) return 0; else return mashData.length;
+			case DAP.DATA_TYPE_Float32:
+				if( mafData == null ) return 0; else return mafData.length;
+			case DAP.DATA_TYPE_Float64:
+				if( madData == null ) return 0; else return madData.length;
+		}
+		return 0;
+	}
+
+	
+	
 }
