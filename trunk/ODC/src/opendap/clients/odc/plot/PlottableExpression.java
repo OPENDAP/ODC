@@ -99,8 +99,10 @@ public class PlottableExpression {
 			}
 		} catch( org.python.core.PySyntaxError parse_error ) {
 			sbError.insert( 0, "syntax error: " );
+			return false;
 		} catch( org.python.core.PyException python_error ) {
 			sbError.insert( 0, "Python error: " );
+			return false;
 		} catch( Throwable t ) {
 			sbError.insert( 0, "unexpected error: " + t );
 			return false;
