@@ -11,6 +11,10 @@ void vShowLastError(string sErrorMessage);
 void vShowMessage(string sMessage);
 void vDestroyVM(JNIEnv *env, JavaVM *jvm);
 void vAddOption(const string& sName);
+void vTrimSpaces( string& str);
+
+JNIEnv *env;
+JavaVM *jvm;
 
 JavaVMOption* vm_options;
 int mctOptions = 0;
@@ -31,11 +35,14 @@ int iConfig_getApplicationParameterCount();
 string sConfig_getApplicationParameter( int iIndex ); 
 int iConfig_getOptionCount();
 string sConfig_getOption( int iOptionIndex );
+int iConfig_getEnvironmentVariableCount();
+string sConfig_getEnvironmentVariable( int iEnvironmentVariableIndex );
 
 typedef jint (CALLBACK *CreateJavaVM)(JavaVM **pvm, JNIEnv **penv, void *args);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char* sCommandLine, int iCmdShow) {
 //int main(int __argc, char* __argv[]){ //for a console or unix application (useful for debugging)
+//int InitializeJVM( bool zVerbose ){
 
 	string STARTUP_FILE = "startup.ini";
 
@@ -101,6 +108,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char* sCommandL
 		vAddOption(sConfig_getOption(xOption));
 		if( zVerbose ){
 			vShowMessage("5 user option:" + sConfig_getOption(xOption));
+		}
+	}
+
+	// add environment variables
+	for( int xEnvironmentVariable = 1; xEnvironmentVariable <= iConfig_getEnvironmentVariableCount(); xEnvironmentVariable++ ){
+		string sEnvironmentAction = sConfig_getEnvironmentVariable(xEnvironmentVariable);
+		string::size_type pos = sEnvironmentAction.find("=");
+		if( pos == string::npos ){
+			vShowError("Failed to set environment variable, no equals sign (must be of form 'var = value'): " + sEnvironmentAction );
+			return 0;
+		}
+		string sVariableName = sEnvironmentAction.substr( 0, pos );
+		string sVariableValue = sEnvironmentAction.substr( pos + 1 );
+		vTrimSpaces( sVariableName );
+		vTrimSpaces( sVariableValue );
+		if( ! SetEnvironmentVariable( sVariableName.c_str(), sVariableValue.c_str() ) ){  // putenv returns 0 on success
+			vShowError("Failed to set environment variable (must be of form 'var = value'): " + sEnvironmentAction );
+			return 0;
+		}
+		if( zVerbose ){
+			vShowMessage("7 environment variable: [" + sVariableName + "] = [" + sVariableValue + "]");
 		}
 	}
 
@@ -508,5 +536,23 @@ int iConfig_getOptionCount(){
 }
 string sConfig_getOption( int iOptionIndex ){
 	return mStartupConfiguration.asOptions[iOptionIndex];
+}
+int iConfig_getEnvironmentVariableCount(){
+	return mStartupConfiguration.ctEnvironmentVariables;
+}
+string sConfig_getEnvironmentVariable( int iEnvironmentVariableIndex ){
+	return mStartupConfiguration.asEnvironmentVariables[iEnvironmentVariableIndex];
+}
+
+void vTrimSpaces( string& str){  
+	string::size_type startpos = str.find_first_not_of(" \t"); // Find the first character position after excluding leading blank spaces  
+	string::size_type endpos = str.find_last_not_of(" \t"); // Find the first character position from reverse af  
+
+	// if all spaces or empty return an empty string  
+	if(( string::npos == startpos ) || ( string::npos == endpos)){  
+		str = "";  
+	} else {
+		str = str.substr( startpos, endpos-startpos+1 );
+	}
 }
 
