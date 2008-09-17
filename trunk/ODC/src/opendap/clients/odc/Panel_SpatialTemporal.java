@@ -1645,7 +1645,7 @@ class Gazetteer {
 		asTopics = new String[ctTopic];
 		asEntries = new String[ctTopic][];
 		asCoordinates = new String[ctTopic][];
-		ArrayList listEntries = new ArrayList();
+		ArrayList<String> listEntries = new ArrayList<String>();
 		ArrayList<String> listCoordinates = new ArrayList<String>();
 	    int xTopic = 0;
 		int xEntry = 0;

@@ -896,7 +896,7 @@ public class OutputEngine implements ByteCounter {
 						sbError.insert(0, "grid with " + ctDimensions + "-dimensional array has only " + ctMaps + " maps");
 						return false;
 					}
-					ArrayList listMap = new ArrayList();
+					ArrayList<BaseType> listMap = new ArrayList<BaseType>();
 					for(int xMap = 1; xMap <= ctMaps; xMap++ ){
 						BaseType btMap = dgrid.getVar(xMap);
 						if( btMap == null ){
@@ -992,7 +992,7 @@ public class OutputEngine implements ByteCounter {
 		}
 
 		// the listMap is an ArrayList containing the map base types which are one-dimensional arrays of values
-		private boolean zOutput_FormattedArray( String sVariableName, DArray darray, ArrayList listMap, OutputStream os, StringBuffer sbError ){
+		private boolean zOutput_FormattedArray( String sVariableName, DArray darray, ArrayList<BaseType> listMap, OutputStream os, StringBuffer sbError ){
 			try {
 				StringBuffer sbOut = new StringBuffer(250);
 				if( darray == null ){
@@ -1003,9 +1003,9 @@ public class OutputEngine implements ByteCounter {
 				Enumeration eDimensions = darray.getDimensions();
 				ArrayList listDimensions = new ArrayList();
 				int ctDimensions = 0;
-				while(eDimensions.hasMoreElements()) {
+				while( eDimensions.hasMoreElements() ) {
 					ctDimensions++;
-					listDimensions.add(eDimensions.nextElement());
+					listDimensions.add( eDimensions.nextElement() );
 				}
 				if( ctDimensions != darray.numDimensions() ){
 					sbError.append("Inconsistent data structure; states " + darray.numDimensions() + " dimensions and actual count is " + ctDimensions);
@@ -1058,7 +1058,7 @@ public class OutputEngine implements ByteCounter {
 								break;
 							}
 						}
-						listMap.add(darrayDimMap);
+						listMap.add( darrayDimMap );
 					}
 				} else { // validate map
 					int ctMapDimensions = listMap.size();

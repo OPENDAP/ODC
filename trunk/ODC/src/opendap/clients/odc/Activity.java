@@ -152,7 +152,7 @@ public class Activity extends Thread {
 	}
 	public void setMode( int eMODE ){ meMODE = eMODE; }
 	public void setSocket( Socket socket ){ mSocket = socket; }
-	ArrayList listContinuations = new ArrayList();
+	ArrayList<Continuation_DoCancel> listContinuations = new ArrayList<Continuation_DoCancel>();
 	javax.swing.JButton mjbuttonActivator;
 	java.awt.event.ActionListener mactionDo;
 	java.awt.event.ActionListener mactionCancel;

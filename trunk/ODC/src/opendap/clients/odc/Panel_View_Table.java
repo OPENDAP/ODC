@@ -238,7 +238,7 @@ ApplicationController.getInstance().vShowStartupMessage("table constructor end")
 		return true;
 	}
 
-	public void vSetFocus(){    	
+	public void vSetFocus(){
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				mjtDisplay.requestFocus();
@@ -577,7 +577,7 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 		boolean zMaxedOut = false;
 		int MAX_Rows = 10000;
 		StringBuffer msbBuffer = new StringBuffer(NOMINAL_PROCESS_PACKET_SIZE);
-		ArrayList listValues = new ArrayList();
+		ArrayList<String> listValues = new ArrayList<String>();
 		StringBuffer msbValBuffer = new StringBuffer();
 		public TableOutputStream(){
 			MAX_Rows = ConfigurationManager.getInstance().getProperty_MaxTableRows();
@@ -771,7 +771,7 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 			msbBuffer.setLength(0);
 		}
 		private void vAddValue(){
-			listValues.add(msbValBuffer.toString());
+			listValues.add( msbValBuffer.toString() );
 			msbValBuffer.setLength(0);
 		}
 		// header format:

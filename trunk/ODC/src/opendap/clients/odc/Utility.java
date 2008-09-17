@@ -67,7 +67,7 @@ public class Utility {
 			return false;
 		}
 	}
-	
+
 	// requires a 5 megabyte buffer which is wise for a Swing application
 	public static boolean zMemoryCheck( int iCount, int iWidth, StringBuffer sbError ){
 		if( getMemory_Available() > iCount * iWidth + 5000000 ){
@@ -562,7 +562,7 @@ ScanForStartOfMatch:
 		}
 		return listRecords;
 	}
-	
+
 	public static String[] zParseCSVLine( String sLine, boolean zRecognizeComments ){
 		if( sLine == null )return null;
 		sLine = sLine.trim();
@@ -580,7 +580,7 @@ ScanForStartOfMatch:
 				if( pos == lenLine ){
 					if( zWriting ){
 						asLine[ctFields] = sbField.toString().trim();
-						return asLine; 
+						return asLine;
 					}
 					ctFields++;
 					asLine = new String[ctFields];
@@ -647,7 +647,7 @@ ScanForStartOfMatch:
 			}
 		}
 	}
-	
+
 	// loads lines in a file into an array list of lines
 	// content can include newlines if in quotation marks
 	// End of Line:
@@ -663,7 +663,7 @@ ScanForStartOfMatch:
 			return null;
 		}
 		int lenContent = sbContent.length();
-		ArrayList listLines = new ArrayList();
+		ArrayList<String> listLines = new ArrayList<String>();
 		StringBuffer sbLine = new StringBuffer(120);
 		int pos = 0;
 		int eState = 1;
@@ -744,7 +744,7 @@ ScanForStartOfMatch:
 //			return null;
 //		}
 //	}
-	
+
 	static boolean fileLoadIntoBuffer( String sAbsolutePath, StringBuffer sbResource, StringBuffer sbError){
 		File file = new File(sAbsolutePath);
 		if( !file.exists() ){
@@ -1127,7 +1127,7 @@ ScanForStartOfMatch:
 			return "unknown_err";
 		}
 	}
-	
+
 	public static String sConnectPaths(String sPrePath, String sPostPath){
 		return sConnectPaths(sPrePath, msFileSeparator, sPostPath);
 	}
@@ -1182,7 +1182,7 @@ ScanForStartOfMatch:
 			return null;
 		}
 	}
-			
+
 	static javax.swing.JFileChooser jfc = null;
 	/** opens a dialog to save a file
 	 *  if the error buffer is blank and file is null then the user cancelled the operation
@@ -1233,8 +1233,8 @@ ScanForStartOfMatch:
 			sbError.append("failed to create file " + file + ": " + ex );
 			return false;
 		}
-		
-		
+
+
 		// open file
 		java.io.FileOutputStream fos = null;
 		try {
@@ -1261,7 +1261,7 @@ ScanForStartOfMatch:
 		}
 		return true;
 	}
-	
+
 	/* 1.4.1 only
 	public static boolean zChannelCopy( ReadableByteChannel rbcSource, WritableByteChannel wbcDestination, StringBuffer sbError ){
 		try {
@@ -1393,7 +1393,7 @@ ScanForStartOfMatch:
 	public static int round( double d ){
 		return (int)round( d, 0 );
 	}
-	
+
 	/** the order is the power of ten, for example order 0 is rounding to the
 	 *  nearest integer; order 2 rounds to the nearest 100; order -3 rounds to
 	 *  the nearest 0.001 etc

@@ -33,10 +33,10 @@ import java.util.Vector;
 public class EntryIDHandler extends DefaultHandler {
 
     private boolean insideEntryID;
-    private Vector ids;
+    private Vector<String> ids;
 
     public EntryIDHandler() {
-	ids = new Vector();
+	ids = new Vector<String>();
 	insideEntryID = false;
     }
 
