@@ -513,7 +513,7 @@ class Model_Variable {
 		}
 	}
 
-	private VariableInfo zCreateVariable_FromDArray(BaseType btValues, int xDimX, int xDimY, int ctDimensions, int[] aiDimSizes, int[] axSliceIndex1, StringBuffer sbError){
+	private VariableInfo zCreateVariable_FromDArray( BaseType btValues, int xDimX, int xDimY, int ctDimensions, int[] aiDimSizes, int[] axSliceIndex1, StringBuffer sbError ){
 		if( aiDimSizes == null ){
 			sbError.append("internal error, no dim sizes");
 			return null;

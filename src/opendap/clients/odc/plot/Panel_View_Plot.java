@@ -28,7 +28,7 @@ package opendap.clients.odc.plot;
  * Copyright:    Copyright (c) 2003-8
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.00
+ * @version      3.02
  */
 
 import opendap.dap.*;
