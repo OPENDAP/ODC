@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-2008
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.00
+ * @version      3.02
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ package opendap.clients.odc;
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//	
+//
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 /////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +61,7 @@ public class ApplicationController {
 	private opendap.clients.odc.geo.Geodesy geodesy;
 
 	public final opendap.clients.odc.geo.Geodesy getGeodesy(){ return geodesy; }
-	
+
 	private OutputEngine mOutputEngine;
 	public final OutputEngine getOutputEngine(){ return mOutputEngine; }
 
@@ -70,7 +70,7 @@ public class ApplicationController {
 
 	private Model_LoadedDatasets mDatasets;
 	public Model_LoadedDatasets getDatasets(){ return mDatasets; }
-	
+
 	public ArrayList<String> listStatusMessages = new ArrayList<String>();
 	public ArrayList<String> listWarnings = new ArrayList<String>();
 	public ArrayList<String> listErrors = new ArrayList<String>();
@@ -96,10 +96,10 @@ public class ApplicationController {
 				ApplicationController.vShowStartupDialog(sJavaVersionError);
 				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
 			}
-			
+
 			// output version information
-			vShowStatus( thisSingleton.getAppName() + " " + thisSingleton.getAppVersion() + " " + thisSingleton.getAppReleaseDate() );   
-	
+			vShowStatus( thisSingleton.getAppName() + " " + thisSingleton.getAppVersion() + " " + thisSingleton.getAppReleaseDate() );
+
 			// get configuration manager going
 			String sBaseDirectory = null;
 			if( args != null ){
@@ -135,7 +135,7 @@ public class ApplicationController {
 			thisInstance.mOutputEngine = new OutputEngine();
 			thisInstance.mRetrieve     = new Model_Retrieve();
 			thisInstance.mDatasets     = new Model_LoadedDatasets();
-			
+
 			thisInstance.vShowStartupMessage("initializing geodesy");
 			thisInstance.geodesy = opendap.clients.odc.geo.Geodesy.getInstance();
 			if( ! thisInstance.geodesy.zInitialize( sBaseDirectory, sbError ) ){
@@ -143,7 +143,7 @@ public class ApplicationController {
 				System.out.println("Failed to initialize geodesy engine: " + sbError);
 				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
 			}
-			
+
 			thisInstance.vShowStartupMessage("creating interpreter");
 			thisInstance.interpreter = new Interpreter();
 			if( !thisInstance.appframe.zInitialize( msAppName, thisSingleton, sbError ) ){
@@ -553,7 +553,7 @@ public class ApplicationController {
 			sbError.append(": ").append(sErrorMessage);
 		}
 	}
-	
+
 	public String getLog(){
 		StringBuffer sbLog = new StringBuffer(10000);
 		sbLog.append("Errors:");
@@ -812,7 +812,7 @@ public class ApplicationController {
 			return false;
 		}
 	}
-	
+
 	static boolean zDeletePreferenceObject( String sFileName, StringBuffer sbError ){
 		try {
 			String sPreferencesDirectory = ConfigurationManager.getInstance().getProperty_PreferencesDirectory();
@@ -878,8 +878,8 @@ public class ApplicationController {
 		}
 	}
 
-	
-	
+
+
 }
 
 class Message extends JPanel {
@@ -938,7 +938,7 @@ class Message extends JPanel {
 
 		return;
 	}
-	
+
 }
 
 // this is simple evaluator that can be replaced if the program ever gets a full-fledged interpreter

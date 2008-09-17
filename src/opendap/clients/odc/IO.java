@@ -78,12 +78,12 @@ public class IO {
 		String sReferer = null;
 		String sContentType = null;
 		String sContent = null;
-		ArrayList listClientCookies = null;
-		ArrayList listServerCookies = null;
+		ArrayList<String> listClientCookies = null;
+		ArrayList<String> listServerCookies = null;
 		return getStaticContent(sCommand, sHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, bc, activity, sbError);
 	}
 
-	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList listClientCookies, ArrayList listServerCookies, ByteCounter bc, Activity activity, StringBuffer sbError) {
+	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList<String> listClientCookies, ArrayList<String> listServerCookies, ByteCounter bc, Activity activity, StringBuffer sbError) {
 		String sBasicAuthentication = null;
 		String[] eggLocation = null;
 		return getStaticContent( sCommand, sHost, iPort, sPath, sQuery, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, 0, sbError );
@@ -109,7 +109,7 @@ public class IO {
      * @param sbError Buffer to write any error message to.
      * @return the content of the return as a String or null in the case of an error.
      */
-	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList listClientCookies, ArrayList listServerCookies, String sBasicAuthentication, String[] eggLocation, ByteCounter bc, Activity activity, int iRedirectCount, StringBuffer sbError) {
+	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList<String> listClientCookies, ArrayList listServerCookies, String sBasicAuthentication, String[] eggLocation, ByteCounter bc, Activity activity, int iRedirectCount, StringBuffer sbError) {
 		if( sHost == null ){
 			sbError.append("host missing");
 			return null;

@@ -399,7 +399,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 		ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
 	}
 
-	private ArrayList mlistKnownURLs = new ArrayList();
+	private ArrayList<Model_Dataset> mlistKnownURLs = new ArrayList<Model_Dataset>();
 	void addKnownURL( Model_Dataset url ){
 		if( url != null ){
 			mlistKnownURLs.add( url );

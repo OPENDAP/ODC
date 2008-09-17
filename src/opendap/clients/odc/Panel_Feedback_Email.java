@@ -129,14 +129,14 @@ public class Panel_Feedback_Email extends JPanel implements IControlPanel {
         }
 	}
 
-	public void vSetFocus(){    	
+	public void vSetFocus(){
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				jtaDisplay.requestFocus();
 			}
 		});
 	}
-    
+
 	void vClearDisplay(){
 		jtaDisplay.setText("");
 	}
@@ -209,8 +209,8 @@ public class Panel_Feedback_Email extends JPanel implements IControlPanel {
 		String sReferer = null;
 		String sContentType = "application/x-www-form-urlencoded";
 		String sContent = sbContent.toString();
-		java.util.ArrayList listServerCookies = null;
-		java.util.ArrayList listClientCookies = null;
+		java.util.ArrayList<String> listServerCookies = null;
+		java.util.ArrayList<String> listClientCookies = null;
 
 		activity.vUpdateStatus("Posting mail to relay");
 

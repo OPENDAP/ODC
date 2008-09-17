@@ -414,14 +414,14 @@ public class Panel_Feedback_Bug extends JPanel implements IControlPanel {
         }
 	}
 
-	public void vSetFocus(){    	
+	public void vSetFocus(){
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				jcbOperatingSystem.requestFocus();
 			}
 		});
 	}
-    
+
 	// this is called whenever the user clicks the "Feedback Bug" tab (see ApplicationFrame)
 	void vUpdateLog(){
 		jtaSystemLog.setText(ApplicationController.getInstance().getLog());
@@ -471,8 +471,8 @@ public class Panel_Feedback_Bug extends JPanel implements IControlPanel {
 		String sReferer = null;
 		String sBasicAuthentication = "amNoYW1iZXI6ZWR5dnU3OFl1";
 		String[] eggLocation = new String[1];
-		ArrayList listClientCookies = new ArrayList();
-		ArrayList listServerCookies = new ArrayList();
+		ArrayList<String> listClientCookies = new ArrayList<String>();
+		ArrayList<String> listServerCookies = new ArrayList<String>();
 		ByteCounter bc = null;
 		StringBuffer sbError = new StringBuffer(80);
 		String sPageReturn;
