@@ -74,7 +74,7 @@ public class ConfigurationManager {
 	private static final String FEEDBACK_Default_BugHost = "scm.opendap.org";
 	private static final String FEEDBACK_Default_BugPort = "8090";
 	private static final String FEEDBACK_Default_BugRoot = "/trac";
-	
+
 	private static final String EDITING_Default_TabSize = "4";
 	private static final String EDITING_Default_ColumnCount = "80";
 
@@ -156,6 +156,13 @@ public class ConfigurationManager {
     public static boolean zInitializeConfigurationManager( String sBaseDirectoryPath, StringBuffer sbError ){
 
 		thisSingleton = new ConfigurationManager();
+
+		File fileCurrentDirectory = new File(".");
+		if( fileCurrentDirectory == null ){
+			ApplicationController.vShowStatus( "Warning: unable to determine current directory" );
+		} else {
+			ApplicationController.vShowStatus( "Current Directory: " + fileCurrentDirectory.getAbsolutePath() );
+		}
 
 		// determine runtime paths
 		if( ! thisSingleton.zResolveBaseDirectory(sBaseDirectoryPath, sbError) ){
@@ -778,7 +785,7 @@ public class ConfigurationManager {
 		int iTabSize = DEFAULT_editing_TabSize;
 		try {
 			iTabSize = Integer.parseInt(sTimeout);
-			if( iTabSize < 0 || iTabSize > 120 ) iTabSize = DEFAULT_editing_TabSize;  
+			if( iTabSize < 0 || iTabSize > 120 ) iTabSize = DEFAULT_editing_TabSize;
 		} catch(Exception ex) {
 			ApplicationController.vShowWarning("Invalid tab setting [" + iTabSize + "]. Must be an integer between 0 and 120.");
 		}
@@ -789,7 +796,7 @@ public class ConfigurationManager {
 		int iColumnCount = DEFAULT_editing_ColumnCount;
 		try {
 			iColumnCount = Integer.parseInt(sTimeout);
-			if( iColumnCount < 0 || iColumnCount > 10000 ) iColumnCount = DEFAULT_editing_ColumnCount;  
+			if( iColumnCount < 0 || iColumnCount > 10000 ) iColumnCount = DEFAULT_editing_ColumnCount;
 		} catch(Exception ex) {
 			ApplicationController.vShowWarning("Invalid column count setting [" + iColumnCount + "]. Must be an integer between 0 and 10000.");
 		}
