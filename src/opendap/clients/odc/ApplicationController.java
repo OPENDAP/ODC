@@ -107,9 +107,11 @@ public class ApplicationController {
 					sBaseDirectory = args[0];
 				}
 			}
-			if( !ConfigurationManager.zInitializeConfigurationManager(sBaseDirectory, sbError) ){
-				System.out.println("Configuration failure: " + sbError);
-				ApplicationController.vShowStartupDialog("Configuration failure: " + sbError);
+			if( ConfigurationManager.zInitializeConfigurationManager( sBaseDirectory, sbError ) ){
+				sBaseDirectory = ConfigurationManager.getInstance().getBaseDirectory();
+			} else {
+				System.out.println( "Configuration failure: " + sbError );
+				ApplicationController.vShowStartupDialog( "Configuration failure: " + sbError );
 				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
 			}
 
@@ -141,7 +143,7 @@ public class ApplicationController {
 			if( ! thisInstance.geodesy.zInitialize( sBaseDirectory, sbError ) ){
 				ApplicationController.vShowStartupDialog("Failed to initialize geodesy engine: " + sbError);
 				System.out.println("Failed to initialize geodesy engine: " + sbError);
-				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
+//				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
 			}
 
 			thisInstance.vShowStartupMessage("creating interpreter");
@@ -175,7 +177,7 @@ public class ApplicationController {
 
 	static boolean zCheckJavaVersion( String sJavaVersion ){
 		if( sJavaVersion == null ) return false;
-		if( sJavaVersion.startsWith( "1.4.0") ) return false;
+		if( sJavaVersion.startsWith( "1.4.") ) return false;
 		if( sJavaVersion.startsWith( "1.3." ) ) return false;
 		if( sJavaVersion.startsWith( "1.2." ) ) return false;
 		if( sJavaVersion.startsWith( "1.1." ) ) return false;
