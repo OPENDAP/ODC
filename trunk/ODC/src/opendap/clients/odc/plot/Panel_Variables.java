@@ -1580,7 +1580,7 @@ class VSelector_Plot_Values extends JPanel {
 		}
 */
 
-		// todo if for any reason the data parameters do not inititialize successfully
+		// TODO if for any reason the data parameters do not inititialize successfully
 		// the missing values will be untyped leading to errors elsewhere, therefore
 		// code should be added that will ensure the missing values are typed correctly
 		// (or that the variables are unselectable)
@@ -1631,7 +1631,7 @@ class VSelector_Plot_Values extends JPanel {
 			return;
 		}
 		BaseType bt = at.bt;
-		int eTYPE = DAP.getDArrayType((DArray)bt); // assumes DArray
+		int eTYPE = DAP.getDArrayType((DArray)bt); // assumes DArray TODO
 		int xDimX = getDimX();
 		int xDimY = getDimY();
 		DataParameters dp = Panel_View_Plot.getDataParameters();
