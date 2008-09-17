@@ -374,7 +374,6 @@ class CatalogInformation {
     private boolean mzIsFileServer;
 
 	// DODS DAP objects
-    private opendap.dap.DConnect2 connect;
     private opendap.dap.DAS mDAS;
     private opendap.dap.DDS mDDS;
 
@@ -724,25 +723,6 @@ class CatalogInformation {
 //		} else {
 //	    	return false;
 //		}
-    }
-
-
-    // --- Returns the minimum of two integers ---
-    private int getMin(int v1, int v2) {
-    	if (v1 < v2) {
-	    	return v1;
-    	} else {
-	    	return v2;
-    	}
-    }
-
-    // --- Returns the maximum of two integers ---
-    private int getMax(int v1, int v2) {
-    	if (v1 > v2) {
-	    	return v1;
-    	} else {
-	   		return v2;
-    	}
     }
 
     private boolean zDetermineIfFileserver(StringBuffer sbError) {
