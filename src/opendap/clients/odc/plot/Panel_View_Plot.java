@@ -56,6 +56,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	JRadioButton jrbFromTable;
 	JRadioButton jrbFromSelectedURL;
 	final JList jlistSelectedURLs = new JList();
+	final JList jlistPlottableExpressions = new JList();
 	final DefaultListModel lmSelectedURLs = new DefaultListModel();
 	final static DataParameters mDataParameters = new DataParameters();
 
@@ -73,6 +74,13 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	final private JComboBox jcbOutputOptions = new JComboBox(asOutputOptions);
 	final private JPanel panelTN_Controls = new JPanel();
 
+	// expression panel
+	JPanel mjpanelExpressions;
+	final private JButton buttonEvaluate = new JButton("Evaluate");
+	final private JButton buttonFileSaveExpression = new JButton("Save...");
+	final private JButton buttonFileLoadExpression = new JButton("Load...");
+
+
 	private int mPlotType = Output_ToPlot.PLOT_TYPE_Pseudocolor; // default
 
 	JFileChooser jfc = null;
@@ -81,14 +89,14 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		thisInstance = this;
 	}
 
-	public void vSetFocus(){    	
+	public void vSetFocus(){
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				mDefinitionPanel.requestFocus();
 			}
 		});
 	}
-	
+
 	public final static Panel_View_Plot getInstance(){ return thisInstance; }
 
 	public final static ArrayList getData(){ return getInstance().listPlotterData; }
@@ -580,7 +588,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			}
 		);
 
-		// list
+		// plottable data list
 		jlistSelectedURLs.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		jlistSelectedURLs.setFont(Styles.fontFixed12);
 		JScrollPane jspSelectedURLs = new JScrollPane(jlistSelectedURLs);
@@ -592,6 +600,23 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 						int xURL_0 = jlistSelectedURLs.getSelectedIndex();
 						if( xURL_0 < 0 ) return;
 						vSetDataToDefinition(xURL_0);
+					}
+				}
+			}
+		);
+
+		// plottable expression list
+		jlistPlottableExpressions.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+		jlistPlottableExpressions.setFont(Styles.fontFixed12);
+		JScrollPane jspPlottableExpressions = new JScrollPane(jlistPlottableExpressions);
+		jspSelectedURLs.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS); // otherwise panel resizes when long url added
+		jlistPlottableExpressions.addListSelectionListener(
+		    new ListSelectionListener(){
+			    public void valueChanged(ListSelectionEvent lse) {
+					if( lse.getValueIsAdjusting() ){ // this event gets fired multiple times on a mouse click--but the value "adjusts" only once
+						int xURL_0 = jlistPlottableExpressions.getSelectedIndex();
+						if( xURL_0 < 0 ) return;
+						vSetDataToExpression(xURL_0);
 					}
 				}
 			}
@@ -629,6 +654,29 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		mjpanelDatasets.add( Box.createHorizontalGlue(), gbc );
 		gbc.gridx = 0; gbc.gridy = 3;
 		mjpanelDatasets.add( Box.createVerticalStrut(4), gbc );
+
+		// expression panel
+		mjpanelExpressions = new JPanel();
+		mjpanelDatasets.setLayout(new GridBagLayout());
+		gbc = new GridBagConstraints();
+		gbc.weightx = 1.0; gbc.weighty = 0;
+		gbc.gridx = 0; gbc.gridy = 0; gbc.fill = GridBagConstraints.BOTH;
+		gbc.gridwidth = 5; gbc.gridheight = 1;
+		gbc.gridx = 0; gbc.gridy = 1;
+		gbc.weighty = 1;
+		mjpanelExpressions.add( jspPlottableExpressions, gbc );
+		gbc.weighty = 0; gbc.gridy = 2; gbc.gridwidth = 1; gbc.gridheight = 1;
+		gbc.weightx = 0;
+		gbc.gridx = 0;
+		mjpanelExpressions.add( buttonEvaluate, gbc );
+		gbc.gridx = 1;
+		mjpanelExpressions.add( buttonFileSaveExpression, gbc );
+		gbc.gridx = 2;
+		mjpanelExpressions.add( buttonFileLoadExpression, gbc );
+		gbc.gridx = 3;
+		mjpanelExpressions.add( Box.createHorizontalGlue(), gbc );
+		gbc.gridx = 0; gbc.gridy = 3;
+		mjpanelExpressions.add( Box.createVerticalStrut(4), gbc );
 
 		if( ConfigurationManager.getInstance().getProperty_DISPLAY_AllowPlotterFiles() ){
 			buttonFileSave.setVisible(true);
@@ -671,6 +719,16 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	void vSetDataToDefinition(int xDataset_0){
+		final Model_Dataset url = (Model_Dataset)Panel_View_Plot.this.listPlotterData.get(xDataset_0);
+		int ePlotType = getPlotType();
+		mDefinitionPanel.setData(url, Panel_Definition.VARIABLE_MODE_DDS, ePlotType);
+		Plot_Definition pd = mDefinitionPanel.getActivePlottingDefinition();
+		if( pd == null ) return;
+		pd.setColorSpecification(Panel_View_Plot.getPanel_ColorSpecification().getColorSpecification());
+	}
+
+	void vSetDataToExpression(int xDataset_0){
+		// TODO
 		final Model_Dataset url = (Model_Dataset)Panel_View_Plot.this.listPlotterData.get(xDataset_0);
 		int ePlotType = getPlotType();
 		mDefinitionPanel.setData(url, Panel_Definition.VARIABLE_MODE_DDS, ePlotType);
