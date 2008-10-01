@@ -31,7 +31,6 @@ package opendap.clients.odc;
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 /////////////////////////////////////////////////////////////////////////////
 
-import java.lang.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.tree.*;
@@ -129,7 +128,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 								if( node == null ) return;
 								if( node.isTerminal() ) return; // the node is a leaf
 								if( murlDirectory == null ){
-									ApplicationController.getInstance().vShowError("Internal Error; directory has no defined URL");
+									ApplicationController.vShowError("Internal Error; directory has no defined URL");
 									return;
 								}
 								final String sPageURL = Utility.sConnectPaths( murlDirectory.getBaseURL(), "/", node.getPathString() );
@@ -209,7 +208,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 								ListModel model = list.getModel();
 								Object oItem = model.getElementAt(xItem);
 								if( murlDirectory == null ){
-									ApplicationController.getInstance().vShowError("Internal error, directory URL missing");
+									ApplicationController.vShowError("Internal error, directory URL missing");
 									return;
 								}
 
@@ -416,7 +415,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 		Model_DirectoryTree model = (Model_DirectoryTree)mtreeDirectory.getModel();
 		if( node == null ){
 			model.setSelectedNode(null);
-			ApplicationController.getInstance().vShowWarning("internal error, nothing to update file list with");
+			ApplicationController.vShowWarning("internal error, nothing to update file list with");
 			return;
 		}
 		mActiveNode = node;
@@ -429,7 +428,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 
 		String[] asFiles = mActiveNode.getFileList(); // one-based
 		if( asFiles == null ){
-			ApplicationController.getInstance().vShowWarning("internal error, file list unexpectedly null");
+			ApplicationController.vShowWarning("internal error, file list unexpectedly null");
 			return;
 		}
 		if( mActiveNode.isDiscovered() ){
@@ -467,14 +466,14 @@ class LeaflessTreeCellRenderer extends DefaultTreeCellRenderer {
 						  boolean expanded,
 						  boolean leaf, int row,
 						  boolean hasFocus) {
-		Component componentDefault = super.getTreeCellRendererComponent( tree, value, sel, expanded, leaf, row, hasFocus );
+//		Component componentDefault = super.getTreeCellRendererComponent( tree, value, sel, expanded, leaf, row, hasFocus );
 		if (tree.isEnabled()) {
-			if (leaf) {
+			if( leaf ){
 				setIcon(getClosedIcon());
 			}
 		} else {
-			if (leaf) {
-				setDisabledIcon(getClosedIcon());
+			if( leaf ){
+				setDisabledIcon( getClosedIcon() );
 			}
 		}
 		return this;
