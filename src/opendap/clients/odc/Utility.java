@@ -547,7 +547,7 @@ ScanForStartOfMatch:
 	 *  @return                     ArrayList of 0-based string arrays
 	 **/
 	public static ArrayList<String[]> zLoadCSV( String sAbsolutePath, int iEstimatedSize, boolean zRecognizeComments, StringBuffer sbError ){
-		ArrayList listLines = zLoadLines( sAbsolutePath, iEstimatedSize, sbError );
+		ArrayList<String> listLines = zLoadLines( sAbsolutePath, iEstimatedSize, sbError );
 		if( listLines == null ){ sbError.insert( 0, "failed to load file: " ); return null; }
 		ArrayList<String[]> listRecords = new ArrayList<String[]>( listLines.size() );
 		int ctLines = listLines.size();
@@ -655,7 +655,7 @@ ScanForStartOfMatch:
 	//   Macintosh - carriage return
 	//   UNIX - line feed (usually called "new line" in UNIX parlance)
 	// ASCII code in decimal: LF = 10; CR = 13
-	public static ArrayList zLoadLines( String sAbsolutePath, int iEstimatedSize, StringBuffer sbError){
+	public static ArrayList<String> zLoadLines( String sAbsolutePath, int iEstimatedSize, StringBuffer sbError){
 		if( sAbsolutePath == null ){ sbError.append("path missing"); return null; }
 		StringBuffer sbContent = new StringBuffer(iEstimatedSize);
 		if( !fileLoadIntoBuffer( sAbsolutePath, sbContent, sbError ) ){
@@ -823,11 +823,11 @@ ScanForStartOfMatch:
 
 	static boolean isNumeric(String s){
 		try {
-			long n = Long.parseLong(s);
+			Long.parseLong(s);
 			return true; // its a long or an int of some kind
 		} catch(Exception ex) {}
 		try {
-			double d = Double.parseDouble(s); // its a double or float
+			Double.parseDouble(s); // its a double or float
 			return true;
 		} catch(Exception ex) {}
 		return false; // not a number
@@ -1019,7 +1019,7 @@ ScanForStartOfMatch:
 					if( iPacketCount > 0 ){
 						String sPacket = new String(abData, 0, iPacketCount);
 						sbData.append(sPacket);
-						ApplicationController.getInstance().vShowStatus_NoCache("Received " + iPacketCount + sTotalBytes);
+						ApplicationController.vShowStatus_NoCache("Received " + iPacketCount + sTotalBytes);
 					}
 				} while(true);
 				ApplicationController.vShowStatus("Download complete from " + sURL);
@@ -1345,7 +1345,6 @@ ScanForStartOfMatch:
 		vReplace(sb, "<td>", "\t");
 		int pos = 0;
 		int posTag_begin = 0;
-		int posTag_end = 0;
 		int iTagDepth = 0;
 		while(pos < sb.length()){
 			if(sb.charAt(pos) == '<'){
@@ -1764,6 +1763,12 @@ ScanForStartOfMatch:
             (dimensionScreen.height - rectWindow.height)/2 );
 
     }
+
+	public static double difference( double v1, double v2 ){ return v1 - v2 > 0 ? v1 - v2 : v2 - v1; }
+	public static float difference( float v1, float v2 ){ return v1 - v2 > 0 ? v1 - v2 : v2 - v1; }
+	public static int difference( int v1, int v2 ){ return v1 - v2 > 0 ? v1 - v2 : v2 - v1; }
+	public static long difference( long v1, long v2 ){ return v1 - v2 > 0 ? v1 - v2 : v2 - v1; }
+
 }
 
 class Java2Clipboard implements java.awt.datatransfer.ClipboardOwner {
