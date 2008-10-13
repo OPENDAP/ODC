@@ -168,7 +168,7 @@ public class ApplicationController {
 				thisInstance.vActivate();
 			}
 		} catch( Throwable t ) {
-			String sStackTrace = ApplicationController.extractStackTrace( t );
+			String sStackTrace = Utility.errorExtractStackTrace( t );
 			System.out.println("Unexpected error starting application: " + sStackTrace);
 			ApplicationController.vShowStartupDialog("Failed to initialize: " + sStackTrace);
 			System.exit(1);
@@ -194,9 +194,8 @@ public class ApplicationController {
 	void vClassPreLoad(){
 		try {
 			javax.xml.parsers.DocumentBuilderFactory dbf = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-			javax.xml.parsers.DocumentBuilder db = dbf.newDocumentBuilder();
+			dbf.newDocumentBuilder();
 		} catch(Exception ex) {}
-
 	}
 
 	static class StartupMainFrame extends java.util.TimerTask {
@@ -347,7 +346,7 @@ public class ApplicationController {
 
 	public Interpreter getInterpreter(){ return interpreter; } // todo review this usage
 
-	public ArrayList getActivities(){ return this.mlistActivities; }
+	public ArrayList<Activity> getActivities(){ return this.mlistActivities; }
 
 	StringBuffer msbInterpreterError = new StringBuffer(256);
 
@@ -408,7 +407,7 @@ public class ApplicationController {
 	public Model_Dataset[] getSelectedThumbs(){
 		if( getAppFrame() == null ) return null;
 		if( getAppFrame().getPlotter() == null ) return null;
-		return getAppFrame().getPlotter().getPanel_Thumbnails().getSelectedURLs0();
+		return opendap.clients.odc.plot.Panel_View_Plot.getPanel_Thumbnails().getSelectedURLs0();
 	}
 
 	public java.io.OutputStream getTextViewerOS(){
@@ -470,7 +469,7 @@ public class ApplicationController {
 	public static void vPersistLog(){
 		ApplicationController ac = ApplicationController.getInstance();
 		StringBuffer sbLog = new StringBuffer(1000);
-		Iterator iterator = ac.listErrors.iterator();
+		Iterator<String> iterator = ac.listErrors.iterator();
 		while(iterator.hasNext()){
 			String sMessage = (String)iterator.next() + "\n";
 			sbLog.append(sMessage);
@@ -559,14 +558,14 @@ public class ApplicationController {
 	public String getLog(){
 		StringBuffer sbLog = new StringBuffer(10000);
 		sbLog.append("Errors:");
-		Iterator iterator = listErrors.iterator();
+		Iterator<String> iterator = listErrors.iterator();
 		if( iterator.hasNext() ){
 			sbLog.append("\n");
 		} else {
 			sbLog.append(" [none]\n");
 		}
 		while(iterator.hasNext()){
-			String sMessage = (String)iterator.next() + "\n";
+			String sMessage = iterator.next() + "\n";
 			sbLog.append(sMessage);
 		}
 		sbLog.append("\nWarnings:");
@@ -577,7 +576,7 @@ public class ApplicationController {
 			sbLog.append(" [none]\n");
 		}
 		while(iterator.hasNext()){
-			String sMessage = (String)iterator.next() + "\n";
+			String sMessage = iterator.next() + "\n";
 			sbLog.append(sMessage);
 		}
 		sbLog.append("\nStatus:");
@@ -588,7 +587,7 @@ public class ApplicationController {
 			sbLog.append(" [none]\n");
 		}
 		while(iterator.hasNext()){
-			String sMessage = (String)iterator.next() + "\n";
+			String sMessage = iterator.next() + "\n";
 			sbLog.append(sMessage);
 		}
 		return sbLog.toString();
@@ -597,7 +596,7 @@ public class ApplicationController {
 	public void vDumpMessages(){
 		OutputStream osTextView = getInstance().getAppFrame().getTextViewerOS();
 		String sHeader = "\nErrors:"; // start on new line
-		Iterator iterator = listErrors.iterator();
+		Iterator<String> iterator = listErrors.iterator();
 		if( iterator.hasNext() ){
 			sHeader += "\n";
 		} else {
@@ -606,7 +605,7 @@ public class ApplicationController {
 		System.out.print(sHeader);
 		try { if( osTextView != null ) osTextView.write(sHeader.getBytes()); } catch(Exception ex) {}
 		while(iterator.hasNext()){
-			String sMessage = (String)iterator.next() + "\n";
+			String sMessage = iterator.next() + "\n";
 			System.out.print(sMessage);
 			try { if( osTextView != null ) osTextView.write(sMessage.getBytes()); } catch(Exception ex) {}
 		}
@@ -620,7 +619,7 @@ public class ApplicationController {
 		System.out.print(sHeader);
 		try { if( osTextView != null ) osTextView.write(sHeader.getBytes()); } catch(Exception ex) {}
 		while(iterator.hasNext()){
-			String sMessage = (String)iterator.next() + "\n";
+			String sMessage = iterator.next() + "\n";
 			System.out.print(sMessage);
 			try { if( osTextView != null ) osTextView.write(sMessage.getBytes()); } catch(Exception ex) {}
 		}
@@ -634,7 +633,7 @@ public class ApplicationController {
 		System.out.print(sHeader);
 		try { if( osTextView != null ) osTextView.write(sHeader.getBytes()); } catch(Exception ex) {}
 		while(iterator.hasNext()){
-			String sMessage = (String)iterator.next() + "\n";
+			String sMessage = iterator.next() + "\n";
 			System.out.print(sMessage);
 			try { if( osTextView != null ) osTextView.write(sMessage.getBytes()); } catch(Exception ex) {}
 		}
@@ -644,7 +643,7 @@ public class ApplicationController {
 	public void vDumpLog(){
 		OutputStream osTextView = getInstance().getAppFrame().getTextViewerOS();
 		String sHeader = "\nStatus Log:"; // start on new line
-		Iterator iterator = listStatusMessages.iterator();
+		Iterator<String> iterator = listStatusMessages.iterator();
 		if( iterator.hasNext() ){
 			sHeader += "\n";
 		} else {
@@ -653,7 +652,7 @@ public class ApplicationController {
 		System.out.print(sHeader);
 		try { if( osTextView != null ) osTextView.write(sHeader.getBytes()); } catch(Exception ex) {}
 		while(iterator.hasNext()){
-			String sMessage = (String)iterator.next() + "\n";
+			String sMessage = iterator.next() + "\n";
 			System.out.print(sMessage);
 			try { if( osTextView != null ) osTextView.write(sMessage.getBytes()); } catch(Exception ex) {}
 		}
@@ -663,7 +662,7 @@ public class ApplicationController {
 	public void vDumpErrors(){
 		OutputStream osTextView = getInstance().getAppFrame().getTextViewerOS();
 		String sHeader = "\nErrors:";
-		Iterator iterator = listErrors.iterator();
+		Iterator<String> iterator = listErrors.iterator();
 		if( iterator.hasNext() ){
 			sHeader += "\n";
 		} else {
@@ -672,7 +671,7 @@ public class ApplicationController {
 		System.out.print(sHeader);
 		try { if( osTextView != null ) osTextView.write(sHeader.getBytes()); } catch(Exception ex) {}
 		while(iterator.hasNext()){
-			String sMessage = (String)iterator.next() + "\n";
+			String sMessage = iterator.next() + "\n";
 			System.out.print(sMessage);
 			try { if( osTextView != null ) osTextView.write(sMessage.getBytes()); } catch(Exception ex) {}
 		}
@@ -686,7 +685,7 @@ public class ApplicationController {
 		System.out.print(sHeader);
 		try { if( osTextView != null ) osTextView.write(sHeader.getBytes()); } catch(Exception ex) {}
 		while(iterator.hasNext()){
-			String sMessage = (String)iterator.next() + "\n";
+			String sMessage = iterator.next() + "\n";
 			System.out.print(sMessage);
 			try { if( osTextView != null ) osTextView.write(sMessage.getBytes()); } catch(Exception ex) {}
 		}
@@ -698,17 +697,6 @@ public class ApplicationController {
 		long lNow = System.currentTimeMillis();
 		System.out.println( sTag + ": " + (lNow - lLastProfile));
 		lLastProfile = lNow;
-	}
-
-	/** Extracts the stack trace as a string from an exception */
-	static String extractStackTrace(Throwable theException) {
-		try {
-			java.io.StringWriter sw = new java.io.StringWriter();
-			theException.printStackTrace(new java.io.PrintWriter(sw));
-			return sw.toString();
-		} catch(Exception ex) {
-			return "stack trace unavailable (" + ex.toString() + ")";
-		}
 	}
 
 	opendap.clients.odc.GCMD.GCMDSearch mSearch_GCMD = null;
@@ -778,9 +766,9 @@ public class ApplicationController {
 
 	public void vCancelActivities(){
 		ApplicationController.vShowStatus("cancelling all activities");
-		Iterator iteratorActivities = mlistActivities.iterator();
+		Iterator<Activity> iteratorActivities = mlistActivities.iterator();
 		while( iteratorActivities.hasNext() ){
-			Activity activityCurrent = (Activity)iteratorActivities.next();
+			Activity activityCurrent = iteratorActivities.next();
 			activityCurrent.vCancelActivity();
 		}
 	}
