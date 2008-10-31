@@ -7,7 +7,8 @@ package opendap.clients.odc;
  * the URL.  It should be used over <code>String</code> to represent
  * Dods URLs whenever possible.
  *
- * @author rhonhart
+ * @author rhonhart (original version)
+ * @author John S. Chamberlain
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -73,6 +74,7 @@ public class Model_Dataset implements java.io.Serializable {
 	transient private Catalog mCatalog;
 	transient private Model_DirectoryTree mDirectoryTree; // this is used in the case of a directory
 	transient private DataDDS mDataDDS;
+	transient private SavableImplementation mSavable;
 
 	transient int miID; // used to tag an URL with an arbitrary id such as for favorites and recent
 
@@ -85,6 +87,7 @@ public class Model_Dataset implements java.io.Serializable {
 		miURLType = 0;
 		msTitle = null;
 		msMIMEType = null;
+		mSavable = new SavableImplementation( this.getClass(), null, null );
     }
 
     /**
@@ -99,6 +102,7 @@ public class Model_Dataset implements java.io.Serializable {
 		msSubDirectory = dodsURL.msSubDirectory; // with no leading slash
 		msDirectoryRegex = dodsURL.msDirectoryRegex;
 		msMIMEType = dodsURL.msMIMEType;
+		mSavable = new SavableImplementation( this.getClass(), msTitle, null );
     }
 
     /**
@@ -116,6 +120,7 @@ public class Model_Dataset implements java.io.Serializable {
 		// data URL, so we can assume this is a data URL.
 		miURLType = TYPE_Data;
 		msTitle = null;
+		mSavable = new SavableImplementation( this.getClass(), null, null );
     }
 
     /**
@@ -131,6 +136,7 @@ public class Model_Dataset implements java.io.Serializable {
 		miURLType = type;
 		msTitle = null;
 		if( type == Model_Dataset.TYPE_Image ) msMIMEType = Utility.getMIMEtype(dodsURL);
+		mSavable = new SavableImplementation( this.getClass(), null, null );
     }
 
 	public boolean equals(Object o){
@@ -172,6 +178,8 @@ public class Model_Dataset implements java.io.Serializable {
 	}
 
 	public boolean isUnreachable(){ return mzUnreachable; }
+	
+	public SavableImplementation getSavable(){ return mSavable; }
 
 	public String getError(){ return msError; }
 
@@ -442,6 +450,7 @@ public class Model_Dataset implements java.io.Serializable {
      */
     public void setTitle(String sNewTitle) {
 		msTitle = sNewTitle;
+		mSavable._setFileName( msTitle );
     }
 
     /**

@@ -24,7 +24,7 @@ public class Serialize_DAP {
 	
 	public final static String MAGIC_WORD = "OPeNDAP";
 	public final static String OBJECT_TYPE_DataDDS = "DataDDS";
-	public final static int MAX_DDS_LENGTH = 100000;
+	public final static int MAX_DDS_LENGTH = 250000;
 	public final static int MAX_DAS_LENGTH = 250000;
 	
 	/** @return true on success */

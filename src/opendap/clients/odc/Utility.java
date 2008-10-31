@@ -709,6 +709,29 @@ ScanForStartOfMatch:
 		return sb.toString();
 	}
 
+	static Object fileLoadIntoObject( File file, StringBuffer sbError){
+		if( !file.exists() ){
+			sbError.append("file not found");
+			return false;
+		}
+		java.io.ObjectInputStream ois = null;
+		try {
+			java.io.FileInputStream inputstreamResource = new java.io.FileInputStream( file );
+			ois = new java.io.ObjectInputStream( inputstreamResource );
+		} catch(Exception ex) {
+			sbError.append("unable to open file: " + ex);
+			return false;
+		}
+		Object object = null;
+		try {
+			ois.readObject();
+		} catch( Throwable t ) {
+			sbError.append("unable to read object from file (" + file + "): " + t );
+			return false;
+		}
+		return object;
+	}
+	
 // does not work reliably because if a file is mapped then it is not released until
 // the memory is garbage collected
 //	static String fileLoadIntoString( String sAbsolutePath, StringBuffer sbError){
@@ -1217,11 +1240,80 @@ ScanForStartOfMatch:
 		}
 	}
 
+	static final File fileSaveAs( java.awt.Component componentParent, String sTitle, String sDirectory, String sSuggestedFileName, java.io.Serializable content, StringBuffer sbError ){
+		try {
+
+			// ask user for desired location
+			File fileDirectory = Utility.fileEstablishDirectory( sDirectory, sbError );
+			if (jfc == null) jfc = new javax.swing.JFileChooser();
+			if( fileDirectory == null ){
+				// no default directory
+			} else {
+				jfc.setCurrentDirectory( fileDirectory );
+			}
+			if( sSuggestedFileName != null && sSuggestedFileName.length() != 0 ){
+				jfc.setSelectedFile(new File(sSuggestedFileName));
+			}
+			int iState = jfc.showDialog( componentParent, sTitle );
+			File file = jfc.getSelectedFile();
+			if (file == null || iState != javax.swing.JFileChooser.APPROVE_OPTION) return null; // user cancel
+			if( ! fileSave( file, content, sbError ) ){
+				sbError.insert( 0, "failed to save [" + file + "]: " );
+				return null;
+			}
+			return file;
+		} catch(Exception ex) {
+			sbError.append( "unexpected error: " + ex );
+			return null;
+		}
+	}
+	
 	public static boolean fileSave( String sAbsolutePath, String sContent, StringBuffer sbError){
 		File file = new File(sAbsolutePath);
 		return fileSave( file, sContent, sbError );
 	}
 
+	public static boolean fileSave(  File file, java.io.Serializable sContent, StringBuffer sbError ){
+
+		// if file does not exist, create it
+		try {
+			if( ! file.exists() ){
+				file.createNewFile();
+			}
+		} catch( Exception ex ) {
+			sbError.append("failed to create file " + file + ": " + ex );
+			return false;
+		}
+
+
+		// open file
+		java.io.FileOutputStream fos = null;
+		try {
+		    fos = new java.io.FileOutputStream(file);
+			if( fos == null ){
+				sbError.append("failed to open file, empty stream");
+				return false;
+			}
+		} catch(Exception ex) {
+			sbError.append("failed to open file for writing: " + ex);
+			return false;
+		}
+
+		// save to file
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream( fos );
+			oos.writeObject( sContent );
+		} catch(Exception ex) {
+			ApplicationController.vShowError("object write failure: " + ex);
+			return false;
+		} finally {
+			try {
+				if( fos!=null ) fos.close();
+			} catch(Exception ex) {}
+		}
+		return true;
+	}
+	
 	public static boolean fileSave(  File file, String sContent, StringBuffer sbError ){
 
 		// if file does not exist, create it
