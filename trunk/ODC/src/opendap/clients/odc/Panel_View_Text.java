@@ -90,7 +90,7 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 			jbuttonNew.addActionListener(
 				new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
-					    Panel_View_Text.this.editorNew( null, null, null );
+					    Panel_View_Text.this.editorNew( null, null );
 					}
 				}
 			);
@@ -175,17 +175,19 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 		for( Component component : jtpEditors.getComponents() ){
 			if( ( component == null ) || ! (component instanceof Panel_View_Text_Editor) ) continue; 			
 			Panel_View_Text_Editor editor = (Panel_View_Text_Editor)component;	
-			String sNewName = editor._getFileName() + (editor._isDirty() ? '*' : "");
+			String sNewName = editor.savableString._getFileName() + (editor._isDirty() ? '*' : "");
 			jtpEditors.setTitleAt( jtpEditors.getSelectedIndex(), sNewName );
 		}
 	}
 	
 	public void editorNew(){
-		editorNew( null, null, null );
+		editorNew( null, null );
 	}
-	
-	public void editorNew( String sDirectory, String sName, String sContent ){
+
+	public void editorNew( SavableImplementation savable, String sContent ){
 		try {
+			String sDirectory = savable == null ? null : savable._getFileDirectory();
+			String sName = savable == null ? null : savable._getFileName();
 			StringBuffer sbError = new StringBuffer(250);
 			mctFilesOpened++;
 			if( sName == null ) sName = "" + mctFilesOpened + ".txt";
@@ -193,8 +195,9 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 			Panel_View_Text_Editor editorNew = new Panel_View_Text_Editor();
 			if( ! editorNew._zInitialize( this, sDirectory, sName, sContent, sbError ) ){
 				ApplicationController.vShowError( "Error creating new editor window for directory: " + sDirectory + " file: " + sName + " " + sContent.length() + " bytes: " + sbError );
+				return;
 			}
-			jtpEditors.addTab( editorNew._getFileName(), editorNew );
+			jtpEditors.addTab( sName, editorNew );
 			jtpEditors.setSelectedComponent( editorNew );
 			listEditors.add( editorNew );
 			if( listEditors.size() > 1 ){
@@ -210,40 +213,11 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 		}
 	}
 
-	javax.swing.JFileChooser mjfcOpen = null;
 	void editorOpen(){
-		try {
-			StringBuffer sbError = new StringBuffer( 250 );
-
-			// ask user for desired location
-			if( mjfcOpen == null ){
-				mjfcOpen = new javax.swing.JFileChooser();
-				String sDirectory = ConfigurationManager.getInstance().getDefault_DIR_Scripts();
-				File fileDirectory = Utility.fileEstablishDirectory( sDirectory, sbError );
-				if( fileDirectory == null ){
-					// no default directory
-				} else {
-					mjfcOpen.setCurrentDirectory( fileDirectory );
-				}
-			}
-			int iState = mjfcOpen.showDialog( ApplicationController.getInstance().getAppFrame(), "Open Text File" );
-			File file = mjfcOpen.getSelectedFile();
-			if( file == null || iState != javax.swing.JFileChooser.APPROVE_OPTION || ! file.isFile() ){
-				ApplicationController.vShowStatus_NoCache( "file open cancelled" );
-				return;
-			}
-			
-			// open the selected file
-			String sContent = Utility.fileLoadIntoString( file, sbError);
-			if( sContent == null ){
-				ApplicationController.vShowError( "Error opening file " + file + ": " + sbError );
-				return;
-			}
-			editorNew(  file.getParent(), file.getName(), sContent );			
-			
-		} catch(Exception ex) {
-			ApplicationController.vUnexpectedError( ex, "while opening file" );
-		}
+		SavableImplementation savable = new SavableImplementation( java.lang.String.class, null, null );  
+		String sContent = (String)savable._open();
+		if( sContent == null ) return; // user cancelled
+		editorNew( savable, sContent );
 	}
 	
 	void editorSave(){

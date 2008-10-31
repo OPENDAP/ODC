@@ -108,6 +108,7 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 class Model_DataView {
 	int ctNewDatasets = 0;
 	Model_LoadedDatasets mDatasetList = null;
+	Model_Dataset modelActive = null;
 	boolean zInitialize( Model_LoadedDatasets data_list, StringBuffer sbError ){
 		if( data_list == null ){
 			sbError.append("dataset list not supplied");
@@ -133,12 +134,31 @@ class Model_DataView {
 		}
 	}
 	void action_Load(){
+		try {
+			SavableImplementation savable = new SavableImplementation( opendap.clients.odc.Model_Dataset.class, null, null );
+			Model_Dataset model = (Model_Dataset)savable._open();
+			if( model == null ) return; // user cancelled
+			mDatasetList.addDataset( model );
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while trying to load dataset: " );
+		}
 	}
 	void action_Unload(){
+		mDatasetList.removeDataset( modelActive );
 	}
 	void action_Save(){
+		if( modelActive == null ){
+			ApplicationController.vShowStatus_NoCache( "no dataset selected" );
+		} else {
+			modelActive.getSavable()._save( modelActive );
+		}
 	}
 	void action_SaveAs(){
+		if( modelActive == null ){
+			ApplicationController.vShowStatus_NoCache( "no dataset selected for SaveAs" );
+		} else {
+			modelActive.getSavable()._saveAs( modelActive );
+		}
 	}
 }
 

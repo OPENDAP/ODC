@@ -33,13 +33,10 @@ package opendap.clients.odc;
 import java.awt.event.*;
 import javax.swing.*;
 
-import java.io.*;
-
 public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 
-	private String msFileName = null;
-	private String msFileDirectory = null;
-	private boolean mzDirty = false;
+	SavableImplementation savableString;
+	
 	private Panel_View_Text parent = null;
 	
 	public Panel_View_Text_Editor(){}
@@ -55,8 +52,7 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 				return false;
 			}
 			this.parent = parent;
-			msFileDirectory = sDirectory;
-			msFileName = sName;
+			savableString = new SavableImplementation( java.lang.String.class, sDirectory, sName );
 
 			javax.swing.border.Border borderStandard = BorderFactory.createEtchedBorder();
 			this.setBorder(borderStandard);
@@ -141,88 +137,26 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 
 	public String _getText(){ return jtaDisplay.getText(); }
 	
-    /** file name only, example: "image_processing.py" */
-	public String _getFileName(){ return msFileName; }
-
-    /** returns the directory for the file with the terminating separator usually
-     *  example: "c:\odc\scripts\" */
-	public String _getFileDirectory(){ return msFileDirectory; }
-
-    /** set file name only, example: "image_processing.py" */
-	public void _setFileName( String sNewName ){ msFileName = sNewName; }
-
-    /** sets the directory for the file (including terminating separator is optional)
-     *  example: "c:\odc\scripts\" */
-	public void _setFileDirectory( String sNewDirectory ){ msFileDirectory = sNewDirectory; }
-    
     /** indicates that the file may not be saved / may be changed */
-	public boolean _isDirty(){ return mzDirty; }
+	public boolean _isDirty(){ return savableString._isDirty(); }
 	
 	public void _setClean(){
+		savableString._makeClean();
 	}
     
 	/** returns false if the action was cancelled or failed */
 	boolean _save(){
-		String sDirectory = _getFileDirectory();
-		String sFileName  = _getFileName();
-		if( sDirectory == null || sFileName == null ){
-			return _saveAs();
-		} else {
-			try {
-				StringBuffer sbError = new StringBuffer();
-				File file = Utility.fileDefine( sDirectory, sFileName, sbError);
-				if( file == null ){					
-					ApplicationController.vShowWarning( "error defining file (dir: " + sDirectory + " name: " + sFileName + "): " );
-					return _saveAs();
-				} else {
-					if( Utility.fileSave( file, jtaDisplay.getText(), sbError ) ){
-						ApplicationController.vShowStatus( "Saved " + file );
-						_setClean();
-						return true;
-					} else {
-						ApplicationController.vShowError( "Error saving file [" + file + "]: " + sbError );
-						return false;
-					}
-				}
-			} catch( Throwable t ) {
-				ApplicationController.vUnexpectedError( t, "while saving file" );
-				return false;
-			}
-		}
+		return savableString._save( _getText() );
 	}
 
 	/** returns false if the action was cancelled or failed */
 	boolean _saveAs(){
-		StringBuffer sbError = new StringBuffer();
-		String sSuggestedDirectory = _getFileDirectory();
-		if( sSuggestedDirectory == null ) sSuggestedDirectory = ConfigurationManager.getInstance().getProperty_DIR_Scripts();
-		File fileSaved = Utility.fileSaveAs( ApplicationController.getInstance().getAppFrame(), "Save As...", sSuggestedDirectory, _getFileName(), jtaDisplay.getText(), sbError );
-		if( fileSaved == null ){
-			if( sbError.length() == 0 ){
-				ApplicationController.vShowStatus_NoCache( "save cancelled" );
-			} else { // an error occurred
-				ApplicationController.vShowError( "Error saving file: " +  sbError );
-			}
+		if( savableString._saveAs( _getText() ) ){
+			parent.updateTabTitles(); // update the name of the tab
+			return true;
+		} else {
 			return false;
 		}
-
-		// remember this directory as the new text file (scripts) directory
-		File fileNewScriptsDirectory = fileSaved.getParentFile();
-		if( fileNewScriptsDirectory != null ){
-			try {
-				String sNewScriptsDirectory = fileNewScriptsDirectory.getCanonicalPath();
-				ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_DIR_Scripts, sNewScriptsDirectory );
-			} catch( Throwable t ) {
-				ApplicationController.vShowWarning( "failed to determine canonical path for [" + fileNewScriptsDirectory + "]: " + t );
-			}
-		}
-
-		this.mzDirty = false;
-		ApplicationController.vShowStatus( "Saved file as " + fileSaved );
-		_setClean();
-		parent.updateTabTitles(); // update the name of the tab
-		return true;
-
     }
 	
     
