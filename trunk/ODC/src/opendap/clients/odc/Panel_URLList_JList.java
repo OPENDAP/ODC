@@ -54,8 +54,8 @@ public class Panel_URLList_JList extends Panel_URLList {
 
 		// set up the cell renderer (adds the folder/granule icons etc)
 		DatasetListRenderer renderer = new DatasetListRenderer( mjlist, false, false );
-		mjlist.setCellRenderer(renderer);
-		list_model.addListDataListener(renderer);
+		mjlist.setCellRenderer( renderer );
+		list_model.addListDataListener( renderer );
 
 		mjlist.addKeyListener(
 			new java.awt.event.KeyListener(){

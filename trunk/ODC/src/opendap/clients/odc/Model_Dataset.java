@@ -50,6 +50,8 @@ public class Model_Dataset implements java.io.Serializable {
     public final static int TYPE_HTML = 4;
     public final static int TYPE_Text = 5;
     public final static int TYPE_Binary = 6;
+    public final static int TYPE_Expression = 7;
+    public final static int TYPE_Stream = 8;
 
     private String msURL;
     private String msCE;
@@ -64,6 +66,7 @@ public class Model_Dataset implements java.io.Serializable {
 	private String msDAS_Text;
 	private String msDDX_Text;
 	private String msInfo_Text;
+	private String msExpression_Text;
 
 	transient private boolean mzUnreachable = false;
 	transient private String msError; // if the site is unreachable
@@ -244,6 +247,8 @@ public class Model_Dataset implements java.io.Serializable {
 
 	public String getInfo_Text(){ return msInfo_Text; }
 
+	public String getExpression_Text(){ return msExpression_Text; }
+	
 	public String getFileName(){
 		String sFullURL = this.getBaseURL();
 		if( sFullURL == null ) return "";
@@ -270,6 +275,10 @@ public class Model_Dataset implements java.io.Serializable {
 		msInfo_Text = info_text;
 	}
 
+	public void setExpression_Text(String expression_text){
+		msExpression_Text = expression_text;
+	}
+	
 	/** one-based array of files */
 	public Model_DirectoryTree getDirectoryTree(){ return mDirectoryTree; }
 
@@ -377,7 +386,11 @@ public class Model_Dataset implements java.io.Serializable {
 			case Model_Dataset.TYPE_Data: return "Data";
 			case Model_Dataset.TYPE_Directory: return "Directory";
 			case Model_Dataset.TYPE_Catalog: return "Catalog";
-			case Model_Dataset.TYPE_Image: return "Image";
+			case Model_Dataset.TYPE_HTML: return "HTML";
+			case Model_Dataset.TYPE_Text: return "Text";
+			case Model_Dataset.TYPE_Binary: return "Binary";
+			case Model_Dataset.TYPE_Expression: return "Expression";
+			case Model_Dataset.TYPE_Stream: return "Stream";
 			default: return "[unknown]";
 		}
     }
@@ -387,7 +400,8 @@ public class Model_Dataset implements java.io.Serializable {
      * @return The full URL.
      */
     public String toString() {
-    	if( getFileName() == null ){
+    	String sFileName = getFileName();
+    	if( sFileName == null || sFileName.length() == 0 ){
     		if( msTitle == null ){
     			return "[unnamed]";
     		} else return msTitle;

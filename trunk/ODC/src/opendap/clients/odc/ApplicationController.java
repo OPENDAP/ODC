@@ -12,7 +12,7 @@ package opendap.clients.odc;
 /////////////////////////////////////////////////////////////////////////////
 // This file is part of the OPeNDAP Data Connector project.
 //
-// Copyright (c) 2007 OPeNDAP, Inc.
+// Copyright (c) 2004-8 OPeNDAP, Inc.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -44,8 +44,8 @@ public class ApplicationController {
 	private static final ApplicationController thisSingleton = new ApplicationController();
 
 	private static final String msAppName = "OPeNDAP Data Connector";
-	private static final String msAppVersion = "3.02";
-	private static final String msAppReleaseDate = "12 September 2008"; // todo create ANT substitution
+	private static final String msAppVersion = "3.03";
+	private static final String msAppReleaseDate = "25 September 2008"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	public final String getAppName(){ return msAppName; }
@@ -290,18 +290,12 @@ public class ApplicationController {
 				javax.swing.SwingUtilities.invokeLater(
 					new Runnable() {
 						public void run() {
-							labelSplash.repaint();
-						}
-					}
-				);
-				javax.swing.SwingUtilities.invokeLater(
-					new Runnable() {
-						public void run() {
 							if (sMessage != null) {
 								java.awt.Graphics g = labelSplash.getGraphics();
+								g.setClip(0, 0, labelSplash.getWidth(), 30);
+								labelSplash.repaint();
 								g.setColor(java.awt.Color.white);
 								g.setFont(fontSplashScreen);
-								g.setClip(0, 0, labelSplash.getWidth(), 30);
 								g.drawString("Version " + msAppVersion, 10, 14);
 								g.drawString(sMessage, 11, 28);
 							}
