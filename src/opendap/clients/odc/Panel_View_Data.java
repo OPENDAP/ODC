@@ -45,18 +45,16 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
-public class Panel_View_Data extends JPanel implements IControlPanel {	
+public class Panel_View_Data extends JPanel implements IControlPanel {
 	Panel_LoadedDatasets panelLoadedDatasets;
-	Panel_StructureView panelStructureView;
+	Panel_EditContainer panelEditContainer;
 	Panel_VarView panelVarView;	
     public Panel_View_Data() {}
 	public boolean _zInitialize( Model_LoadedDatasets data_list, StringBuffer sbError ){
 		try {
-
 			panelLoadedDatasets = new Panel_LoadedDatasets();
-			panelStructureView = new Panel_StructureView();
+			panelEditContainer = new Panel_EditContainer();
 			panelVarView = new Panel_VarView();	
-			
 			Model_DataView model = new Model_DataView();
 			if( ! model.zInitialize( data_list, sbError ) ){
 				sbError.insert(0, "failed to initialize model: ");
@@ -67,7 +65,7 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 				return false;
 			}
 			
-			if( ! panelStructureView.zInitialize( this, sbError) ){
+			if( ! panelEditContainer._zInitialize( sbError) ){
 				sbError.insert( 0, "failed to initialize structure view: " );
 				return false;
 			}
@@ -80,7 +78,7 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 			JPanel panelTop = new JPanel();
 			panelTop.setLayout( new BorderLayout() );
 			panelTop.add( panelLoadedDatasets, BorderLayout.NORTH );
-			panelTop.add( panelStructureView, BorderLayout.CENTER );
+			panelTop.add( panelEditContainer, BorderLayout.CENTER );
 			JSplitPane jsplitTreeVar = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
 			jsplitTreeVar.setTopComponent( panelTop );
 			jsplitTreeVar.setBottomComponent( panelVarView );
@@ -90,9 +88,6 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 			return false;
 		}
 		return true;
-	}
-	
-	public void _showVariable( BaseType bt ){
 	}
 	
 	public void vSetFocus(){    	
@@ -173,7 +168,7 @@ class Panel_LoadedDatasets extends JPanel {
 		// create controls
 		JComboBox jcbLoadedVariables = new JComboBox( model.mDatasetList );
 		JButton buttonNew = new JButton( "New" );
-		JButton buttonLoad = new JButton( "Load" );
+		JButton buttonLoad = new JButton( "Load..." );
 		JButton buttonUnload = new JButton( "Unload" );
 		JButton buttonSave = new JButton( "Save" );
 		JButton buttonSaveAs = new JButton( "Save as..." );
@@ -229,10 +224,152 @@ class Panel_LoadedDatasets extends JPanel {
 	}
 }
 
-class Panel_StructureView extends JPanel {
+// contains the editing panels:
+// Data -        left: Panel_Edit_StructureView      right: Panel_Define_Dataset
+// Expression -  left: Panel_Edit_Expression         right: Panel_Define_Expression
+// Stream -      left: Panel_Edit_Stream             right: Panel_Define_Stream 
+class Panel_EditContainer extends JPanel {
+	Panel_Edit_StructureView mEditStructure;
+	Panel_Edit_Expression mEditExpression;
+	Panel_Edit_Stream mEditStream;
+	Panel_Define_Dataset mDefineData;
+	Panel_Define_Expression mDefineExpression;
+	Panel_Define_Stream mDefineStream;
+	boolean _zInitialize( StringBuffer sbError ){
+		mEditStructure = new Panel_Edit_StructureView();
+		mEditExpression = new Panel_Edit_Expression();
+		mEditStream = new Panel_Edit_Stream();
+		mDefineData = new Panel_Define_Dataset();
+		mDefineExpression = new Panel_Define_Expression();
+		mDefineStream = new Panel_Define_Stream();
+		setLayout( new BorderLayout() );
+		return true;
+	}
+	boolean zSetModel( Model_Dataset model, StringBuffer sbError ){
+		switch( model.getType() ){
+			case Model_Dataset.TYPE_Data:
+				if( mEditStructure._zInitialize( mDefineData, sbError ) ){
+					this.removeAll();
+					this.add( mEditStructure, BorderLayout.CENTER );
+					this.add( mDefineData, BorderLayout.EAST );
+				} else {
+					sbError.insert( 0, "failed to initialize data structure panel" );
+					return false;
+				}
+				break;
+			case Model_Dataset.TYPE_Expression:
+				if( mEditExpression._zInitialize( model, mDefineExpression, sbError ) ){
+					this.removeAll();
+					this.add( mEditExpression, BorderLayout.CENTER );
+					this.add( mDefineExpression, BorderLayout.EAST );
+				} else {
+					sbError.insert( 0, "failed to initialize expression editing panel" );
+					return false;
+				}
+				break;
+			case Model_Dataset.TYPE_Stream:
+				if( mEditStream._zInitialize( model, mDefineStream, sbError ) ){
+					this.removeAll();
+					this.add( mEditStream, BorderLayout.CENTER );
+					this.add( mDefineStream, BorderLayout.EAST );
+				} else {
+					sbError.insert( 0, "failed to initialize stream editing panel" );
+					return false;
+				}
+				break;
+			default:
+				sbError.append( "unsupported model type (" + model.getTypeString() + ")" );
+				return false;
+		}
+		return true;
+	}
+}
+
+class Panel_Define_Stream extends JPanel {
+	private Panel_View_Data mParent;
+	private Dimension dimMinimum = new Dimension(100, 80);
+	public Dimension getMinimumSize(){
+		return dimMinimum;
+	}
+	boolean _zInitialize( Panel_View_Data parent, StringBuffer sbError ){
+		try {
+			mParent = parent;
+
+			Border borderEtched = BorderFactory.createEtchedBorder();
+
+			// set up panel
+			setLayout( new BorderLayout() );
+			setBorder( BorderFactory.createTitledBorder(borderEtched, "Define Stream", TitledBorder.RIGHT, TitledBorder.TOP) );
+			removeAll();
+
+			return true;
+
+		} catch( Exception ex ) {
+			ApplicationController.vUnexpectedError(ex, sbError);
+			return false;
+		}
+	}
+}
+
+class Panel_Define_Expression extends JPanel {
+	private Panel_View_Data mParent;
+	private Dimension dimMinimum = new Dimension(100, 80);
+	public Dimension getMinimumSize(){
+		return dimMinimum;
+	}
+	boolean _zInitialize( Panel_View_Data parent, StringBuffer sbError ){
+		try {
+			mParent = parent;
+
+			Border borderEtched = BorderFactory.createEtchedBorder();
+
+			// set up panel
+			setLayout( new BorderLayout() );
+			setBorder( BorderFactory.createTitledBorder(borderEtched, "Define Expression", TitledBorder.RIGHT, TitledBorder.TOP) );
+			removeAll();
+
+			return true;
+
+		} catch( Exception ex ) {
+			ApplicationController.vUnexpectedError(ex, sbError);
+			return false;
+		}
+	}
+}
+
+class Panel_Define_Dataset extends JPanel {
+	private Panel_View_Data mParent;
+	private Dimension dimMinimum = new Dimension(100, 80);
+	public Dimension getMinimumSize(){
+		return dimMinimum;
+	}
+	boolean _zInitialize( Panel_View_Data parent, StringBuffer sbError ){
+		try {
+			mParent = parent;
+
+			Border borderEtched = BorderFactory.createEtchedBorder();
+
+			// set up panel
+			setLayout( new BorderLayout() );
+			setBorder( BorderFactory.createTitledBorder(borderEtched, "Define Dataset", TitledBorder.RIGHT, TitledBorder.TOP) );
+			removeAll();
+
+			return true;
+
+		} catch( Exception ex ) {
+			ApplicationController.vUnexpectedError(ex, sbError);
+			return false;
+		}
+	}
+	public void _showVariable( BaseType bt ){
+		// TODO
+	}	
+}
+
+class Panel_Edit_StructureView extends JPanel {
 	private Model_DataTree mTreeModel = null;
 	private JScrollPane mscrollpane_DataTree;
-	private Panel_View_Data mParent;
+	private Panel_Define_Dataset mParent;
 	private Dimension dimMinimum = new Dimension(100, 80);
 	private JTree mtreeData = null;
 	public Dimension getMinimumSize(){
@@ -242,7 +379,7 @@ class Panel_StructureView extends JPanel {
 		mTreeModel = model;
 		if( mtreeData != null ) mtreeData.setModel( mTreeModel );
 	}
-	boolean zInitialize( Panel_View_Data parent, StringBuffer sbError ){
+	boolean _zInitialize( Panel_Define_Dataset parent, StringBuffer sbError ){
 		try {
 			mParent = parent;
 
@@ -261,7 +398,7 @@ class Panel_StructureView extends JPanel {
 
 			// set up panel
 			setLayout( new BorderLayout() );
-			setBorder( BorderFactory.createTitledBorder(borderEtched, "Dataset", TitledBorder.RIGHT, TitledBorder.TOP) );
+			setBorder( BorderFactory.createTitledBorder(borderEtched, "Dataset Structure", TitledBorder.RIGHT, TitledBorder.TOP) );
 			removeAll();
     		add( mscrollpane_DataTree, BorderLayout.CENTER );
 
@@ -287,6 +424,40 @@ class Panel_StructureView extends JPanel {
 	}
 }
 
+class Panel_Edit_Expression extends JPanel {
+	private Model_Dataset mModel;
+	private Panel_Define_Expression mParent;
+	boolean _zInitialize( Model_Dataset model, Panel_Define_Expression parent, StringBuffer sbError ){
+		if( model.getType() != Model_Dataset.TYPE_Expression ){
+			sbError.append( "supplied model is not an expression" );
+			return false;
+		}
+		mModel = model;
+		mParent = parent;
+		setLayout( new BorderLayout() );
+		Border borderEtched = BorderFactory.createEtchedBorder();
+		setBorder( BorderFactory.createTitledBorder(borderEtched, "Expression Editor", TitledBorder.RIGHT, TitledBorder.TOP) );
+		return true;
+	}
+}
+
+class Panel_Edit_Stream extends JPanel {
+	private Model_Dataset mModel;
+	private Panel_Define_Stream mParent;
+	boolean _zInitialize( Model_Dataset model, Panel_Define_Stream parent, StringBuffer sbError ){
+		if( model.getType() != Model_Dataset.TYPE_Stream ){
+			sbError.append( "supplied model is not a stream" );
+			return false;
+		}
+		setLayout( new BorderLayout() );
+		Border borderEtched = BorderFactory.createEtchedBorder();
+		setBorder( BorderFactory.createTitledBorder(borderEtched, "Stream Editor", TitledBorder.RIGHT, TitledBorder.TOP) );
+		mModel = model;
+		mParent = parent;
+		return true;
+	}
+}
+
 class Panel_VarView extends JPanel {
 	public Panel_VarView(){}
 	public boolean _zInitialize( StringBuffer sbError ){
@@ -302,8 +473,10 @@ class Panel_VarView extends JPanel {
 
 // stores information about how the dataset should be viewed (column widths etc)
 class Model_DatasetView {
+	// TODO
 }
 
 class Model_VariableView {
+	// TODO
 }
 
