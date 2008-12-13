@@ -539,6 +539,10 @@ public class Model_Retrieve {
 	static String msGradsDirPattern = "<b>.*: (.*)/:</b> <a href=\"(.*)\">dir</a><br><br>"; // $1 = dir name $2 = dir href
 	static java.util.regex.Pattern mPattern_GradsDir = Pattern.compile(msGradsDirPattern, Pattern.CASE_INSENSITIVE);
 
+// Hyrax pattern
+	static String msHyraxDirPattern = "<title>OPeNDAP Hyrax: Contents of";
+	static java.util.regex.Pattern mPattern_HyraxDir = Pattern.compile( msHyraxDirPattern, Pattern.CASE_INSENSITIVE );
+	
 //	<b>1:
 //	amip_htend:</b>&nbsp;AMIP ens04 24-Sigma Level Heating Tendency Output
 //	&nbsp;
@@ -558,7 +562,7 @@ public class Model_Retrieve {
 	void vFetchDirectoryTree_LoadNode( DirectoryTreeNode node, String sPageURL, int iDepth, boolean zRecurse, Activity activity ){
 		try {
 
-//System.out.println("\n**********\nloading node " + sPageURL + ": \n");
+System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 			sbNodeError.setLength(0);
 			if( activity != null ) activity.vUpdateStatus("getting content for " + sPageURL);
 			String sPageHTML = IO.getStaticContent(sPageURL, null, activity, sbNodeError);
@@ -599,7 +603,9 @@ public class Model_Retrieve {
 				vFetchDirectoryTree_KansasFile( node, sPageHTML, iDepth, zRecurse, matcherKansasFiles );
 			} else if( sPageHTML.indexOf("<catalogRef xlink") > 0 ){
 				vFetchDirectoryTree_THREDDS_XML( node, sPageHTML, iDepth, zRecurse, activity );
-			} else {
+			} else if( sPageHTML.indexOf( msHyraxDirPattern ) > 0 ){
+				vFetchDirectoryTree_Hyrax( node, sPageHTML, sPageURL, iDepth, zRecurse, activity );
+			} else { 
 //System.out.println("dods dir");
 				vFetchDirectoryTree_DodsDir( node, sPageHTML, iDepth, zRecurse, activity );
 			}
@@ -922,20 +928,40 @@ public class Model_Retrieve {
 		}
     }
 
-	void vFetchDirectoryTree_Hyrax( DirectoryTreeNode node, String sPageHTML, int iDepth, boolean zRecurse, Activity activity ){
+	void vFetchDirectoryTree_Hyrax( DirectoryTreeNode node, String sPageHTML, String sRootPath, int iDepth, boolean zRecurse, Activity activity ){
 		try {
 
+			String sStartString = msHyraxDirPattern;
+			int startIndex_Page = sPageHTML.indexOf( sStartString );
+			if( startIndex_Page == -1 ){
+				node.setError( "cannot find beginning of page (" + msHyraxDirPattern + ")" );
+				return;
+			}
+			String sHorizontalRule = "<hr size=\"1\" noshade=\"noshade\" />";
+			int startIndex_HR = sPageHTML.indexOf( sHorizontalRule );
+			if( startIndex_HR == -1 ){
+				node.setError( "cannot find starting HR seperator (" + sHorizontalRule + ")" );
+				return;
+			}
+			int end_index_HR = sPageHTML.indexOf( sHorizontalRule, startIndex_HR + sHorizontalRule.length() );
+			if( startIndex_HR == -1 ){
+				node.setError( "cannot find ending HR seperator (" + sHorizontalRule + ")" );
+				return;
+			}
+			int startIndex_Body = startIndex_HR + sHorizontalRule.length();
+			String sBodyHTML = sPageHTML.substring( startIndex_Body, end_index_HR );
+			
 	    	// determine how many files and directories there are
 			int ctFile = 0;
 			int ctDirectory = 0;
-			int startIndex = sPageHTML.indexOf("Parent Directory");
+			int startIndex = 0;
 			String[] eggURL = new String[1];
 			String[] eggLabel = new String[1];
 			int[] eggURLposition = new int[1];
-			while(true){
+			while( true ){
 				eggURL[0] = null;
 				eggLabel[0] = null;
-				if( !zGetNextDirectoryEntry( sPageHTML, startIndex, eggURL, eggLabel, eggURLposition, sbNodeError ) ){
+				if( !zGetNextDirectoryEntry_Hyrax( sBodyHTML, startIndex, eggURL, eggLabel, eggURLposition, sbNodeError ) ){
 					node.setError("page scan error during count at " + startIndex + ": " + sbNodeError);
 					return;
 				}
@@ -943,8 +969,11 @@ public class Model_Retrieve {
 				if( eggLabel[0].toUpperCase().indexOf("PARENT DIRECTORY") == -1 ){
 					if( eggURL[0].endsWith("contents.html") ) ctDirectory++;
 					else ctFile++;
+				} else {
+					// its the parent directory link, ignore it, don't count it
 				}
-				startIndex = eggURLposition[0] + eggURL[0].length() + 1; // plus one makes sure we keep going if the URL is blank
+				startIndex = sBodyHTML.indexOf( "<tr>", eggURLposition[0] ); // go to next line in table
+				if( startIndex < 1 ) break; // done
 			}
 
 			if( ctDirectory == 0 ) node.setTerminal(true);
@@ -963,11 +992,11 @@ public class Model_Retrieve {
 			String[] asHREF = new String[ctFile+1]; // one-based array
 			if( ctFile > 0 ){
 				int xFile = 0;
-				startIndex = sPageHTML.indexOf("Parent Directory", 0); // new method
+				startIndex = 0;
 				while(true){
 					eggURL[0] = null;
 					eggLabel[0] = null;
-					if( !zGetNextDirectoryEntry( sPageHTML, startIndex, eggURL, eggLabel, eggURLposition, sbNodeError ) ){
+					if( !zGetNextDirectoryEntry_Hyrax( sBodyHTML, startIndex, eggURL, eggLabel, eggURLposition, sbNodeError ) ){
 						node.setError("page scan error during file load at " + startIndex + ": " + sbNodeError);
 						return;
 					}
@@ -978,22 +1007,26 @@ public class Model_Retrieve {
 						return;
 					}
 					if( eggLabel[0].toUpperCase().indexOf("PARENT DIRECTORY") == -1 ){
-						if( sURL.endsWith(".html") ){
-							xFile++;
-							asHREF[xFile] = sURL.substring(0, sURL.length() - 5);
-							int offLastSlash = sURL.lastIndexOf("/");
-							int lenFileName = (offLastSlash == -1) ? sURL.length() : sURL.length() - offLastSlash - 1;
-							asFiles[xFile] = sURL.substring(sURL.length() - lenFileName, sURL.length()-5); // chop off the .html
-						} else if( Utility.isImage(sURL) ){
-							xFile++;
-							asHREF[xFile] = sURL;
-							int offLastSlash = sURL.lastIndexOf("/");
-							int lenFileName = (offLastSlash == -1) ? sURL.length() : sURL.length() - offLastSlash - 1;
-							asFiles[xFile] = eggURL[0].substring(sURL.length() - lenFileName, sURL.length());
+						if( eggLabel[0].endsWith("/") ){
+							// its a directory, ignore it
+						} else {
+							if( sURL.endsWith(".html") ){
+								xFile++;
+								asHREF[xFile] = sRootPath + "/" + sURL.substring(0, sURL.length() - 5);
+								int offLastSlash = sURL.lastIndexOf("/");
+								int lenFileName = (offLastSlash == -1) ? sURL.length() : sURL.length() - offLastSlash - 1;
+								asFiles[xFile] = sURL.substring(sURL.length() - lenFileName, sURL.length()-5); // chop off the .html
+							} else if( Utility.isImage(sURL) ){
+								xFile++;
+								asHREF[xFile] = sURL;
+								int offLastSlash = sURL.lastIndexOf("/");
+								int lenFileName = (offLastSlash == -1) ? sURL.length() : sURL.length() - offLastSlash - 1;
+								asFiles[xFile] = eggURL[0].substring(sURL.length() - lenFileName, sURL.length());
+							}
 						}
-
 					}
-					startIndex = eggURLposition[0] + eggURL[0].length() + 1; // plus one makes sure we keep going if the URL is blank
+					startIndex = sBodyHTML.indexOf( "<tr>", eggURLposition[0] ); // go to next line in table
+					if( startIndex < 1 ) break; // done
 				}
 			}
 			node.setFileList(asFiles);
@@ -1005,24 +1038,24 @@ public class Model_Retrieve {
 			String[] asDirectoryLabel = new String[ctDirectory+1]; // one-based array
 			if( ctDirectory > 0 ){
 				int xDirectory = 0;
-				startIndex = sPageHTML.indexOf("<HR>", 0); // advance past horizontal rule todo validation
+				startIndex = 0;
 				while(true){
 					eggURL[0] = null;
 					eggLabel[0] = null;
-					if( !zGetNextDirectoryEntry( sPageHTML, startIndex, eggURL, eggLabel, eggURLposition, sbNodeError ) ){
+					if( !zGetNextDirectoryEntry_Hyrax( sBodyHTML, startIndex, eggURL, eggLabel, eggURLposition, sbNodeError ) ){
 						node.setError("page scan error during directory load at " + startIndex + ": " + sbNodeError);
 						return;
 					}
 					if( eggURLposition[0] == -1 ) break; // done scanning
 					if( eggLabel[0].toUpperCase().indexOf("PARENT DIRECTORY") == -1 ){
-						if( eggURL[0].endsWith("/") ){
+						if( eggLabel[0].endsWith("/") ){
 							xDirectory++;
 							if( xDirectory > ctDirectory ){
 								node.setError("internal error, inconsistent directory count " + xDirectory + " of " + ctDirectory);
 								return;
 							}
-							asDirectoryPath[xDirectory] = eggURL[0];
-							String sURLNoSlash = eggURL[0].substring(0, eggURL[0].length()-1);
+							asDirectoryPath[xDirectory] = Utility.sConnectPaths( sRootPath, "/", eggLabel[0] );
+							String sURLNoSlash = asDirectoryPath[xDirectory].substring(0, asDirectoryPath[xDirectory].length()-1);
 							int lenURLNoSlash = sURLNoSlash.length();
 							int offNameStart = sURLNoSlash.lastIndexOf('/', lenURLNoSlash);
 							String sDirectoryName;
@@ -1035,7 +1068,8 @@ public class Model_Retrieve {
 							asDirectoryLabel[xDirectory] = eggLabel[0];
 						}
 					}
-					startIndex = eggURLposition[0] + eggURL[0].length() + 1; // plus one makes sure we keep going if the URL is blank
+					startIndex = sBodyHTML.indexOf( "<tr>", eggURLposition[0] ); // go to next line in table
+					if( startIndex < 1 ) break; // done
 				}
 			}
 
@@ -1059,6 +1093,46 @@ public class Model_Retrieve {
 		}
     }
 	
+	private static boolean zGetNextDirectoryEntry_Hyrax(
+							    String sPageHTML,
+							    int posStart,
+								String[] eggURL, String[] eggLabel, int[] eggURLposition,
+								StringBuffer sbError ){
+		try {
+			String sHREF_token = "<a href=\"";
+			int lenHREF_token = sHREF_token.length(); 
+			int posHREF_begin = sPageHTML.indexOf( sHREF_token, posStart );
+			if( posHREF_begin == -1 ){ // no more HREFs
+				eggURLposition[0] = -1;
+				return true;
+			}
+			eggURLposition[0] = posHREF_begin + lenHREF_token + 1;
+			int posURL_begin = eggURLposition[0];
+			int posURL_end = sPageHTML.indexOf( "\">", posURL_begin );
+			if( posURL_end == -1 ){
+				sbError.append("no closing bracket found after HREF beginning " + Utility.sSafeSubstring( sPageHTML, posHREF_begin + 1, 250 ));
+				return false;
+			}
+			int xLabel_begin = posURL_end + 1;
+			int xLabel_end_upper = sPageHTML.indexOf("</A>", posHREF_begin);
+			int xLabel_end_lower = sPageHTML.indexOf("</a>", posHREF_begin);
+			int xLabel_end = (xLabel_end_upper == -1) ? xLabel_end_lower : ( xLabel_end_lower == -1 ? xLabel_end_upper : ((xLabel_end_upper > xLabel_end_lower) ? xLabel_end_lower : xLabel_end_upper));
+			if( xLabel_begin > xLabel_end ){
+				sbError.append("unclosed HREF " + Utility.sSafeSubstring(sPageHTML, posHREF_begin + 1, xLabel_begin - posHREF_begin + 1));
+				return false;
+			}
+			String sURL = sPageHTML.substring(posURL_begin, posURL_end).trim();
+			if( sURL.charAt(0) == '\"' || sURL.charAt(0) == '\'') sURL = sURL.substring(1); // remove preceding quotation
+			if( sURL.charAt(sURL.length()-1) == '\"' || sURL.charAt(sURL.length()-1) == '\'') sURL = sURL.substring(0, sURL.length()-1); // remove trailing quotation
+			eggURL[0] = sURL;
+			eggLabel[0] = sPageHTML.substring( xLabel_begin, xLabel_end ).trim();
+			return true;
+		} catch(Exception ex) {
+			ApplicationController.vUnexpectedError( ex, sbError);
+			return false;
+		}
+	}
+
 	void vFetchDirectoryTree_THREDDS_XML( DirectoryTreeNode node, String sXML, int iDepth, boolean zRecurse, Activity activity ){
 		try {
 
