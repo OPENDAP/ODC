@@ -94,7 +94,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 			// tree
 			mtreeDirectory = new JTree();
 			TreeCellRenderer rendererLeaflessTreeCell = new LeaflessTreeCellRenderer();
-			mtreeDirectory.setCellRenderer(rendererLeaflessTreeCell);
+			mtreeDirectory.setCellRenderer( rendererLeaflessTreeCell );
 			mtreeDirectory.setMinimumSize(new Dimension(60, 60));
 
 			// scroll panes
@@ -268,43 +268,33 @@ public class Panel_Retrieve_Directory extends JPanel {
 			// ignore change to selection because it is being done programmatically
 			// as a side effect of a tree node selection, not because user is selecting
 			// in list
-		}
-		else { // the user is selecting something in the list, update the url info
-			if (mtreeDirectory == null) {
-				ApplicationController.vShowError(
-					"directory tree unexpectedly does not exist");
+		} else { // the user is selecting something in the list, update the url info
+			if( mtreeDirectory == null ){
+				ApplicationController.vShowError( "directory tree unexpectedly does not exist" );
 				return;
 			}
-			Model_DirectoryTree model = (Model_DirectoryTree) mtreeDirectory.
-				getModel();
-			if (model == null) {
-				ApplicationController.vShowWarning(
-					"directory tree returned no model");
+			Model_DirectoryTree model = (Model_DirectoryTree) mtreeDirectory.getModel();
+			if( model == null ){
+				ApplicationController.vShowWarning( "directory tree returned no model" );
 				return;
 			}
 			DirectoryTreeNode nodeSelected = model.getSelectedNode();
-			if (nodeSelected == null)
-				return; // do nothing
-			nodeSelected.setSelectedFileIndices(mlistDirectory.
-												getSelectedIndices());
+			if( nodeSelected == null ) return; // do nothing
+			nodeSelected.setSelectedFileIndices( mlistDirectory.getSelectedIndices() );
 			int xSelection0 = mlistDirectory.getSelectedIndex();
-			if (xSelection0 < 0) {
+			if( xSelection0 < 0 ){
 				// no selection
-			}
-			else if (xSelection0 == 0) {
+			} else if (xSelection0 == 0) {
 				// file count entry (list header)
-			}
-			else { // an item is selected (the index is effectively one-based because of the header)
+			} else { // an item is selected (the index is effectively one-based because of the header)
 
 				// if item has DDS use it
 				Model_Dataset url = null;
 				if (mActiveNode.getFileURL(xIndex) != null) {
 					url = mActiveNode.getFileURL(xIndex);
-				}
-				else if (mActiveNode.getFirstFileURL(xIndex) != null) {
+				} else if (mActiveNode.getFirstFileURL(xIndex) != null) {
 					url = mActiveNode.getFileURL(xIndex);
-				}
-				else {
+				} else {
 					// no DDS retrieved yet for this directory
 				}
 				if (url != null)
@@ -313,8 +303,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 					// update location bar
 
 					// update status bar with selection description if it exists
-				String sDescription = nodeSelected.getFileDescription(
-					xSelection0);
+				String sDescription = nodeSelected.getFileDescription( xSelection0 );
 				if (sDescription != null)
 					ApplicationController.vShowStatus_NoCache(sDescription);
 			}
@@ -348,7 +337,12 @@ public class Panel_Retrieve_Directory extends JPanel {
 			murlDirectory = url;
 			murlFile = null; // todo panel should remember old selections and file URLs if possible
 			final Model_DirectoryTree tm = murlDirectory.getDirectoryTree();
-			mtreeDirectory.setModel(tm);
+			if( tm == null ){
+				sbError.append( "no directory tree model available" );
+				return false;
+			}
+			mtreeDirectory.setModel( tm );
+//			System.out.println( "set " + tm.getPrintout() );
 			if( url.getDirectoryRegex() == null ){
 				mjtfDirectoryRegex.setText("");
 			} else {
@@ -466,7 +460,7 @@ class LeaflessTreeCellRenderer extends DefaultTreeCellRenderer {
 						  boolean expanded,
 						  boolean leaf, int row,
 						  boolean hasFocus) {
-//		Component componentDefault = super.getTreeCellRendererComponent( tree, value, sel, expanded, leaf, row, hasFocus );
+		Component componentDefault = super.getTreeCellRendererComponent( tree, value, sel, expanded, leaf, row, hasFocus );
 		if (tree.isEnabled()) {
 			if( leaf ){
 				setIcon(getClosedIcon());
@@ -476,7 +470,7 @@ class LeaflessTreeCellRenderer extends DefaultTreeCellRenderer {
 				setDisabledIcon( getClosedIcon() );
 			}
 		}
-		return this;
+		return componentDefault;
     }
 }
 

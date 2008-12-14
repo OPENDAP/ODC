@@ -167,7 +167,7 @@ class DirectoryTreeNode extends DefaultMutableTreeNode {
 		super();
 	}
 	DirectoryTreeNode( String sDirectoryName ){
-		super();
+		super( sDirectoryName );
 		msDirectoryName = sDirectoryName;
 	}
 	private String msDirectoryName;
@@ -180,6 +180,9 @@ class DirectoryTreeNode extends DefaultMutableTreeNode {
 	private boolean mzSelected = false;
 	private boolean mzTerminal = false; // == terminal node / used instead of isLeaf because isLeaf controls default icon
 	private boolean mzDiscovered = false;
+	public String toString(){
+		return this.getTitle();
+	}
 	String getPathString(){
 		TreeNode[] aNodes = this.getPath();
 		StringBuffer sbPath = new StringBuffer(80);
@@ -318,6 +321,5 @@ class DirectoryTreeNode extends DefaultMutableTreeNode {
 		}
 		return false;
 	}
-	public String toString(){ return this.getTitle(); }
 }
 

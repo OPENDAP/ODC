@@ -443,7 +443,10 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 
 	public Model_Dataset[] getSelectedURLs( StringBuffer sbError ){ // zero-based
 		Model_Dataset[] aurlNamedSelections = getSelectedURLs_NamedList( sbError );
-		if( aurlNamedSelections == null ) return null;
+		if( aurlNamedSelections == null ){
+			sbError.append( "no named selections" );
+			return null;
+		}
 		return getSubSelectedURLs( aurlNamedSelections, sbError );
 	}
 

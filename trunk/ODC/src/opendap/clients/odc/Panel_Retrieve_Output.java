@@ -109,7 +109,7 @@ public class Panel_Retrieve_Output extends JPanel {
 						Model_URLList url_model = theModel.getURLList();
 						Model_Dataset[] aURLs  = url_model.getSelectedURLs(sbError);
 						if( aURLs == null ){
-							ApplicationController.vShowError("Failed to get selected URLs: " + sbError);
+							ApplicationController.vShowError("Failed to get selected URLs for output: " + sbError);
 							return;
 						}
 						ComboBoxModel model = jcbTarget.getModel();
