@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-2008
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.02
+ * @version      3.04
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -44,8 +44,8 @@ public class ApplicationController {
 	private static final ApplicationController thisSingleton = new ApplicationController();
 
 	private static final String msAppName = "OPeNDAP Data Connector";
-	private static final String msAppVersion = "3.03";
-	private static final String msAppReleaseDate = "25 September 2008"; // todo create ANT substitution
+	private static final String msAppVersion = "3.04";
+	private static final String msAppReleaseDate = "13 December 2008"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	public final String getAppName(){ return msAppName; }
@@ -141,8 +141,8 @@ public class ApplicationController {
 			thisInstance.vShowStartupMessage("initializing geodesy");
 			thisInstance.geodesy = opendap.clients.odc.geo.Geodesy.getInstance();
 			if( ! thisInstance.geodesy.zInitialize( sBaseDirectory, sbError ) ){
-				ApplicationController.vShowStartupDialog("Failed to initialize geodesy engine: " + sbError);
-				System.out.println("Failed to initialize geodesy engine: " + sbError);
+				// ApplicationController.vShowStartupDialog("Failed to initialize geodesy engine: " + sbError);
+				System.err.println("Failed to initialize geodesy engine: " + sbError);
 //				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
 			}
 
@@ -292,12 +292,14 @@ public class ApplicationController {
 						public void run() {
 							if (sMessage != null) {
 								java.awt.Graphics g = labelSplash.getGraphics();
-								g.setClip(0, 0, labelSplash.getWidth(), 30);
-								labelSplash.repaint();
-								g.setColor(java.awt.Color.white);
 								g.setFont(fontSplashScreen);
-								g.drawString("Version " + msAppVersion, 10, 14);
-								g.drawString(sMessage, 11, 28);
+								g.setColor(java.awt.Color.white);
+								g.drawString( "Version " + msAppVersion, 10, 14 );
+								g.setClip(0, 15, labelSplash.getWidth(), 30);
+								labelSplash.paint(g);
+								g.setFont(fontSplashScreen);
+								g.setColor(java.awt.Color.white);
+								g.drawString( sMessage, 11, 28 );
 							}
 						}
 					}

@@ -99,8 +99,9 @@ public class Model_Retrieve {
 		if( url.getDirectoryTree() == null ){
 			Continuation_SuccessFailure con = new Continuation_SuccessFailure(){
 				public void Success(){
-					if( retrieve_panel.getPanelDirectory().setURL(url, sbError) ){
-						// System.out.println("directory for node at (" + url + ") is displayed");
+					if( retrieve_panel.getPanelDirectory().setURL( url, sbError ) ){
+						// System.out.println("directory for node at (" + url + ") is displayed: " + url.getDirectoryTree().getPrintout() );
+						Model_Retrieve.this.mActiveDirectoryTree = url.getDirectoryTree();
 					} else {
 						retrieve_panel.getPanelDirectory().vShowMessage("Error showing directory node: " + sbError);
 					}
@@ -317,7 +318,7 @@ public class Model_Retrieve {
 					if( dirtree.zHasErrors() ){
 						ApplicationController.vShowWarning("Directory tree " + sBaseURL + " has errors; check info");
 					}
-					url.setDirectoryTree(dirtree);
+					url.setDirectoryTree( dirtree );
 					if( con != null ) con.Success();
 			   } catch(Exception ex) {
 				   StringBuffer sbError = new StringBuffer(80);
@@ -512,7 +513,6 @@ public class Model_Retrieve {
 			ApplicationController.vUnexpectedError( ex, "Unexpected error getting directory tree " + sURL);
 			return null;
 		}
-		mActiveDirectoryTree = dt;
 		return dt;
 	}
 
@@ -542,7 +542,7 @@ public class Model_Retrieve {
 // Hyrax pattern
 	static String msHyraxDirPattern = "<title>OPeNDAP Hyrax: Contents of";
 	static java.util.regex.Pattern mPattern_HyraxDir = Pattern.compile( msHyraxDirPattern, Pattern.CASE_INSENSITIVE );
-	
+
 //	<b>1:
 //	amip_htend:</b>&nbsp;AMIP ens04 24-Sigma Level Heating Tendency Output
 //	&nbsp;
@@ -605,7 +605,7 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 				vFetchDirectoryTree_THREDDS_XML( node, sPageHTML, iDepth, zRecurse, activity );
 			} else if( sPageHTML.indexOf( msHyraxDirPattern ) > 0 ){
 				vFetchDirectoryTree_Hyrax( node, sPageHTML, sPageURL, iDepth, zRecurse, activity );
-			} else { 
+			} else {
 //System.out.println("dods dir");
 				vFetchDirectoryTree_DodsDir( node, sPageHTML, iDepth, zRecurse, activity );
 			}
@@ -950,7 +950,7 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 			}
 			int startIndex_Body = startIndex_HR + sHorizontalRule.length();
 			String sBodyHTML = sPageHTML.substring( startIndex_Body, end_index_HR );
-			
+
 	    	// determine how many files and directories there are
 			int ctFile = 0;
 			int ctDirectory = 0;
@@ -1006,8 +1006,9 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 						node.setError("internal error, URL null at " + startIndex + ": " + sbNodeError);
 						return;
 					}
-					if( eggLabel[0].toUpperCase().indexOf("PARENT DIRECTORY") == -1 ){
-						if( eggLabel[0].endsWith("/") ){
+					String sLabel = eggLabel[0];
+					if( sLabel.toUpperCase().indexOf("PARENT DIRECTORY") == -1 ){
+						if( sLabel.endsWith("/") ){
 							// its a directory, ignore it
 						} else {
 							if( sURL.endsWith(".html") ){
@@ -1016,7 +1017,7 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 								int offLastSlash = sURL.lastIndexOf("/");
 								int lenFileName = (offLastSlash == -1) ? sURL.length() : sURL.length() - offLastSlash - 1;
 								asFiles[xFile] = sURL.substring(sURL.length() - lenFileName, sURL.length()-5); // chop off the .html
-							} else if( Utility.isImage(sURL) ){
+							} else {
 								xFile++;
 								asHREF[xFile] = sURL;
 								int offLastSlash = sURL.lastIndexOf("/");
@@ -1054,8 +1055,9 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 								node.setError("internal error, inconsistent directory count " + xDirectory + " of " + ctDirectory);
 								return;
 							}
-							asDirectoryPath[xDirectory] = Utility.sConnectPaths( sRootPath, "/", eggLabel[0] );
-							String sURLNoSlash = asDirectoryPath[xDirectory].substring(0, asDirectoryPath[xDirectory].length()-1);
+							String sDirectoryPath = Utility.sConnectPaths( sRootPath, "/", eggLabel[0] );
+							asDirectoryPath[xDirectory] = Utility.sConnectPaths( sDirectoryPath, "/", "contents.html" ); // hyrax directories use this document as their index
+							String sURLNoSlash = sDirectoryPath.substring(0, sDirectoryPath.length()-1);
 							int lenURLNoSlash = sURLNoSlash.length();
 							int offNameStart = sURLNoSlash.lastIndexOf('/', lenURLNoSlash);
 							String sDirectoryName;
@@ -1075,13 +1077,15 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 
 			// create new nodes for each directory and recurse them if required
 			for( int xDirectory = 1; xDirectory <= ctDirectory; xDirectory++ ){
-				if( asDirectoryName[xDirectory] == null ) continue;
+				String sDirectoryName = asDirectoryName[xDirectory];
+				Object oUserObject = asDirectoryLabel[xDirectory];
+				if( sDirectoryName == null ) continue;
 				DirectoryTreeNode nodeNew = new DirectoryTreeNode();
-				nodeNew.setName(asDirectoryName[xDirectory]);
-				nodeNew.setUserObject(asDirectoryLabel[xDirectory]);
-				node.add(nodeNew);
+				nodeNew.setName( sDirectoryName );
+				nodeNew.setUserObject( oUserObject );
+				node.add( nodeNew );
 				if( zRecurse )
-		    		vFetchDirectoryTree_LoadNode(nodeNew, asDirectoryPath[xDirectory], iDepth+1, zRecurse, activity);
+		    		vFetchDirectoryTree_LoadNode( nodeNew, asDirectoryPath[xDirectory], iDepth+1, zRecurse, activity );
 			}
 			node.setDiscovered(true); // we now know the content of the node
 			node.setError(null); // no errors found
@@ -1092,7 +1096,7 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 			return;
 		}
     }
-	
+
 	private static boolean zGetNextDirectoryEntry_Hyrax(
 							    String sPageHTML,
 							    int posStart,
@@ -1100,20 +1104,22 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 								StringBuffer sbError ){
 		try {
 			String sHREF_token = "<a href=\"";
-			int lenHREF_token = sHREF_token.length(); 
+			String sURL_end_token = "\">";
+			int lenHREF_token = sHREF_token.length();
+			int lenURL_end_token = sURL_end_token.length();
 			int posHREF_begin = sPageHTML.indexOf( sHREF_token, posStart );
 			if( posHREF_begin == -1 ){ // no more HREFs
 				eggURLposition[0] = -1;
 				return true;
 			}
-			eggURLposition[0] = posHREF_begin + lenHREF_token + 1;
+			eggURLposition[0] = posHREF_begin + lenHREF_token;
 			int posURL_begin = eggURLposition[0];
-			int posURL_end = sPageHTML.indexOf( "\">", posURL_begin );
+			int posURL_end = sPageHTML.indexOf( sURL_end_token, posURL_begin );
 			if( posURL_end == -1 ){
 				sbError.append("no closing bracket found after HREF beginning " + Utility.sSafeSubstring( sPageHTML, posHREF_begin + 1, 250 ));
 				return false;
 			}
-			int xLabel_begin = posURL_end + 1;
+			int xLabel_begin = posURL_end + lenURL_end_token;
 			int xLabel_end_upper = sPageHTML.indexOf("</A>", posHREF_begin);
 			int xLabel_end_lower = sPageHTML.indexOf("</a>", posHREF_begin);
 			int xLabel_end = (xLabel_end_upper == -1) ? xLabel_end_lower : ( xLabel_end_lower == -1 ? xLabel_end_upper : ((xLabel_end_upper > xLabel_end_lower) ? xLabel_end_lower : xLabel_end_upper));
@@ -1122,10 +1128,11 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 				return false;
 			}
 			String sURL = sPageHTML.substring(posURL_begin, posURL_end).trim();
+			String sLabel = sPageHTML.substring( xLabel_begin, xLabel_end ).trim();
 			if( sURL.charAt(0) == '\"' || sURL.charAt(0) == '\'') sURL = sURL.substring(1); // remove preceding quotation
 			if( sURL.charAt(sURL.length()-1) == '\"' || sURL.charAt(sURL.length()-1) == '\'') sURL = sURL.substring(0, sURL.length()-1); // remove trailing quotation
 			eggURL[0] = sURL;
-			eggLabel[0] = sPageHTML.substring( xLabel_begin, xLabel_end ).trim();
+			eggLabel[0] = sLabel;
 			return true;
 		} catch(Exception ex) {
 			ApplicationController.vUnexpectedError( ex, sbError);
