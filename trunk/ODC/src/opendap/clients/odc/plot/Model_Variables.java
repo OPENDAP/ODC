@@ -334,7 +334,8 @@ class Model_Variable {
 						maVariableInfo = new VariableInfo[ctMultiSlice + 1];
 					} else if( ctVariables > maVariableInfo.length - 1){
 						VariableInfo[] new_maVariableInfo = new VariableInfo[maVariableInfo.length * 2];
-						System.arraycopy(maVariableInfo, 0, new_maVariableInfo, 0, maVariableInfo.length);
+						System.arraycopy( maVariableInfo, 0, new_maVariableInfo, 0, maVariableInfo.length );
+						maVariableInfo = new_maVariableInfo;
 					}
 					maVariableInfo[ctVariables] = infoValues;
 				}
