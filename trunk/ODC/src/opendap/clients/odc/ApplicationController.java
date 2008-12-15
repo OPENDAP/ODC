@@ -138,13 +138,14 @@ public class ApplicationController {
 			thisInstance.mRetrieve     = new Model_Retrieve();
 			thisInstance.mDatasets     = new Model_LoadedDatasets();
 
-			thisInstance.vShowStartupMessage("initializing geodesy");
-			thisInstance.geodesy = opendap.clients.odc.geo.Geodesy.getInstance();
-			if( ! thisInstance.geodesy.zInitialize( sBaseDirectory, sbError ) ){
-				// ApplicationController.vShowStartupDialog("Failed to initialize geodesy engine: " + sbError);
-				System.err.println("Failed to initialize geodesy engine: " + sbError);
-//				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
-			}
+// exclude geodesy for this build
+//			thisInstance.vShowStartupMessage("initializing geodesy");
+//			thisInstance.geodesy = opendap.clients.odc.geo.Geodesy.getInstance();
+//			if( ! thisInstance.geodesy.zInitialize( sBaseDirectory, sbError ) ){
+//				// ApplicationController.vShowStartupDialog("Failed to initialize geodesy engine: " + sbError);
+//				System.err.println("Failed to initialize geodesy engine: " + sbError);
+////				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
+//			}
 
 			thisInstance.vShowStartupMessage("creating interpreter");
 			thisInstance.interpreter = new Interpreter();
