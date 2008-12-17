@@ -60,7 +60,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	final DefaultListModel lmSelectedURLs = new DefaultListModel();
 	final static DataParameters mDataParameters = new DataParameters();
 
-	ArrayList listPlotterData = new ArrayList(); // type: DodsURL
+	ArrayList<Model_Dataset> listPlotterData = new ArrayList<Model_Dataset>();
 
 	final static String[] asOutputOptions = {"Preview Pane", "External Window", "New Window", "Full Screen", "Print", "File (PNG)", "Thumbnails"};
 
@@ -99,7 +99,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 
 	public final static Panel_View_Plot getInstance(){ return thisInstance; }
 
-	public final static ArrayList getData(){ return getInstance().listPlotterData; }
+	public final static ArrayList<Model_Dataset> getData(){ return getInstance().listPlotterData; }
 
 	public static JPanel getTN_Controls(){
 		return thisInstance.panelTN_Controls;
@@ -499,7 +499,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		jrbFromTable.addActionListener(
 			new ActionListener(){
 				public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
-					Panel_View_Plot.this.setPlotType(Panel_View_Plot.this.getPlotType());
+					Panel_View_Plot.this.setPlotType( Panel_View_Plot.getPlotType() );
 				}
 			}
 		);
@@ -508,7 +508,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		jrbFromSelectedURL.addActionListener(
 			new ActionListener(){
 				public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
-					Panel_View_Plot.this.setPlotType(Panel_View_Plot.this.getPlotType());
+					Panel_View_Plot.this.setPlotType( Panel_View_Plot.getPlotType() );
 				}
 			}
 		);
@@ -719,7 +719,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	void vSetDataToDefinition(int xDataset_0){
-		final Model_Dataset url = (Model_Dataset)Panel_View_Plot.this.listPlotterData.get(xDataset_0);
+		final Model_Dataset url = Panel_View_Plot.this.listPlotterData.get(xDataset_0);
 		int ePlotType = getPlotType();
 		mDefinitionPanel.setData(url, Panel_Definition.VARIABLE_MODE_DDS, ePlotType);
 		Plot_Definition pd = mDefinitionPanel.getActivePlottingDefinition();
@@ -772,7 +772,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			File fileNewCacheDirectory = file.getParentFile();
 			if( fileCacheDirectory != null ) if( !fileCacheDirectory.equals(fileNewCacheDirectory) ){
 				String sNewCacheDirectory = fileNewCacheDirectory.getCanonicalPath();
-				ConfigurationManager.getInstance().setOption(ConfigurationManager.getInstance().PROPERTY_DIR_DataCache, sNewCacheDirectory );
+				ConfigurationManager.getInstance().setOption(ConfigurationManager.PROPERTY_DIR_DataCache, sNewCacheDirectory );
 			}
 
 			// save DCF
@@ -898,7 +898,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 	void source_Info( int xURL_0 ){
 		try {
-			DataDDS ddds = null;
+			// DataDDS ddds = null;
 			if( xURL_0 >= this.listPlotterData.size() || xURL_0 < 0){
 				ApplicationController.vShowError("system error; url index outside loaded range");
 				return;
@@ -1121,7 +1121,7 @@ class DataParameters {
 			byte[] abValues = null;
 			short[] ashValues = null;
 			int[] aiValues = null;
-			long[] anValues = null;
+			// long[] anValues = null; TODO check this
 			switch( meType ){
 				case DAP.DATA_TYPE_Int16:
 				case DAP.DATA_TYPE_Int32:
