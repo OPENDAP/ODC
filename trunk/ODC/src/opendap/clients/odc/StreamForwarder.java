@@ -97,7 +97,7 @@ class StreamForwarder extends FilterOutputStream {
 	}
 
 	public synchronized void write(byte[] data, int offset, int length) throws IOException {
-		String s = new String(data, offset, length); // todo use writers
+		//String s = new String(data, offset, length); // todo use writers
 		for (int xOutputStream = 1; xOutputStream <= mctOutputStreams; xOutputStream++) {
 			if (maOutputStreams[xOutputStream] != null) {
 				maOutputStreams[xOutputStream].write(data, offset, length);
