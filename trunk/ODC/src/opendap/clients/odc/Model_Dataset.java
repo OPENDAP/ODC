@@ -38,6 +38,8 @@ import java.util.Enumeration;
 import java.io.FilenameFilter;
 import java.io.File;
 
+import opendap.dap.BaseType;
+
 public class Model_Dataset implements java.io.Serializable {
 
 	// todo delete fav/recent files that have bad serialization
@@ -84,10 +86,10 @@ public class Model_Dataset implements java.io.Serializable {
     /**
      * Create an empty <code>DodsURL</code>.
      */
-    public Model_Dataset() {
+    public Model_Dataset( final int type ){
 		msURL = "";
 		msCE = "";
-		miURLType = 0;
+		miURLType = type;
 		msTitle = null;
 		msMIMEType = null;
 		mSavable = new SavableImplementation( this.getClass(), null, null );
@@ -97,7 +99,7 @@ public class Model_Dataset implements java.io.Serializable {
      * Create a <code>DodsURL</code> by copying an existing <code>DodsURL</code>
      * @param dodsURL The url to copy.
      */
-    public Model_Dataset(Model_Dataset dodsURL) {
+    public Model_Dataset( Model_Dataset dodsURL ){
 		msURL = dodsURL.msURL;
 		msCE = dodsURL.msCE;
 		miURLType = dodsURL.miURLType;
