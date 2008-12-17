@@ -189,7 +189,7 @@ public class Panel_Retrieve_Dimension extends JPanel {
 				new KeyAdapter(){
 				    public void keyPressed( KeyEvent ke ){
 						int iKeyCode = ke.getKeyCode();
-						if( iKeyCode == ke.VK_ENTER )
+						if( iKeyCode == KeyEvent.VK_ENTER )
 							mDoUpdate.Do();
 							ApplicationController.getInstance().getRetrieveModel().vUpdateSubset();
 					}
@@ -274,7 +274,7 @@ public class Panel_Retrieve_Dimension extends JPanel {
 		mpanelDescription.setVisible( zShowDescription );
 	}
 
-	public static long getEstimatedSize( ArrayList listDimPanels, int iWidth ){
+	public static long getEstimatedSize( ArrayList<Panel_Retrieve_Dimension> listDimPanels, int iWidth ){
 		if( listDimPanels == null ) return 0;
 		int ctDims = listDimPanels.size();
 		if( ctDims == 0 ) return 0;

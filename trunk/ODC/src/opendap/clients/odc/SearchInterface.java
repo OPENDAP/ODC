@@ -44,7 +44,7 @@ public abstract class SearchInterface extends JPanel {
 		StringBuffer sbError = new StringBuffer(80);
 		Model_Dataset[] urls = getURLs(sbError);
 		if( urls == null ){
-			ApplicationController.getInstance().vShowError("failed to get selected urls for retrieval: " + sbError);
+			ApplicationController.vShowError("failed to get selected urls for retrieval: " + sbError);
 		} else {
 			Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
 			Model_URLList urllist = retrieve_model.getURLList();

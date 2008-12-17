@@ -54,7 +54,20 @@ public class SystemConduit {
 			Thread threadProcess = new Thread(){
 				public void run(){
 					try {
-						Process process = Runtime.getRuntime().exec(asCommand_final);
+						Process process = Runtime.getRuntime().exec( asCommand_final );
+						java.io.BufferedReader buffer = new java.io.BufferedReader( new java.io.InputStreamReader(process.getInputStream()));
+						String sOutput = null;
+						try {
+							java.io.OutputStream osTextViewer = ApplicationController.getInstance().getTextViewerOS();
+							while(( sOutput = buffer.readLine() ) != null ) {
+								osTextViewer.write( (sOutput + '\n').getBytes() );
+							}
+							buffer.close();
+							String sOutputResult = "Command completed with value: " + process.exitValue();
+							osTextViewer.write( sOutputResult.getBytes() );
+						} catch (Exception e) {
+							// Ignore read errors; they mean the process is done.
+						}
 					} catch(Exception ex) {
 						ApplicationController.vUnexpectedError(ex, "Failed to execute command " + sCommandComplete_final);
 					}
