@@ -56,7 +56,7 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 			panelEditContainer = new Panel_EditContainer();
 			panelVarView = new Panel_VarView();	
 			Model_DataView model = new Model_DataView();
-			if( ! model.zInitialize( data_list, sbError ) ){
+			if( ! model.zInitialize( this, data_list, sbError ) ){
 				sbError.insert(0, "failed to initialize model: ");
 				return false;
 			}
@@ -98,21 +98,46 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 		});
 	}
 	
+	public boolean _zSetModel( Model_Dataset model, StringBuffer sbError ){
+		return panelEditContainer._zSetModel( model, sbError );
+	}
+
 }
 
 class Model_DataView {
+	Panel_View_Data mParent;
 	int ctNewDatasets = 0;
 	Model_LoadedDatasets mDatasetList = null;
 	Model_Dataset modelActive = null;
-	boolean zInitialize( Model_LoadedDatasets data_list, StringBuffer sbError ){
+	boolean zInitialize( Panel_View_Data parent, Model_LoadedDatasets data_list, StringBuffer sbError ){
 		if( data_list == null ){
 			sbError.append("dataset list not supplied");
 			return false;
 		}
 		mDatasetList = data_list;
+		mParent = parent;
 		return true;
 	}
-	void action_New(){
+	void action_Activate( Model_Dataset dataset ){
+		if( dataset == null ){
+			ApplicationController.vShowError( "internal error, no existing dataset for data view selection" );
+			return;
+		}
+		StringBuffer sbError = new StringBuffer( 250 );
+		switch( dataset.getType() ){
+			case Model_Dataset.TYPE_Data:
+			case Model_Dataset.TYPE_Expression:
+				if( ! mParent._zSetModel( dataset, sbError ) ){
+					ApplicationController.vShowError( "error showing data: " + sbError );
+					return;
+				}
+				return;
+			default:
+				ApplicationController.vShowError( "internal error, unsupported type for data view: " + dataset.getTypeString() );
+				return;
+		}
+	}
+	void action_New_Dataset(){
 		try {
 			String sServerVersion = "2.1.5";
 			int iHeaderType = opendap.dap.ServerVersion.XDAP; // this is the simple version (eg "2.1.5"), server version strings are like "XDODS/2.1.5", these are only used in HTTP, not in files
@@ -121,7 +146,18 @@ class Model_DataView {
 			ctNewDatasets++;
 			String sName = "data" + ctNewDatasets;
 			datadds.setName( sName );
-			Model_Dataset model = new Model_Dataset();
+			Model_Dataset model = new Model_Dataset( Model_Dataset.TYPE_Data );
+			model.setTitle( sName );
+			mDatasetList.addDataset( model );
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while trying to create new dataset: " );
+		}
+	}
+	void action_New_Expression(){
+		try {
+			ctNewDatasets++;
+			String sName = "expression" + ctNewDatasets;
+			Model_Dataset model = new Model_Dataset( Model_Dataset.TYPE_Expression );
 			model.setTitle( sName );
 			mDatasetList.addDataset( model );
 		} catch( Throwable t ) {
@@ -167,27 +203,43 @@ class Panel_LoadedDatasets extends JPanel {
 
 		// create controls
 		JComboBox jcbLoadedVariables = new JComboBox( model.mDatasetList );
-		JButton buttonNew = new JButton( "New" );
+		JButton buttonNewDataset = new JButton( "New" );
+		JButton buttonNewExpression = new JButton( "New Exp" );
 		JButton buttonLoad = new JButton( "Load..." );
 		JButton buttonUnload = new JButton( "Unload" );
 		JButton buttonSave = new JButton( "Save" );
 		JButton buttonSaveAs = new JButton( "Save as..." );
 
 		model.mDatasetList.addListDataListener( jcbLoadedVariables );
-		
+
 		// layout controls
 		this.setLayout( new BoxLayout(this, BoxLayout.X_AXIS) );
 		this.add( jcbLoadedVariables );
-		this.add( buttonNew );
+		this.add( buttonNewDataset );
+		this.add( buttonNewExpression );
 		this.add( buttonLoad );
 		this.add( buttonUnload );
 		this.add( buttonSave );
 		this.add( buttonSaveAs );
 
-		buttonNew.addActionListener(
+		jcbLoadedVariables.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed( ActionEvent event) {
-					model.action_New();
+					model.action_Activate( (Model_Dataset)model.mDatasetList.getSelectedItem() );
+				}
+			}
+		);
+		buttonNewDataset.addActionListener(
+			new java.awt.event.ActionListener(){
+				public void actionPerformed( ActionEvent event) {
+					model.action_New_Dataset();
+				}
+			}
+		);
+		buttonNewExpression.addActionListener(
+			new java.awt.event.ActionListener(){
+				public void actionPerformed( ActionEvent event) {
+					model.action_New_Expression();
 				}
 			}
 		);
@@ -245,7 +297,7 @@ class Panel_EditContainer extends JPanel {
 		setLayout( new BorderLayout() );
 		return true;
 	}
-	boolean zSetModel( Model_Dataset model, StringBuffer sbError ){
+	boolean _zSetModel( Model_Dataset model, StringBuffer sbError ){
 		switch( model.getType() ){
 			case Model_Dataset.TYPE_Data:
 				if( mEditStructure._zInitialize( mDefineData, sbError ) ){
@@ -258,7 +310,7 @@ class Panel_EditContainer extends JPanel {
 				}
 				break;
 			case Model_Dataset.TYPE_Expression:
-				if( mEditExpression._zInitialize( model, mDefineExpression, sbError ) ){
+				if( mEditExpression._zInitialize( mDefineExpression, sbError ) ){
 					this.removeAll();
 					this.add( mEditExpression, BorderLayout.CENTER );
 					this.add( mDefineExpression, BorderLayout.EAST );
@@ -268,7 +320,7 @@ class Panel_EditContainer extends JPanel {
 				}
 				break;
 			case Model_Dataset.TYPE_Stream:
-				if( mEditStream._zInitialize( model, mDefineStream, sbError ) ){
+				if( mEditStream._zInitialize(  mDefineStream, sbError ) ){
 					this.removeAll();
 					this.add( mEditStream, BorderLayout.CENTER );
 					this.add( mDefineStream, BorderLayout.EAST );
@@ -378,7 +430,7 @@ class Panel_Edit_StructureView extends JPanel {
 	public Dimension getMinimumSize(){
 		return dimMinimum;
 	}
-	void setModel( Model_DataTree model ){
+	void _setModel( Model_DataTree model ){
 		mTreeModel = model;
 		if( mtreeData != null ) mtreeData.setModel( mTreeModel );
 	}
@@ -430,12 +482,8 @@ class Panel_Edit_StructureView extends JPanel {
 class Panel_Edit_Expression extends JPanel {
 	private Model_Dataset mModel;
 	private Panel_Define_Expression mParent;
-	boolean _zInitialize( Model_Dataset model, Panel_Define_Expression parent, StringBuffer sbError ){
-		if( model.getType() != Model_Dataset.TYPE_Expression ){
-			sbError.append( "supplied model is not an expression" );
-			return false;
-		}
-		mModel = model;
+	boolean _zInitialize( Panel_Define_Expression parent, StringBuffer sbError ){
+		mModel = null;
 		mParent = parent;
 		setLayout( new BorderLayout() );
 		Border borderEtched = BorderFactory.createEtchedBorder();
@@ -443,25 +491,36 @@ class Panel_Edit_Expression extends JPanel {
 		return true;
 	}
 	Model_Dataset _getModel(){ return mModel; }
+	boolean _setModel( Model_Dataset model, StringBuffer sbError ){
+		if( model.getType() != Model_Dataset.TYPE_Expression ){
+			sbError.append( "supplied model is not an expression" );
+			return false;
+		}
+		mModel = model;
+		return true;
+	}
 	Panel_Define_Expression _getParent(){ return mParent; }
 }
 
 class Panel_Edit_Stream extends JPanel {
 	private Model_Dataset mModel;
 	private Panel_Define_Stream mParent;
-	boolean _zInitialize( Model_Dataset model, Panel_Define_Stream parent, StringBuffer sbError ){
-		if( model.getType() != Model_Dataset.TYPE_Stream ){
-			sbError.append( "supplied model is not a stream" );
-			return false;
-		}
+	boolean _zInitialize( Panel_Define_Stream parent, StringBuffer sbError ){
 		setLayout( new BorderLayout() );
 		Border borderEtched = BorderFactory.createEtchedBorder();
 		setBorder( BorderFactory.createTitledBorder(borderEtched, "Stream Editor", TitledBorder.RIGHT, TitledBorder.TOP) );
-		mModel = model;
 		mParent = parent;
 		return true;
 	}
 	Model_Dataset _getModel(){ return mModel; }
+	boolean _setModel( Model_Dataset model, StringBuffer sbError ){
+		if( model.getType() != Model_Dataset.TYPE_Stream ){
+			sbError.append( "supplied model is not a stream" );
+			return false;
+		}
+		mModel = model;
+		return true;
+	}
 	Panel_Define_Stream _getParent(){ return mParent; }
 }
 
