@@ -45,7 +45,7 @@ public class VSelector_DArray extends VariableSelector {
 //	private static java.util.regex.Pattern mPattern_Array_NoStride = null;
 //	private static java.util.regex.Pattern mPattern_Array_WithStride = null;
 	private DArray mDArray;
-	private ArrayList<JPanel> listDimPanels;
+	private ArrayList<Panel_Retrieve_Dimension> listDimPanels;
 	private int miDataWidth;
 
 	DArray getArray(){ return mDArray; }
@@ -74,7 +74,7 @@ public class VSelector_DArray extends VariableSelector {
 			int ctDimensions = mDArray.numDimensions();
 
 			// create dimension panels and add them the detail
-			listDimPanels = new ArrayList<JPanel>();
+			listDimPanels = new ArrayList<Panel_Retrieve_Dimension>();
 			mpanelDetail.removeAll();
 			GridBagConstraints gbc = new GridBagConstraints();
 			mpanelDetail.setLayout(new GridBagLayout());
@@ -141,7 +141,7 @@ public class VSelector_DArray extends VariableSelector {
 		if( listDimPanels == null ) return;
 		int ctDims = listDimPanels.size();
 		for( int xDim = 1; xDim <= ctDims; xDim++ ){
-			Panel_Retrieve_Dimension dim_panel = (Panel_Retrieve_Dimension)listDimPanels.get(xDim-1); // zero-based
+			Panel_Retrieve_Dimension dim_panel = listDimPanels.get(xDim-1); // zero-based
 			dim_panel.setStep( iStep );
 		}
 	}
@@ -152,7 +152,7 @@ public class VSelector_DArray extends VariableSelector {
 		// basic label (name + dimensions + size)
 		msbLabel.setLength(0);
 		String sName = getQualifiedName(); // does not work: DAP.getQualifiedName( mDArray );
-		String sSize = Utility.getByteCountString( Panel_Retrieve_Dimension.getEstimatedSize(listDimPanels, miDataWidth ));
+		String sSize = Utility.getByteCountString( Panel_Retrieve_Dimension.getEstimatedSize( listDimPanels, miDataWidth ));
 		msbLabel.append( sName ).append(' ');
 		appendDimensionSizes( msbLabel );
 		msbLabel.append(' ').append('(').append(sSize).append(')');
