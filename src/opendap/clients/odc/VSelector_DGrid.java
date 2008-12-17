@@ -34,7 +34,7 @@ import opendap.dap.*;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
-import java.util.regex.*;
+//import java.util.regex.*;
 
 /**
  * This class allows the user to constrain a variable of type DGrid.
@@ -48,19 +48,20 @@ public class VSelector_DGrid extends VariableSelector {
 //    private VSelector_DArray m_vsdarray; TODO what is this?
 	private DGrid  mDGrid;
 	private DArray mDArray;
-	private ArrayList<JPanel> listDimPanels;
+	private ArrayList<Panel_Retrieve_Dimension> listDimPanels;
 	private int miDataWidth = 1;
-	private static String msPattern_Array_NoStride = "\\[(\\d+):(\\d+)\\]"; // $1 = start $2 = stop
-	private static String msPattern_Array_WithStride = "\\[(\\d+):(\\d+):(\\d+)\\]"; // $1 = start $2 = stride $3 = stop
-	private static java.util.regex.Pattern mPattern_Array_NoStride = null;
-	private static java.util.regex.Pattern mPattern_Array_WithStride = null;
+// stride patterns not used TODO
+//	private static String msPattern_Array_NoStride = "\\[(\\d+):(\\d+)\\]"; // $1 = start $2 = stop
+//	private static String msPattern_Array_WithStride = "\\[(\\d+):(\\d+):(\\d+)\\]"; // $1 = start $2 = stride $3 = stop
+	// private static java.util.regex.Pattern mPattern_Array_NoStride = null;
+	// private static java.util.regex.Pattern mPattern_Array_WithStride = null;
 
     /** Creates a new instance of GridSelector */
     public VSelector_DGrid( String sQualifiedName, DDSSelector owner, DGrid grid, DAS das, javax.swing.ButtonGroup bg, Model_Retrieve mr ){
 		super( owner, sQualifiedName, bg, mr );
         try {
-			mPattern_Array_NoStride = Pattern.compile(msPattern_Array_NoStride);
-			mPattern_Array_WithStride = Pattern.compile(msPattern_Array_WithStride);
+//			mPattern_Array_NoStride = Pattern.compile(msPattern_Array_NoStride);
+//			mPattern_Array_WithStride = Pattern.compile(msPattern_Array_WithStride);
         } catch( Exception ex ) {
 			ApplicationController.vShowError("Internal error building DGrid patterns: " + ex);
         }
@@ -83,8 +84,6 @@ public class VSelector_DGrid extends VariableSelector {
 				return;
 			}
 
-			String sTypeName = mDArray.getTypeName();
-
 			// validate count of mapping variables
 			int ctDimensions = mDArray.numDimensions();
 			int ctMappingVariables = mDGrid.elementCount(false) - 1;
@@ -94,7 +93,7 @@ public class VSelector_DGrid extends VariableSelector {
 			}
 
 // labelTitle.setBorder(javax.swing.BorderFactory.createLineBorder(Color.RED));
-			listDimPanels = new ArrayList<JPanel>();
+			listDimPanels = new ArrayList<Panel_Retrieve_Dimension>();
 
 			// create dimension panels and add them the detail
 //			mpanelDetail.setBorder( javax.swing.BorderFactory.createLineBorder(Color.BLUE) );
@@ -162,7 +161,7 @@ public class VSelector_DGrid extends VariableSelector {
 		if( listDimPanels == null ) return;
 		int ctDims = listDimPanels.size();
 		for( int xDim = 1; xDim <= ctDims; xDim++ ){
-			Panel_Retrieve_Dimension dim_panel = (Panel_Retrieve_Dimension)listDimPanels.get(xDim-1); // zero-based
+			Panel_Retrieve_Dimension dim_panel = listDimPanels.get(xDim-1); // zero-based
 			dim_panel.setStep( iStep );
 		}
 	}
@@ -183,7 +182,7 @@ public class VSelector_DGrid extends VariableSelector {
 		if( ctDims == 0 ) return "";
 		StringBuffer sbConstraint = new StringBuffer(50);
 		for( int xDim = 1; xDim <= ctDims; xDim++ ){
-			Panel_Retrieve_Dimension dim_panel = (Panel_Retrieve_Dimension)listDimPanels.get(xDim-1); // zero-based
+			Panel_Retrieve_Dimension dim_panel = listDimPanels.get(xDim-1); // zero-based
 			sbConstraint.append('[').append(dim_panel.getConstraint(sbConstraint)).append(']');
 		}
 		return sbConstraint.toString();
@@ -195,7 +194,7 @@ public class VSelector_DGrid extends VariableSelector {
 		// basic label (name + dimensions + size)
 		msbLabel.setLength(0);
 		String sName = getQualifiedName( mDGrid );
-		long nSize = Panel_Retrieve_Dimension.getEstimatedSize(listDimPanels, miDataWidth );
+		long nSize = Panel_Retrieve_Dimension.getEstimatedSize( listDimPanels, miDataWidth );
 		String sSize = Utility.getByteCountString( nSize );
 		msbLabel.append( sName ).append(' ');
 		appendDimensionSizes( msbLabel );
@@ -213,7 +212,7 @@ public class VSelector_DGrid extends VariableSelector {
 		if( listDimPanels != null ){
 			int ctDims = listDimPanels.size();
 			for( int xDim = 1; xDim <= ctDims; xDim++ ){
-				Panel_Retrieve_Dimension dim_panel = (Panel_Retrieve_Dimension)listDimPanels.get(xDim-1); // zero-based
+				Panel_Retrieve_Dimension dim_panel = listDimPanels.get(xDim-1); // zero-based
 				dim_panel.vUpdateInfo( zShowDescription );
 			}
 		}
@@ -224,7 +223,7 @@ public class VSelector_DGrid extends VariableSelector {
 		int ctDims = listDimPanels.size();
 		if( ctDims == 0 ) return;
 		for( int xDim = 1; xDim <= ctDims; xDim++ ){
-			Panel_Retrieve_Dimension dim_panel = (Panel_Retrieve_Dimension)listDimPanels.get(xDim-1); // zero-based
+			Panel_Retrieve_Dimension dim_panel = listDimPanels.get(xDim-1); // zero-based
 			sb.append('[').append(dim_panel.getDimensionLength()).append(']');
 		}
 	}
