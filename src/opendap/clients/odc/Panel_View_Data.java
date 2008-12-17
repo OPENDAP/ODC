@@ -309,6 +309,7 @@ class Panel_Define_Stream extends JPanel {
 			return false;
 		}
 	}
+	Panel_View_Data _getParent(){ return mParent; }
 }
 
 class Panel_Define_Expression extends JPanel {
@@ -335,6 +336,7 @@ class Panel_Define_Expression extends JPanel {
 			return false;
 		}
 	}
+	Panel_View_Data _getParent(){ return mParent; }
 }
 
 class Panel_Define_Dataset extends JPanel {
@@ -364,6 +366,7 @@ class Panel_Define_Dataset extends JPanel {
 	public void _showVariable( BaseType bt ){
 		// TODO
 	}	
+	Panel_View_Data _getParent(){ return mParent; }
 }
 
 class Panel_Edit_StructureView extends JPanel {
@@ -439,6 +442,8 @@ class Panel_Edit_Expression extends JPanel {
 		setBorder( BorderFactory.createTitledBorder(borderEtched, "Expression Editor", TitledBorder.RIGHT, TitledBorder.TOP) );
 		return true;
 	}
+	Model_Dataset _getModel(){ return mModel; }
+	Panel_Define_Expression _getParent(){ return mParent; }
 }
 
 class Panel_Edit_Stream extends JPanel {
@@ -456,6 +461,8 @@ class Panel_Edit_Stream extends JPanel {
 		mParent = parent;
 		return true;
 	}
+	Model_Dataset _getModel(){ return mModel; }
+	Panel_Define_Stream _getParent(){ return mParent; }
 }
 
 class Panel_VarView extends JPanel {
