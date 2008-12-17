@@ -565,14 +565,13 @@ public class DatasetList extends SearchInterface {
         if (urlsvect.size() > 0) {
             Model_Dataset[] urls = new Model_Dataset[urlsvect.size()];
             for (int i=0; i < urlsvect.size(); i++) {
-                urls[i] = new Model_Dataset();
                 DOMTree.AdapterNode thisnode = (DOMTree.AdapterNode) urlsvect.elementAt(i);
-                if (thisnode.getAttributes().getNamedItem(DOMTree.ATTR_CATALOG) != null ||
+                if( thisnode.getAttributes().getNamedItem(DOMTree.ATTR_CATALOG) != null ||
 					thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null) {
-                    urls[i].setType(Model_Dataset.TYPE_Directory);
+                	urls[i] = new Model_Dataset( Model_Dataset.TYPE_Directory );
 					urls[i].setURL(thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR).getNodeValue());
                 } else {
-                    urls[i].setType(Model_Dataset.TYPE_Data);
+                	urls[i] = new Model_Dataset( Model_Dataset.TYPE_Data );
 					urls[i].setURL(thisnode.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL).getNodeValue());
                 }
                 urls[i].setTitle(thisnode.getAttributes().getNamedItem(DOMTree.ATTR_NAME).getNodeValue());
