@@ -310,7 +310,10 @@ class Panel_EditContainer extends JPanel {
 				}
 				break;
 			case Model_Dataset.TYPE_Expression:
-				if( mEditExpression._zInitialize( mDefineExpression, sbError ) ){
+				String sDirectory = ConfigurationManager.getInstance().getDefault_DIR_Scripts();
+				String sName = model.getTitle() + ".txt";
+				String sContent = "";
+				if( mEditExpression._zInitialize( mDefineExpression, sDirectory, sName, sContent, sbError ) ){
 					this.removeAll();
 					this.add( mEditExpression, BorderLayout.CENTER );
 					this.add( mDefineExpression, BorderLayout.EAST );
@@ -482,12 +485,16 @@ class Panel_Edit_StructureView extends JPanel {
 class Panel_Edit_Expression extends JPanel {
 	private Model_Dataset mModel;
 	private Panel_Define_Expression mParent;
-	boolean _zInitialize( Panel_Define_Expression parent, StringBuffer sbError ){
+	private Panel_View_Text_Editor mEditor;;
+	boolean _zInitialize( Panel_Define_Expression parent, String sDirectory, String sName, String sContent, StringBuffer sbError ){
 		mModel = null;
 		mParent = parent;
+		mEditor = new  Panel_View_Text_Editor();
+		mEditor._zInitialize( null, sDirectory, sName, sContent, sbError );
 		setLayout( new BorderLayout() );
 		Border borderEtched = BorderFactory.createEtchedBorder();
 		setBorder( BorderFactory.createTitledBorder(borderEtched, "Expression Editor", TitledBorder.RIGHT, TitledBorder.TOP) );
+		this.add( mEditor, BorderLayout.CENTER );
 		return true;
 	}
 	Model_Dataset _getModel(){ return mModel; }
@@ -497,6 +504,7 @@ class Panel_Edit_Expression extends JPanel {
 			return false;
 		}
 		mModel = model;
+		mEditor._setModel( model );
 		return true;
 	}
 	Panel_Define_Expression _getParent(){ return mParent; }
