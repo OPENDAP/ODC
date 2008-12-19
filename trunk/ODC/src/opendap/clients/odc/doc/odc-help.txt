@@ -1,5 +1,5 @@
 #Introduction
-(help file revised 13 March 2008)
+(help file revised 18 December 2008)
 
 This is the OPeNDAP Data Connector (ODC). Using the ODC you can search for and retrieve datasets published by OPeNDAP data servers. OPeNDAP servers (also known as DODS servers) located at major institutions around the world serve a wide variety of data including: climatic data, satellite imagery, and ocean sensor results. The ODC allows you to find these datasets, download them to your machine, save them, and import them into client applications like IDL, Matlab, SPSS, Excel, or into databases such as Access and Oracle. The ODC is your gateway to terabytes of scientific data and imagery.
 
@@ -315,6 +315,38 @@ Missing Values
 The "Missing" text box allows you to enter one or more "missing values" for the data set. A missing value is a data value that is to be treated as null. These values show in the plot as a particular color indicated by the color specification. If there is more than one missing value separate them with spaces in the box. You can sometimes determine the missing value(s) by examing the global attributes of the data set (use 'show descriptions' in the constraint panel). The missing values assigments are part of the color specification.
 
 If the dataset's attribute information contains an attribute for the selected variable that starts with the word "missing" those values will automatically be parsed and used as missing values. You can have the ODC attempt to calculate the missing values for you which it does by default if no missing values attribute was found. This calculation will double your data memory requirements temporarily and take time proportional to n*log(n) where n is the number of data elements. You can turn it off via an option setting.
+
+#Plotting Expressions
+
+You can plot Python expressions by loading or creating expressions in the data editor (View / Data). When an expression data type is selected the plotter's variable panel will automatically show the settings for configuring the plotting of the expression. Three types of expression plotting are supported:
+
+Cartesian   (example: 2*x [y assumed] or 2*y [x assumed])
+
+Polar       (example: 5*sin(theta) [r assumed])
+
+Parametric  (example: 2*sin(t) [x assumed]
+                      3*cos(t) [y assumed] )
+
+In every case you should only enter the expression, not the L-value, ie do not write y = 2*x for example, just write 2*x. The L-value determination is configured in the variable definition panel.
+
+When the expression is plotted the ODC substitutes numeric values for "substitution tokens" which are specified in the variable definition panel. By default the substition tokens are "x", "y", "z", "theta" and "t". If you are using these letters already in your expression (for example, using tan() in a parametric expression) you will need to change substition token to something distinctive like $t. Note that the ODC is smart and if it sees "$x" or "$t" in your expression it will automatically use $-sign tokens instead of plain tokens.
+
+For Cartesian expressions you select the L-value with the radio button and enter substition tokens for the other variable (or variables if it is 3D). You can do multiple expressions at the same time by entering them each on their own line. The ODC will plot them at the same time. This is useful, for example, when plotting quadratic equations that have a +/- alternative.
+
+For Polar expressions you provide an expression in terms of theta (the angle) and the plotter uses the value of the expression as the radius.
+
+For Parametric expressions you provide multiple expressions in terms of a parameter, by default "t" or "$t". The L-values are determined by the index number in the L-value column of the variable definition panel OR by a comment designator in the expression of the form "# X" in the text of the expression.
+
+*** Continuous versus Point Plots ***
+
+If the plot is continuous it will be rendered as a series of line segments between the points. If it is a point plot separate pixels will be plotted.
+
+*** Ranges and Steps ***
+
+You may need to specify ranges and steps for the plot so the ODC knows what values to calculate. For a cartesian plot you can leave the step blank and the ODC will automatically calculate a value appropriate for the resolution of the output area. For example, if you are plotting and expression with a y L-value to the preview pane and it has 400 pixels in the x-dimension for the specified range then 400 calculations will be done, one for each pixel along the x-axis. Using the automatic calculation for Cartesian expressions assures that you getting the best resolution and computing the fewest number of values necessary.
+
+For Polar and Parametric expressions you need to specify both a range and a step value because it is difficult to determine the right step value automatically.
+
 
 #Plotting Lines
 
