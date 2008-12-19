@@ -36,9 +36,10 @@ import javax.swing.*;
 public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 
 	SavableImplementation savableString;
+	Model_Dataset model = null;
 	
 	private Panel_View_Text parent = null;
-	
+
 	public Panel_View_Text_Editor(){}
 
 	private JScrollPane jspDisplay = new JScrollPane();
@@ -47,10 +48,6 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 	boolean _zInitialize( Panel_View_Text parent, String sDirectory, String sName, String sContent, StringBuffer sbError ){
 
 		try {
-			if( parent == null ){
-				sbError.append("parent missing");
-				return false;
-			}
 			this.parent = parent;
 			savableString = new SavableImplementation( java.lang.String.class, sDirectory, sName );
 
@@ -87,32 +84,34 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 								break;
 							case KeyEvent.VK_N:
 								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
-									Panel_View_Text_Editor.this.parent.editorNew();
+									if( Panel_View_Text_Editor.this.parent != null ) Panel_View_Text_Editor.this.parent.editorNew();
 									ke.consume();
 								}
 								break;
 							case KeyEvent.VK_O:
 								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
-									Panel_View_Text_Editor.this.parent.editorOpen();
+									if( Panel_View_Text_Editor.this.parent != null ) Panel_View_Text_Editor.this.parent.editorOpen();
 									ke.consume();
 								}
 								break;
 							case KeyEvent.VK_X:
 								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
 									if( (iModifiers & java.awt.event.InputEvent.SHIFT_DOWN_MASK) == java.awt.event.InputEvent.SHIFT_DOWN_MASK ){
-										Panel_View_Text_Editor.this.parent.editorCloseNoSave();
+										if( Panel_View_Text_Editor.this.parent != null ) Panel_View_Text_Editor.this.parent.editorCloseNoSave();
 										ke.consume();
 									} else if( (iModifiers & java.awt.event.InputEvent.ALT_DOWN_MASK) == java.awt.event.InputEvent.ALT_DOWN_MASK ){
 										_save();
-										Panel_View_Text_Editor.this.parent.editorCloseNoSave();
+										if( Panel_View_Text_Editor.this.parent != null ) Panel_View_Text_Editor.this.parent.editorCloseNoSave();
 										ke.consume();
 									}
 								}
 								break;
 						}
-						if( ! _isDirty() ) Panel_View_Text_Editor.this.parent.updateTabTitles();						
+						if( ! _isDirty() && ( Panel_View_Text_Editor.this.parent != null ) ) Panel_View_Text_Editor.this.parent.updateTabTitles();						
 					}
-					public void keyReleased(KeyEvent ke){}
+					public void keyReleased(KeyEvent ke){
+						if( model != null ) model.setExpression_Text( _getText() );
+					}
 					public void keyTyped(KeyEvent ke){}
 				}
 		    );
@@ -135,6 +134,13 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 		});
 	}	
 
+	public void _setModel( Model_Dataset m ){
+		model = m;
+		if( model != null ){
+			jtaDisplay.setText( model.getExpression_Text() );
+		}
+	}
+	
 	public String _getText(){ return jtaDisplay.getText(); }
 	
     /** indicates that the file may not be saved / may be changed */
@@ -152,7 +158,7 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 	/** returns false if the action was cancelled or failed */
 	boolean _saveAs(){
 		if( savableString._saveAs( _getText() ) ){
-			parent.updateTabTitles(); // update the name of the tab
+			if( Panel_View_Text_Editor.this.parent != null ) parent.updateTabTitles(); // update the name of the tab
 			return true;
 		} else {
 			return false;

@@ -65,6 +65,7 @@ public class ConfigurationManager {
 	private static final String DIR_Default_DataCache = "DataCache";
 	private static final String DIR_Default_Plots = "plots";
 	private static final String DIR_Default_Scripts = "scripts";
+	private static final String DIR_Default_Expressions = "expressions";
 	private static final String DIR_Default_Coastline = "coastline";
 
 	private static final String FEEDBACK_Default_EmailRelayURL = "/cgi-bin/odc_mail_relay.pl"; // http://test.opendap.org/cgi-bin/odc_mail_relay.pl
@@ -842,7 +843,7 @@ public class ConfigurationManager {
 		String sWorkingDirectory = this.getBaseDirectory();
 		if( sWorkingDirectory == null ) sWorkingDirectory = "";
 		String sSeparator = System.getProperty(SYSTEM_PROPERTY_FileSeparator);
-		String sCacheDirectory = Utility.sConnectPaths(sWorkingDirectory, sSeparator, DIR_Default_DataCache) + sSeparator;
+		String sCacheDirectory = Utility.sConnectPaths( sWorkingDirectory, sSeparator, DIR_Default_DataCache ) + sSeparator;
 		return sCacheDirectory;
 	}
 
@@ -850,7 +851,7 @@ public class ConfigurationManager {
 		String sWorkingDirectory = this.getBaseDirectory();
 		if( sWorkingDirectory == null ) sWorkingDirectory = "";
 		String sSeparator = System.getProperty(SYSTEM_PROPERTY_FileSeparator);
-		String sPlotsDirectory = Utility.sConnectPaths(sWorkingDirectory, sSeparator, DIR_Default_Plots) + sSeparator;
+		String sPlotsDirectory = Utility.sConnectPaths( sWorkingDirectory, sSeparator, DIR_Default_Plots ) + sSeparator;
 		return sPlotsDirectory;
 	}
 
@@ -858,10 +859,18 @@ public class ConfigurationManager {
 		String sWorkingDirectory = this.getBaseDirectory();
 		if( sWorkingDirectory == null ) sWorkingDirectory = "";
 		String sSeparator = System.getProperty(SYSTEM_PROPERTY_FileSeparator);
-		String sPlotsDirectory = Utility.sConnectPaths(sWorkingDirectory, sSeparator, DIR_Default_Scripts) + sSeparator;
-		return sPlotsDirectory;
+		String sScriptsDirectory = Utility.sConnectPaths( sWorkingDirectory, sSeparator, DIR_Default_Scripts ) + sSeparator;
+		return sScriptsDirectory;
 	}
 
+	String getDefault_DIR_Expressions(){
+		String sWorkingDirectory = this.getBaseDirectory();
+		if( sWorkingDirectory == null ) sWorkingDirectory = "";
+		String sSeparator = System.getProperty( SYSTEM_PROPERTY_FileSeparator );
+		String sExpressionsDirectory = Utility.sConnectPaths( sWorkingDirectory, sSeparator, DIR_Default_Expressions) + sSeparator;
+		return sExpressionsDirectory;
+	}
+	
 	String getDefault_URL_GCMD(){ return URL_Default_GCMD; }
 
 	String getDefault_URL_ECHO(){ return "http://fosters.gsfc.nasa.gov:4500/"; }

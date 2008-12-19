@@ -33,7 +33,6 @@ package opendap.clients.odc;
 import java.awt.event.*;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;

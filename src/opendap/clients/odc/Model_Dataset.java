@@ -251,6 +251,10 @@ public class Model_Dataset implements java.io.Serializable {
 
 	public String getExpression_Text(){ return msExpression_Text; }
 	
+	public void setExpression_Text(String expression_text){
+		msExpression_Text = expression_text;
+	}
+	
 	public String getFileName(){
 		String sFullURL = this.getBaseURL();
 		if( sFullURL == null ) return "";
@@ -277,10 +281,6 @@ public class Model_Dataset implements java.io.Serializable {
 		msInfo_Text = info_text;
 	}
 
-	public void setExpression_Text(String expression_text){
-		msExpression_Text = expression_text;
-	}
-	
 	/** one-based array of files */
 	public Model_DirectoryTree getDirectoryTree(){ return mDirectoryTree; }
 
