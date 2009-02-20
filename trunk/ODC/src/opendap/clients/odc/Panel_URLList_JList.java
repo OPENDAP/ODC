@@ -60,7 +60,7 @@ public class Panel_URLList_JList extends Panel_URLList {
 		mjlist.addKeyListener(
 			new java.awt.event.KeyListener(){
 				public void keyPressed( java.awt.event.KeyEvent ke ){
-					if( ke.getKeyCode() == ke.VK_DELETE ){
+					if( ke.getKeyCode() == java.awt.event.KeyEvent.VK_DELETE ){
 						int[] aiSelectedToDelete = mjlist.getSelectedIndices();
 						control_model.vDatasets_Delete( aiSelectedToDelete );
 					}
@@ -87,7 +87,7 @@ public class Panel_URLList_JList extends Panel_URLList {
 						}
 						Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
 						if( retrieve_model == null ){
-							ApplicationController.getInstance().vShowError( "internal error: retrieval model does not exist for dataset activation" );
+							ApplicationController.vShowError( "internal error: retrieval model does not exist for dataset activation" );
 							return;
 						}
 						if( urlSelected == null ){ // can happen because of a bug in the list / table component
@@ -130,7 +130,7 @@ public class Panel_URLList_JList extends Panel_URLList {
 		if( iIndex == -1 ){
 			mjlist.clearSelection();
 		} else if( iIndex < 0 || iIndex >= iListSize ){
-			ApplicationController.getInstance().vShowWarning( "attempt to set index (" + iIndex + ") out of range on url list of size " + iListSize);
+			ApplicationController.vShowWarning( "attempt to set index (" + iIndex + ") out of range on url list of size " + iListSize);
 		} else {
 			mjlist.setSelectedIndex( iIndex );
 		}

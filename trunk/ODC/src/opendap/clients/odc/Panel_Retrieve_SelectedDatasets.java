@@ -162,8 +162,8 @@ public class Panel_Retrieve_SelectedDatasets extends JPanel {
 			mPanel_Directory.setBorder(borderEmpty);
 
 			msplitpane_ListDir = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
-			msplitpane_ListDir.setTopComponent(mPanel_List);
-			msplitpane_ListDir.setBottomComponent(mPanel_Directory);
+			msplitpane_ListDir.setTopComponent( mPanel_List );
+			msplitpane_ListDir.setBottomComponent( mPanel_Directory );
 			msplitpane_ListDir.setContinuousLayout(true);
 
 			setLayout(new BorderLayout());

@@ -58,10 +58,12 @@ public class Activity extends Thread {
 		jtaMessage.setMaximumSize(new Dimension((int)(dScreenWidth * 0.80d), (int)(dScreenHeight * 0.80d) ));
 
 		String sTitle = "Busy...";
+		/*
 		boolean zResizable = false;
 		boolean zClosable = false;
 		boolean zMaximizable = false;
 		boolean zIconifiable = false;
+		*/
 
 		jpanelGlassPane.setLayout( null );
 
@@ -186,7 +188,7 @@ public class Activity extends Thread {
 				}
 			}
 		);
-		ApplicationController.getInstance().vShowStatus("Cancelling action... " + this.msStatusMessage);
+		ApplicationController.vShowStatus("Cancelling action... " + this.msStatusMessage);
 		try {
 			if( meMODE == MODE_BlockedOnSocket ) if( mSocket != null ) mSocket.close();
 		} catch(Exception ex) {

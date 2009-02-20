@@ -37,7 +37,6 @@ public class Model_DirectoryTree extends DefaultTreeModel {
 	public Model_DirectoryTree( DirectoryTreeNode nodeRoot ){
 		super( nodeRoot );
 	}
-	private String msFirstFile;
 	private DirectoryTreeNode mnodeSelected = null;
 	DirectoryTreeNode getRootNode(){ return (DirectoryTreeNode)this.getRoot(); }
 	String getFirstFile(){
