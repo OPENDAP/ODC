@@ -13,6 +13,11 @@ class Model_LoadedDatasets extends AbstractListModel implements ComboBoxModel {
 	private Model_Dataset[] maDatasets = new Model_Dataset[ 1000 ];
 	private ArrayList<ListDataListener> listListeners = new ArrayList<ListDataListener>(); 
 
+	boolean _contains( Model_Dataset model ){
+		for( int xModel = 1; xModel <= mctDatasets; xModel++ ) if( maDatasets[xModel] == model ) return true;
+		return false;
+	}
+	
 	void addDataset( Model_Dataset url ){
 		if( url == null ){
 			ApplicationController.vShowWarning("attempt to add null dataset");

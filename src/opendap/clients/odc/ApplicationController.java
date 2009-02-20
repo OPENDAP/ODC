@@ -248,7 +248,7 @@ public class ApplicationController {
 	}
 	public int getFrame_ExtraWidth(){ return mFrame_ExtraWidth; }
 	public int getFrame_ExtraHeight(){ return mFrame_ExtraHeight; }
-
+	
 	private static javax.swing.JWindow windowSplash = null;
 	private static javax.swing.JLabel labelSplash = null;
 	void vShowSplashScreen(){

@@ -245,7 +245,7 @@ public class ApplicationFrame extends JFrame {
 		}
 		ApplicationController.getInstance().vShowStartupMessage("creating help panel");
 		panelHelp = new Panel_Help();
-		if( !panelHelp.zInitialize(sbError) ){
+		if( !panelHelp.zInitialize( sbError ) ){
 			System.err.println("Failed to initialize help: " + sbError);
 			sbError.setLength(0);
 		}
@@ -380,6 +380,12 @@ public class ApplicationFrame extends JFrame {
 			// user did not change window, do not store settings
 		}
 	}
+	
+	// This method is used to initialize parts of the interface that are dynamically sized but 
+	// are not subject to sizing by layout managers; an example would be slider positionings
+	private static void _vSetInitialSizings(){
+		
+	}	
 
 	public void vActivateRetrievalPanel(){
 		jtpMain.setSelectedIndex(1); // activate the retrieve tab

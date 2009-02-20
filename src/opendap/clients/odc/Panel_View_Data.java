@@ -46,21 +46,22 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
 public class Panel_View_Data extends JPanel implements IControlPanel {
+	Model_DataView modelDataView = null;
 	Panel_LoadedDatasets panelLoadedDatasets;
 	Panel_EditContainer panelEditContainer;
-	Panel_VarView panelVarView;	
+	Panel_VarView panelVarView;
     public Panel_View_Data() {}
 	public boolean _zInitialize( Model_LoadedDatasets data_list, StringBuffer sbError ){
 		try {
 			panelLoadedDatasets = new Panel_LoadedDatasets();
 			panelEditContainer = new Panel_EditContainer();
 			panelVarView = new Panel_VarView();	
-			Model_DataView model = new Model_DataView();
-			if( ! model.zInitialize( this, data_list, sbError ) ){
+			modelDataView = new Model_DataView();
+			if( ! modelDataView.zInitialize( this, data_list, sbError ) ){
 				sbError.insert(0, "failed to initialize model: ");
 				return false;
 			}
-			if( ! panelLoadedDatasets.zInitialize( model, sbError ) ){
+			if( ! panelLoadedDatasets.zInitialize( modelDataView, sbError ) ){
 				sbError.insert(0, "failed to initialize loaded datasets panel: ");
 				return false;
 			}
@@ -79,15 +80,20 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 			panelTop.setLayout( new BorderLayout() );
 			panelTop.add( panelLoadedDatasets, BorderLayout.NORTH );
 			panelTop.add( panelEditContainer, BorderLayout.CENTER );
-			JSplitPane jsplitTreeVar = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
-			jsplitTreeVar.setTopComponent( panelTop );
-			jsplitTreeVar.setBottomComponent( panelVarView );
+			JSplitPane msplitViewData = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
+			msplitViewData.setTopComponent( panelTop );
+			msplitViewData.setBottomComponent( panelVarView );
+			msplitViewData.setDividerLocation( 0.5d );
 			this.setLayout( new BorderLayout() );
-			this.add( jsplitTreeVar, BorderLayout.CENTER );
+			this.add( msplitViewData, BorderLayout.CENTER );
 		} catch( Exception ex ) {
 			return false;
 		}
 		return true;
+	}
+	
+	public void _vActivate( Model_Dataset modelDataset ){
+		modelDataView.action_Activate( modelDataset );
 	}
 	
 	public void vSetFocus(){    	
@@ -149,6 +155,7 @@ class Model_DataView {
 			Model_Dataset model = new Model_Dataset( Model_Dataset.TYPE_Data );
 			model.setTitle( sName );
 			mDatasetList.addDataset( model );
+			action_Activate( model );
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, "while trying to create new dataset: " );
 		}
@@ -160,6 +167,7 @@ class Model_DataView {
 			Model_Dataset model = new Model_Dataset( Model_Dataset.TYPE_Expression );
 			model.setTitle( sName );
 			mDatasetList.addDataset( model );
+			action_Activate( model );
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, "while trying to create new dataset: " );
 		}
@@ -169,7 +177,12 @@ class Model_DataView {
 			SavableImplementation savable = new SavableImplementation( opendap.clients.odc.Model_Dataset.class, null, null );
 			Model_Dataset model = (Model_Dataset)savable._open();
 			if( model == null ) return; // user cancelled
-			mDatasetList.addDataset( model );
+			if( mDatasetList._contains( model ) ){
+				ApplicationController.vShowWarning( "model " + model.getTitle() + " is already open" );
+			} else {
+				mDatasetList.addDataset( model );
+			}
+			action_Activate( model );
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, "while trying to load dataset: " );
 		}
@@ -295,6 +308,8 @@ class Panel_EditContainer extends JPanel {
 		mDefineExpression = new Panel_Define_Expression();
 		mDefineStream = new Panel_Define_Stream();
 		setLayout( new BorderLayout() );
+		Border borderEtched = BorderFactory.createEtchedBorder();
+		setBorder( BorderFactory.createTitledBorder( borderEtched, "Edit Container", TitledBorder.RIGHT, TitledBorder.TOP ) );
 		return true;
 	}
 	boolean _zSetModel( Model_Dataset model, StringBuffer sbError ){
