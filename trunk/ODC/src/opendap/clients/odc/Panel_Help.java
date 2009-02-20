@@ -44,7 +44,7 @@ public class Panel_Help extends JPanel implements IControlPanel {
 	JTextArea mjtaDisplay = new JTextArea("");
 	JList mjlistTopics = null;
 
-    boolean zInitialize(StringBuffer sbError){
+    boolean zInitialize( StringBuffer sbError ){
 
         try {
 
@@ -93,8 +93,8 @@ public class Panel_Help extends JPanel implements IControlPanel {
 
             return true;
 
-        } catch(Exception ex){
-            sbError.insert(0, "Unexpected error: " + ex);
+        } catch( Throwable t ){
+        	ApplicationController.vUnexpectedError( t, "initializing help" );
             return false;
         }
 	}
@@ -196,6 +196,7 @@ public class Panel_Help extends JPanel implements IControlPanel {
 							break;
 						default:
 							sbEntry.append(c);
+							eState = 3;
 					}
 					pos++;
 					break;
