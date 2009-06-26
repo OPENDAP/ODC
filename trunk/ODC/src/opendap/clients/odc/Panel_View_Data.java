@@ -24,6 +24,9 @@ package opendap.clients.odc;
 
 import opendap.dap.BaseType;
 
+import java.util.HashMap;
+
+import java.beans.PropertyChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -50,6 +53,8 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 	Panel_LoadedDatasets panelLoadedDatasets;
 	Panel_EditContainer panelEditContainer;
 	Panel_VarView panelVarView;
+	private JSplitPane msplitViewData;
+	private HashMap<Model_Dataset,Integer> hashmapVerticalSplit; // used to store divider location
     public Panel_View_Data() {}
 	public boolean _zInitialize( Model_LoadedDatasets data_list, StringBuffer sbError ){
 		try {
@@ -61,7 +66,7 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 				sbError.insert(0, "failed to initialize model: ");
 				return false;
 			}
-			if( ! panelLoadedDatasets.zInitialize( modelDataView, sbError ) ){
+			if( ! panelLoadedDatasets.zInitialize( this, sbError ) ){
 				sbError.insert(0, "failed to initialize loaded datasets panel: ");
 				return false;
 			}
@@ -80,12 +85,26 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 			panelTop.setLayout( new BorderLayout() );
 			panelTop.add( panelLoadedDatasets, BorderLayout.NORTH );
 			panelTop.add( panelEditContainer, BorderLayout.CENTER );
-			JSplitPane msplitViewData = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
+			msplitViewData = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
 			msplitViewData.setTopComponent( panelTop );
 			msplitViewData.setBottomComponent( panelVarView );
 			msplitViewData.setDividerLocation( 0.5d );
-			this.setLayout( new BorderLayout() );
-			this.add( msplitViewData, BorderLayout.CENTER );
+			setLayout( new BorderLayout() );
+			
+			// setup split pane
+			add( msplitViewData, BorderLayout.CENTER );
+			hashmapVerticalSplit = new HashMap<Model_Dataset,Integer>();
+			msplitViewData.addPropertyChangeListener(
+					new PropertyChangeListener(){
+						public void propertyChange( java.beans.PropertyChangeEvent e ){
+							if( e.getPropertyName().equals( JSplitPane.LAST_DIVIDER_LOCATION_PROPERTY ) ){
+								JSplitPane jsp = (JSplitPane)e.getSource();
+								int iDividerLocation = jsp.getDividerLocation();
+								Model_Dataset active_model = Panel_View_Data.this.modelDataView.modelActive;
+								if( active_model != null )
+									Panel_View_Data.this.hashmapVerticalSplit.put( active_model, new Integer(iDividerLocation) );
+							}}});
+			
 		} catch( Exception ex ) {
 			return false;
 		}
@@ -93,7 +112,33 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 	}
 	
 	public void _vActivate( Model_Dataset modelDataset ){
-		modelDataView.action_Activate( modelDataset );
+		if( modelDataset == null ){
+			ApplicationController.vShowError( "internal error, no existing dataset for data view selection" );
+			return;
+		}
+		StringBuffer sbError = new StringBuffer( 250 );
+		switch( modelDataset.getType() ){
+			case Model_Dataset.TYPE_Data:
+			case Model_Dataset.TYPE_Expression:
+				if( _zSetModel( modelDataset, sbError ) ){
+					ApplicationController.vShowStatus( "activated: " + modelDataset.getTitle() );
+				} else {
+					ApplicationController.vShowError( "error setting model for expression: " + sbError );
+					return;
+				}
+				modelDataView.modelActive = modelDataset;
+				break;
+			default:
+				ApplicationController.vShowError( "internal error, unsupported type for data view: " + modelDataset.getTypeString() );
+				return;
+		}
+		Integer integerDividerLocation = hashmapVerticalSplit.get( modelDataset );
+		if( integerDividerLocation == null ){
+			msplitViewData.setDividerLocation( 0.5d );
+		} else {
+			msplitViewData.setDividerLocation( integerDividerLocation.intValue() );
+		}
+		
 	}
 	
 	public void vSetFocus(){    	
@@ -105,7 +150,8 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 	}
 	
 	public boolean _zSetModel( Model_Dataset model, StringBuffer sbError ){
-		return panelEditContainer._zSetModel( model, sbError );
+		if( ! panelEditContainer._zSetModel( model, sbError ) ) return false;
+		return true; 
 	}
 
 }
@@ -124,25 +170,6 @@ class Model_DataView {
 		mParent = parent;
 		return true;
 	}
-	void action_Activate( Model_Dataset dataset ){
-		if( dataset == null ){
-			ApplicationController.vShowError( "internal error, no existing dataset for data view selection" );
-			return;
-		}
-		StringBuffer sbError = new StringBuffer( 250 );
-		switch( dataset.getType() ){
-			case Model_Dataset.TYPE_Data:
-			case Model_Dataset.TYPE_Expression:
-				if( ! mParent._zSetModel( dataset, sbError ) ){
-					ApplicationController.vShowError( "error showing data: " + sbError );
-					return;
-				}
-				return;
-			default:
-				ApplicationController.vShowError( "internal error, unsupported type for data view: " + dataset.getTypeString() );
-				return;
-		}
-	}
 	void action_New_Dataset(){
 		try {
 			String sServerVersion = "2.1.5";
@@ -155,7 +182,7 @@ class Model_DataView {
 			Model_Dataset model = new Model_Dataset( Model_Dataset.TYPE_Data );
 			model.setTitle( sName );
 			mDatasetList.addDataset( model );
-			action_Activate( model );
+			mParent._vActivate( model );
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, "while trying to create new dataset: " );
 		}
@@ -167,7 +194,7 @@ class Model_DataView {
 			Model_Dataset model = new Model_Dataset( Model_Dataset.TYPE_Expression );
 			model.setTitle( sName );
 			mDatasetList.addDataset( model );
-			action_Activate( model );
+			mParent._vActivate( model );
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, "while trying to create new dataset: " );
 		}
@@ -182,7 +209,7 @@ class Model_DataView {
 			} else {
 				mDatasetList.addDataset( model );
 			}
-			action_Activate( model );
+			mParent._vActivate( model );
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, "while trying to load dataset: " );
 		}
@@ -207,15 +234,19 @@ class Model_DataView {
 }
 
 class Panel_LoadedDatasets extends JPanel {
-	boolean zInitialize( final Model_DataView model, final StringBuffer sbError ){
+	Panel_View_Data mParent;
+	Model_DataView modelDataView;
+	boolean zInitialize( final Panel_View_Data parent, final StringBuffer sbError ){
 
-		if( model == null ){
-			sbError.append("no model supplied");
+		if( parent == null ){
+			sbError.append("no parent supplied");
 			return false;
 		}
+		mParent = parent;
+		modelDataView = mParent.modelDataView;
 
 		// create controls
-		JComboBox jcbLoadedVariables = new JComboBox( model.mDatasetList );
+		JComboBox jcbLoadedVariables = new JComboBox( modelDataView.mDatasetList );
 		JButton buttonNewDataset = new JButton( "New" );
 		JButton buttonNewExpression = new JButton( "New Exp" );
 		JButton buttonLoad = new JButton( "Load..." );
@@ -223,7 +254,7 @@ class Panel_LoadedDatasets extends JPanel {
 		JButton buttonSave = new JButton( "Save" );
 		JButton buttonSaveAs = new JButton( "Save as..." );
 
-		model.mDatasetList.addListDataListener( jcbLoadedVariables );
+		modelDataView.mDatasetList.addListDataListener( jcbLoadedVariables );
 
 		// layout controls
 		this.setLayout( new BoxLayout(this, BoxLayout.X_AXIS) );
@@ -238,49 +269,51 @@ class Panel_LoadedDatasets extends JPanel {
 		jcbLoadedVariables.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed( ActionEvent event) {
-					model.action_Activate( (Model_Dataset)model.mDatasetList.getSelectedItem() );
+					System.out.println("1 " + (Model_Dataset)modelDataView.mDatasetList.getSelectedItem() );
+					mParent._vActivate( (Model_Dataset)modelDataView.mDatasetList.getSelectedItem() );
+					System.out.println("2 " + (Model_Dataset)modelDataView.mDatasetList.getSelectedItem() );
 				}
 			}
 		);
 		buttonNewDataset.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed( ActionEvent event) {
-					model.action_New_Dataset();
+					modelDataView.action_New_Dataset();
 				}
 			}
 		);
 		buttonNewExpression.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed( ActionEvent event) {
-					model.action_New_Expression();
+					modelDataView.action_New_Expression();
 				}
 			}
 		);
 		buttonLoad.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed(ActionEvent event) {
-					model.action_Load();
+					modelDataView.action_Load();
 				}
 			}
 		);
 		buttonUnload.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed(ActionEvent event) {
-					model.action_Unload();
+					modelDataView.action_Unload();
 				}
 			}
 		);
 		buttonSave.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed(ActionEvent event) {
-					model.action_Save();
+					modelDataView.action_Save();
 				}
 			}
 		);
 		buttonSaveAs.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed(ActionEvent event) {
-					model.action_SaveAs();
+					modelDataView.action_SaveAs();
 				}
 			}
 		);
@@ -316,9 +349,9 @@ class Panel_EditContainer extends JPanel {
 		switch( model.getType() ){
 			case Model_Dataset.TYPE_Data:
 				if( mEditStructure._zInitialize( mDefineData, sbError ) ){
-					this.removeAll();
-					this.add( mEditStructure, BorderLayout.CENTER );
-					this.add( mDefineData, BorderLayout.EAST );
+					removeAll();
+					add( mEditStructure, BorderLayout.CENTER );
+					add( mDefineData, BorderLayout.EAST );
 				} else {
 					sbError.insert( 0, "failed to initialize data structure panel" );
 					return false;
@@ -329,9 +362,9 @@ class Panel_EditContainer extends JPanel {
 				String sName = model.getTitle() + ".txt";
 				String sContent = "";
 				if( mEditExpression._zInitialize( mDefineExpression, sDirectory, sName, sContent, sbError ) ){
-					this.removeAll();
-					this.add( mEditExpression, BorderLayout.CENTER );
-					this.add( mDefineExpression, BorderLayout.EAST );
+					removeAll();
+					add( mEditExpression, BorderLayout.CENTER );
+					add( mDefineExpression, BorderLayout.EAST );
 				} else {
 					sbError.insert( 0, "failed to initialize expression editing panel" );
 					return false;
@@ -339,9 +372,9 @@ class Panel_EditContainer extends JPanel {
 				break;
 			case Model_Dataset.TYPE_Stream:
 				if( mEditStream._zInitialize(  mDefineStream, sbError ) ){
-					this.removeAll();
-					this.add( mEditStream, BorderLayout.CENTER );
-					this.add( mDefineStream, BorderLayout.EAST );
+					removeAll();
+					add( mEditStream, BorderLayout.CENTER );
+					add( mDefineStream, BorderLayout.EAST );
 				} else {
 					sbError.insert( 0, "failed to initialize stream editing panel" );
 					return false;
@@ -509,7 +542,7 @@ class Panel_Edit_Expression extends JPanel {
 		setLayout( new BorderLayout() );
 		Border borderEtched = BorderFactory.createEtchedBorder();
 		setBorder( BorderFactory.createTitledBorder(borderEtched, "Expression Editor", TitledBorder.RIGHT, TitledBorder.TOP) );
-		this.add( mEditor, BorderLayout.CENTER );
+		add( mEditor, BorderLayout.CENTER );
 		return true;
 	}
 	Model_Dataset _getModel(){ return mModel; }
