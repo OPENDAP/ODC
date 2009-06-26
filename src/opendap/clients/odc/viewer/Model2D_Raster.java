@@ -10,9 +10,9 @@ import java.awt.RenderingHints;
 import opendap.clients.odc.ApplicationController;
 
 public class Model2D_Raster {
-	BufferedImage mbi = null;
-	int iWidth = 0;
-	int iHeight = 0;
+	private BufferedImage mbi = null;
+	private int iWidth = 0;
+	private int iHeight = 0;
 
 	public int getWidth(){ return iWidth; }
 	public int getHeight(){ return iHeight; }
@@ -47,7 +47,7 @@ public class Model2D_Raster {
 		g2.drawImage( mbi,
 				x_VP, y_VP, x_VP + w_VP, y_VP + h_VP,        // destination coordinates
 				iSubImage_x, iSubImage_y, iSubImage_x + iSubImage_width, iSubImage_y + iSubImage_height,  // source coordinates
-				null);
+				null );
 	}
 
 	void renderClip(  Graphics g, int x_VP, int y_VP, int w_VP, int h_VP, int zoom, int iSubImage_x, int iSubImage_y ){

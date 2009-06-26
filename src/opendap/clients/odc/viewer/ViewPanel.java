@@ -8,31 +8,32 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.ComponentListener;
 import java.awt.event.ComponentEvent;
-import javax.media.opengl.GL;
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLJPanel;
+//import javax.media.opengl.GL;
+//import javax.media.opengl.GLCapabilities;
+//import javax.media.opengl.GLJPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.JPanel;
 
 import opendap.clients.odc.ApplicationController;
 
-import com.sun.opengl.util.Animator;
+//import com.sun.opengl.util.Animator;
 
-public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseListener, MouseMotionListener, ComponentListener {
-	private static GLCapabilities caps;
+public class ViewPanel extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener, ComponentListener {
+//	private static GLCapabilities caps;
 	private HUD hud = null;
 	private ViewManager view_manager;
-	static {
-		caps = new GLCapabilities();
-		caps.setAlphaBits(8);
-	}
+//	static {
+//		caps = new GLCapabilities();
+//		caps.setAlphaBits(8);
+//	}
 
-	Animator animator = null;
+//	Animator animator = null;
 	Model2D_Raster raster = null;
 	Model3D_Network network = null;
 	Model3D_Featureset featureset = null;
 
 	public ViewPanel(){
-		super(caps, null, null);
+//		super(caps, null, null);
 //		this.setBorder( javax.swing.BorderFactory.createLineBorder(java.awt.Color.WHITE) );
 	}
 
@@ -40,7 +41,7 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 		try {
 			view_manager = vm;
 			this.hud = view_manager.hud;
-			animator = new Animator( this );
+//			animator = new Animator( this );
 			this.addMouseListener( this );
 			this.addComponentListener( this );
 			this.addMouseMotionListener( this );
@@ -69,21 +70,21 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 	
 	String _getGraphicsInfo(){
 		StringBuffer sb = new StringBuffer();
-		GL gl = this.getGL();
-		sb.append( "OpenGL version: " + gl.glGetString(GL.GL_VERSION) );
-		sb.append( "package: " + gl.getClass().getName() );
-		sb.append( "settings: " + this.getChosenGLCapabilities() );
-		sb.append( "vendor: " + gl.glGetString(GL.GL_VENDOR) );
-		sb.append( "renderer: " + gl.glGetString(GL.GL_RENDERER) );
+//		GL gl = this.getGL();
+//		sb.append( "OpenGL version: " + gl.glGetString(GL.GL_VERSION) );
+//		sb.append( "package: " + gl.getClass().getName() );
+//		sb.append( "settings: " + this.getChosenGLCapabilities() );
+//		sb.append( "vendor: " + gl.glGetString(GL.GL_VENDOR) );
+//		sb.append( "renderer: " + gl.glGetString(GL.GL_RENDERER) );
 		return sb.toString();
 	}
 
-	int _getRasterWidth(){ return raster == null ? 0 : raster.iWidth; } 
-	int _getRasterHeight(){ return raster == null ? 0 : raster.iHeight; } 
+	int _getRasterWidth(){ return raster == null ? 0 : raster.getWidth(); } 
+	int _getRasterHeight(){ return raster == null ? 0 : raster.getHeight(); } 
 	
 	boolean _zActivateAnimation( StringBuffer sbError ) {  // do not execute on swing thread
 		try {
-			animator.start();
+//			animator.start();
 //			animator.setRunAsFastAsPossible( true );
 			return true;
 		} catch( Exception t ) {
@@ -94,7 +95,7 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 	
 	boolean _zStopAnimation( StringBuffer sbError ) { // do not execute on swing thread
 		try {
-			animator.stop();
+//			animator.stop();
 			return true;
 		} catch( Exception t ) {
 			ApplicationController.vUnexpectedError( t, sbError );
@@ -109,17 +110,17 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 		super.paintComponent(g);
 
 		// frame rate determination
-		if( animator != null ){
-			if( animator.isAnimating() ){
-				if( startTime == 0 ) startTime = System.currentTimeMillis();
-				if( ++frameCount == 30 ){
-					long endTime = System.currentTimeMillis();
-					view_manager.iFrameRate = (int)(30000 / (endTime - startTime));
-					frameCount = 0;
-					startTime = System.currentTimeMillis();
-				}
-			}
-		}
+//		if( animator != null ){
+//			if( animator.isAnimating() ){
+//				if( startTime == 0 ) startTime = System.currentTimeMillis();
+//				if( ++frameCount == 30 ){
+//					long endTime = System.currentTimeMillis();
+//					view_manager.iFrameRate = (int)(30000 / (endTime - startTime));
+//					frameCount = 0;
+//					startTime = System.currentTimeMillis();
+//				}
+//			}
+//		}
 		if( raster != null ){
 			int iZoomLevel = view_manager.iZoomLevel;
 			int iSubImage_x = view_manager.iVP_x;
@@ -128,7 +129,7 @@ public class ViewPanel extends GLJPanel implements MouseWheelListener, MouseList
 			if( rectClip.width == getWidth() && rectClip.height == getHeight() ){ 	
 				raster.render( g, 0, 0, getWidth(), getHeight(), iZoomLevel, iSubImage_x, iSubImage_y );
 			} else {
-				raster.renderClip(g, 0, 0, getWidth(), getHeight(), iZoomLevel, iSubImage_x, iSubImage_y );
+				raster.renderClip( g, 0, 0, getWidth(), getHeight(), iZoomLevel, iSubImage_x, iSubImage_y );
 			}
 		}
 		if( network != null ){
