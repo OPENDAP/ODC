@@ -936,7 +936,29 @@ ScanForStartOfMatch:
 		String sNumber = Integer.toString(i);
 		return sFormatFixedRight( sNumber, iWidth, cPadding );
 	}
+	
+	public static String sFormatFixedDecimal( float f, int iWidth, int iDecimalPosition, char cPadding ){
+		return sFormatFixedDecimal( (double)f, iWidth, iDecimalPosition, cPadding );
+	}
 
+	/** iDecimalPosition must be > 1 and < iWidth and iWidth must be > 2 */
+	public static String sFormatFixedDecimal( double d, int iWidth, int iDecimalPosition, char cPadding ){
+		if( iDecimalPosition < 2 || iDecimalPosition > iWidth - 1 || iWidth < 3 ) return sRepeatChar( '*', iWidth );
+		StringBuffer sb = new StringBuffer( iWidth );
+		int iIntegerPlaces = iDecimalPosition - 1;
+		int iDecimalPlaces = iWidth - iDecimalPosition;
+		if( d >= Math.pow( 10, iIntegerPlaces ) ){
+			return sRepeatChar( '+', iWidth );
+		}
+		if( d <= -1 * Math.pow( 10, iIntegerPlaces ) ){
+			return sRepeatChar( '-', iWidth );
+		}
+		double dRoundedValue = Utility.round( d, iDecimalPlaces * -1 );
+		String s = Double.toString( dRoundedValue );
+		return s;
+		// TODO NOT WORKING
+	}
+	
 	/** Extracts the stack trace as a string from an exception */
 	public static String errorExtractStackTrace( Throwable theException ) {
 		try {
