@@ -22,10 +22,16 @@ public class Model3D_Network {
 	int[] ato;
 	int[] aweight;
 	String[] alabel_segment;
+
+	java.awt.Color colorNode = java.awt.Color.CYAN; 
+	java.awt.Color colorSegment = java.awt.Color.CYAN; 
+	java.awt.Color colorNodeLabel = java.awt.Color.ORANGE; 
+	java.awt.Color colorSegmentLabel = java.awt.Color.PINK; 
 	
 	boolean mzShowNodes = true;
 	boolean mzShowNodeLabels = true;
 	boolean mzShowSegments = true;
+	boolean mzShowSegmentLabels = true;
 
 	private final BasicStroke strokeRoad = new BasicStroke(
       3f 
@@ -112,8 +118,8 @@ public class Model3D_Network {
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		int iCircleWidth = 10;
 		int iCircleOffset = iCircleWidth / 2;
-		g2.setPaint( java.awt.Color.CYAN );
 		if( mzShowNodes ){
+			g2.setPaint( colorNode );
 			for( int xNode = 1; xNode <= ctNodes; xNode++ ){
 				int x = (int)((ax[xNode] - x_VP)*fScale) - iCircleOffset;
 				int y = (int)((ay[xNode] - y_VP)*fScale) - iCircleOffset;
@@ -124,6 +130,7 @@ public class Model3D_Network {
 			java.awt.Stroke strokeDefault = ((Graphics2D)g).getStroke(); 
 			((Graphics2D)g).setStroke( strokeRoad );
 			for( int xSegment = 1; xSegment <= ctSegments; xSegment++ ){
+				g2.setPaint( colorSegment );
 				int x_from = (int)((ax[afrom[xSegment]] - x_VP) * fScale);
 				int y_from = (int)((ay[afrom[xSegment]] - y_VP) * fScale);
 				int x_to   = (int)((ax[ato[xSegment]] - x_VP) * fScale);
@@ -131,10 +138,32 @@ public class Model3D_Network {
 				if( x_from >= 0 && y_from >= 0 && x_from < w_VP && y_from < h_VP ||   // todo case where line is in square but both nodes are not
 					x_to >= 0 && y_to >= 0 && x_to < w_VP && y_to < h_VP )
 						g.drawLine(x_from, y_from, x_to, y_to);
+				if( mzShowSegmentLabels ){
+					g2.setPaint( colorSegmentLabel );
+					int x_midpoint = (x_from + x_to )/2; 
+					int y_midpoint = (y_from + y_to )/2;
+					if( x_from - x_to == 0 ){ // line is vertical
+						x_midpoint += 8;
+					} else {
+						double dSlope = (double)(y_from - y_to)/(double)(x_from - x_to);
+						if( dSlope > 1 ){ // line is upright
+							x_midpoint += 6;
+							y_midpoint += 2;
+						} else if( dSlope > 0 ){
+							x_midpoint += 3;
+							y_midpoint += 14;
+						} else {
+							x_midpoint -= 3;
+							y_midpoint -= 5;
+						}
+					}	
+					g2.drawString( Integer.toString(xSegment), x_midpoint, y_midpoint);
+				}
 			}
 			((Graphics2D)g).setStroke( strokeDefault ); // restore default stroke
 		}
 		if( mzShowNodeLabels ){
+			g2.setPaint( colorSegment );
 			for( int xNode = 1; xNode <= ctNodes; xNode++ ){
 				int x = (int)((ax[xNode] - x_VP) * fScale) + iCircleWidth + 2;
 				int y = (int)((ay[xNode] - y_VP) * fScale);

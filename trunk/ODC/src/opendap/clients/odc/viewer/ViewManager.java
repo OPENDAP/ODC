@@ -13,13 +13,13 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	int iFrameRate = 0;
 	JFrame frame = null;
 	ViewPanel panelViewPort = null;
-	int ZOOM_max = 10;
+	int ZOOM_max = 12;
 	int ZOOM_min = -10;
 	int TIMESLICE_max = 0;
 	int iZoomLevel = 0;
 	int iTimeslice_begin = -1;
 	int iTimeslice_end = -1;
-	int iTimeslice_depth = 0;
+	int iTimeslice_depth = 0;  // show all timeslices = 0; otherwise shows number of timeslices
 	int iVP_x = 0;
 	int iVP_y = 0;
 	int iVP_w = 0;
@@ -105,7 +105,7 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 		String[] asCommand = Utility.splitCommaWhiteSpace( sCommand );
 		for( CommandInterface layer : listCommandObjects ){
 			String[] asLayerCommands = layer.getCommands();
-			if( Utility.arrayStartsWithMember( asLayerCommands, asCommand[0] ) ){
+			if( Utility_Array.arrayStartsWithMember( asLayerCommands, asCommand[0] ) ){
 				int[] aiArg = new int[asCommand.length - 1];
 				for( int xArg = 0; xArg < aiArg.length; xArg++ ){
 					try {
@@ -153,8 +153,8 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	}
 	
 	public final void setOrigin( int x, int y ){
-		iVPB_w = mRaster.iWidth;
-		iVPB_h = mRaster.iHeight;
+		iVPB_w = mRaster.getWidth();
+		iVPB_h = mRaster.getHeight();
 		iVP_x = x;
 		iVP_y = y;
 		iVP_w = panelViewPort.getWidth();
@@ -179,8 +179,8 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 //		else if( (iVPB_w - x + 1) * 2 < iVP_w ) x = iVPB_w - (iVP_w + 1)/2;
 //		if( (y + 1) * 2 < iVP_h ) y = (iVP_h + 1)/2;
 //		else if( (iVPB_h - y + 1) * 2 < iVP_h ) y = iVPB_h - (iVP_h + 1)/2;
-		iVPB_w = mRaster.iWidth;
-		iVPB_h = mRaster.iHeight;
+		iVPB_w = mRaster.getWidth();
+		iVPB_h = mRaster.getHeight();
 		iVPC_x = x;
 		iVPC_y = y;
 		iVP_w = panelViewPort.getWidth();
@@ -229,7 +229,7 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	}
 
 	public final void animateAdjustTimeslice( int px ){
-		if( iTimeslice_begin == -1 ) return; // in this case timeslice is not application, ie, not an animated rendering
+		if( iTimeslice_begin == -1 ) return; // in this case timeslice is not applicable, ie, not an animated rendering
 		iTimeslice_begin += px > 0 ? -1 : 1;
 		if( iTimeslice_begin < 0 ) iTimeslice_begin = 0;
 		if( iTimeslice_begin > TIMESLICE_max ) iTimeslice_begin = TIMESLICE_max;
@@ -261,6 +261,10 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 		panelViewPort.repaint();
 	}
 
+	public final int animateGetFrameCount(){
+		return iTimeslice_depth;
+	}
+	
 	public final void animateShowAllTimeslices(){
 		iTimeslice_depth = 0;
 		panelViewPort.repaint();
@@ -379,7 +383,7 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 		java.awt.image.BufferedImage biOpenGL_Logo = Resources.loadBufferedImage( "/opendap/clients/odc/images/opengl_logo.png", sbError );
 		if( biOpenGL_Logo != null ) manager.getHUD().elementAddImage( biOpenGL_Logo );
 		manager.panelViewPort._zInitialize( manager, sbError );
-		manager.panelViewPort.addGLEventListener( new Model3D_Gears() );
+//		manager.panelViewPort.addGLEventListener( new Model3D_Gears() );
 		manager.panelViewPort._zActivateAnimation( sbError );
 	}
 
