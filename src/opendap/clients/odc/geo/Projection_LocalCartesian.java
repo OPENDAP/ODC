@@ -25,7 +25,7 @@ public class Projection_LocalCartesian extends Projection {
 		}
 	}
 	
-	// output constructor
+	// output constructor (East, North, Up)
 	public Projection_LocalCartesian( double x, double y, double z ){
 		this.local_cartesian = new LocalCartesian( x, y, z );
 	}
