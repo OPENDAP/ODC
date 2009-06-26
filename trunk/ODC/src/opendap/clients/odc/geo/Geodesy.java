@@ -71,6 +71,10 @@ public class Geodesy {
 //X: 3848899.322 Y: 3691426.002 Z: 3486838.194 converts to lat: 0.582140580222199 lon: 0.7645170441702235 height: 1.939870516769588
 //X: 3848899.322 Y: 3691426.002 Z: 3486838.194 converts to lat: 0.582140580222199 lon: 0.7645170441702235 height: 0.0	
 	public boolean zInitialize( String sBaseDirectory, StringBuffer sbError ){
+		if( sBaseDirectory == null ){
+			sbError.append( "no base directory supplied" );
+			return false;
+		}
 		String sPath_GeoTrans_dir = null;
 		String sPath_GeoTrans_libs = null;
 		try {
