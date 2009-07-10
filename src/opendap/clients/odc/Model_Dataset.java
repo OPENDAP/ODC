@@ -144,13 +144,27 @@ public class Model_Dataset implements java.io.Serializable {
 		mSavable = new SavableImplementation( this.getClass(), null, null );
     }
 
-	public boolean equals(Object o){
+	public boolean equals( Object o ){
+		if( this == o ) return true;
 	    if( o == null ) return false;
 	    if( !( o instanceof Model_Dataset ) ) return false;
-		Model_Dataset urlComparison = (Model_Dataset)o;
-		if( !msURL.equalsIgnoreCase(urlComparison.msURL) ) return false;
-		if( !msCE.equalsIgnoreCase(urlComparison.msCE) ) return false;
-		return true;
+		Model_Dataset dataset = (Model_Dataset)o;
+		switch(miURLType){
+			case Model_Dataset.TYPE_Data:
+			case Model_Dataset.TYPE_Directory:
+			case Model_Dataset.TYPE_Catalog:
+			case Model_Dataset.TYPE_HTML:
+			case Model_Dataset.TYPE_Text:
+			case Model_Dataset.TYPE_Binary:
+			case Model_Dataset.TYPE_Stream:
+				if( !msURL.equalsIgnoreCase( dataset.msURL ) ) return false;
+				if( !msCE.equalsIgnoreCase( dataset.msCE ) ) return false;
+				return true;
+			case Model_Dataset.TYPE_Expression:
+				 // consider two expressions to be distinct unless they are the same object
+			default:
+				return false;
+		}
 	}
 
 	public String getInfo(){

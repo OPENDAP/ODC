@@ -1,12 +1,12 @@
 package opendap.clients.odc;
 
 import java.util.ArrayList;
-import javax.swing.ComboBoxModel;
+import javax.swing.MutableComboBoxModel;
 import javax.swing.AbstractListModel;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListDataEvent;
 
-class Model_LoadedDatasets extends AbstractListModel implements ComboBoxModel {
+public class Model_LoadedDatasets extends AbstractListModel implements MutableComboBoxModel {
 	private int miCapacity = 1000;
 	private int mctDatasets = 0;
 	private int miSelectedItem = 0;
@@ -14,20 +14,41 @@ class Model_LoadedDatasets extends AbstractListModel implements ComboBoxModel {
 	private ArrayList<ListDataListener> listListeners = new ArrayList<ListDataListener>(); 
 
 	boolean _contains( Model_Dataset model ){
-		for( int xModel = 1; xModel <= mctDatasets; xModel++ ) if( maDatasets[xModel] == model ) return true;
+		for( int xModel = 1; xModel <= mctDatasets; xModel++ ) if( maDatasets[xModel].equals( model ) ) return true;
 		return false;
 	}
 	
+	boolean _setName( String sNewName, StringBuffer sbError ){
+		return _setName( miSelectedItem, sNewName, sbError );
+	}
+	
+	boolean _setName( int xItem0, String sNewName, StringBuffer sbError ){
+		if( xItem0 < 0 || xItem0 >= mctDatasets ){
+			sbError.append( "internal error, invalid item number (" + xItem0 + ")" );
+			return false;
+		}
+		maDatasets[xItem0].setTitle( sNewName );
+		fireContentsChanged( this, xItem0, xItem0 );
+		return true;
+	}
+
 	void addDataset( Model_Dataset url ){
 		if( url == null ){
-			ApplicationController.vShowWarning("attempt to add null dataset");
+			ApplicationController.vShowError("internal error, attempt to add null dataset");
 			return;
+		}
+		for( int xDataset = 0; xDataset < mctDatasets; xDataset++ ){
+			if( url.equals( maDatasets[xDataset] ) ){
+				ApplicationController.vShowError("internal error, attempt to add duplicate dataset");
+				return;
+			}
 		}
 		if( mctDatasets == miCapacity ){
 			int iNewCapacity = 2 * miCapacity;
 			Model_Dataset[] aEnlargedDatasetBuffer = new Model_Dataset[ iNewCapacity ];
-			System.arraycopy(maDatasets, 0, aEnlargedDatasetBuffer, 0, miCapacity);
+			System.arraycopy( maDatasets, 0, aEnlargedDatasetBuffer, 0, mctDatasets );
 			maDatasets = aEnlargedDatasetBuffer;
+			miCapacity = iNewCapacity;
 		}
 		maDatasets[mctDatasets] = url;
 		mctDatasets++;
@@ -86,14 +107,39 @@ class Model_LoadedDatasets extends AbstractListModel implements ComboBoxModel {
 	public Object getSelectedItem(){
 		if( miSelectedItem >= 0 && miSelectedItem < mctDatasets ){
 			return maDatasets[miSelectedItem];
-		} else return null;
+		} else {
+			return null;
+		}
 	}
-	public void setSelectedItem( Object o ){
+
+    public int getIndexOf( Object o ){
 		for( int xList = 0; xList < mctDatasets; xList++ ){
 			if( maDatasets[xList] == o ){
-				miSelectedItem = xList;
-				return;
+				return xList;
 			}
+		}
+        return -1;
+    }
+	
+	// used to programmatically change the selection of the item in the combo box
+	public void setSelectedItem( Object o ){
+		if( o instanceof Model_Dataset ){
+			Model_Dataset modelSelected = maDatasets[miSelectedItem];
+			if( ( 	modelSelected != null && !modelSelected.equals( o ) ) ||
+					modelSelected == null && o != null ){
+				for( int xList = 0; xList < mctDatasets; xList++ ){
+					if( maDatasets[xList] == o ){
+						miSelectedItem = xList;
+						fireContentsChanged( this, -1, -1 );
+						return;
+					}
+				}
+				ApplicationController.vShowWarning( "internal error, attempt to set dataset list to unknown model" );
+				return;
+	        }
+		} else {
+			ApplicationController.vShowWarning( "internal error, attempt to set dataset list to non-dataset model" );
+			return;
 		}
 	}
 	public void addListDataListener( ListDataListener ldl){
@@ -105,5 +151,26 @@ class Model_LoadedDatasets extends AbstractListModel implements ComboBoxModel {
 	public int getSize(){ 
 		return mctDatasets;
 	}
+	
+    // javax.swing.MutableComboBoxModel interface
+    public void addElement( Object anObject ){
+    	System.out.println( "addElement" );
+    }
+
+    public void insertElementAt(Object anObject,int index) {
+    	System.out.println( "insertElementAt" );
+    }
+
+    // implements javax.swing.MutableComboBoxModel
+    public void removeElementAt(int index) {
+    	System.out.println( "removeElementAt" );
+    }
+
+    // implements javax.swing.MutableComboBoxModel
+    public void removeElement(Object anObject) {
+    	System.out.println( "removeElement" );
+    }
+	
+	
 }
 
