@@ -28,12 +28,14 @@ import java.util.HashMap;
 
 import java.beans.PropertyChangeListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
@@ -95,15 +97,15 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 			add( msplitViewData, BorderLayout.CENTER );
 			hashmapVerticalSplit = new HashMap<Model_Dataset,Integer>();
 			msplitViewData.addPropertyChangeListener(
-					new PropertyChangeListener(){
-						public void propertyChange( java.beans.PropertyChangeEvent e ){
-							if( e.getPropertyName().equals( JSplitPane.LAST_DIVIDER_LOCATION_PROPERTY ) ){
-								JSplitPane jsp = (JSplitPane)e.getSource();
-								int iDividerLocation = jsp.getDividerLocation();
-								Model_Dataset active_model = Panel_View_Data.this.modelDataView.modelActive;
-								if( active_model != null )
-									Panel_View_Data.this.hashmapVerticalSplit.put( active_model, new Integer(iDividerLocation) );
-							}}});
+				new PropertyChangeListener(){
+					public void propertyChange( java.beans.PropertyChangeEvent e ){
+						if( e.getPropertyName().equals( JSplitPane.LAST_DIVIDER_LOCATION_PROPERTY ) ){
+							JSplitPane jsp = (JSplitPane)e.getSource();
+							int iDividerLocation = jsp.getDividerLocation();
+							Model_Dataset active_model = Panel_View_Data.this.modelDataView.modelActive;
+							if( active_model != null )
+								Panel_View_Data.this.hashmapVerticalSplit.put( active_model, new Integer(iDividerLocation) );
+						}}});
 			
 		} catch( Exception ex ) {
 			return false;
@@ -181,6 +183,9 @@ class Model_DataView {
 			datadds.setName( sName );
 			Model_Dataset model = new Model_Dataset( Model_Dataset.TYPE_Data );
 			model.setTitle( sName );
+			if( mDatasetList._contains( model ) ){
+				ApplicationController.vShowError( "" );
+			}
 			mDatasetList.addDataset( model );
 			mParent._vActivate( model );
 		} catch( Throwable t ) {
@@ -266,15 +271,34 @@ class Panel_LoadedDatasets extends JPanel {
 		this.add( buttonSave );
 		this.add( buttonSaveAs );
 
-		jcbLoadedVariables.addActionListener(
-			new java.awt.event.ActionListener(){
-				public void actionPerformed( ActionEvent event) {
-					System.out.println("1 " + (Model_Dataset)modelDataView.mDatasetList.getSelectedItem() );
-					mParent._vActivate( (Model_Dataset)modelDataView.mDatasetList.getSelectedItem() );
-					System.out.println("2 " + (Model_Dataset)modelDataView.mDatasetList.getSelectedItem() );
+		jcbLoadedVariables.addItemListener(
+			new java.awt.event.ItemListener(){
+				public void itemStateChanged( ItemEvent event ){
+					if( event.getStateChange() == ItemEvent.SELECTED ){
+						Model_Dataset modelSelected = (Model_Dataset)event.getItem();
+						mParent._vActivate( modelSelected );
+					}
 				}
 			}
 		);
+		jcbLoadedVariables.setEditable( true );
+		jcbLoadedVariables.addActionListener(
+			new java.awt.event.ActionListener(){
+				public void actionPerformed( ActionEvent e ){
+					JComboBox jcb = (JComboBox)e.getSource();
+					Object oEditBox = jcb.getEditor().getEditorComponent();
+					if( oEditBox == null ) return;
+					String sText = (String)oEditBox;
+					if( sText == null || sText.length() == 0 ){
+						ApplicationController.vShowWarning( "dataset names cannot be blank" );
+						return;
+					}
+					Model_LoadedDatasets model = (Model_LoadedDatasets)jcb.getModel();
+					StringBuffer sbError = new StringBuffer();
+					if( ! model._setName( sText, sbError ) ){
+						ApplicationController.vShowError( "error setting dataset name: " + sbError );
+					}
+            }});
 		buttonNewDataset.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed( ActionEvent event) {

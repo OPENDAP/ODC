@@ -3,7 +3,7 @@ package opendap.clients.odc;
 /**
  * Title:        Application Controller
  * Description:  Top-level controller for starting and managing the application
- * Copyright:    Copyright (c) 2002-2008
+ * Copyright:    Copyright (c) 2002-2009
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
  * @version      3.04
@@ -12,7 +12,7 @@ package opendap.clients.odc;
 /////////////////////////////////////////////////////////////////////////////
 // This file is part of the OPeNDAP Data Connector project.
 //
-// Copyright (c) 2004-8 OPeNDAP, Inc.
+// Copyright (c) 2004-9 OPeNDAP, Inc.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -44,8 +44,8 @@ public class ApplicationController {
 	private static final ApplicationController thisSingleton = new ApplicationController();
 
 	private static final String msAppName = "OPeNDAP Data Connector";
-	private static final String msAppVersion = "3.04";
-	private static final String msAppReleaseDate = "13 December 2008"; // todo create ANT substitution
+	private static final String msAppVersion = "3.05";
+	private static final String msAppReleaseDate = "9 July 2009"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	public final String getAppName(){ return msAppName; }
