@@ -45,7 +45,7 @@ public class VSelector_Generic extends VariableSelector {
 	int miDataWidth;
 
     /** Creates a new instance of GenericSelector */
-    public VSelector_Generic( String sQualifiedName, DDSSelector owner, BaseType var, DAS das, javax.swing.ButtonGroup bg, Model_Retrieve rm ) {
+    public VSelector_Generic( String sQualifiedName, Panel_DDSView owner, BaseType var, DAS das, javax.swing.ButtonGroup bg, Model_Retrieve rm ) {
 
 		super( owner, sQualifiedName, bg, rm );
 
@@ -77,7 +77,7 @@ public class VSelector_Generic extends VariableSelector {
 
 			setDescription( DAP.getAttributeString( das, sName ) );
 
-			boolean zShowDescriptions = getOwner().mGenerator.zShowDescriptions();
+			boolean zShowDescriptions = getOwner().zShowDescriptions();
 			vUpdateInfo(zShowDescriptions);
 		} catch(Exception ex) {
 			ApplicationController.vUnexpectedError(ex, "While building generic interface for " + sName);

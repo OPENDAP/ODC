@@ -43,7 +43,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 	private Model_Retrieve model;
 
 	private Model_Dataset mURL = null;
-	private DDSSelector mDDSS = null;
+	private Panel_DDSView mDDSS = null;
 	private JPanel mpanelControl;
 	private JScrollPane mscrollpane_Criteria;
 	private final JCheckBox jcheckShowDescriptions = new JCheckBox(" details");
@@ -209,12 +209,12 @@ public class Panel_Retrieve_DDX extends JPanel {
 				vClear();
 				return true;
 			}
-			mDDSS = new DDSSelector(this);
+			mDDSS = new Panel_DDSView();
 			if( mDDSS == null ){
 				sbError.append("Failed to create DDS selector");
 				return false;
 			}
-			if( !mDDSS.zSetDDS( dds, das, false, sbError ) ){
+			if( !mDDSS.zSetDDS( dds, das, this.zShowDescriptions(), Panel_DDSView.eMODE.Edit, sbError ) ){
 				sbError.append("Failed to set structure for DDS selector");
 				return false;
 			}

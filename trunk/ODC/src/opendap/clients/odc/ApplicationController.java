@@ -488,14 +488,14 @@ public class ApplicationController {
 		Date dateNow = new Date();
 		ApplicationController.getInstance().listErrors.add( dateNow.toString() + " " + sErrorMessage );
 		ApplicationFrame app_frame = ApplicationController.getInstance().getAppFrame();
-		if( app_frame != null ) app_frame.vShowStatus(sErrorMessage);
-		System.out.println(sErrorMessage);
+		if( app_frame != null ) app_frame.vShowStatus( sErrorMessage );
+		System.out.println( sErrorMessage );
 		Utility.soundPlay(fileBeep);
 		if( app_frame != null ){
 			if( !zErrorPopupActive && ConfigurationManager.getInstance().getProperty_DISPLAY_ShowErrorPopups() ){
 				try {
 					zErrorPopupActive = true;
-					app_frame.vShowAlert_Error(sErrorMessage);
+					app_frame.vShowAlert_Error( sErrorMessage );
 				} finally {
 					zErrorPopupActive = false;
 				}

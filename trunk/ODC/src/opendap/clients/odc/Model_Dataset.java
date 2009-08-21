@@ -480,9 +480,24 @@ public class Model_Dataset implements java.io.Serializable {
      */
     public void setTitle(String sNewTitle) {
 		msTitle = sNewTitle;
-		mSavable._setFileName( msTitle );
     }
 
+    /**
+     * Set the directory location of the file this dataset is currently being saved to.
+     * @param urlTitle The title of the URL.
+     */
+    public void setFileName( String sNewFileName ){
+		mSavable._setFileName( sNewFileName );
+    }    
+
+    /**
+     * Set the directory location of the file this dataset is currently being saved to.
+     * @param urlTitle The title of the URL.
+     */
+    public void setFileDirectory( String sNewDirectory ){
+		mSavable._setFileDirectory( sNewDirectory );
+    }    
+    
     /**
      * Set the type of the URL.  Additionally, if no processor has been set,
      * this function will set it to the default processor for type

@@ -88,6 +88,7 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 			panelTop.add( panelLoadedDatasets, BorderLayout.NORTH );
 			panelTop.add( panelEditContainer, BorderLayout.CENTER );
 			msplitViewData = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
+			msplitViewData.setContinuousLayout( true );
 			msplitViewData.setTopComponent( panelTop );
 			msplitViewData.setBottomComponent( panelVarView );
 			msplitViewData.setDividerLocation( 0.5d );
@@ -123,7 +124,7 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 			case Model_Dataset.TYPE_Data:
 			case Model_Dataset.TYPE_Expression:
 				if( _zSetModel( modelDataset, sbError ) ){
-					ApplicationController.vShowStatus( "activated: " + modelDataset.getTitle() );
+					// ApplicationController.vShowStatus( "activated: " + modelDataset.getTitle() );
 				} else {
 					ApplicationController.vShowError( "error setting model for expression: " + sbError );
 					return;
@@ -198,6 +199,10 @@ class Model_DataView {
 			String sName = "expression" + ctNewDatasets;
 			Model_Dataset model = new Model_Dataset( Model_Dataset.TYPE_Expression );
 			model.setTitle( sName );
+			String sFileDirectory = ConfigurationManager.getInstance().getDefault_DIR_Scripts();
+			String sFileName = model.getTitle() + ".txt";
+			model.setFileDirectory( sFileDirectory );
+			model.setFileName( sFileName );
 			mDatasetList.addDataset( model );
 			mParent._vActivate( model );
 		} catch( Throwable t ) {
@@ -285,18 +290,25 @@ class Panel_LoadedDatasets extends JPanel {
 		jcbLoadedVariables.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed( ActionEvent e ){
-					JComboBox jcb = (JComboBox)e.getSource();
-					Object oEditBox = jcb.getEditor().getEditorComponent();
-					if( oEditBox == null ) return;
-					String sText = (String)oEditBox;
-					if( sText == null || sText.length() == 0 ){
-						ApplicationController.vShowWarning( "dataset names cannot be blank" );
-						return;
-					}
-					Model_LoadedDatasets model = (Model_LoadedDatasets)jcb.getModel();
-					StringBuffer sbError = new StringBuffer();
-					if( ! model._setName( sText, sbError ) ){
-						ApplicationController.vShowError( "error setting dataset name: " + sbError );
+					if( "comboBoxEdited".equals( e.getActionCommand() ) ){
+						JComboBox jcb = (JComboBox)e.getSource();
+						Object oEditBox = jcb.getEditor().getEditorComponent();
+						if( oEditBox == null ) return;
+						if( ! (oEditBox instanceof JTextField) ){
+							ApplicationController.vShowError( "internal error, combo box editor was not a JTextField" );
+							return;
+						}
+						JTextField jtfEditor = (JTextField)oEditBox;
+						String sText = jtfEditor.getText();
+						if( sText == null || sText.length() == 0 ){
+							ApplicationController.vShowWarning( "dataset names cannot be blank" );
+							return;
+						}
+						Model_LoadedDatasets model = (Model_LoadedDatasets)jcb.getModel();
+						StringBuffer sbError = new StringBuffer();
+						if( ! model._setName( sText, sbError ) ){
+							ApplicationController.vShowError( "error setting dataset name: " + sbError );
+						}
 					}
             }});
 		buttonNewDataset.addActionListener(
@@ -360,6 +372,10 @@ class Panel_EditContainer extends JPanel {
 	boolean _zInitialize( StringBuffer sbError ){
 		mEditStructure = new Panel_Edit_StructureView();
 		mEditExpression = new Panel_Edit_Expression();
+		if( ! mEditExpression._zInitialize( mDefineExpression, null, null, null, sbError ) ){
+			sbError.insert( 0, "initializing expression editor: " );
+			return false;
+		}
 		mEditStream = new Panel_Edit_Stream();
 		mDefineData = new Panel_Define_Dataset();
 		mDefineExpression = new Panel_Define_Expression();
@@ -382,10 +398,7 @@ class Panel_EditContainer extends JPanel {
 				}
 				break;
 			case Model_Dataset.TYPE_Expression:
-				String sDirectory = ConfigurationManager.getInstance().getDefault_DIR_Scripts();
-				String sName = model.getTitle() + ".txt";
-				String sContent = "";
-				if( mEditExpression._zInitialize( mDefineExpression, sDirectory, sName, sContent, sbError ) ){
+				if( mEditExpression._setModel( model, sbError ) ){
 					removeAll();
 					add( mEditExpression, BorderLayout.CENTER );
 					add( mDefineExpression, BorderLayout.EAST );
@@ -557,16 +570,24 @@ class Panel_Edit_StructureView extends JPanel {
 class Panel_Edit_Expression extends JPanel {
 	private Model_Dataset mModel;
 	private Panel_Define_Expression mParent;
-	private Panel_View_Text_Editor mEditor;;
+	private Panel_View_Text_Editor mEditor;
+	private Panel_DDSView mDDSView;
 	boolean _zInitialize( Panel_Define_Expression parent, String sDirectory, String sName, String sContent, StringBuffer sbError ){
 		mModel = null;
 		mParent = parent;
-		mEditor = new  Panel_View_Text_Editor();
-		mEditor._zInitialize( null, sDirectory, sName, sContent, sbError );
-		setLayout( new BorderLayout() );
 		Border borderEtched = BorderFactory.createEtchedBorder();
-		setBorder( BorderFactory.createTitledBorder(borderEtched, "Expression Editor", TitledBorder.RIGHT, TitledBorder.TOP) );
-		add( mEditor, BorderLayout.CENTER );
+		setBorder( BorderFactory.createTitledBorder( borderEtched, "Expression Editor", TitledBorder.RIGHT, TitledBorder.TOP ) );
+		setLayout( new BorderLayout() );
+		
+		// set up editor
+		mEditor = new Panel_View_Text_Editor();
+		mEditor._zInitialize( null, sDirectory, sName, sContent, sbError );
+		this.add( mEditor, BorderLayout.CENTER );
+		
+		// set up structure display
+		mDDSView = new Panel_DDSView();
+		this.add( mDDSView, BorderLayout.EAST );
+		
 		return true;
 	}
 	Model_Dataset _getModel(){ return mModel; }
@@ -577,6 +598,10 @@ class Panel_Edit_Expression extends JPanel {
 		}
 		mModel = model;
 		mEditor._setModel( model );
+		if( ! mDDSView.zSetExpressionDDS( model, sbError ) ){
+			sbError.insert( 0, "setting DDS view for expression model" );
+			return false;
+		}
 		return true;
 	}
 	Panel_Define_Expression _getParent(){ return mParent; }
