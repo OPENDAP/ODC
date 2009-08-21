@@ -123,8 +123,12 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 	
 	// used to programmatically change the selection of the item in the combo box
 	public void setSelectedItem( Object o ){
+		if( o == null ){
+			ApplicationController.vShowError( "internal error, attempt to set dataset list to null" );
+			return;
+		}
+		Model_Dataset modelSelected = maDatasets[miSelectedItem];
 		if( o instanceof Model_Dataset ){
-			Model_Dataset modelSelected = maDatasets[miSelectedItem];
 			if( ( 	modelSelected != null && !modelSelected.equals( o ) ) ||
 					modelSelected == null && o != null ){
 				for( int xList = 0; xList < mctDatasets; xList++ ){
@@ -134,11 +138,13 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 						return;
 					}
 				}
-				ApplicationController.vShowWarning( "internal error, attempt to set dataset list to unknown model" );
+				ApplicationController.vShowError( "internal error, attempt to set dataset list to unknown model" );
 				return;
 	        }
+		} else if( o instanceof String ){ // this will happen if there is a name change, the editor tries to set the model to the new name
+			modelSelected.setTitle( (String)o ); 
 		} else {
-			ApplicationController.vShowWarning( "internal error, attempt to set dataset list to non-dataset model" );
+			ApplicationController.vShowError( "internal error, attempt to set dataset list to unrecognized object: " + o.getClass().getName() );
 			return;
 		}
 	}

@@ -51,7 +51,7 @@ public class VSelector_DArray extends VariableSelector {
 	DArray getArray(){ return mDArray; }
 
     /** Creates a new instance of DArraySelector */
-    public VSelector_DArray( String sQualifiedName, DDSSelector owner, DArray darray, DAS das, javax.swing.ButtonGroup bg, Model_Retrieve mr ) {
+    public VSelector_DArray( String sQualifiedName, Panel_DDSView owner, DArray darray, DAS das, javax.swing.ButtonGroup bg, Model_Retrieve mr ) {
 
 		super( owner, sQualifiedName, bg, mr );
 
@@ -86,7 +86,7 @@ public class VSelector_DArray extends VariableSelector {
 			for( int xDimension = 1; xDimension <= ctDimensions; xDimension++ ){
 				Continuation_DoCancel con = new Continuation_DoCancel(){
 					public void Do(){
-						boolean zShowDescriptions = getOwner().mGenerator.zShowDescriptions();
+						boolean zShowDescriptions = getOwner().zShowDescriptions();
 						vUpdateInfo(zShowDescriptions); // so size of array is correct
 				    }
 					public void Cancel(){
@@ -127,7 +127,7 @@ public class VSelector_DArray extends VariableSelector {
 
 			setDescription( DAP.getAttributeString( das, sArrayName ) );
 
-			boolean zShowDescriptions = getOwner().mGenerator.zShowDescriptions();
+			boolean zShowDescriptions = getOwner().zShowDescriptions();
 			vUpdateInfo(zShowDescriptions);
 		} catch(Exception ex) {
 			ApplicationController.vUnexpectedError(ex, "While building array interface");

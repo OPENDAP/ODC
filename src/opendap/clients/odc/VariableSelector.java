@@ -37,7 +37,7 @@ import javax.swing.*;
  * This is the base class for the classes used by CEGenerator to make
  * a form to allow the user to constrain the data.
  *
- * @author Rich Honhart <rhonhart@virginia.edu>, John Chamberlain <info@johnchamberlain.com>
+ * @author Rich Honhart <rhonhart@virginia.edu>, John Chamberlain
  */
 public abstract class VariableSelector extends JPanel {
 
@@ -53,14 +53,14 @@ public abstract class VariableSelector extends JPanel {
 	private JLabel mlabelTitle;
 	private JTextArea mjtaDescripton;
 	
-	protected DDSSelector mOwner;
+	protected Panel_DDSView mOwner;
 	protected String msQualifiedName;
 	protected Model_Retrieve mRetrieveModel = null;
 
     /** Creates a new instance of VariableSelector 
      *  if button_group is non-null then a radio button will be added and added to the group
      *  */
-	public VariableSelector( DDSSelector owner, String sQualifiedName, javax.swing.ButtonGroup button_group, Model_Retrieve modelRetrieve ) {
+	public VariableSelector( Panel_DDSView owner, String sQualifiedName, javax.swing.ButtonGroup button_group, Model_Retrieve modelRetrieve ) {
 
 		mOwner = owner;
 		msQualifiedName = sQualifiedName;
@@ -139,7 +139,7 @@ public abstract class VariableSelector extends JPanel {
 		mpanelDescription.setVisible( zShow );
 	}
 
-	DDSSelector getOwner(){ return mOwner; }
+	Panel_DDSView getOwner(){ return mOwner; }
 
     /**
      * Update the components on the screen to match a given constraint
@@ -238,8 +238,8 @@ public abstract class VariableSelector extends JPanel {
 		}
 		mzSettingSelected = true;
         mzSelected = z;
-		boolean zShowDescriptions = getOwner().mGenerator.zShowDescriptions();
-		vUpdateInfo(zShowDescriptions);
+		boolean zShowDescriptions = getOwner().zShowDescriptions();
+		vUpdateInfo( zShowDescriptions );
 		mpanelDetail.setVisible( z );
 
 		// Whenever a selection is changed the subset is updated

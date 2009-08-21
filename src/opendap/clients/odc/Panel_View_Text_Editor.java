@@ -42,7 +42,7 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 
 	public Panel_View_Text_Editor(){}
 
-	private JScrollPane jspDisplay = new JScrollPane();
+	private JScrollPane jspDisplay;
 	private final JTextArea jtaDisplay = new JTextArea("");
 
 	boolean _zInitialize( Panel_View_Text parent, String sDirectory, String sName, String sContent, StringBuffer sbError ){
@@ -54,8 +54,14 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 			javax.swing.border.Border borderStandard = BorderFactory.createEtchedBorder();
 			this.setBorder(borderStandard);
 
-			this.setLayout(new java.awt.BorderLayout());
+			this.setLayout( new java.awt.BorderLayout() );
 
+			// Initialize the scrollpane
+			// It is important to set the minimum size of the scroll pane because otherwise the 
+			// minimum size will be set automatically its content
+			jspDisplay = new JScrollPane();
+			jspDisplay.setMinimumSize( new java.awt.Dimension( 20, 20 ) );
+			
 			// Create and intialize the text area
 			Styles.vApply(Styles.STYLE_Terminal, jtaDisplay);
 			jtaDisplay.setColumns( ConfigurationManager.getInstance().getProperty_Editing_ColumnCount() );
@@ -138,6 +144,7 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 		model = m;
 		if( model != null ){
 			jtaDisplay.setText( model.getExpression_Text() );
+			savableString = m.getSavable();
 		}
 	}
 	

@@ -57,7 +57,7 @@ public class VSelector_DGrid extends VariableSelector {
 	// private static java.util.regex.Pattern mPattern_Array_WithStride = null;
 
     /** Creates a new instance of GridSelector */
-    public VSelector_DGrid( String sQualifiedName, DDSSelector owner, DGrid grid, DAS das, javax.swing.ButtonGroup bg, Model_Retrieve mr ){
+    public VSelector_DGrid( String sQualifiedName, Panel_DDSView owner, DGrid grid, DAS das, javax.swing.ButtonGroup bg, Model_Retrieve mr ){
 		super( owner, sQualifiedName, bg, mr );
         try {
 //			mPattern_Array_NoStride = Pattern.compile(msPattern_Array_NoStride);
@@ -108,7 +108,7 @@ public class VSelector_DGrid extends VariableSelector {
 			for( int xDimension = 1; xDimension <= ctDimensions; xDimension++ ){
 				Continuation_DoCancel con = new Continuation_DoCancel(){
 					public void Do(){
-						boolean zShowDescriptions = getOwner().mGenerator.zShowDescriptions();
+						boolean zShowDescriptions = getOwner().zShowDescriptions();
 						vUpdateInfo(zShowDescriptions); // so size of array is correct
 				    }
 					public void Cancel(){
@@ -148,7 +148,7 @@ public class VSelector_DGrid extends VariableSelector {
 	    		default: miDataWidth = 8; break;
 			}
 			setDescription( DAP.getAttributeString( das, sQualifiedName ) );
-			boolean zShowDescriptions = getOwner().mGenerator.zShowDescriptions();
+			boolean zShowDescriptions = getOwner().zShowDescriptions();
 			vUpdateInfo(zShowDescriptions);
 		} catch(Exception ex) {
 			ApplicationController.vUnexpectedError(ex, "While building grid interface");
