@@ -32,6 +32,7 @@ package opendap.clients.odc;
 /////////////////////////////////////////////////////////////////////////////
 
 import opendap.dap.*;
+import java.io.*;
 import java.util.Enumeration;
 
 public class DAP {
@@ -60,6 +61,32 @@ public class DAP {
 	public final static int INVERSION_ZXY = 5;
 	public final static int INVERSION_ZYX = 6;
 
+	public static int getDataSize( int eTYPE ){
+		switch( eTYPE ){
+			case DATA_TYPE_Byte: return 1;
+			case DATA_TYPE_Int16: return 2;
+			case DATA_TYPE_Int32: return 4;
+			case DATA_TYPE_UInt16: return 2;
+			case DATA_TYPE_UInt32: return 4;
+			case DATA_TYPE_Float32: return 4;
+			case DATA_TYPE_Float64: return 8;
+			case DATA_TYPE_String: return 16;
+			default: return 0;
+		}
+	}
+	
+	public final static DDS getDDSforText( String sTextDDS, StringBuffer sbError ){
+		try {
+			opendap.dap.DDS dds = new opendap.dap.DDS();
+			ByteArrayInputStream isTextDDS = new ByteArrayInputStream( sTextDDS.getBytes() ); 
+			dds.parse( isTextDDS );
+			return dds;
+		} catch( Throwable t ) {
+			sbError.insert( 0, "unexpected error " + t );
+			return null;
+		}
+	}
+	
 	public static int getDArrayType( DArray darray ){
 		if( darray == null ) return 0;
 		PrimitiveVector pvector = darray.getPrimitiveVector();
@@ -109,6 +136,7 @@ public class DAP {
 		if( sDataType.equals("uint32") ) return DAP.DATA_TYPE_UInt32;
 		if( sDataType.equals("float") ) return DAP.DATA_TYPE_Float32;
 		if( sDataType.equals("double") ) return DAP.DATA_TYPE_Float64;
+		if( sDataType.equals("string") ) return DAP.DATA_TYPE_String;
 		return 0;
 	}
 
@@ -947,7 +975,7 @@ public class DAP {
 
 	public static void dumpAttributeTable( AttributeTable at, int iIndentLevel, StringBuffer sb ){
 		if( at == null ){
-			sb.append(Utility.sRepeatChar('\t', iIndentLevel)).append("[null]\n");
+			sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("[null]\n");
 			return;
 		}
 		java.util.Enumeration enumAttributeNames = at.getNames();;
@@ -956,7 +984,7 @@ public class DAP {
 			Attribute attribute = at.getAttribute(sAttributeName);
 			if (attribute != null) {
 				if (attribute.isContainer()) {
-					sb.append(Utility.sRepeatChar('\t', iIndentLevel));
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel));
 					sb.append("table: " + sAttributeName);
 					try {
 						AttributeTable atSubTable = attribute.getContainer();
@@ -966,7 +994,7 @@ public class DAP {
 						sb.append(": error: " + ex + "\n");
 					}
 				} else {
-					sb.append(Utility.sRepeatChar('\t', iIndentLevel));
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel));
 					sb.append(sAttributeName + " values: ");
 					try {
 						java.util.Enumeration enumAttributeValues = attribute.getValues();

@@ -93,7 +93,7 @@ public class Utility_Array {
 		return sb.toString();
 	}
 	public static String dumpArray( int[] ai, int from, int to, int indent ){
-		String sIndent = Utility.sRepeatChar( '\t', indent );
+		String sIndent = Utility_String.sRepeatChar( '\t', indent );
 		if( ai == null ) return sIndent + "[null]";
 		if( to == 0 ) to = ai.length - 1;
 		StringBuffer sb = new StringBuffer(80);
@@ -112,7 +112,7 @@ public class Utility_Array {
 		return sb.toString();
 	}
 	public static String dumpArray( float[] af, int from, int to, int indent ){
-		String sIndent = Utility.sRepeatChar( '\t', indent );
+		String sIndent = Utility_String.sRepeatChar( '\t', indent );
 		if( af == null ) return sIndent + "[null]";
 		if( to == 0 ) to = af.length - 1;
 		StringBuffer sb = new StringBuffer(80);
@@ -134,7 +134,7 @@ public class Utility_Array {
 		return sb.toString();
 	}
 	public static String dumpArray( double[] ad, int from, int to, int indent ){
-		String sIndent = Utility.sRepeatChar( '\t', indent );
+		String sIndent = Utility_String.sRepeatChar( '\t', indent );
 		if( ad == null ) return sIndent + "[null]";
 		if( to == 0 ) to = ad.length - 1;
 		StringBuffer sb = new StringBuffer(80);
