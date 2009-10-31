@@ -770,6 +770,175 @@ As an example of accessing the ODC directly suppose you wanted to get the system
    >>> import opendap.clients.odc.ApplicationController
    >>> print opendap.clients.odc.ApplicationController.getInstance().sMemoryStatus()
 
+#Data Viewer
+
+The data viewer allows you to view, edit, save and load data sets in various formats. You can display plots of the data interactively as you edit it. You can also view the data in table like format which itself can be copy and pasted (ctrl-c and ctrl-v) into Excel or other spreadsheets. The spreadsheet display, called the "tabular viewer," can be saved as a comma-separated value (CSV) file which many programs such as Excel and databases such as Microsoft Access can import. When you display a variable in tabular form you can optionally include dimensional data vectors as the first row or column of the data. Note that you can only display one variable at a time and if the data has more than two dimensions you can only display a two-dimensional slice. The configuration options for the tabular viewer are located in the header of the table. This header can be hidden. The structure view panel for your data contains the controls to show or hide the viewing header as well as the type of view you want to see.
+
+If you choose the plot view you will see a plot of the data instead of a tabular view. The plot view controls are on the plotter tab. You can save plotter configurations. If the plotter configuration which is open when the data is generated does not match the data then a default configuration will be automatically determined by the ODC.
+
+#Data Viewer - Expressions
+
+Data Viewer expressions allow you to generate data using mathematical expressions and functions in the Python language. This can be useful in wide variety of ways. For example, using the expression generator you can calculate a linear regression of a data set and then, using the layer capability of the plotter, overlay the regression line on a plot of the data. Expressions can be used for more mundane uses. For example, you might want to add a dimensional index numbers to a dataset that lacks them. You can also use expressions to modify existing data sets. For example, you can use the geodesic functions that are built into the ODC to perform transformations such as orthorectification on satellite data sets.
+
+Expressions are stored as text files which are intended for use by the ODC's Python engine. The file is pre-processed, however, so it's format is more restricted than a normal Python script file. At a minimum the file must define at least one output. This is done using dollar-sign identifiers. For example, the expression
+
+	value = 5
+	
+would create a 1-dimensional vector in which every single value is 5. Note that no type is defined and no dimensional ranges are defined. The default type is double and the default dimensional range is 1-100 with a step of 1, so in this case the end result would be a 100-member array in which each member is the double 5.00000d. The identifier "$value" is repetitively evaluated by the ODC using the Python engine. Whatever value that identifier has will be used as the variable value. Suppose we wanted a vector with the integer numbers 1 to 50 in it:
+
+	type = "int32"
+	size = 50
+	value = 1 + $1
+
+The order of the parameters does not matter. The term $1 is a macro substitution referring to the current value of the index in the first dimension which begins at 0. You can use up to 4 dimensions. You can also create recursive functions. For example, if we wanted a vector with the first 20 values of the fibonacci sequence the expression would be:
+
+	size = 20
+	value = if( $1 == 0 ) then 0, else if( $1 == 1 ) then 1, else value[$1 - 1] + value[$1 - 2]
+	
+From the above you can see that you can have the array refer to members of itself using the syntax value[x] where x is index number desired. Note that if the array member has not been defined yet its value will be null. So, for example, the expressions like value[$1 + 1] will always be null. You cannot use array references as L-values. In other words, you can read from the array but you cannot write into it. For example, a line beginning value[1] = ... would be ignored by the preprocessor as invalid.
+
+Value calculations can easily become unwieldy so you may wonder if it is possible to use intermediate values to calculate parts of the value separately and thereby break the calculation into several easier-to-understand sub-calculations. Yes, you can define and use other variables as you wish in your expression file. Just be aware that there is a specific order of evaluation for the different expressions. See the help topic "Data Viewer - Intermediate Values" for more information.
+
+To refer to existing data sets in an expression first make sure they are loaded. If you look at the drop down list box at the top of the data viewer it has in it all of the loaded data sets. To refer to the data use the same syntax you would use for a constraint. For example:
+
+	size = MyData.Variable1.length
+	value = MyData.Variable1[$1] + 1
+	
+This expression would create a new one-dimensional array in which each value was one greater than the corresponding value in the Variable1 array.
+
+See "Data Viewer - Parameter Reference" for a listing of all the possible parameters in an expression set.
+
+#Data Viewer - Parameter Reference
+
+The complete set of predefined parameters and their default values is as follows:
+
+	value = null
+	type = "Float64"  (not case-sensitive)
+	allow_errors = false
+	size_1 = 100
+	size_2 = 0
+	size_3 = 0
+	size_4 = 0
+	index_1 = null (use these variables for single-dimension indices)
+	index_2 = null
+	index_3 = null
+	index_4 = null
+	name_1 = null
+	name_2 = null
+	name_3 = null
+	name_4 = null
+	index_1_dimensions = 1
+	index_2_dimensions = 0
+	index_3_dimensions = 0
+	index_4_dimensions = 0
+	index_1_type = "Float64"
+	index_2_type = "Float64"
+	index_3_type = "Float64"
+	index_4_type = "Float64"
+	index_1_1 = null;  (use these for multi-dimensional indices)
+	index_1_2 = null;
+	index_1_3 = null;
+	index_1_4 = null;
+	index_2_1 = null;
+	index_2_2 = null;
+	index_2_3 = null;
+	index_2_4 = null;
+	index_3_1 = null;
+	index_3_2 = null;
+	index_3_3 = null;
+	index_3_4 = null;
+	index_4_1 = null;
+	index_4_2 = null;
+	index_4_3 = null;
+	index_4_4 = null;
+	
+	$1, $2, $3 and $4 macro substitutions for index values as expression set is evaluated
+
+Python is an untyped language. The ODC takes whatever value Python generates and attempts to convert it to an OPeNDAP/IEEE type. If the conversion fails you will either get an error or a passive warning depending on the value of the $allow_errors variable. The supported type descriptors (not case-sensitive) are:
+
+	Byte
+	Int16
+	UInt16
+	Int32
+	UInt32
+	Float32
+	Float64
+	String
+
+The index variables are L-values you can use to create grids. Normally dimension 1 is x, dimension 2 is y, dimension 3 is z and dimension 4 is time, but in some applications the dimensions could have other meanings. See the help section "Data Viewer - Grid Expressions" for more information on creating grids and the use of these variables.
+
+#Data Viewer - Intermediate Values
+
+If your expression formulas are complicated you may want to break them into easier-to-understand sub-calculations using intermediate values or variables. The key thing when doing this is to understand the order of evaluation of the different statements you place in your expression file which is as follows:
+
+(1) All unrecognized variables beginning with "__" are evaluated.
+
+(2) The configuration values (allow_errors, type, name, and index_dimensions) are evaluated first in that order.
+
+(3) The size variables are evaluated to determine the dimensions of the value array.
+
+(4) The internal index values are incremented.
+
+(5) All unrecognized variables beginning with "_" are evaluated after macro substitution.
+
+(6) The index variables are evaluated
+
+(7) All unrecognized variables not beginning with "_" are evaluated after macro substitution.
+
+(8) The value variable is evaluated.
+
+(9) The process loops to step (3) and continues until the value matrix is full.
+
+Steps (5) and (7) are your chance to define intermediate values that are used to calculate (6) and (8). You can also designate variables to be evaluated once at the beginning of the variable creation by prefixing them with "$$".
+	
+#Data Viewer - Grid Expressions
+
+The help section "Data Viewer - Expressions" describes how to create simple vectors and matrices using expressions. You can also use expressions to create grids. Grids are vectors or matrices with quantified indices. For example, if you have a satellite image you may like to know what the coordinates of each pixel in the image are. This is what the grid indices tell you. To create a grid with the constant value of 5 with the indices going from 180 to 210 in the "x" direction (longitude) and 40 to 60 in "y" direction (latitude) you would write:
+
+	type = "Int32"
+	size_1 = 31
+	size_2 = 21
+	index_1 = 180 + $1
+	index_2 = 40 + $2
+	value = 5
+	
+The presence of the "index_n" variables tells the ODC you want to make a grid instead of a plain array. The order of the parameters does not matter. Note that the sizes in this example need to be 31 and 21 because a range of 180 to 210 has 31 elements in it and a range of 40 to 60 has 21 elements in it. Index 1 is in the "x" direction because the Python, C and Java all use row-major order which is value[x][y][z]. This differs from MATLAB which uses column-major order ([z][y][x]).
+
+The $index_dimensions variable is used to create multi-dimensional grid indices. This is useful when the coordinates of an array vary continuously. One application is to do map projections. Another use is storing satellite datasets and other raw earth imagery. Multi-dimensional indices vary continously over each cell in the value matrix. For example, if you are creating a matrix with a multi-dimensional index then the grid will have three or four arrays. If your coordinate matrices need only 2 dimensions (e.g., latitude and longitude) then there will three arrays: the value array, the index_1 array (longitude), and the index_2 array (latitude). If your coordinate matrices need 3 dimensions (e.g., ECEF coordinates have x, y and z) then there will four arrays: the value array, the index_1 array (x), the index_2 array (y) and the index_3 array (z). In the last example, the index arrays will tell the exact ECEF coordinates of each pixel in the image.
+
+Example: Creating an ECEF Grid
+
+To create an earth-centered, earth-fixed (ECEF) grid we could use the following expression set:
+
+	type = "Int32"
+	value = 5
+	size_1 = 651
+	index_1_type = "Float64"
+	index_1_dimensions = 3
+	index_1_1 = radius_of_curvature * math.cos( latitude_radians ) * math.cos( longitude_radians )
+	index_1_2 = radius_of_curvature * math.cos( latitude_radians ) * math.sin( longitude_radians )
+	index_1_3 = radius_of_curvature * ( 1 - __eccentricity_squared ) * math.sin( latitude_radians )
+	__earth_equatorial_radius = 6378.1370
+	__earth_polar_radius = 6356.7523
+	__earth_oblateness = (( __earth_equatorial_radius - __earth_polar_radius ) / __earth_equatorial_radius )
+	__eccentricity_squared = 2 * __earth_oblateness - math.pow( __earth_oblateness, 2 )
+	_longitude = 180 + $1
+	_latitude = 40 + $2
+	_longitude_radians = longitude * math.pi / 180
+	_latitude_radians = longitude * math.pi / 180
+	_radius_of_curvature = __earth_equatorial_radius / math.sqrt( 1 - __eccentricity_squared * math.pow( math.sin( latitude_radians ) ) )
+
+This will create the grid as the previous example except that the index will be a three arrays containing the ECF coordinates of the values instead of two vectors containing the latitude and longitude coordinates. Note that the "__" variables are evaluated only once at the beginning of the run and the "_" variables are evaluated before the index values (index_1, index_2, index_3) are evaluated.
+
+	
+
+
+
+
+
+
+
+
 
 
 
