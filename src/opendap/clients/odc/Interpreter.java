@@ -616,11 +616,11 @@ public class Interpreter {
 		}
 
 		// create the model
-		Model_Dataset model = Model_Dataset.createData( datadds, sbError );
-		if( model == null ){
-			sbError.insert( 0, "error creating model for Data DDS: " );
-			return null;
-		}
+		// Model_Dataset model = Model_Dataset.createData( datadds, sbError );
+		// if( model == null ){
+//			sbError.insert( 0, "error creating model for Data DDS: " );
+//			return null;
+//		}
 		
 		
 	
