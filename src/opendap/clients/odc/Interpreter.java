@@ -118,8 +118,7 @@ public class Interpreter {
 			os.write( "\n".getBytes() );
 			os.flush();
 		} catch( Throwable t ) {
-//			Utility.vUnexpectedError( t, "XXX" );
-			ApplicationController.vShowError("Failed to write interpreter line: " + t);
+			ApplicationController.vUnexpectedError( t, "Failed to write interpreter line: " );
 		}
 	}
 	
@@ -140,7 +139,9 @@ public class Interpreter {
 		ArrayList<String> listPreIndexVariables = new ArrayList<String>();
 		ArrayList<String> listPreValueVariables = new ArrayList<String>();
 		String sLine_allow_errors = null;
+		String sLine_trace = null;
 		String sRValue_allow_errors = null;
+		String sRValue_trace = null;
 		String sRValue_value = null;
 		String sRValue_type = null;
 		String sRValue_size_1 = null;
@@ -155,7 +156,10 @@ public class Interpreter {
 		String sRValue_name_2 = null;
 		String sRValue_name_3 = null;
 		String sRValue_name_4 = null;
-		String sRValue_index_dimensions = null;
+		String sRValue_index_1_dimensions = null;
+		String sRValue_index_2_dimensions = null;
+		String sRValue_index_3_dimensions = null;
+		String sRValue_index_4_dimensions = null;
 
 		Object DEFAULT_value = null;
 		String DEFAULT_type = "Float64";
@@ -173,6 +177,7 @@ public class Interpreter {
 		String DEFAULT_name_4 = null;
 		int DEFAULT_index_dimensions = 1;
 		boolean DEFAULT_allow_errors = false;
+		boolean DEFAULT_trace = false;
 
 		Object value = DEFAULT_value;
 		int type = DAP.DATA_TYPE_Float64;
@@ -184,12 +189,24 @@ public class Interpreter {
 		Object index_2 = null;
 		Object index_3 = null;
 		Object index_4 = null;
-		String name_1 = null;
-		String name_2 = null;
-		String name_3 = null;
-		String name_4 = null;
-		int index_dimensions = 1;
-		boolean allow_errors = false;
+		String name_1 = "dimension_1";
+		String name_2 = "dimension_2";
+		String name_3 = "dimension_3";
+		String name_4 = "dimension_4";
+		int index_1_dimensions = 1;
+		int index_2_dimensions = 1;
+		int index_3_dimensions = 1;
+		int index_4_dimensions = 1;
+		boolean allow_errors = DEFAULT_allow_errors;
+		boolean trace = DEFAULT_trace;
+		int trace_1_begin = 0;
+		int trace_1_end = 0;
+		int trace_2_begin = 0;
+		int trace_2_end = 0;
+		int trace_3_begin = 0;
+		int trace_3_end = 0;
+		int trace_4_begin = 0;
+		int trace_4_end = 0;
 		
 		// process lines in the expression set
 		for( int xLine = 1; xLine <= listLines.size(); xLine++ ){
@@ -198,7 +215,14 @@ public class Interpreter {
 			sLine = sLine.trim();
 			if( sLine.charAt( 0 ) == '#' ) continue; // comment
 			int posEquals = sLine.indexOf( '=' );
-			if( posEquals == -1 ) continue; // no equals sign
+			if( posEquals == -1 ){  // no equals sign
+				if( sLine.startsWith( "trace" ) ){
+					trace = true;
+					sLine_trace = sLine;
+					sRValue_trace = sLine.substring( "trace".length() ).trim();
+				}
+				continue;
+			}
 			String sLValue = sLine.substring( 0, posEquals ).trim();
 			String sRValue = sLine.substring( posEquals + 1 ).trim();
 			if( ! zIsValidPythonIdentifier( sLValue, sbError ) ){
@@ -247,175 +271,243 @@ public class Interpreter {
 				sRValue_name_3 = sRValue;
 			} else if( sLValue.equals( "name_4" ) ){
 				sRValue_name_4 = sRValue;
-			} else if( sLValue.equals( "index_dimensions" ) ){
-				sRValue_index_dimensions = sRValue;
+			} else if( sLValue.equals( "index_1_dimensions" ) ){
+				sRValue_index_1_dimensions = sRValue;
+			} else if( sLValue.equals( "index_2_dimensions" ) ){
+				sRValue_index_1_dimensions = sRValue;
+			} else if( sLValue.equals( "index_3_dimensions" ) ){
+				sRValue_index_1_dimensions = sRValue;
+			} else if( sLValue.equals( "index_4_dimensions" ) ){
+				sRValue_index_1_dimensions = sRValue;
 			} else {
 				listPreValueVariables.add( sLine );
 			}
 		}
 		
-		// (1) All unrecognized variables beginning with "__" (globals) are evaluated.
-		for( int xGlobal = 1; xGlobal <= listGlobals.size(); xGlobal++ ){
-			String sGlobal = listGlobals.get( xGlobal - 1 );
-			try {
-				mInterpreter.eval( sGlobal );
-			} catch( org.python.core.PySyntaxError parse_error ) {
-				sbError.append( "syntax error evaluating global (" + sGlobal + ": " + parse_error );
-				return null;
-			} catch( org.python.core.PyException python_error ) {
-				sbError.append( "python error evaluating global (" + sGlobal + "): " + python_error );
-			} catch( Throwable t ) {
-				sbError.append( "while evaluating global " + sGlobal );
-				ApplicationController.vUnexpectedError( t, sbError );
-				return null;
-			}
-		}
+		// determine whether to trace
+		final java.io.OutputStream streamTrace = ApplicationController.getInstance().getTextViewerOS();
 		
-
-		// (2) The configuration values (allow_errors, type, name, and index_dimensions) are evaluated first in that order.
-
-		// determine whether to allow errors
-		if( sLine_allow_errors == null ){
-			// do nothing, use default value
-		} else if( sRValue_allow_errors.equalsIgnoreCase( "true" ) ){
-			allow_errors = true;
-		} else if( sRValue_allow_errors.equalsIgnoreCase( "false" ) ){
-			allow_errors = false;
+		if( sLine_trace == null && !trace ){
+			// do not trace
 		} else {
-			try {
-				mInterpreter.eval( sLine_allow_errors );
-				PyObject po_allow_errors = mInterpreter.get( "allow_errors" );
-				allow_errors = Py.py2boolean( po_allow_errors );
-			} catch( org.python.core.PySyntaxError parse_error ) {
-				sbError.append( "syntax error processing allow_errors setting: " + parse_error );
-				return null;
-			} catch( org.python.core.PyException python_error ) {
-				sbError.append( "python error processing allow_errors setting: " + python_error );
-				return null;
-			} catch( Throwable t ) {
-				sbError.append( "while processing allow_errors setting" );
-				ApplicationController.vUnexpectedError( t, sbError );
-				return null;
-			}
+			trace = true;
 		}
 		
+		// determine whether to allow errors
+		try {
+			if( sLine_allow_errors == null ){
+				// do nothing, use default value
+			} else if( sRValue_allow_errors.equalsIgnoreCase( "true" ) ){
+				allow_errors = true;
+				if( trace )	streamTrace.write( "allow_errors set to true".getBytes() );
+			} else if( sRValue_allow_errors.equalsIgnoreCase( "false" ) ){
+				allow_errors = false;
+				if( trace )	streamTrace.write( "allow_errors set to false".getBytes() );
+			} else {
+				try {
+					mInterpreter.eval( sLine_allow_errors );
+					PyObject po_allow_errors = mInterpreter.get( "allow_errors" );
+					allow_errors = Py.py2boolean( po_allow_errors );
+					if( trace )	streamTrace.write( ("allow_errors ( " + sLine_allow_errors + " ) evaluated to " + allow_errors).getBytes() );
+				} catch( org.python.core.PySyntaxError parse_error ) {
+					sbError.append( "syntax error processing allow_errors setting: " + parse_error );
+					return null;
+				} catch( org.python.core.PyException python_error ) {
+					String sMessage = "python error processing allow_errors setting: " + python_error;
+					if( trace )	streamTrace.write( sMessage.getBytes() );
+					sbError.append( sMessage );
+					return null;
+				} catch( Throwable t ) {
+					String sMessage = "unexpected error while evaluating allow_errors parameter (" + sLine_allow_errors + "): " + Utility.errorExtractLine( t );
+					if( trace ){
+						streamTrace.write( sMessage.getBytes() );
+					}
+					sbError.append( sMessage );
+					ApplicationController.vUnexpectedError( t, sbError );
+					return null;
+				}
+			}
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while determining whether to allow errors" );
+			return null;
+		}
+		
+		// (1) All unrecognized variables beginning with "__" (globals) are evaluated.
+		try {
+			for( int xGlobal = 1; xGlobal <= listGlobals.size(); xGlobal++ ){
+				String sGlobal = listGlobals.get( xGlobal - 1 );
+				try {
+					mInterpreter.eval( sGlobal );
+					if( trace ){
+						String sGlobalLValue = Utility_String.getLValue( sGlobal );
+						if( sGlobalLValue == null ){
+							String sMessage = "global " + sGlobal + " evaluated";
+							streamTrace.write( sMessage.getBytes() );
+						} else {
+							PyObject po_global = mInterpreter.get( sGlobalLValue );
+							String sMessage = "global " + sGlobal + " evaluated to: " + po_global.toString();
+							streamTrace.write( sMessage.getBytes() );
+						}
+					}
+				} catch( org.python.core.PySyntaxError parse_error ) {
+					String sMessage = "syntax error evaluating global ( " + sGlobal + " ): " + parse_error;
+					if( trace ){
+						streamTrace.write( sMessage.getBytes() );
+					}
+					sbError.append( sMessage );
+					if( !allow_errors ) return null;
+				} catch( org.python.core.PyException python_error ) {
+					String sMessage = "python error evaluating global (" + sGlobal + "): " + python_error;
+					if( trace ){
+						streamTrace.write( sMessage.getBytes() );
+					}
+					if( !allow_errors ){
+						sbError.append( sMessage );
+						return null;
+					}
+				} catch( Throwable t ) {
+					String sMessage = "unexpected error while evaluating global (" + sGlobal + "): " + Utility.errorExtractLine( t );
+					if( trace ){
+						streamTrace.write( sMessage.getBytes() );
+					}
+					if( !allow_errors ){
+						sbError.append( sMessage );
+						ApplicationController.vUnexpectedError( t, sbError );
+						return null;
+					}
+				}
+			}
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while evaluating globals" );
+			return null;
+		}
+		
+		// (2) The configuration values (type, name, and index_dimensions) are evaluated first in that order.
+
 		// determine the type of data (already done above)
 		
-		// evaluate the dimension size of the index values
-		if( sRValue_index_dimensions == null ){
+		// evaluate the dimension count of the index values
+		if( sRValue_index_1 == null ){
 			// then default will be used
 		} else {
-			try {
-				PyObject po_IndexDimensions = mInterpreter.eval( sRValue_index_dimensions );
-				int iIndexDimensions_conversion = Py.py2int( po_IndexDimensions );
-				if( iIndexDimensions_conversion < 0 || iIndexDimensions_conversion > 4 ){
-					sbError.append( "index dimension expression (" + sRValue_index_dimensions + ") did not evaluate to a valid integer between 1 and 4" );
-					return null;
-				} else {
-					index_dimensions =iIndexDimensions_conversion;
-				}
-			} catch( org.python.core.PySyntaxError parse_error ) {
-				sbError.append( "syntax error processing index_dimensions setting: " + parse_error );
-				return null;
-			} catch( org.python.core.PyException python_error ) {
-				sbError.append( "python error processing index_dimensions setting: " + python_error );
-				return null;
-			} catch( Throwable t ) {
-				sbError.append( "while processing index_dimensions setting" );
-				ApplicationController.vUnexpectedError( t, sbError );
-				return null;
-			}
+			index_1_dimensions = evaluatePythonRValue_DimCount( sRValue_index_1, 1, streamTrace, trace, sbError );
+			if( index_1_dimensions == -1 ) return null;
+		}
+		if( sRValue_index_2 == null ){
+			// then default will be used
+		} else {
+			index_2_dimensions = evaluatePythonRValue_DimCount( sRValue_index_2, 2, streamTrace, trace, sbError );
+			if( index_2_dimensions == -1 ) return null;
+		}
+		if( sRValue_index_3 == null ){
+			// then default will be used
+		} else {
+			index_3_dimensions = evaluatePythonRValue_DimCount( sRValue_index_3, 3, streamTrace, trace, sbError );
+			if( index_1_dimensions == -1 ) return null;
+		}
+		if( sRValue_index_4 == null ){
+			// then default will be used
+		} else {
+			index_4_dimensions = evaluatePythonRValue_DimCount( sRValue_index_4, 4, streamTrace, trace, sbError );
+			if( index_4_dimensions == -1 ) return null;
 		}
 		
 		// evaluate the dimensional names
-		try {
-			if( sRValue_name_1 != null ){
-				PyObject po_sName1 = mInterpreter.eval( sRValue_name_1 );
-				name_1 = po_sName1.toString();
+		if( sRValue_name_1 == null ){
+			// then default will be used
+		} else {
+			String sEvaluatedName = evaluatePythonRValue_DimName( sRValue_name_1, 1, streamTrace, trace, sbError );
+			if( sEvaluatedName == null ){
+				if( allow_errors ){
+					// default will be used
+				} else {
+					return null;
+				}
+			} else {
+				name_1 = sEvaluatedName;
 			}
-			if( sRValue_name_2 != null ){
-				PyObject po_sName2 = mInterpreter.eval( sRValue_name_2 );
-				name_2 = po_sName2.toString();
+		}
+		if( sRValue_name_2 == null ){
+			// then default will be used
+		} else {
+			String sEvaluatedName = evaluatePythonRValue_DimName( sRValue_name_2, 2, streamTrace, trace, sbError );
+			if( sEvaluatedName == null ){
+				if( allow_errors ){
+					// default will be used
+				} else {
+					return null;
+				}
+			} else {
+				name_2 = sEvaluatedName;
 			}
-			if( sRValue_name_3 != null ){
-				PyObject po_sName3 = mInterpreter.eval( sRValue_name_3 );
-				name_3 = po_sName3.toString();
+		}
+		if( sRValue_name_3 == null ){
+			// then default will be used
+		} else {
+			String sEvaluatedName = evaluatePythonRValue_DimName( sRValue_name_3, 3, streamTrace, trace, sbError );
+			if( sEvaluatedName == null ){
+				if( allow_errors ){
+					// default will be used
+				} else {
+					return null;
+				}
+			} else {
+				name_3 = sEvaluatedName;
 			}
-			if( sRValue_name_4 != null ){
-				PyObject po_sName4 = mInterpreter.eval( sRValue_name_4 );
-				name_4 = po_sName4.toString();
+		}
+		if( sRValue_name_4 == null ){
+			// then default will be used
+		} else {
+			String sEvaluatedName = evaluatePythonRValue_DimName( sRValue_name_4, 4, streamTrace, trace, sbError );
+			if( sEvaluatedName == null ){
+				if( allow_errors ){
+					// default will be used
+				} else {
+					return null;
+				}
+			} else {
+				name_4 = sEvaluatedName;
 			}
-		} catch( org.python.core.PySyntaxError parse_error ) {
-			sbError.append( "syntax error processing allow_errors setting: " + parse_error );
-			return null;
-		} catch( org.python.core.PyException python_error ) {
-			sbError.append( "python error processing allow_errors setting: " + python_error );
-			return null;
-		} catch( Throwable t ) {
-			ApplicationController.vUnexpectedError( t, sbError );
-			return null;
 		}
 		
 		// (3) The size variables are evaluated to determine the dimensions of the value array.
-		try {
-			if( sRValue_size_1 == null ){
-				// then default will be used
-			} else {
-				PyObject po_IndexDimensions = mInterpreter.eval( sRValue_size_1 );
-				int iIndexSize_1 = Py.py2int( po_IndexDimensions );
-				if( iIndexSize_1 < 1 ){
-					sbError.append( "index dimension 1 expression (" + sRValue_index_dimensions + ") did not evaluate to a positive integer" );
-					return null;
-				} else {
-					size_1 =iIndexSize_1;
-				}
+		int ctDimensions = 0;
+		if( sRValue_size_1 == null ){
+			// then default will be used
+		} else {
+			size_1 = evaluatePythonRValue_DimSize( sRValue_size_1, 1, streamTrace, trace, sbError );
+			if( size_1 == -1 ) return null;
+			if( size_1 == 0 ) { sbError.append( "dimension 1 evaluated to 0; must be 1 or greater" ); return null; }
+			ctDimensions++;
+		}
+		if( sRValue_index_2 == null ){
+			// then default will be used
+		} else {
+			size_2 = evaluatePythonRValue_DimCount( sRValue_index_2, 2, streamTrace, trace, sbError );
+			if( size_2 == -1 ) return null; // invalid sizes cannot be ignored
+			ctDimensions++;
+		}
+		if( sRValue_index_3 == null ){
+			// then default will be used
+		} else {
+			size_3 = evaluatePythonRValue_DimCount( sRValue_index_3, 3, streamTrace, trace, sbError );
+			if( size_3 == -1 ) return null; // invalid sizes cannot be ignored
+			if( size_3 > 0 && size_2 == 0 ){
+				sbError.append( "sizes given for dimensions 1 and 3, but not 2; dimension 2 must have at least 1 member if dimension 3 is used" );
+				return null;
 			}
-			if( sRValue_size_2 == null ){
-				// then default will be used
-			} else {
-				PyObject po_IndexDimensions = mInterpreter.eval( sRValue_size_2 );
-				int iIndexSize_2 = Py.py2int( po_IndexDimensions );
-				if( iIndexSize_2 < 0 ){
-					sbError.append( "index dimension 2 expression (" + sRValue_index_dimensions + ") did not evaluate to a non-negative integer" );
-					return null;
-				} else {
-					size_2 =iIndexSize_2;
-				}
+			ctDimensions++;
+		}
+		if( sRValue_index_4 == null ){
+			// then default will be used
+		} else {
+			size_4 = evaluatePythonRValue_DimCount( sRValue_index_4, 4, streamTrace, trace, sbError );
+			if( size_4 == -1 ) return null; // invalid sizes cannot be ignored
+			if( size_4 > 0 && (size_2 == 0 || size_3 == 0) ){
+				sbError.append( "sizes given for dimensions 1 and 4, but not 2 and/or 3; both dimension 2 and 3 must have at least 1 member if dimension 4 is used" );
+				return null;
 			}
-			if( sRValue_size_3 == null ){
-				// then default will be used
-			} else {
-				PyObject po_IndexDimensions = mInterpreter.eval( sRValue_size_3 );
-				int iIndexSize_3 = Py.py2int( po_IndexDimensions );
-				if( iIndexSize_3 < 0 ){
-					sbError.append( "index dimension 3 expression (" + sRValue_index_dimensions + ") did not evaluate to a non-negative integer" );
-					return null;
-				} else {
-					size_3 =iIndexSize_3;
-				}
-			}
-			if( sRValue_size_4 == null ){
-				// then default will be used
-			} else {
-				PyObject po_IndexDimensions = mInterpreter.eval( sRValue_size_4 );
-				int iIndexSize_4 = Py.py2int( po_IndexDimensions );
-				if( iIndexSize_4 < 0 ){
-					sbError.append( "index dimension 4 expression (" + sRValue_index_dimensions + ") did not evaluate to a non-negative integer" );
-					return null;
-				} else {
-					size_4 =iIndexSize_4;
-				}
-			}
-		} catch( org.python.core.PySyntaxError parse_error ) {
-			sbError.append( "syntax error processing index size settings: " + parse_error );
-			return null;
-		} catch( org.python.core.PyException python_error ) {
-			sbError.append( "python error processing index size settings: " + python_error );
-			return null;
-		} catch( Throwable t ) {
-			sbError.append( "while processing index size settings" );
-			ApplicationController.vUnexpectedError( t, sbError );
-			return null;
+			ctDimensions++;
 		}
 
 		// make sure we have enough memory
@@ -484,6 +576,73 @@ public class Interpreter {
 				return null;
 		}
 		
+		// evaluate the trace intervals
+		try {
+			if( trace ){
+				if( sRValue_trace != null && sRValue_trace.length() > 0 ){
+					String[] asTrace = Utility_String.splitCommaWhiteSpace( sRValue_trace );
+					int ctTrace = asTrace.length; 
+					if( ctTrace != ctDimensions ){
+						streamTrace.write( ("trace parameter (" + sRValue_trace + ") parsed to have " + ctTrace + " entries, but there are " + ctDimensions + ". If trace parameters are used they must match the number of dimensions. Tracing will now be turned off.").getBytes() );
+						trace = false;
+					} else {
+						for( int xTraceParameter = 1; xTraceParameter <= ctTrace; xTraceParameter++ ){
+							String sParameter = asTrace[xTraceParameter - 1];
+							String[] asTraceRange = Utility_String.split( sParameter, ':' );
+							if( asTraceRange.length > 2 ){
+								streamTrace.write( ("trace parameter " + xTraceParameter + " (" + sParameter + ") parsed to have " + asTraceRange.length + " entries, but only 1 or 2 were expected. Trace parameters must be either 0-based numbers or ranges of index values, e.g., \"23:45\". Tracing will now be turned off.").getBytes() );
+								trace = false;
+								break;
+							}
+							int iParameter_begin = Utility_String.parseInteger_nonnegative( asTraceRange[0] );
+							if( iParameter_begin == -1 ){
+								streamTrace.write( ("trace parameter " + xTraceParameter + " (" + asTraceRange[0] + ") did not parse to a non-negative integer. Tracing will now be turned off.").getBytes() );
+								trace = false;
+								break;
+							}
+							int iParameter_end;
+							if( asTraceRange.length == 2 ){
+								iParameter_end = Utility_String.parseInteger_nonnegative( asTraceRange[1] );
+								if( iParameter_begin == -1 ){
+									streamTrace.write( ("trace parameter " + xTraceParameter + ", end part (" + asTraceRange[1] + ") did not parse to a non-negative integer. Tracing will now be turned off.").getBytes() );
+									trace = false;
+									break;
+								}
+							} else {
+								iParameter_end = iParameter_begin; 
+							}
+							if( iParameter_end < iParameter_begin ){
+								streamTrace.write( ("trace parameter " + xTraceParameter + " (" + sParameter+ ") is invalid because the begin value ( " + iParameter_begin + " ) is greater than the end value ( " + iParameter_end + " ). Tracing will now be turned off.").getBytes() );
+								trace = false;
+								break;
+							}
+							switch( xTraceParameter ){
+								case 1:
+									trace_1_begin = iParameter_begin;
+									trace_1_end = iParameter_end;
+									break;
+								case 2:
+									trace_2_begin = iParameter_begin;
+									trace_2_end = iParameter_end;
+									break;
+								case 3:
+									trace_3_begin = iParameter_begin;
+									trace_3_end = iParameter_end;
+									break;
+								case 4:
+									trace_4_begin = iParameter_begin;
+									trace_4_end = iParameter_end;
+									break;
+							}
+						}
+					}
+				}
+			}
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while evaluating trace parameters" );
+			return null;
+		}
+		
 		// (4) The internal index values are looped.
 //		ArrayList<String> listPreValueVariables = new ArrayList<String>();
 		int x1 = 0;
@@ -516,66 +675,6 @@ public class Interpreter {
 		}
 
 		// (6) The index variables are evaluated.
-		try {
-			if( sRValue_index_1 == null ){
-				// then default will be used
-			} else {
-				PyObject po_IndexDimensions = mInterpreter.eval( sRValue_size_1 );
-				int iIndexSize_1 = Py.py2int( po_IndexDimensions );
-				if( iIndexSize_1 < 1 ){
-					sbError.append( "index dimension 1 expression (" + sRValue_index_dimensions + ") did not evaluate to a positive integer" );
-					return null;
-				} else {
-					size_1 =iIndexSize_1;
-				}
-			}
-			if( sRValue_size_2 == null ){
-				// then default will be used
-			} else {
-				PyObject po_IndexDimensions = mInterpreter.eval( sRValue_size_2 );
-				int iIndexSize_2 = Py.py2int( po_IndexDimensions );
-				if( iIndexSize_2 < 0 ){
-					sbError.append( "index dimension 2 expression (" + sRValue_index_dimensions + ") did not evaluate to a non-negative integer" );
-					return null;
-				} else {
-					size_2 =iIndexSize_2;
-				}
-			}
-			if( sRValue_size_3 == null ){
-				// then default will be used
-			} else {
-				PyObject po_IndexDimensions = mInterpreter.eval( sRValue_size_3 );
-				int iIndexSize_3 = Py.py2int( po_IndexDimensions );
-				if( iIndexSize_3 < 0 ){
-					sbError.append( "index dimension 3 expression (" + sRValue_index_dimensions + ") did not evaluate to a non-negative integer" );
-					return null;
-				} else {
-					size_3 =iIndexSize_3;
-				}
-			}
-			if( sRValue_size_4 == null ){
-				// then default will be used
-			} else {
-				PyObject po_IndexDimensions = mInterpreter.eval( sRValue_size_4 );
-				int iIndexSize_4 = Py.py2int( po_IndexDimensions );
-				if( iIndexSize_4 < 0 ){
-					sbError.append( "index dimension 4 expression (" + sRValue_index_dimensions + ") did not evaluate to a non-negative integer" );
-					return null;
-				} else {
-					size_4 =iIndexSize_4;
-				}
-			}
-		} catch( org.python.core.PySyntaxError parse_error ) {
-			sbError.append( "syntax error processing index size settings: " + parse_error );
-			return null;
-		} catch( org.python.core.PyException python_error ) {
-			sbError.append( "python error processing index size settings: " + python_error );
-			return null;
-		} catch( Throwable t ) {
-			sbError.append( "while processing index size settings" );
-			ApplicationController.vUnexpectedError( t, sbError );
-			return null;
-		}
 
 		// (7) All unrecognized variables not beginning with "_" are evaluated after macro substitution.
 
@@ -661,6 +760,161 @@ public class Interpreter {
 			return false;
 		}
 		return true;
+	}
+
+	private int evaluatePythonRValue_DimCount( String sRValue, int iDimNumber, java.io.OutputStream streamTrace, boolean zTrace, StringBuffer sbError ){
+		try {
+			PyObject po_IndexDimensionCount = mInterpreter.eval( sRValue );
+			int iIndexDimensionCount_conversion = Py.py2int( po_IndexDimensionCount );
+			if( iIndexDimensionCount_conversion < 0 || iIndexDimensionCount_conversion > 4 ){
+				String sMessage = "index dimension count expression (" + sRValue + ") for dimension " + iDimNumber + " did not evaluate to a valid integer between 1 and 4";
+				if( zTrace ){
+					streamTrace.write( sMessage.getBytes() );
+				}
+				sbError.append( sMessage );
+				return -1;
+			} else {
+				streamTrace.write( ("Dimension count for index variable " + iDimNumber + " ( index_" + iDimNumber + "_dimension ) evaluated to have " + iIndexDimensionCount_conversion + " dimensions." ).getBytes() );
+				return iIndexDimensionCount_conversion;
+			}
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			String sMessage = "syntax error while evaluating index_" + iDimNumber + "_dimensions setting (" + sRValue + "): " + parse_error;
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+			}
+			sbError.append( sMessage );
+			return -1;
+		} catch( org.python.core.PyException python_error ) {
+			String sMessage = "python error evaluating index_" + iDimNumber + "_dimensions setting (" + sRValue + "): " + python_error;
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+			}
+			sbError.append( sMessage );
+			return -1;
+		} catch( Throwable t ) {
+			String sMessage = "error while processing index_" + iDimNumber + "_dimensions setting (" + sRValue + "): " + Utility.errorExtractLine( t );
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+			}
+			sbError.append( sMessage );
+			return -1;
+		}
+	}
+
+	private int evaluatePythonRValue_DimSize( String sRValue, int iDimNumber, java.io.OutputStream streamTrace, boolean zTrace, StringBuffer sbError ){
+		try {
+			PyObject po_DimensionSize = mInterpreter.eval( sRValue );
+			int iDimensionSize_conversion = Py.py2int( po_DimensionSize );
+			if( iDimensionSize_conversion < 0 ){
+				String sMessage = "dimension size expression (" + sRValue + ") for dimension " + iDimNumber + " did not evaluate to a non-negative integer (" + iDimensionSize_conversion + ")";
+				if( zTrace ){
+					streamTrace.write( sMessage.getBytes() );
+				}
+				sbError.append( sMessage );
+				return -1;
+			} else {
+				streamTrace.write( ("Size for dimension " + iDimNumber + " ( size_" + iDimNumber + " ) evaluated to " + iDimensionSize_conversion ).getBytes() );
+				return iDimensionSize_conversion;
+			}
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			String sMessage = "syntax error while evaluating size_" + iDimNumber + " setting (" + sRValue + "): " + parse_error;
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+			}
+			sbError.append( sMessage );
+			return -1;
+		} catch( org.python.core.PyException python_error ) {
+			String sMessage = "python error evaluating size_" + iDimNumber + " setting (" + sRValue + "): " + python_error;
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+			}
+			sbError.append( sMessage );
+			return -1;
+		} catch( Throwable t ) {
+			String sMessage = "error while processing size_" + iDimNumber + " setting (" + sRValue + "): " + Utility.errorExtractLine( t );
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+			}
+			sbError.append( sMessage );
+			return -1;
+		}
+	}
+
+	private int evaluatePythonRValue_TraceParameter( String sRValue, String sParameterName, java.io.OutputStream streamTrace, boolean zTrace, StringBuffer sbError ){
+		try {
+			PyObject po_Parameter = mInterpreter.eval( sRValue );
+			int iParameter = Py.py2int( po_Parameter );
+			if( iParameter < 0 ){
+				String sMessage = sParameterName + " expression (" + sRValue + ") did not evaluate to a non-negative integer (" + iParameter + ")";
+				if( zTrace ){
+					streamTrace.write( sMessage.getBytes() );
+				}
+				sbError.append( sMessage );
+				return -1;
+			} else {
+				streamTrace.write( ("Parameter " + sParameterName + " evaluated to " + iParameter ).getBytes() );
+				return iParameter;
+			}
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			String sMessage = "syntax error while evaluating " + sParameterName + " setting (" + sRValue + "): " + parse_error;
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+			}
+			sbError.append( sMessage );
+			return -1;
+		} catch( org.python.core.PyException python_error ) {
+			String sMessage = "python error evaluating " + sParameterName + " setting (" + sRValue + "): " + python_error;
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+			}
+			sbError.append( sMessage );
+			return -1;
+		} catch( Throwable t ) {
+			String sMessage = "error while processing " + sParameterName + " setting (" + sRValue + "): " + Utility.errorExtractLine( t );
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+			}
+			sbError.append( sMessage );
+			return -1;
+		}
+	}
+	
+	private String evaluatePythonRValue_DimName( String sRValue, int iDimNumber, java.io.OutputStream streamTrace, boolean zTrace, StringBuffer sbError ){
+		try {
+			PyObject po_DimensionName = mInterpreter.eval( sRValue );
+			String sDimensionsName = po_DimensionName.toString();
+			if( DAP.isValidIdentifier( sDimensionsName, sbError) ){
+				streamTrace.write( ("Dimension " + iDimNumber + " name variable ( name_" + iDimNumber + " ) evaluated \"" + sDimensionsName + "\"" ).getBytes() );
+				return sDimensionsName;
+			} else {
+				sbError.insert( 0, "dimension name expression (" + sRValue + ") for dimension " + iDimNumber + " did not evaluate to a valid identifier: " );
+				if( zTrace ){
+					streamTrace.write( sbError.toString().getBytes() );
+				}
+				return null;
+			}
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			String sMessage = "syntax error while evaluating dimension name_" + iDimNumber + " setting (" + sRValue + "): " + parse_error;
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+			}
+			sbError.append( sMessage );
+			return null;
+		} catch( org.python.core.PyException python_error ) {
+			String sMessage = "python error evaluating dimension name_" + iDimNumber + " setting (" + sRValue + "): " + python_error;
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+			}
+			sbError.append( sMessage );
+			return null;
+		} catch( Throwable t ) {
+			String sMessage = "error while processing dimension name_" + iDimNumber + " setting (" + sRValue + "): " + Utility.errorExtractLine( t );
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+			}
+			sbError.append( sMessage );
+			return null;
+		}
 	}
 	
 }
