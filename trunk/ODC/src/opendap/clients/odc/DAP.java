@@ -1228,6 +1228,20 @@ public class DAP {
 //		return sbName.toString();
 //	}
 
+	public final static boolean isValidIdentifier( String s, StringBuffer sbError ){
+		if( s == null ){ sbError.append( "identifier is null" ); return false; }
+		int len = s.length();
+		if( len == 0 ){ sbError.append( "identifier is blank" ); return false; }
+		char cFirst = s.charAt(0);
+		if( Character.isDigit( cFirst ) ){ sbError.append( "identifiers cannot begin with a digit" ); return false; }
+		if( ! ( Character.isLetter( cFirst ) || cFirst == '_'  ) ){ sbError.append( "identifier does not begin a letter or underscore" ); return false; }
+		for( int xChar = 1; xChar < len; xChar++ ){
+			// put any restrictions on identifier characters here, for now I am allowing whitespace and all other characters
+			// if( Character.isWhitespace( s.charAt(0) ) ){ sbError.append( "character " + xChar + " in identifier is whitespace" ); return false; }
+		}
+		return true;
+	}
+	
 }
 
 
