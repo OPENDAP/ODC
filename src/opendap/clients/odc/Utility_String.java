@@ -653,5 +653,17 @@ ScanForStartOfMatch:
 		}
 		return sb.toString();
 	}
+
+	final public static String getRValue( String sExpression ){
+			int posEquals = sExpression.indexOf( '=' );
+			if( posEquals == -1 ) return null;  // no equals sign
+			return sExpression.substring( posEquals + 1 ).trim();
+	}
+
+	final public static String getLValue( String sExpression ){
+			int posEquals = sExpression.indexOf( '=' );
+			if( posEquals == -1 ) return null;  // no equals sign
+			return sExpression.substring( 0, posEquals ).trim();
+	}
 	
 }
