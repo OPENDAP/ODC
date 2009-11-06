@@ -38,6 +38,7 @@ import org.python.core.Py;
 import org.python.core.PyObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Interpreter {
 	private PythonInterpreter mInterpreter = null;
@@ -125,6 +126,7 @@ public class Interpreter {
 	/** see help text for details on the rules for generation of the data set
 	 *  @return null on error */
 	public Model_Dataset generateDatasetFromExpression( String sExpressionText, StringBuffer sbError ){
+		
 		if( sExpressionText == null || sExpressionText.trim().length() == 0 ){
 			sbError.append( "expression text is blank" );
 			return null;
@@ -134,33 +136,10 @@ public class Interpreter {
 			sbError.insert( 0, "failed to parse expression into lines of text: " );
 			return null;
 		}
-		
-		ArrayList<String> listGlobals = new ArrayList<String>();
-		ArrayList<String> listPreIndexVariables = new ArrayList<String>();
-		ArrayList<String> listPreValueVariables = new ArrayList<String>();
-		String sLine_allow_errors = null;
-		String sLine_trace = null;
-		String sRValue_allow_errors = null;
-		String sRValue_trace = null;
-		String sRValue_value = null;
-		String sRValue_type = null;
-		String sRValue_size_1 = null;
-		String sRValue_size_2 = null;
-		String sRValue_size_3 = null;
-		String sRValue_size_4 = null;
-		String sRValue_index_1 = null;
-		String sRValue_index_2 = null;
-		String sRValue_index_3 = null;
-		String sRValue_index_4 = null;
-		String sRValue_name_1 = null;
-		String sRValue_name_2 = null;
-		String sRValue_name_3 = null;
-		String sRValue_name_4 = null;
-		String sRValue_index_1_dimensions = null;
-		String sRValue_index_2_dimensions = null;
-		String sRValue_index_3_dimensions = null;
-		String sRValue_index_4_dimensions = null;
 
+		HashMap<String,String> hmExp = new HashMap<String,String>();
+		
+		//***** DEFAULTS *********************************************************
 		Object DEFAULT_value = null;
 		String DEFAULT_type = "Float64";
 		int DEFAULT_size_1 = 100;
@@ -179,24 +158,9 @@ public class Interpreter {
 		boolean DEFAULT_allow_errors = false;
 		boolean DEFAULT_trace = false;
 
-		Object value = DEFAULT_value;
-		int type = DAP.DATA_TYPE_Float64;
-		int size_1 = 100;
-		int size_2 = 0;
-		int size_3 = 0;
-		int size_4 = 0;
-		Object index_1 = null;
-		Object index_2 = null;
-		Object index_3 = null;
-		Object index_4 = null;
-		String name_1 = "dimension_1";
-		String name_2 = "dimension_2";
-		String name_3 = "dimension_3";
-		String name_4 = "dimension_4";
-		int index_1_dimensions = 1;
-		int index_2_dimensions = 1;
-		int index_3_dimensions = 1;
-		int index_4_dimensions = 1;
+		//***********************************************************
+		// Simple Array/Grid Generation
+		//***********************************************************
 		boolean allow_errors = DEFAULT_allow_errors;
 		boolean trace = DEFAULT_trace;
 		int trace_1_begin = 0;
@@ -207,7 +171,63 @@ public class Interpreter {
 		int trace_3_end = 0;
 		int trace_4_begin = 0;
 		int trace_4_end = 0;
+
+		String value_RValue = null;
+		DAP.DAP_TYPE type = DAP.DAP_TYPE.Float64;
+		int[] size1 = new int[5]; // 1-based
+		DAP.DAP_TYPE[][] index_type = new DAP.DAP_TYPE [5][4];  // variable dimension (1-based), index dimension (0 = primary)
+		String[][] name = new String[5][4];  // variable dimension (1-based), index dimension (0 = primary)
+
+		ArrayList<String> listGlobals = new ArrayList<String>();
+		ArrayList<String> listPreIndexVariables = new ArrayList<String>();
+		ArrayList<String> listPreValueVariables = new ArrayList<String>();
+		String sLine_allow_errors = null;
+		String sLine_trace = null;
+
+		//***********************************************************
+		// Initialization
+		//***********************************************************
+		size1[1] = 100;
+		for( int xVariable = 1; xVariable <= 4; xVariable++ )  // 0 not used
+			for( int xIndex = 0; xIndex <= 3; xIndex++ )
+				index_type[xVariable][xIndex] = DAP.DAP_TYPE.Float64;
+		for( int xVariable = 1; xVariable <= 4; xVariable++ )  // 0 not used
+			for( int xIndex = 0; xIndex <= 3; xIndex++ )
+				name[xVariable][xIndex] = xIndex == 0 ? "dimension" + '_' + xVariable : "dim_" + xVariable + "index_" + xIndex;  
 		
+		//***********************************************************
+		// Multi-vector Grid Support
+		//***********************************************************
+		int[] index_vectors = new int[5];  // 1-based, number of vectors used to represent the dimensional index
+		String[][] index_RValue = new String[5][4]; // variable dimension (1-based), index dimension (0 = primary) 
+		String[][] index_LValue = new String[5][4]; // variable dimension (1-based), index dimension (0 = primary)
+
+		//***********************************************************
+		// RValues
+		//***********************************************************
+		String sRValue_trace = null; // this RValue is treated specially because of a non-standard syntax
+		String[] asKeyword = {
+			"value", "type", "allow_errors",
+			"size_1", "size_2", "size_3", "size_4",
+			"name_1", "name_2", "name_3", "name_4",
+			"index_1", "index_2", "index_3", "index_4",
+			"index_1_1_name", "index_1_2_name", "index_1_3_name",  
+			"index_2_1_name", "index_2_2_name", "index_2_3_name",  
+			"index_3_1_name", "index_3_2_name", "index_3_3_name",  
+			"index_4_1_name", "index_4_2_name", "index_4_3_name", 
+			"index_1_1_type", "index_1_2_type", "index_1_3_type",  
+			"index_2_1_type", "index_2_2_type", "index_2_3_type",  
+			"index_3_1_type", "index_3_2_type", "index_3_3_type",  
+			"index_4_1_type", "index_4_2_type", "index_4_3_type", 
+			"index_1_1", "index_1_2", "index_1_3",  
+			"index_2_1", "index_2_2", "index_2_3",  
+			"index_3_1", "index_3_2", "index_3_3",  
+			"index_4_1", "index_4_2", "index_4_3"
+		};
+		for( int xKeyword = 0; xKeyword < asKeyword.length; xKeyword++ ){
+			hmExp.put( asKeyword[xKeyword], null );
+		}
+
 		// process lines in the expression set
 		for( int xLine = 1; xLine <= listLines.size(); xLine++ ){
 			String sLine = listLines.get( xLine - 1 );
@@ -234,51 +254,8 @@ public class Interpreter {
 				listGlobals.add( sLine );
 			} else if( sLValue.startsWith( "_" ) ){
 				listPreIndexVariables.add( sLine );
-			} else if( sLValue.equals( "allow_errors" ) ){
-				sRValue_allow_errors = sRValue;
-				sLine_allow_errors = sLine;
-			} else if( sLValue.equals( "value" ) ){
-				sRValue_value = sRValue;
-			} else if( sLValue.equals( "type" ) ){
-				sRValue_type = sRValue;
-				int iDAP_type = DAP.getTypeByName( sRValue_type );
-				if( iDAP_type == 0 ){
-					sbError.append( "unknown DAP type: " + sRValue_type );
-					return null;
-				}
-				type = iDAP_type;
-			} else if( sLValue.equals( "size_1" ) ){
-				sRValue_size_1 = sRValue;
-			} else if( sLValue.equals( "size_2" ) ){
-				sRValue_size_2 = sRValue;
-			} else if( sLValue.equals( "size_3" ) ){
-				sRValue_size_3 = sRValue;
-			} else if( sLValue.equals( "size_4" ) ){
-				sRValue_size_4 = sRValue;
-			} else if( sLValue.equals( "index_1" ) ){
-				sRValue_index_1 = sRValue;
-			} else if( sLValue.equals( "index_2" ) ){
-				sRValue_index_2 = sRValue;
-			} else if( sLValue.equals( "index_3" ) ){
-				sRValue_index_3 = sRValue;
-			} else if( sLValue.equals( "index_4" ) ){
-				sRValue_index_4 = sRValue;
-			} else if( sLValue.equals( "name_1" ) ){
-				sRValue_name_1 = sRValue;
-			} else if( sLValue.equals( "name_2" ) ){
-				sRValue_name_2 = sRValue;
-			} else if( sLValue.equals( "name_3" ) ){
-				sRValue_name_3 = sRValue;
-			} else if( sLValue.equals( "name_4" ) ){
-				sRValue_name_4 = sRValue;
-			} else if( sLValue.equals( "index_1_dimensions" ) ){
-				sRValue_index_1_dimensions = sRValue;
-			} else if( sLValue.equals( "index_2_dimensions" ) ){
-				sRValue_index_1_dimensions = sRValue;
-			} else if( sLValue.equals( "index_3_dimensions" ) ){
-				sRValue_index_1_dimensions = sRValue;
-			} else if( sLValue.equals( "index_4_dimensions" ) ){
-				sRValue_index_1_dimensions = sRValue;
+			} else if( hmExp.containsKey( sLValue ) ){
+				hmExp.put( sLValue, sRValue );
 			} else {
 				listPreValueVariables.add( sLine );
 			}
@@ -295,7 +272,8 @@ public class Interpreter {
 		
 		// determine whether to allow errors
 		try {
-			if( sLine_allow_errors == null ){
+			String sRValue_allow_errors = hmExp.get( "allow_errors" );
+			if( sRValue_allow_errors == null ){
 				// do nothing, use default value
 			} else if( sRValue_allow_errors.equalsIgnoreCase( "true" ) ){
 				allow_errors = true;
@@ -329,6 +307,13 @@ public class Interpreter {
 			}
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, "while determining whether to allow errors" );
+			return null;
+		}
+		
+		// obtain the RValue of the value
+		value_RValue = hmExp.get( "value" );
+		if( value_RValue == null ){
+			sbError.append( "no \"value\" parameter supplied; this parameter is required to define the values of the data array" );
 			return null;
 		}
 		
@@ -386,151 +371,121 @@ public class Interpreter {
 
 		// determine the type of data (already done above)
 		
-		// evaluate the dimension count of the index values
-		if( sRValue_index_1 == null ){
-			// then default will be used
-		} else {
-			index_1_dimensions = evaluatePythonRValue_DimCount( sRValue_index_1, 1, streamTrace, trace, sbError );
-			if( index_1_dimensions == -1 ) return null;
-		}
-		if( sRValue_index_2 == null ){
-			// then default will be used
-		} else {
-			index_2_dimensions = evaluatePythonRValue_DimCount( sRValue_index_2, 2, streamTrace, trace, sbError );
-			if( index_2_dimensions == -1 ) return null;
-		}
-		if( sRValue_index_3 == null ){
-			// then default will be used
-		} else {
-			index_3_dimensions = evaluatePythonRValue_DimCount( sRValue_index_3, 3, streamTrace, trace, sbError );
-			if( index_1_dimensions == -1 ) return null;
-		}
-		if( sRValue_index_4 == null ){
-			// then default will be used
-		} else {
-			index_4_dimensions = evaluatePythonRValue_DimCount( sRValue_index_4, 4, streamTrace, trace, sbError );
-			if( index_4_dimensions == -1 ) return null;
+		// determine and validate the dimension count of the index vectors
+		boolean[] azMultidimensionalIndex1 = new boolean[4]; // 1-based
+		for( int xDim = 1; xDim <= 4; xDim++ ){
+			if( hmExp.get( "index_" + xDim + "_3" ) != null ){
+				index_vectors[xDim] = 3;
+				azMultidimensionalIndex1[xDim] = true;
+			} else if( hmExp.get( "index_" + xDim + "_2" ) != null ){
+				index_vectors[xDim] = 2;
+				azMultidimensionalIndex1[xDim] = true;
+			} else if( hmExp.get( "index_" + xDim + "_1" ) != null ){
+				index_vectors[xDim] = 1;
+				azMultidimensionalIndex1[xDim] = true;
+			}
+			if( hmExp.get( "index_" + xDim ) != null ){
+				if( azMultidimensionalIndex1[xDim] ){
+					sbError.append( "indexing conflict, both multidimensional and unidimensional indices are defined for dimension " + xDim );
+					return null;
+				}
+				index_vectors[xDim] = 1;
+			}
 		}
 		
 		// evaluate the dimensional names
-		if( sRValue_name_1 == null ){
-			// then default will be used
-		} else {
-			String sEvaluatedName = evaluatePythonRValue_DimName( sRValue_name_1, 1, streamTrace, trace, sbError );
-			if( sEvaluatedName == null ){
-				if( allow_errors ){
-					// default will be used
-				} else {
-					return null;
-				}
+		for( int xDim = 1; xDim <= 4; xDim++ ){
+			String sVarName = "name_" + xDim;
+			String sExp_VarName = hmExp.get( sVarName ); 
+			if( sExp_VarName == null ){
+				// default will be used 
 			} else {
-				name_1 = sEvaluatedName;
+				String sEvaluatedName = evaluatePythonRValue_DimName( sExp_VarName, xDim, streamTrace, trace, sbError );
+				if( sEvaluatedName == null ){
+					if( allow_errors ){
+						// default will be used
+					} else {
+						return null;
+					}
+				} else {
+					name[xDim][0] = sEvaluatedName;
+				}
 			}
 		}
-		if( sRValue_name_2 == null ){
-			// then default will be used
-		} else {
-			String sEvaluatedName = evaluatePythonRValue_DimName( sRValue_name_2, 2, streamTrace, trace, sbError );
-			if( sEvaluatedName == null ){
-				if( allow_errors ){
-					// default will be used
+
+		// evaluate the index vector names
+		for( int xDim = 1; xDim <= 4; xDim++ ){
+			for( int xVector = 1; xVector <= 3; xVector++ ){
+				String sVarName = "index_" + xDim + "_" + xVector + "_name";
+				String sExp_VarName = hmExp.get( sVarName ); 
+				if( sExp_VarName == null ){
+					// default will be used 
 				} else {
-					return null;
+					String sEvaluatedName = evaluatePythonRValue_DimName( sExp_VarName, xDim, streamTrace, trace, sbError );
+					if( sEvaluatedName == null ){
+						if( allow_errors ){
+							// default will be used
+						} else {
+							return null;
+						}
+					} else {
+						name[xDim][xVector] = sEvaluatedName;
+					}
 				}
-			} else {
-				name_2 = sEvaluatedName;
 			}
 		}
-		if( sRValue_name_3 == null ){
-			// then default will be used
-		} else {
-			String sEvaluatedName = evaluatePythonRValue_DimName( sRValue_name_3, 3, streamTrace, trace, sbError );
-			if( sEvaluatedName == null ){
-				if( allow_errors ){
-					// default will be used
-				} else {
-					return null;
-				}
-			} else {
-				name_3 = sEvaluatedName;
+
+		// isolate the index LValues and RValues
+		for( int xDim = 1; xDim <= 4; xDim++ ){
+			for( int xVector = 0; xVector <= 3; xVector++ ){
+				index_LValue[xDim][xVector] = xVector == 0 ? "index_" + xDim : "index_" + xDim + "_" + xVector;
+				index_RValue[xDim][xVector] = hmExp.get( index_LValue[xDim][xVector] ); 
 			}
-		}
-		if( sRValue_name_4 == null ){
-			// then default will be used
-		} else {
-			String sEvaluatedName = evaluatePythonRValue_DimName( sRValue_name_4, 4, streamTrace, trace, sbError );
-			if( sEvaluatedName == null ){
-				if( allow_errors ){
-					// default will be used
-				} else {
-					return null;
-				}
-			} else {
-				name_4 = sEvaluatedName;
-			}
-		}
-		
+		}		
+
 		// (3) The size variables are evaluated to determine the dimensions of the value array.
 		int ctDimensions = 0;
-		if( sRValue_size_1 == null ){
-			// then default will be used
-		} else {
-			size_1 = evaluatePythonRValue_DimSize( sRValue_size_1, 1, streamTrace, trace, sbError );
-			if( size_1 == -1 ) return null;
-			if( size_1 == 0 ) { sbError.append( "dimension 1 evaluated to 0; must be 1 or greater" ); return null; }
-			ctDimensions++;
-		}
-		if( sRValue_index_2 == null ){
-			// then default will be used
-		} else {
-			size_2 = evaluatePythonRValue_DimCount( sRValue_index_2, 2, streamTrace, trace, sbError );
-			if( size_2 == -1 ) return null; // invalid sizes cannot be ignored
-			ctDimensions++;
-		}
-		if( sRValue_index_3 == null ){
-			// then default will be used
-		} else {
-			size_3 = evaluatePythonRValue_DimCount( sRValue_index_3, 3, streamTrace, trace, sbError );
-			if( size_3 == -1 ) return null; // invalid sizes cannot be ignored
-			if( size_3 > 0 && size_2 == 0 ){
-				sbError.append( "sizes given for dimensions 1 and 3, but not 2; dimension 2 must have at least 1 member if dimension 3 is used" );
-				return null;
+		for( int xDim = 1; xDim <= 4; xDim++ ){
+			String sSizeIdentifier = "size_" + xDim;
+			String sSizeIdentifier_value = hmExp.get( sSizeIdentifier ); 
+			if( sSizeIdentifier_value == null ){
+				// then default will be used
+			} else {
+				int iEvaluatedSize = evaluatePythonRValue_DimSize( sSizeIdentifier_value, xDim, streamTrace, trace, sbError );
+				if( iEvaluatedSize == -1 ) return null;
+				if( iEvaluatedSize == 0 ) { 
+					if( xDim == 1 ){
+						sbError.append( "dimension 1 evaluated to 0; must be 1 or greater" );
+						return null;
+					}
+					break; // rest of sizes will be zero
+				}
+				ctDimensions++;
+				size1[xDim] = iEvaluatedSize;
 			}
-			ctDimensions++;
-		}
-		if( sRValue_index_4 == null ){
-			// then default will be used
-		} else {
-			size_4 = evaluatePythonRValue_DimCount( sRValue_index_4, 4, streamTrace, trace, sbError );
-			if( size_4 == -1 ) return null; // invalid sizes cannot be ignored
-			if( size_4 > 0 && (size_2 == 0 || size_3 == 0) ){
-				sbError.append( "sizes given for dimensions 1 and 4, but not 2 and/or 3; both dimension 2 and 3 must have at least 1 member if dimension 4 is used" );
-				return null;
-			}
-			ctDimensions++;
 		}
 
 		// make sure we have enough memory
-		int iTotalSize = size_1;
-		if( size_2 > 0 ){
-			if( Integer.MAX_VALUE / size_2 > iTotalSize ){
-				sbError.append( "dimensional sizes (" + size_1 + " and " + size_2 + ") result in an oversized array" );
+		int iTotalSize = size1[1];
+		if( size1[2] > 0 ){
+			if( Integer.MAX_VALUE / size1[2] > iTotalSize ){
+				sbError.append( "dimensional sizes (" + size1[1] + " and " + size1[2] + ") result in an oversized array" );
 				return null;
 			} else {
-				iTotalSize *= size_2;
-				if( size_3 > 0 ){
-					if( Integer.MAX_VALUE / size_3 > iTotalSize ){
-						sbError.append( "dimensional sizes (" + size_1 + " and " + size_2 + " and " + size_3 + ") result in an oversized array" );
+				iTotalSize *= size1[2];
+				if( size1[3] > 0 ){
+					if( Integer.MAX_VALUE / size1[3] > iTotalSize ){
+						sbError.append( "dimensional sizes (" + size1[1] + " and " + size1[2] + " and " + size1[3] + ") result in an oversized array" );
 						return null;
 					} else {
-						iTotalSize *= size_3;
-						if( size_4 > 0 ){
-							if( Integer.MAX_VALUE / size_4 > iTotalSize ){
-								sbError.append( "dimensional sizes (" + size_1 + " and " + size_2 + " and " + size_3 + " and " + size_3 + ") result in an oversized array" );
+						iTotalSize *= size1[3];
+						if( size1[4] > 0 ){
+							if( Integer.MAX_VALUE / size1[4] > iTotalSize ){
+								sbError.append( "dimensional sizes (" + size1[1] + " and " + size1[2] + " and " + size1[3] + " and " + size1[4] + ") result in an oversized array" );
 								return null;
 							}
 						} else {
-							iTotalSize *= size_4;
+							iTotalSize *= size1[4];
 						}
 					}
 				}
@@ -542,40 +497,19 @@ public class Interpreter {
 		}
 		
 		// allocate the data array
-		final int eTYPE = type; // this is done to optimize compilation
-		byte[] abData;
-		short[] ashData;
-		int[] aiData;
-		long[] anData;
-		float[] afData;
-		double[] adData;
-		String[] asData;
-		switch( eTYPE ){
-			case DAP.DATA_TYPE_Byte:
-				abData = new byte[iTotalSize];
-				break;
-			case DAP.DATA_TYPE_Int16:
-			case DAP.DATA_TYPE_UInt16:
-				ashData = new short[iTotalSize];
-				break;
-			case DAP.DATA_TYPE_Int32:
-			case DAP.DATA_TYPE_UInt32:
-				aiData = new int[iTotalSize];
-				break;
-			case DAP.DATA_TYPE_Float32:
-				afData = new float[iTotalSize];
-				break;
-			case DAP.DATA_TYPE_Float64:
-				adData = new double[iTotalSize];
-				break;
-			case DAP.DATA_TYPE_String:
-				asData = new String[iTotalSize];
-				break;
-			default:
-				sbError.append( "unrecognized data type: " + eTYPE );
-				return null;
-		}
+		PyPrimitiveVector pvValue = new PyPrimitiveVector( type, size1[1], size1[2], size1[3], size1[4] ); // dimension (1-based) x vector (0-based) 
 		
+		// allocate the primary dimensional indices
+		PyPrimitiveVector[][] pvIndex = new PyPrimitiveVector[5][4]; // dimension (1-based) x vector (0-based) 
+		for( int xDim = 1; xDim <= ctDimensions; xDim++ ){
+			int ctVectors = azMultidimensionalIndex1[xDim] ? index_vectors[xDim] : 1;
+			for( int xVector = 1; xVector <= ctVectors; xVector++ ){
+				DAP.DAP_TYPE eTYPE = azMultidimensionalIndex1[xDim] ? index_type[xDim][xVector] : index_type[xDim][0];
+				int xVectorIndex = azMultidimensionalIndex1[xDim] ? xVector : 0;
+				pvIndex[xDim][xVectorIndex] = new PyPrimitiveVector( eTYPE, size1[xDim], 0, 0, 0 );
+			}
+		}	
+
 		// evaluate the trace intervals
 		try {
 			if( trace ){
@@ -636,6 +570,15 @@ public class Interpreter {
 							}
 						}
 					}
+				} else { // trace every value
+					trace_1_begin = 0;
+					trace_1_end = size1[1] - 1; if( trace_1_end < 0 ) trace_1_end = 0;
+					trace_2_begin = 0;
+					trace_2_end = size1[2] - 1; if( trace_2_end < 0 ) trace_2_end = 0;
+					trace_3_begin = 0;
+					trace_3_end = size1[3] - 1; if( trace_3_end < 0 ) trace_3_end = 0;
+					trace_4_begin = 0;
+					trace_4_end = size1[4] - 1; if( trace_4_end < 0 ) trace_4_end = 0;
 				}
 			}
 		} catch( Throwable t ) {
@@ -650,63 +593,235 @@ public class Interpreter {
 		int x3 = 0;
 		int x4 = 0;
 		while( true ){
-			if( x1 == size_1 && x2 == size_2 && x3 == size_3 && x4 == size_4 ) break; // done
+			if( x1 == size1[1] && x2 == size1[2] && x3 == size1[3] && x4 == size1[4] ) break; // done
+			boolean zTraceLoop =
+				trace 	&& x1 >= trace_1_begin && x1 <= trace_1_end  
+						&& x2 >= trace_2_begin && x2 <= trace_2_end 
+						&& x3 >= trace_3_begin && x3 <= trace_3_end 
+						&& x4 >= trace_4_begin && x4 <= trace_4_end;
 
-		// (5) All unrecognized variables beginning with "_" are evaluated after macro substitution.
-		for( int xPreIndexExp = 1; xPreIndexExp <= listPreIndexVariables.size(); xPreIndexExp++ ){
-			String sPreIndexExp = listPreIndexVariables.get( xPreIndexExp - 1 );
-			String sPreIndexExp_after_macro = null;
-			try {
-				sPreIndexExp_after_macro = Utility_String.sReplaceString( sPreIndexExp, "$1", Integer.toString( x1 ) );
-				sPreIndexExp_after_macro = Utility_String.sReplaceString( sPreIndexExp_after_macro, "$2", Integer.toString( x1 ) );
-				sPreIndexExp_after_macro = Utility_String.sReplaceString( sPreIndexExp_after_macro, "$3", Integer.toString( x1 ) );
-				sPreIndexExp_after_macro = Utility_String.sReplaceString( sPreIndexExp_after_macro, "$4", Integer.toString( x1 ) );
-				mInterpreter.eval( sPreIndexExp_after_macro );
-			} catch( org.python.core.PySyntaxError parse_error ) {
-				sbError.append( "syntax error evaluating pre-index expression (" + sPreIndexExp_after_macro + ": " + parse_error );
-				return null;
-			} catch( org.python.core.PyException python_error ) {
-				sbError.append( "python error evaluating pre-index expression (" + sPreIndexExp_after_macro + "): " + python_error );
-			} catch( Throwable t ) {
-				sbError.append( "while evaluating pre-index expression " + sPreIndexExp_after_macro );
-				ApplicationController.vUnexpectedError( t, sbError );
+			// (5) All unrecognized variables beginning with "_" are evaluated after macro substitution.
+			for( int xPreIndexExp = 1; xPreIndexExp <= listPreIndexVariables.size(); xPreIndexExp++ ){
+				String sPreIndexExp = listPreIndexVariables.get( xPreIndexExp - 1 );
+				if( sPreIndexExp == null ){
+					sbError.append( String.format( "internal error on loop %d %d %d %d, pre-index expression %d was unexpectedly null", x1, x2, x3, x4, xPreIndexExp) );
+					return null;
+				}
+				String sPreIndexExp_after_macro = sMacroSubstitution( sPreIndexExp, x1, x2, x3, x4 ); 
+				if( zTraceLoop && ! sPreIndexExp.equals( sPreIndexExp_after_macro ) ){ // then there was a change
+					try { streamTrace.write( ("pre-index expression " + xPreIndexExp + " (" + sPreIndexExp + ") after macro substitution: " + sPreIndexExp_after_macro ).getBytes() ); } catch( Throwable t ){};
+				}
+				try {
+					mInterpreter.eval( sPreIndexExp_after_macro );
+				} catch( org.python.core.PySyntaxError parse_error ) {
+					sbError.append( "syntax error evaluating pre-index expression (" + sPreIndexExp_after_macro + ": " + parse_error );
+					return null;
+				} catch( org.python.core.PyException python_error ) {
+					sbError.append( "python error evaluating pre-index expression (" + sPreIndexExp_after_macro + "): " + python_error );
+				} catch( Throwable t ) {
+					sbError.append( "while evaluating pre-index expression " + sPreIndexExp_after_macro );
+					ApplicationController.vUnexpectedError( t, sbError );
+					return null;
+				}
+			}
+
+			// (6) The index variables are evaluated.
+			for( int xDim = 1; xDim <= ctDimensions; xDim++ ){
+				int ctVectors = index_vectors[xDim]; // if there are no indices for this dim then this will be 0 and looping will continue
+				for( int xVector = 1; xVector <= ctVectors; xVector++ ){
+					int xIndex = azMultidimensionalIndex1[xDim] ? xVector : 0;
+					String sRValue = index_RValue[xDim][xIndex];
+					if( sRValue == null ){
+						sbError.append( String.format( "internal error on loop %d %d %d %d, index expression %d %d was unexpectedly null", x1, x2, x3, x4, xDim, azMultidimensionalIndex1[xDim] ? xVector: 0) );
+						return null;
+					}
+					String sRValue_after_macro = sMacroSubstitution( sRValue, x1, x2, x3, x4 );
+					if( zTraceLoop && ! sRValue.equals( sRValue_after_macro ) ){ // then there was a change
+						try { streamTrace.write( ("index expression " + index_LValue[xDim][xIndex] + " (" + sRValue + ") after macro substitution: " + sRValue_after_macro ).getBytes() ); } catch( Throwable t ){};
+					}
+					try {
+						PyObject po_IndexValue = mInterpreter.eval( sRValue_after_macro );
+						int xMember;
+						switch( xDim ){
+							case 1: xMember = x1; break;
+							case 2: xMember = x2; break;
+							case 3: xMember = x3; break;
+							case 4: xMember = x4; break;
+							default:
+								xMember = 0;
+						}
+						if( pvIndex[xDim][xIndex].set( xMember, 0, 0, 0, po_IndexValue, sbError ) ){
+							if( zTraceLoop ){
+								String sMessage = String.format( "value %d written for index, dim: %d, vector: %d, member: %d" , pvIndex[xDim][xIndex].getValue( xMember, 0, 0, 0 ), xDim, xIndex, xMember );
+								streamTrace.write( sMessage.getBytes() );
+							}
+						} else {
+							sbError.insert( 0, String.format( "error setting value %s for index, dim: %d, vector: %d, member: %d: " , po_IndexValue.toString(), xDim, xIndex, xMember ) ); 
+							if( zTraceLoop ){
+								streamTrace.write( sbError.toString().getBytes() );
+							}
+							if( ! allow_errors ) return null;
+						}
+						
+					} catch( org.python.core.PySyntaxError parse_error ) {
+						String sMessage = "syntax error while evaluating " + index_LValue[xDim][xIndex] + " setting (" + sRValue_after_macro + "): " + parse_error;
+						if( zTraceLoop ){
+							try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+						}
+						sbError.append( sMessage );
+						return null;
+					} catch( org.python.core.PyException python_error ) {
+						String sMessage = "python error evaluating " + index_LValue[xDim][xIndex] + " setting (" + sRValue_after_macro + "): " + python_error;
+						if( zTraceLoop ){
+							try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+						}
+						sbError.append( sMessage );
+						return null;
+					} catch( Throwable t ) {
+						String sMessage = "error while processing " + index_LValue[xDim][xIndex] + " setting (" + sRValue_after_macro + "): " + Utility.errorExtractLine( t );
+						if( zTraceLoop ){
+							try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+						}
+						sbError.append( sMessage );
+						return null;
+					}
+				}
+			}
+
+			// (7) All unrecognized variables not beginning with "_" are evaluated after macro substitution.
+			for( int xPreValueExp = 1; xPreValueExp <= listPreValueVariables.size(); xPreValueExp++ ){
+				String sPreValueExp = listPreValueVariables.get( xPreValueExp - 1 );
+				if( sPreValueExp == null ){
+					sbError.append( String.format( "internal error on loop %d %d %d %d, pre-value expression %d was unexpectedly null", x1, x2, x3, x4, xPreValueExp ) );
+					return null;
+				}
+				String sPreValueExp_after_macro = sMacroSubstitution( sPreValueExp, x1, x2, x3, x4 ); 
+				if( zTraceLoop && ! sPreValueExp.equals( sPreValueExp_after_macro ) ){ // then there was a change
+					try { streamTrace.write( ("pre-value expression " + xPreValueExp + " (" + sPreValueExp + ") after macro substitution: " + sPreValueExp_after_macro ).getBytes() ); } catch( Throwable t ){};
+				}
+				try {
+					mInterpreter.eval( sPreValueExp_after_macro );
+				} catch( org.python.core.PySyntaxError parse_error ) {
+					sbError.append( "syntax error evaluating pre-value expression (" + sPreValueExp_after_macro + ": " + parse_error );
+					return null;
+				} catch( org.python.core.PyException python_error ) {
+					sbError.append( "python error evaluating pre-value expression (" + sPreValueExp_after_macro + "): " + python_error );
+				} catch( Throwable t ) {
+					sbError.append( "while evaluating pre-value expression " + sPreValueExp_after_macro );
+					ApplicationController.vUnexpectedError( t, sbError );
+					return null;
+				}
+			}
+
+			// (8) The value variable is evaluated.
+			if( value_RValue == null ){
+				sbError.append( String.format( "internal error on loop %d %d %d %d, value expression was unexpectedly null", x1, x2, x3, x4 ) );
 				return null;
 			}
-		}
+			String value_RValue_after_macro = sMacroSubstitution( value_RValue, x1, x2, x3, x4 );
+			if( zTraceLoop && ! value_RValue.equals( value_RValue_after_macro ) ){ // then there was a change
+				try { streamTrace.write( ("value expression (" + value_RValue + ") after macro substitution: " + value_RValue_after_macro ).getBytes() ); } catch( Throwable t ){};
+			}
+			try {
+				PyObject po_IndexValue = mInterpreter.eval( value_RValue_after_macro );
+				if( pvValue.set( x1, x2, x3, x4, po_IndexValue, sbError ) ){
+					if( zTraceLoop ){
+						String sMessage = String.format( "value %s written for member [%d][%d][%d][%d]" , pvValue.getValue( x1, x2, x3, x4 ), x1, x2, x3, x4 );
+						streamTrace.write( sMessage.getBytes() );
+					}
+				} else {
+					sbError.insert( 0, String.format( "error setting value %s for member [%d][%d][%d][%d]" , po_IndexValue.toString(), x1, x2, x3, x4 ) );
+					if( zTraceLoop ){
+						streamTrace.write( sbError.toString().getBytes() );
+					}
+					if( ! allow_errors ) return null;
+				}
+				
+			} catch( org.python.core.PySyntaxError parse_error ) {
+				String sMessage = "syntax error while evaluating " + value_RValue + " setting (" + value_RValue_after_macro + "): " + parse_error;
+				if( zTraceLoop ){
+					try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+				}
+				sbError.append( sMessage );
+				return null;
+			} catch( org.python.core.PyException python_error ) {
+				String sMessage = "python error evaluating " + value_RValue + " setting (" + value_RValue_after_macro + "): " + python_error;
+				if( zTraceLoop ){
+					try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+				}
+				sbError.append( sMessage );
+				return null;
+			} catch( Throwable t ) {
+				String sMessage = "error while processing " + value_RValue + " setting (" + value_RValue_after_macro + "): " + Utility.errorExtractLine( t );
+				if( zTraceLoop ){
+					try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+				}
+				sbError.append( sMessage );
+				return null;
+			}
 
-		// (6) The index variables are evaluated.
-
-		// (7) All unrecognized variables not beginning with "_" are evaluated after macro substitution.
-
-		// (8) The value variable is evaluated.
-
-		// (9) The process increments counters and loops to step (3), and continuing until the value matrix is full.
+			// (9) The process increments counters and loops to step (3), and continuing until the value matrix is full.
 			x1++;
-			if( x1 == size_1 ){
+			if( x1 == size1[1] ){
 				x1 = 0;
 				x2++;
-				if( x2 == size_2 ){
+				if( x2 == size1[2] ){
 					x2 = 0;
 					x3++;
-					if( x3 == size_3 ){
+					if( x3 == size1[3] ){
 						x3 = 0;
 						x4++;
 					}}}
 		}
 
-		// and create the Data DDS
+		// create the Data DDS
 		opendap.dap.DataDDS datadds = null;
 		try {
 			String sServerVersion = "2.1.5";
 			int iHeaderType = opendap.dap.ServerVersion.XDAP; // this is the simple version (eg "2.1.5"), server version strings are like "XDODS/2.1.5", these are only used in HTTP, not in files
 			opendap.dap.ServerVersion server_version = new opendap.dap.ServerVersion( sServerVersion, iHeaderType );
 			datadds = new opendap.dap.DataDDS( server_version );
-			if( sRValue_index_1 != null ){  // then we are creating a grid, otherwise it will be a plain array
-			} else { // creating a plain array
+			boolean zIndexPresent = false;
+			for( int xDim = 1; xDim <= 4; xDim++ ){
+				if( index_vectors[xDim] > 0 ) zIndexPresent = true; 
+			}
+			 if( zIndexPresent ){  // then we are creating a grid, otherwise it will be a plain array
+			 } else { // creating a plain array
 				opendap.dap.DefaultFactory factory = new opendap.dap.DefaultFactory();
-//				DArray darray = new factory.newDArray();
-//				darray.addVariable(v)
-	//			datadds.addVariable(v)
+				DArray darray = factory.newDArray();
+				switch( type ){
+					case Byte:
+						darray.addVariable( new opendap.dap.DByte() );
+						break;
+					case Int16:
+						darray.addVariable( new opendap.dap.DInt16() );
+						break;
+					case Int32:
+						darray.addVariable( new opendap.dap.DInt32() );
+						break;
+					case UInt16:
+						darray.addVariable( new opendap.dap.DUInt16() );
+						break;
+					case UInt32:
+						darray.addVariable( new opendap.dap.DUInt32() );
+						break;
+					case Float32:
+						darray.addVariable( new opendap.dap.DFloat32() );
+						break;
+					case Float64:
+						darray.addVariable( new opendap.dap.DFloat32() );
+						break;
+					case String:
+						darray.addVariable( new opendap.dap.DString() );
+						break;
+				}
+				for( int xDim = 1; xDim <= 4; xDim++ ){
+					if( size1[xDim] == 0 ) break;
+					darray.appendDim( size1[xDim] );
+				}
+				// set name
+				darray.getPrimitiveVector().setInternalStorage( pvValue.getInternalStorage() );
+				datadds.addVariable( darray );
 			}
 		} catch( Throwable t ) {
 			sbError.append( "while creating Data DDS" );
@@ -715,15 +830,13 @@ public class Interpreter {
 		}
 
 		// create the model
-		// Model_Dataset model = Model_Dataset.createData( datadds, sbError );
-		// if( model == null ){
-//			sbError.insert( 0, "error creating model for Data DDS: " );
-//			return null;
-//		}
+		Model_Dataset model = Model_Dataset.createData( datadds, sbError );
+		if( model == null ){
+			sbError.insert( 0, "error creating model for Data DDS: " );
+			return null;
+		}
 		
-		
-	
-		return null;
+		return model;
 	}
 
 	final private static String[] aPythonReservedWords = {
@@ -735,6 +848,28 @@ public class Interpreter {
 		"return", "try", "while", "float", "int",
 		"string"
 	};
+	
+	// this method uses $$ to escape a dollar sign
+	StringBuffer sbLiteral$ = new StringBuffer();
+	private String sMacroSubstitution( String sExp, int x1, int x2, int x3, int x4 ){
+		String sExp_after_macro = sExp;
+		boolean zUsingEscape = false;
+		if( sExp.contains( "$$" ) ){
+			sbLiteral$.setLength(0);
+			while( true ){ // determine a unique string to substitute for a literal dollar sign in case of a double escape
+				sbLiteral$.append('~');
+				if( sExp.contains(sbLiteral$) ) break;
+			}
+			Utility_String.sReplaceString( sExp_after_macro, "$$", sbLiteral$.toString() );
+			zUsingEscape = true;
+		}
+		sExp_after_macro = Utility_String.sReplaceString( sExp, "$1", Integer.toString( x1 ) );
+		sExp_after_macro = Utility_String.sReplaceString( sExp_after_macro, "$2", Integer.toString( x2 ) );
+		sExp_after_macro = Utility_String.sReplaceString( sExp_after_macro, "$3", Integer.toString( x3 ) );
+		sExp_after_macro = Utility_String.sReplaceString( sExp_after_macro, "$4", Integer.toString( x4 ) );
+		if( zUsingEscape )	sExp_after_macro = Utility_String.sReplaceString( sExp_after_macro, sbLiteral$.toString(), "$" );
+		return sExp_after_macro;
+	}
 	
 	private boolean zIsValidPythonIdentifier( String sIdentifier, StringBuffer sbError ){
 		if( sIdentifier == null || sIdentifier.trim().length() == 0 ){
@@ -918,3 +1053,337 @@ public class Interpreter {
 	}
 	
 }
+
+class PyPrimitiveVector {
+	
+	final public static int ERROR_VALUE_Byte = 0xFF;
+	final public static int ERROR_VALUE_Int16 = -32768;
+	final public static int ERROR_VALUE_UInt16 = 0xFFFF; // 65535
+	final public static int ERROR_VALUE_UInt32 = 0xFFFFFFFF; // 65535
+	
+	int[] aiVector = null;
+	long[] anVector = null;
+	float[] afVector = null;
+	double[] adVector = null;
+	String[] asVector = null;
+	int iDim1, iDim2, iDim3, iDim4; // dimension lengths
+	int iTotalSize = 0;
+
+	private DAP.DAP_TYPE eTYPE;
+
+	public PyPrimitiveVector( DAP.DAP_TYPE type, int lenDim1, int lenDim2, int lenDim3, int lenDim4 ){
+		eTYPE = type;
+		iDim1 = lenDim1;
+		iDim2 = lenDim2;
+		iDim3 = lenDim3;
+		iDim4 = lenDim4;
+		iTotalSize = iDim1 * ( iDim2 > 0 ? iDim2 * ( iDim3 > 0 ? iDim3 * ( iDim4 > 0 ? iDim4 : 1 ) : 1 ): 1 );
+		switch( eTYPE ){
+			case Byte:
+			case Int16:
+			case Int32:
+			case UInt16:
+				aiVector = new int[iTotalSize];
+				break;
+			case UInt32:
+				anVector = new long[iTotalSize];
+				break;
+			case Float32:
+				afVector = new float[iTotalSize];
+				break;
+			case Float64:
+				adVector = new double[iTotalSize];
+				break;
+			case String:
+				asVector = new String[iTotalSize];
+				break;
+			default:
+				return ;
+		}
+	}
+	
+	// generates an object suitable for internal storage in OPeNDAP
+	public Object getInternalStorage(){
+		switch( eTYPE ){
+			case Byte:
+			case Int16:
+			case Int32:
+				return aiVector;
+			case UInt16:
+			case UInt32:
+			case Float32:
+				return afVector;
+			case Float64:
+				return adVector;
+			case String:
+				return asVector;
+			default:
+				return null;
+		}
+	}
+
+	public boolean set( int xDim1, int xDim2, int xDim3, int xDim4, PyObject pyValue, StringBuffer sbError ){
+		int xArray = xDim1 + iDim1 * xDim2 + iDim1 * iDim2 * xDim3 + iDim1 * iDim2 * iDim3 * xDim4;
+		if( xArray >= iTotalSize ){
+			sbError.append( String.format( "array size %d exceed by index coordinates %d %d %d %d", iTotalSize, xDim1, xDim2, xDim3, xDim4 ) );
+			return false;
+		}
+		try {
+			switch( eTYPE ){
+				case Byte:
+				case Int16:
+				case Int32:
+				case UInt16:
+					int iValue = Py.py2int( pyValue );
+					return set( xArray, iValue, sbError );
+				case UInt32:
+					long nValue = Py.py2long( pyValue );
+					return set( xArray, nValue, sbError );
+				case Float32:
+					float fValue = Py.py2float( pyValue );
+					return set( xArray, fValue, sbError );
+				case Float64:
+					double dValue = Py.py2double( pyValue );
+					return set( xArray, dValue, sbError );
+				case String:
+					String sValue = pyValue.toString();
+					return set( xArray, sValue, sbError );
+				default:
+					sbError.append( "unknown data type" );
+					return false;
+			}
+		} catch( Throwable t ) {
+			sbError.append( "error coercing Jython object to Java value" );
+			return false;
+		}
+	}
+	
+	public boolean set( int xArray, int iValue, StringBuffer sbError ){
+		switch( eTYPE ){
+			case Byte:
+				if( iValue < 0 ){ 
+					sbError.append( String.format( "value %d is out of range for byte type which is unsigned", iValue ) ); 
+					aiVector[xArray] = ERROR_VALUE_Byte;
+					return false; } 
+				if( iValue > 255 ){ 
+					sbError.append( String.format( "value %d is out of range for byte type which has maximum value of 255", iValue ) ); 
+					aiVector[xArray] = ERROR_VALUE_Byte;
+					return false; } 
+				aiVector[xArray] = iValue;
+				return true;
+			case Int16:
+				if( iValue < -32768 || iValue > 32767 ){ 
+					sbError.append( String.format( "value %d is out of range for Int16 type (-32768 to 32767)", iValue ) ); 
+					aiVector[xArray] = ERROR_VALUE_Int16;
+					return false; } 
+				aiVector[xArray] = iValue;
+				return true;
+			case Int32:
+				aiVector[xArray] = iValue;
+				return true;
+			case UInt16:
+				if( iValue < 0 || iValue > 65535 ){ 
+					sbError.append( String.format( "value %d is out of range for UInt16 type (0 to 65535)", iValue ) ); 
+					aiVector[xArray] = ERROR_VALUE_UInt16;
+					return false; }
+				aiVector[xArray] = iValue;
+				return true;
+			case UInt32:
+				sbError.append( "internal error, attempt to cast an int to a long" );
+				anVector[xArray] = Long.MIN_VALUE;
+				return false;
+			case Float32:
+				sbError.append( "internal error, attempt to cast an int to a Float32" );
+				afVector[xArray] = Float.NaN;
+				return false;
+			case Float64:
+				sbError.append( "internal error, attempt to cast an int to a Float64" );
+				adVector[xArray] = Double.NaN;
+				return false;
+			case String:
+				asVector[xArray] = Integer.toString( iValue );
+				return true;
+			default:
+				sbError.append( "unknown data type" );
+				return false;
+		}
+	}
+	public boolean set( int xArray, long nValue, StringBuffer sbError ){
+		switch( eTYPE ){
+			case Byte:
+				sbError.append( "internal error, attempt to cast a long to a Byte" );
+				aiVector[xArray] = ERROR_VALUE_Byte;
+				return false;
+			case Int16:
+				sbError.append( "internal error, attempt to cast a long to an Int16" );
+				aiVector[xArray] = ERROR_VALUE_Int16;
+				return false;
+			case UInt16:
+				sbError.append( "internal error, attempt to cast a long to a UInt16" );
+				aiVector[xArray] = ERROR_VALUE_UInt16;
+				return false;
+			case Int32:
+				sbError.append( "internal error, attempt to cast a long to an Int32" );
+				aiVector[xArray] = Integer.MIN_VALUE;
+				return false;
+			case UInt32:
+				if( nValue < 0 || nValue > 0xFFFFFFFF ){ 
+					sbError.append( String.format( "value %d is out of range for UInt16 type (0 to 4294967295)", nValue ) ); 
+					aiVector[xArray] = ERROR_VALUE_UInt32;
+					return false; }
+				anVector[xArray] = nValue;
+				return true;
+			case Float32:
+				sbError.append( "internal error, attempt to cast a long to a Float32" );
+				afVector[xArray] = Float.NaN;
+				return false;
+			case Float64:
+				sbError.append( "internal error, attempt to cast a long to a Float64" );
+				adVector[xArray] = Double.NaN;
+				return false;
+			case String:
+				asVector[xArray] = Long.toString( nValue );
+				return true;
+			default:
+				sbError.append( "unknown data type" );
+				return false;
+		}
+	}
+	public boolean set( int xArray, float fValue, StringBuffer sbError ){
+		switch( eTYPE ){
+			case Byte:
+				sbError.append( "internal error, attempt to cast a float to a Byte" );
+				aiVector[xArray] = ERROR_VALUE_Byte;
+				return false;
+			case Int16:
+				sbError.append( "internal error, attempt to cast a float to an Int16" );
+				aiVector[xArray] = ERROR_VALUE_Int16;
+				return false;
+			case UInt16:
+				sbError.append( "internal error, attempt to cast a float to a UInt16" );
+				aiVector[xArray] = ERROR_VALUE_UInt16;
+				return false;
+			case Int32:
+				sbError.append( "internal error, attempt to cast a float to an Int32" );
+				aiVector[xArray] = Integer.MIN_VALUE;
+				return false;
+			case UInt32:
+				sbError.append( "internal error, attempt to cast a float to a UInt32" );
+				anVector[xArray] = ERROR_VALUE_UInt32;
+				return false;
+			case Float32:
+				afVector[xArray] = fValue;
+				return true;
+			case Float64:
+				sbError.append( "internal error, attempt to cast a 32-bit floating point number to a Float64" );
+				adVector[xArray] = Double.NaN;
+				return false;
+			case String:
+				asVector[xArray] = Float.toString( fValue );
+				return true;
+			default:
+				sbError.append( "unknown data type" );
+				return false;
+		}
+	}
+	public boolean set( int xArray, double dValue, StringBuffer sbError ){
+		switch( eTYPE ){
+			case Byte:
+				sbError.append( "internal error, attempt to cast a double to a Byte" );
+				aiVector[xArray] = ERROR_VALUE_Byte;
+				return false;
+			case Int16:
+				sbError.append( "internal error, attempt to cast a double to an Int16" );
+				aiVector[xArray] = ERROR_VALUE_Int16;
+				return false;
+			case UInt16:
+				sbError.append( "internal error, attempt to cast a double to a UInt16" );
+				aiVector[xArray] = ERROR_VALUE_UInt16;
+				return false;
+			case Int32:
+				sbError.append( "internal error, attempt to cast a double to an Int32" );
+				aiVector[xArray] = Integer.MIN_VALUE;
+				return false;
+			case UInt32:
+				sbError.append( "internal error, attempt to cast a double to a UInt32" );
+				anVector[xArray] = ERROR_VALUE_UInt32;
+				return false;
+			case Float32:
+				sbError.append( "internal error, attempt to cast a double to a Float32" );
+				afVector[xArray] = Float.NaN;
+				return false;
+			case Float64:
+				adVector[xArray] = dValue;
+				return true;
+			case String:
+				asVector[xArray] = Double.toString( dValue );
+				return true;
+			default:
+				sbError.append( "unknown data type" );
+				return false;
+		}
+	}
+	public boolean set( int xArray, String sValue, StringBuffer sbError ){
+		switch( eTYPE ){
+			case Byte:
+				sbError.append( "internal error, attempt to cast a String to a Byte" );
+				aiVector[xArray] = ERROR_VALUE_Byte;
+				return false;
+			case Int16:
+				sbError.append( "internal error, attempt to cast a String to an Int16" );
+				aiVector[xArray] = ERROR_VALUE_Int16;
+				return false;
+			case UInt16:
+				sbError.append( "internal error, attempt to cast a String to a UInt16" );
+				aiVector[xArray] = ERROR_VALUE_UInt16;
+				return false;
+			case Int32:
+				sbError.append( "internal error, attempt to cast a String to an Int32" );
+				aiVector[xArray] = Integer.MIN_VALUE;
+				return false;
+			case UInt32:
+				sbError.append( "internal error, attempt to cast a String to a UInt32" );
+				anVector[xArray] = ERROR_VALUE_UInt32;
+				return false;
+			case Float32:
+				sbError.append( "internal error, attempt to cast a String to a Float32" );
+				afVector[xArray] = Float.NaN;
+				return false;
+			case Float64:
+				sbError.append( "internal error, attempt to cast a String to a Float64" );
+				adVector[xArray] = Double.NaN;
+				return false;
+			case String:
+				asVector[xArray] = sValue;
+				return true;
+			default:
+				sbError.append( "unknown data type" );
+				return false;
+		}
+	}
+	public String getValue( int xDim1, int xDim2, int xDim3, int xDim4 ){
+		int xArray = xDim1 + iDim1 * xDim2 + iDim1 * iDim2 * xDim3 + iDim1 * iDim2 * iDim3 * xDim4;
+		if( xArray >= iTotalSize ){
+			// sbError.append( String.format( "array size %d exceed by index coordinates %d %d %d %d", iTotalSize, xDim1, xDim2, xDim3, xDim4 ) );
+			return "#OUT_OF_BOUNDS#";
+		}
+		switch( eTYPE ){
+			case Byte:
+			case Int16:
+			case UInt16:
+			case Int32:
+				return Integer.toString( aiVector[xArray] );
+			case UInt32:
+				return Long.toString( anVector[xArray] );
+			case Float32:
+				return Float.toString( afVector[xArray] );
+			case Float64:
+				return Double.toString( adVector[xArray] );
+			case String:
+				return asVector[xArray];
+			default:
+				return "#UNKNOWN_TYPE#";
+		}
+	}
+}
+

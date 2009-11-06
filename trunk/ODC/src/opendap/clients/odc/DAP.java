@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        DAP Utility
  * Description:  Contains utility routines for working with the DAP
- * Copyright:    Copyright (c) 2003-4
+ * Copyright:    Copyright (c) 2003-9
  * Company:      OPeNDAP
  * @author       John Chamberlain
- * @version      2.45
+ * @version      3.06
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -45,14 +45,14 @@ public class DAP {
 	public final static int JAVA_TYPE_double = 6;
 	public final static int JAVA_TYPE_string = 7;
 
-	public final static int DATA_TYPE_Byte = 1;
+	public final static int DATA_TYPE_Byte = 1;     // unsigned char
 	public final static int DATA_TYPE_Int16 = 2;
 	public final static int DATA_TYPE_Int32 = 3;
 	public final static int DATA_TYPE_UInt16 = 4;
 	public final static int DATA_TYPE_UInt32 = 5;
 	public final static int DATA_TYPE_Float32 = 6;
 	public final static int DATA_TYPE_Float64 = 7;
-	public final static int DATA_TYPE_String = 8;
+	public final static int DATA_TYPE_String = 8;   // null-terminated, US-ASCII
 
 	public final static int INVERSION_XYZ = 1;
 	public final static int INVERSION_XZY = 2;
@@ -60,6 +60,31 @@ public class DAP {
 	public final static int INVERSION_YZX = 4;
 	public final static int INVERSION_ZXY = 5;
 	public final static int INVERSION_ZYX = 6;
+
+	public static enum DAP_TYPE {
+		Byte,
+		Int16,
+		Int32,
+		UInt16,
+		UInt32,
+		Float32,
+		Float64,
+		String
+	}
+	
+	public static int getDataSize( DAP_TYPE eTYPE ){
+		switch( eTYPE ){
+			case Byte: return 1;
+			case Int16: return 2;
+			case Int32: return 4;
+			case UInt16: return 2;
+			case UInt32: return 4;
+			case Float32: return 4;
+			case Float64: return 8;
+			case String: return 16;
+			default: return 0;
+		}
+	}
 
 	public static int getDataSize( int eTYPE ){
 		switch( eTYPE ){
@@ -112,6 +137,19 @@ public class DAP {
 			case DATA_TYPE_Float32: return "Float32";
 			case DATA_TYPE_Float64: return "Float64";
 			case DATA_TYPE_String: return "String";
+			default: return "?";
+		}
+	}
+	public static String getType_String( DAP_TYPE eTYPE ){
+		switch( eTYPE ){
+			case Byte: return "Byte";
+			case Int16: return "Int16";
+			case Int32: return "Int32";
+			case UInt16: return "UInt16";
+			case UInt32: return "UInt32";
+			case Float32: return "Float32";
+			case Float64: return "Float64";
+			case String: return "String";
 			default: return "?";
 		}
 	}
