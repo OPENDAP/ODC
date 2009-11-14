@@ -32,6 +32,8 @@ package opendap.clients.odc;
 /////////////////////////////////////////////////////////////////////////////
 
 import opendap.dap.DArray;
+import opendap.dap.DGrid;
+import opendap.dap.DStructure;
 
 import org.python.util.PythonInterpreter;
 import org.python.core.Py;
@@ -176,6 +178,7 @@ public class Interpreter {
 		DAP.DAP_TYPE type = DAP.DAP_TYPE.Float64;
 		int[] size1 = new int[5]; // 1-based
 		DAP.DAP_TYPE[][] index_type = new DAP.DAP_TYPE [5][4];  // variable dimension (1-based), index dimension (0 = primary)
+		String sValueName = "value";
 		String[][] name = new String[5][4];  // variable dimension (1-based), index dimension (0 = primary)
 
 		ArrayList<String> listGlobals = new ArrayList<String>();
@@ -207,7 +210,7 @@ public class Interpreter {
 		//***********************************************************
 		String sRValue_trace = null; // this RValue is treated specially because of a non-standard syntax
 		String[] asKeyword = {
-			"value", "type", "allow_errors",
+			"value", "type", "name", "allow_errors",
 			"size_1", "size_2", "size_3", "size_4",
 			"name_1", "name_2", "name_3", "name_4",
 			"index_1", "index_2", "index_3", "index_4",
@@ -370,6 +373,23 @@ public class Interpreter {
 		// (2) The configuration values (type, name, and index_dimensions) are evaluated first in that order.
 
 		// determine the type of data (already done above)
+
+		// determine the name of the value array
+		String sExp_ValueName = hmExp.get( "name" ); 
+		if( sExp_ValueName == null ){
+			// default will be used 
+		} else {
+			String sEvaluatedName = evaluatePythonRValue_String( "name", sExp_ValueName, streamTrace, trace, sbError );
+			if( sEvaluatedName == null ){
+				if( allow_errors ){
+					// default will be used
+				} else {
+					return null;
+				}
+			} else {
+				sValueName = sEvaluatedName;
+			}
+		}		
 		
 		// determine and validate the dimension count of the index vectors
 		boolean[] azMultidimensionalIndex1 = new boolean[4]; // 1-based
@@ -781,48 +801,72 @@ public class Interpreter {
 			int iHeaderType = opendap.dap.ServerVersion.XDAP; // this is the simple version (eg "2.1.5"), server version strings are like "XDODS/2.1.5", these are only used in HTTP, not in files
 			opendap.dap.ServerVersion server_version = new opendap.dap.ServerVersion( sServerVersion, iHeaderType );
 			datadds = new opendap.dap.DataDDS( server_version );
+			opendap.dap.DefaultFactory factory = new opendap.dap.DefaultFactory();
+			
+			// create the value array
+			DArray darray = createDArray( factory, sValueName, type, pvValue.getInternalStorage(), sbError );
+			if( darray == null ){
+				sbError.insert( 0, String.format( "error creating DArray for value %s of type %s: ", sValueName, DAP.getType_String( type ) ) );
+				return null;
+			}
+			
+			// add dimensions to array
 			boolean zIndexPresent = false;
+			int iSizeOfValueArray = 1;
 			for( int xDim = 1; xDim <= 4; xDim++ ){
+				if( size1[xDim] == 0 ) break;
+				String sDimensionName = name[xDim][0];
+				if( sDimensionName == null ){
+					darray.appendDim( size1[xDim] );
+				} else {
+					darray.appendDim( size1[xDim], sDimensionName, false );
+				}
+				iSizeOfValueArray *= size1[xDim]; 
 				if( index_vectors[xDim] > 0 ) zIndexPresent = true; 
 			}
-			 if( zIndexPresent ){  // then we are creating a grid, otherwise it will be a plain array
-			 } else { // creating a plain array
-				opendap.dap.DefaultFactory factory = new opendap.dap.DefaultFactory();
-				DArray darray = factory.newDArray();
-				switch( type ){
-					case Byte:
-						darray.addVariable( new opendap.dap.DByte() );
-						break;
-					case Int16:
-						darray.addVariable( new opendap.dap.DInt16() );
-						break;
-					case Int32:
-						darray.addVariable( new opendap.dap.DInt32() );
-						break;
-					case UInt16:
-						darray.addVariable( new opendap.dap.DUInt16() );
-						break;
-					case UInt32:
-						darray.addVariable( new opendap.dap.DUInt32() );
-						break;
-					case Float32:
-						darray.addVariable( new opendap.dap.DFloat32() );
-						break;
-					case Float64:
-						darray.addVariable( new opendap.dap.DFloat32() );
-						break;
-					case String:
-						darray.addVariable( new opendap.dap.DString() );
-						break;
-				}
+
+			// validate dimensions
+			if( pvValue.getTotalSize() != iSizeOfValueArray ){
+				sbError.append( "internal error, data vector size " + pvValue.getTotalSize() + " does not match dim size " + iSizeOfValueArray );
+				return null;
+			}
+			
+			// check to see if we are creating a grid
+			DGrid dgrid = null;
+			if( zIndexPresent ){  // then we are creating a grid, otherwise it will be a plain array
+				dgrid = factory.newDGrid();
+				dgrid.addVariable( darray, DGrid.ARRAY );
 				for( int xDim = 1; xDim <= 4; xDim++ ){
 					if( size1[xDim] == 0 ) break;
-					darray.appendDim( size1[xDim] );
+					String sDimensionName = name[xDim][0];
+					if( index_vectors[xDim] == 1 ){ // simple index vector
+						DAP.DAP_TYPE daptypeDim = index_type[xDim][0];
+						DArray darrayDimIndex = createDArray( factory, sDimensionName, daptypeDim, pvIndex[xDim][0].getInternalStorage(), sbError );
+						if( darray == null ){
+							sbError.insert( 0, String.format( "error creating DArray for dimension %s of type %s: ", sDimensionName, DAP.getType_String( daptypeDim ) ) );
+							return null;
+						}
+						dgrid.addVariable( darrayDimIndex, DGrid.MAPS );
+					} else if( index_vectors[xDim] > 1 ){ // multi-vector index
+						DStructure dstructure = factory.newDStructure( sDimensionName );
+						for( int xVector = 1; xVector <= index_vectors[xDim]; xVector++ ){
+							DAP.DAP_TYPE daptypeDim = index_type[xDim][xVector];
+							String sVectorName = name[xDim][xVector];
+							Object oInternalStorage = pvIndex[xDim][xVector].getInternalStorage();
+							DArray darrayDimIndex = createDArray( factory, sVectorName, daptypeDim, oInternalStorage, sbError );
+							if( darray == null ){
+								sbError.insert( 0, String.format( "error creating DArray for grid vector %s of type %s: ", sVectorName, DAP.getType_String( daptypeDim ) ) );
+								return null;
+							}
+							dstructure.addVariable( darrayDimIndex );
+						}
+						dgrid.addVariable( dstructure, DGrid.MAPS );
+					}
 				}
-				// set name
-				darray.getPrimitiveVector().setInternalStorage( pvValue.getInternalStorage() );
-				datadds.addVariable( darray );
+			} else {
+				datadds.addVariable( darray ); // creating a plain array
 			}
+			
 		} catch( Throwable t ) {
 			sbError.append( "while creating Data DDS" );
 			ApplicationController.vUnexpectedError( t, sbError );
@@ -848,6 +892,47 @@ public class Interpreter {
 		"return", "try", "while", "float", "int",
 		"string"
 	};
+	
+	private DArray createDArray( opendap.dap.BaseTypeFactory factory, String sName, DAP.DAP_TYPE type, Object oInternalStorage, StringBuffer sbError ){
+		try {
+			DArray darray = factory.newDArray();
+			switch( type ){
+				case Byte:
+					darray.addVariable( new opendap.dap.DByte() );
+					break;
+				case Int16:
+					darray.addVariable( new opendap.dap.DInt16() );
+					break;
+				case Int32:
+					darray.addVariable( new opendap.dap.DInt32() );
+					break;
+				case UInt16:
+					darray.addVariable( new opendap.dap.DUInt16() );
+					break;
+				case UInt32:
+					darray.addVariable( new opendap.dap.DUInt32() );
+					break;
+				case Float32:
+					darray.addVariable( new opendap.dap.DFloat32() );
+					break;
+				case Float64:
+					darray.addVariable( new opendap.dap.DFloat32() );
+					break;
+				case String:
+					darray.addVariable( new opendap.dap.DString() );
+					break;
+				default:
+					sbError.append( "unknown variable type: " + type );
+					return null;
+			}
+			darray.setName( sName );
+			darray.getPrimitiveVector().setInternalStorage( oInternalStorage );
+			return darray;
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, sbError );
+			return null;
+		}
+	}
 	
 	// this method uses $$ to escape a dollar sign
 	StringBuffer sbLiteral$ = new StringBuffer();
@@ -1013,6 +1098,44 @@ public class Interpreter {
 			return -1;
 		}
 	}
+
+	private String evaluatePythonRValue_String( String sLValue, String sRValue, java.io.OutputStream streamTrace, boolean zTrace, StringBuffer sbError ){
+		try {
+			PyObject po_String = mInterpreter.eval( sRValue );
+			String sString = po_String.toString();
+			if( DAP.isValidIdentifier( sString, sbError) ){
+				streamTrace.write( ("String variable \"" + sLValue + "\" evaluated to \"" + sString + "\"" ).getBytes() );
+				return sString;
+			} else {
+				sbError.insert( 0, "String expression (" + sLValue + ") evaluated to \"" + sString + "\" which not a valid identifier: " );
+				if( zTrace ){
+					streamTrace.write( sbError.toString().getBytes() );
+				}
+				return null;
+			}
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			String sMessage = "syntax error while evaluating setting (" + sRValue + "): " + parse_error;
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+			}
+			sbError.append( sMessage );
+			return null;
+		} catch( org.python.core.PyException python_error ) {
+			String sMessage = "python error evaluating setting (" + sRValue + "): " + python_error;
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+			}
+			sbError.append( sMessage );
+			return null;
+		} catch( Throwable t ) {
+			String sMessage = "error while processing setting (" + sRValue + "): " + Utility.errorExtractLine( t );
+			if( zTrace ){
+				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+			}
+			sbError.append( sMessage );
+			return null;
+		}
+	}
 	
 	private String evaluatePythonRValue_DimName( String sRValue, int iDimNumber, java.io.OutputStream streamTrace, boolean zTrace, StringBuffer sbError ){
 		try {
@@ -1102,6 +1225,8 @@ class PyPrimitiveVector {
 		}
 	}
 	
+	public int getTotalSize(){ return iTotalSize; }
+
 	// generates an object suitable for internal storage in OPeNDAP
 	public Object getInternalStorage(){
 		switch( eTYPE ){
