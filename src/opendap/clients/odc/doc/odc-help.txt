@@ -810,50 +810,74 @@ See "Data Viewer - Parameter Reference" for a listing of all the possible parame
 
 #Data Viewer - Parameter Reference
 
+The parameter names are case-sensitive and must be lower-case to be recognized.
+
 The complete set of predefined parameters and their default values is as follows:
 
 	value = null
-	type = "Float64"  (not case-sensitive)
+	type = "Float64"  (type name is not case-sensitive)
 	allow_errors = false
+	trace
 	size_1 = 100
 	size_2 = 0
 	size_3 = 0
 	size_4 = 0
-	index_1 = null (use these variables for single-dimension indices)
-	index_2 = null
-	index_3 = null
-	index_4 = null
-	name_1 = null
-	name_2 = null
-	name_3 = null
-	name_4 = null
-	index_1_dimensions = 1
-	index_2_dimensions = 0
-	index_3_dimensions = 0
-	index_4_dimensions = 0
-	index_1_type = "Float64"
+	name_1 = "dimension_1";
+	name_2 = "dimension_2";
+	name_3 = "dimension_3";
+	name_4 = "dimension_4";
+	index_1_type = "Float64" (use these variables for single-vector grids)
 	index_2_type = "Float64"
 	index_3_type = "Float64"
 	index_4_type = "Float64"
-	index_1_1 = null;  (use these for multi-dimensional indices)
+	index_1 = null 
+	index_2 = null
+	index_3 = null
+	index_4 = null
+
+	$1, $2, $3 and $4 are macro substitutions for index values as the expression set is evaluated
+	
+	$$ is the escape sequence to indicate a literal '$' in case you have the above strings ($1, $2, $3 and $4) and you don't want them to be replaced.
+	
+Additional parameters that can be used to define multi-vector grids:
+
+	index_1_1_name = "dim1_index1"
+	index_1_2_name = "dim1_index2"
+	index_1_3_name = "dim1_index3"
+	index_2_1_name = "dim2_index1"
+	index_2_2_name = "dim2_index2"
+	index_2_3_name = "dim2_index3"
+	index_3_1_name = "dim3_index1"
+	index_3_2_name = "dim3_index2"
+	index_3_3_name = "dim3_index3"
+	index_4_1_name = "dim4_index1"
+	index_4_2_name = "dim4_index2"
+	index_4_3_name = "dim4_index3"
+	index_1_1_type = "Float64"
+	index_1_2_type = "Float64"
+	index_1_3_type = "Float64"
+	index_2_1_type = "Float64"
+	index_2_2_type = "Float64"
+	index_2_3_type = "Float64"
+	index_3_1_type = "Float64"
+	index_3_2_type = "Float64"
+	index_3_3_type = "Float64"
+	index_4_1_type = "Float64"
+	index_4_2_type = "Float64"
+	index_4_3_type = "Float64"
+	index_1_1 = null;
 	index_1_2 = null;
 	index_1_3 = null;
-	index_1_4 = null;
 	index_2_1 = null;
 	index_2_2 = null;
 	index_2_3 = null;
-	index_2_4 = null;
 	index_3_1 = null;
 	index_3_2 = null;
 	index_3_3 = null;
-	index_3_4 = null;
 	index_4_1 = null;
 	index_4_2 = null;
 	index_4_3 = null;
-	index_4_4 = null;
 	
-	$1, $2, $3 and $4 macro substitutions for index values as expression set is evaluated
-
 Python is an untyped language. The ODC takes whatever value Python generates and attempts to convert it to an OPeNDAP/IEEE type. If the conversion fails you will either get an error or a passive warning depending on the value of the $allow_errors variable. The supported type descriptors (not case-sensitive) are:
 
 	Byte
@@ -865,31 +889,62 @@ Python is an untyped language. The ODC takes whatever value Python generates and
 	Float64
 	String
 
-The index variables are L-values you can use to create grids. Normally dimension 1 is x, dimension 2 is y, dimension 3 is z and dimension 4 is time, but in some applications the dimensions could have other meanings. See the help section "Data Viewer - Grid Expressions" for more information on creating grids and the use of these variables.
+The index variables are L-values you can use to create grids. Normally dimension 1 is x, dimension 2 is y, dimension 3 is z and dimension 4 is time, but in some applications the dimensions could have other meanings. See the help section "Data Viewer - Grid Expressions" for more information on creating grids and the use of these variables. The size of the index arrays is determined by the size of the array they index.
 
+#Data Viewer - Expression Errors
+
+The "allow_errors" parameter allows you to control how errors are handled when your expression is evaluated. By default this parameter is false so if an error occurs execution halts and an error is generated. If you want to allow errors in your data and continue execution even when errors occur set this value to true. In this case the data value that is in error will have one of the following values depending on its type:
+
+	Byte	255
+	Int16	-32768
+	UInt16	65535
+	Int32	-2147483648
+	UInt32	4294967295
+	Float32	NaN
+	Float64	NaN
+	String	#ERROR#
+
+Note that some errors are fatal and will result in process termination regardless of the allow_errors setting. For example, if there is an error evaluating the expression for a dimensional size then nothing further can be done and an error will be returned.	
+	
+#Data Viewer - Debugging Expressions
+
+The "trace" parameter enables you to debug the operation of your expression. With no parameters supplied every loop through the data will be traced. Beware that the trace will generate up to a page of text for every loop through the data. So if you are generating a million-member array with tracing on for all points the ODC will attempt to send a million pages of text to your text viewer and probably bring your system to its knees. To control which loops are traced use the following syntax:
+
+	trace 5 15 0
+	
+This would tell the system to trace only the generation of the data value [5][15][0] in the dataset. You can also specify ranges using a colon:
+
+	trace 5:11 15 0:2
+
+This would trace elements [5:11][15][0:2]. There would be 21 traces in this case (7 x 1 x 3).
+
+All trace output is sent to the text viewer (View/Text).
+	
 #Data Viewer - Intermediate Values
 
 If your expression formulas are complicated you may want to break them into easier-to-understand sub-calculations using intermediate values or variables. The key thing when doing this is to understand the order of evaluation of the different statements you place in your expression file which is as follows:
 
-(1) All unrecognized variables beginning with "__" are evaluated.
+(1) tracing parameter is evaluated if present
 
-(2) The configuration values (allow_errors, type, name, and index_dimensions) are evaluated first in that order.
+(2) All unrecognized variables beginning with "__" are evaluated.
 
-(3) The size variables are evaluated to determine the dimensions of the value array.
+(3) The configuration values (allow_errors, type, name, and index_dimensions) are evaluated first in that order.
 
-(4) The internal index values are incremented.
+(4) The size variables are evaluated to determine the dimensions of the value array.
 
-(5) All unrecognized variables beginning with "_" are evaluated after macro substitution.
+(5) The internal index values are incremented.
 
-(6) The index variables are evaluated
+(6) All unrecognized variables beginning with "_" are evaluated after macro substitution.
 
-(7) All unrecognized variables not beginning with "_" are evaluated after macro substitution.
+(7) The index variables are evaluated
 
-(8) The value variable is evaluated.
+(8) All unrecognized variables not beginning with "_" are evaluated after macro substitution.
 
-(9) The process loops to step (3) and continues until the value matrix is full.
+(9) The value variable is evaluated.
 
-Steps (5) and (7) are your chance to define intermediate values that are used to calculate (6) and (8). You can also designate variables to be evaluated once at the beginning of the variable creation by prefixing them with "$$".
+(10) The process loops to step (5) and continues until the value matrix is full.
+
+Steps (6) and (8) are your chance to define intermediate values that are used to calculate (7) and (9). You can also designate variables to be evaluated once at the beginning of the variable creation by prefixing them with "__".
 	
 #Data Viewer - Grid Expressions
 
@@ -904,7 +959,13 @@ The help section "Data Viewer - Expressions" describes how to create simple vect
 	
 The presence of the "index_n" variables tells the ODC you want to make a grid instead of a plain array. The order of the parameters does not matter. Note that the sizes in this example need to be 31 and 21 because a range of 180 to 210 has 31 elements in it and a range of 40 to 60 has 21 elements in it. Index 1 is in the "x" direction because the Python, C and Java all use row-major order which is value[x][y][z]. This differs from MATLAB which uses column-major order ([z][y][x]).
 
-The $index_dimensions variable is used to create multi-dimensional grid indices. This is useful when the coordinates of an array vary continuously. One application is to do map projections. Another use is storing satellite datasets and other raw earth imagery. Multi-dimensional indices vary continously over each cell in the value matrix. For example, if you are creating a matrix with a multi-dimensional index then the grid will have three or four arrays. If your coordinate matrices need only 2 dimensions (e.g., latitude and longitude) then there will three arrays: the value array, the index_1 array (longitude), and the index_2 array (latitude). If your coordinate matrices need 3 dimensions (e.g., ECEF coordinates have x, y and z) then there will four arrays: the value array, the index_1 array (x), the index_2 array (y) and the index_3 array (z). In the last example, the index arrays will tell the exact ECEF coordinates of each pixel in the image.
+This will produce the following grid where every single value is the number 5:
+
+	....
+	
+A key thing to note about grids is that the index arrays must be the same size as the dimensions they index. This is why you only need one set of "size" expressions.
+
+The $index_dimensions variable is used to create multi-dimensional grid indices. This is useful when the coordinates of an array vary continuously. One application is to do map projections. Another use is storing satellite datasets and other raw earth imagery. Multi-dimensional indices vary continously over each cell in the value matrix. For example, if you are creating a matrix with a multi-dimensional index then the grid will have two or three vectors for the indices. If your coordinate matrices need only 2 dimensions (e.g., latitude and longitude) then there will three arrays: the value array, the index_1 array (longitude), and the index_2 array (latitude). If your coordinate matrices need 3 dimensions (e.g., ECEF coordinates have x, y and z) then there will four arrays: the value array, the index_1 array (x), the index_2 array (y) and the index_3 array (z). In the last example, the index arrays will tell the exact ECEF coordinates of each pixel in the image.
 
 Example: Creating an ECEF Grid
 
@@ -914,7 +975,9 @@ To create an earth-centered, earth-fixed (ECEF) grid we could use the following 
 	value = 5
 	size_1 = 651
 	index_1_type = "Float64"
-	index_1_dimensions = 3
+	index_1_1_name = "x"
+	index_1_2_name = "y"
+	index_1_3_name = "z"
 	index_1_1 = radius_of_curvature * math.cos( latitude_radians ) * math.cos( longitude_radians )
 	index_1_2 = radius_of_curvature * math.cos( latitude_radians ) * math.sin( longitude_radians )
 	index_1_3 = radius_of_curvature * ( 1 - __eccentricity_squared ) * math.sin( latitude_radians )
@@ -928,7 +991,7 @@ To create an earth-centered, earth-fixed (ECEF) grid we could use the following 
 	_latitude_radians = longitude * math.pi / 180
 	_radius_of_curvature = __earth_equatorial_radius / math.sqrt( 1 - __eccentricity_squared * math.pow( math.sin( latitude_radians ) ) )
 
-This will create the grid as the previous example except that the index will be a three arrays containing the ECF coordinates of the values instead of two vectors containing the latitude and longitude coordinates. Note that the "__" variables are evaluated only once at the beginning of the run and the "_" variables are evaluated before the index values (index_1, index_2, index_3) are evaluated.
+This will create the grid as the previous example except that the index will be a three arrays containing the ECF coordinates of the values instead of two vectors containing the latitude and longitude coordinates. Note that the "__" variables are evaluated only once at the beginning of the run and the "_" variables are evaluated before the index values (index_1_1, index_1_2, index_1_3) are evaluated.
 
 	
 
