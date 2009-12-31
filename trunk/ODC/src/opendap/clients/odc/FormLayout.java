@@ -110,6 +110,24 @@ package opendap.clients.odc;
  *  trailing is placed after the element, and vertical line spacing is added above and/or below the line.
  *  If elements in the same row have different spacing the next row will be pushed down accordingly. In other words
  *  rows will not overlap.
+ *  
+ *  The public methods for FormLayout are (all indexes are 1-based):
+ *  
+ *	public void setMargin( int left, int top )
+ *	public void setMargin( int iMargin )
+ *	public void setMargin( int left, int right, int top, int bottom )
+ *	public void setSpacing_Default( int indent, int separation, int trailing, int above, int below )
+ *	public void setSpacing( Component item, int indent, int separation, int trailing, int above, int below )
+ *	public void add( Component label, Component control )  // element will be added at the last row of column 1
+ *	public void add( Component label, Component control, int row )  // element will be added to the last available column of the chosen row
+ *	public void add( Component label, Component control, int row, int column )
+ *	public void setFill_Vertical( Component item )  // causes the item to fill any vertical space available
+ *	public void setFill_Horizontal( Component component, boolean zValue )  // whether the item should fill horizontal space
+ *	public void setWeighting( Component component, int weight )  // relative weighting
+ *	public void setAlignment( Component component, int ALIGNMENT )
+ *	public void setAlignment( int ALIGNMENT )
+ *	public void setAlignment( int column, int ALIGNMENT )
+ *  
  */
 
 import java.awt.*;
@@ -418,12 +436,7 @@ System.out.println("\n**********\nrow " + xRow + " has " + ctElementsInThisRow +
 			for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
 				FormElement element = aMapping[xColumn][xRow];
 System.out.println("element: " + element);
-				if( element == null ){
-					element.iBounds_minimum_width = 0;
-					element.iBounds_preferred_width = 0;
-					element.iBounds_maximum_width = 0;
-					continue;
-				}
+				if( element == null ) continue;
 				ctElementsInThisRow++;
 				int pxPadding_CurrentElement = element.miSpacing_indent
 												+ ( element.componentLabel != null && element.componentControl != null ? element.miSpacing_separation : 0 )
@@ -714,9 +727,9 @@ System.out.println("************************ setting preferred height to: " + mp
 				FormElement element = aMapping[xColumn][xRow];
 				if( element == null ) continue;
 				if( element.componentLabel != null ){
-					element.iBounds_label_y = px_y + element.miSpacing_line_above;
 					element.iBounds_label_x = px_x + element.miSpacing_indent;
-System.out.println("label x y: " + element.iBounds_label_x + " " + element.iBounds_label_y + " width: " + element.iBounds_label_width );
+					element.iBounds_label_y = px_y + element.miSpacing_line_above;
+System.out.format( "label x y: %d (%d + %d) %d (%d + %d) width: %d\n", element.iBounds_label_x, px_x, element.miSpacing_indent, element.iBounds_label_y, px_y, element.miSpacing_line_above, element.iBounds_label_width );
 					px_x += element.miSpacing_indent + element.iBounds_label_width + element.miSpacing_separation;
 				}
 				if( element.componentControl != null ){
@@ -1153,10 +1166,6 @@ System.out.println("label 1 preferred size: " + label1.getPreferredSize().getWid
 
 //		layout.setSpacing_Default( 0, 5, 0, 0, 10 );
 		layout.setMargin( 0 );
-
-//		this.setLayout( new java.awt.BorderLayout() );
-//		this.add( panelControls, java.awt.BorderLayout.NORTH );
-//		this.add( panelDisplay, java.awt.BorderLayout.CENTER );
 
 	}
 
