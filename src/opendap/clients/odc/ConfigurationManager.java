@@ -71,7 +71,7 @@ public class ConfigurationManager {
 	private static final String FEEDBACK_Default_EmailRelayURL = "/cgi-bin/odc_mail_relay.pl"; // http://test.opendap.org/cgi-bin/odc_mail_relay.pl
 	private static final String FEEDBACK_Default_MailHost = "test.opendap.org";
 	private static final String FEEDBACK_Default_MailPort = "80";
-	private static final String FEEDBACK_Default_EmailAddress = "feedback@opendap.org";
+	private static final String FEEDBACK_Default_EmailAddress = "feedback" + "@" + "opendap.org";
 	private static final String FEEDBACK_Default_BugHost = "scm.opendap.org";
 	private static final String FEEDBACK_Default_BugPort = "8090";
 	private static final String FEEDBACK_Default_BugRoot = "/trac";
