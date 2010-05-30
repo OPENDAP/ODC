@@ -42,7 +42,7 @@ package opendap.clients.odc.plot;
 //be able to copy rgb and hsb values
 
 import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.Utility;
+import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.Styles;
 
 import javax.swing.JDialog;
@@ -113,6 +113,11 @@ public class ColorPicker_HSB extends JPanel implements MouseListener {
 	int mxColorLabel;
 	GeneralPath mshapeIndicator;
 	
+	String msCurrentColor_AHSB = null;
+	String msCurrentColor_ARGB = null;
+	String msComparisonColor_AHSB = "FF000000";
+	String msComparisonColor_ARGB = "FF000000";
+
 	public ColorPicker_HSB(){
 		mbi = new BufferedImage( 10, 10, BufferedImage.TYPE_INT_ARGB ); // smaller buffer just used to get sizes
 		g2 = (Graphics2D)mbi.getGraphics();
@@ -202,6 +207,13 @@ public class ColorPicker_HSB extends JPanel implements MouseListener {
 		mshapeIndicator.lineTo(0.0f, (float)pxIndicatorHeight/2f);
 
 	}
+	
+	String getCurrentColor_AHSB(){ return msCurrentColor_AHSB; }
+	String getCurrentColor_ARGB(){ return msCurrentColor_ARGB; }
+	String getComparisonColor_AHSB(){ return msComparisonColor_AHSB; }
+	String getComparisonColor_ARGB(){ return msComparisonColor_ARGB; }
+	
+	
 	StringBuffer sb = new StringBuffer(80);
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -373,13 +385,13 @@ public class ColorPicker_HSB extends JPanel implements MouseListener {
 
 		// color hex text: AHSB
 		sb.setLength(0);
-		sb.append(Utility.sToHex(miAlphaSelect, 2));
+		sb.append(Utility_String.sToHex(miAlphaSelect, 2));
 		sb.append(' ');
-		sb.append(Utility.sToHex(miHueSelect, 2));
+		sb.append(Utility_String.sToHex(miHueSelect, 2));
 		sb.append(' ');
-    	sb.append(Utility.sToHex(miSatSelect, 2));
+    	sb.append(Utility_String.sToHex(miSatSelect, 2));
 		sb.append(' ');
-   		sb.append(Utility.sToHex(miBriSelect, 2));
+   		sb.append(Utility_String.sToHex(miBriSelect, 2));
 		sb.append(' ');
 		String sAHSB = sb.toString();
 
@@ -389,13 +401,22 @@ public class ColorPicker_HSB extends JPanel implements MouseListener {
 		int xHSB = mxColorLabel + pxColorLabel_width + 10;
 		g2.drawString("AHSB:", mxColorLabel, myColorSquare + mpxTextBoldHeight - 6);
 		g2.drawString(sAHSB, xHSB, myColorSquare + mpxTextBoldHeight - 6);
+		msCurrentColor_AHSB = sAHSB;
 
 		g2.drawString("ARGB:", mxColorLabel, myColorSquare + mpxTextBoldHeight*2 - 3);
 		sb.setLength(0);
-		sb.append(Utility.sToHex( Color_HSB.iHSBtoRGBA(this.mhsbSelect), 8));
+		sb.append(Utility_String.sToHex( Color_HSB.iHSBtoRGBA(this.mhsbSelect), 8));
 		g2.setColor(Color.BLACK);
 		g2.drawString(sb.toString(), xHSB, myColorSquare + mpxTextBoldHeight*2 - 3);
+		msCurrentColor_ARGB = sb.toString();
 
+		// draw strings for comparison color
+		int comparison_offset = 130;
+		g2.drawString("AHSB:", mxColorLabel + comparison_offset, myColorSquare + mpxTextBoldHeight - 6);
+		g2.drawString(msComparisonColor_AHSB, xHSB + comparison_offset, myColorSquare + mpxTextBoldHeight - 6);
+		g2.drawString("ARGB:", mxColorLabel + comparison_offset, myColorSquare + mpxTextBoldHeight*2 - 3);
+		g2.drawString(msComparisonColor_ARGB, xHSB + comparison_offset, myColorSquare + mpxTextBoldHeight*2 - 3);		
+		
 		// indicators
 
 		// hue selection
@@ -479,6 +500,8 @@ public class ColorPicker_HSB extends JPanel implements MouseListener {
 	public void setCompare( int iHSB ){
 		mhsbCompare = iHSB;
 		colorCompare = new Color( Color_HSB.iHSBtoRGBA(iHSB), true );
+		msComparisonColor_AHSB = Utility_String.sToHex( iHSB, 8);
+		msComparisonColor_ARGB = Utility_String.sToHex( Color_HSB.iHSBtoRGBA( iHSB ), 8);
 		repaint();
 	}
 
@@ -541,7 +564,7 @@ public class ColorPicker_HSB extends JPanel implements MouseListener {
 				   yPX <= myColorSquare + mpxTextBoldHeight*2 + 16 ){
 			try {
 				java.awt.datatransfer.Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-				String sRGB = Utility.sToHex( Color_HSB.iHSBtoRGBA(mhsbSelect), 6);
+				String sRGB = Utility_String.sToHex( Color_HSB.iHSBtoRGBA(mhsbSelect), 6);
 				java.awt.datatransfer.StringSelection contents = new java.awt.datatransfer.StringSelection(sRGB);
 				clipboard.setContents(contents, null);
 				ApplicationController.vShowStatus_NoCache("clipped " + sRGB);
@@ -560,6 +583,9 @@ public class ColorPicker_HSB extends JPanel implements MouseListener {
 			jop = new JOptionPane( mHSBpicker, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION );
 			jd = jop.createDialog( null, "Choose Color");
 			jd.setVisible( true );
+			System.out.println( mHSBpicker.getCurrentColor_ARGB() );
+			System.out.println( mHSBpicker.getComparisonColor_ARGB() );
+			System.exit( 0 );
 		} catch( Throwable ex ) {
 			System.err.println("Unable to clip RGB: " + ex);
 		}
