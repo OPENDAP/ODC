@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // This file is part of the OPeNDAP Data Connector project.
 //
-// Copyright (c) 2007 OPeNDAP, Inc.
+// Copyright (c) 2007-2010 OPeNDAP, Inc.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -26,10 +26,10 @@ package opendap.clients.odc.plot;
  * Title:        ColorPicker_HSB
  * Description:  A picker panel with colors in HSB mode
  *               Free for public use but must include this header
- * Copyright:    Copyright (c) 2003
+ * Copyright:    Copyright (c) 2003-2010
  * Company:      OPeNDAP.org
  * @author       John Chamberlain (http://johnchamberlain.com)
- * @version      2.32
+ * @version      3.06
  */
 
 //improvements to interface
