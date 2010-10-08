@@ -12,7 +12,7 @@ package opendap.clients.odc;
 /////////////////////////////////////////////////////////////////////////////
 // This file is part of the OPeNDAP Data Connector project.
 //
-// Copyright (c) 2007 OPeNDAP, Inc.
+// Copyright (c) 2007-9 OPeNDAP, Inc.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -45,6 +45,7 @@ import java.util.HashMap;
 public class Interpreter {
 	private PythonInterpreter mInterpreter = null;
 	private String msPrompt = ">>> ";
+	private java.io.OutputStream streamTrace = null;
 
 	public Interpreter() {}
 
@@ -96,7 +97,7 @@ public class Interpreter {
 			mInterpreter.setErr(os);
 			mInterpreter.exec( sCommand );
 		} catch( org.python.core.PySyntaxError parse_error ) {
-			vWriteLine( os, "!syntax error: " + parse_error, msPrompt );
+			vWriteLine( os, "!python syntax error: " + parse_error, msPrompt );
 		} catch( org.python.core.PyException python_error ) {
 			vWriteLine( os, "!python error: " + python_error, msPrompt );
 		} catch( Throwable t ) {
@@ -138,6 +139,7 @@ public class Interpreter {
 			sbError.insert( 0, "failed to parse expression into lines of text: " );
 			return null;
 		}
+		streamTrace = ApplicationController.getInstance().getTextViewerOS();		
 
 		HashMap<String,String> hmExp = new HashMap<String,String>();
 		
@@ -248,11 +250,17 @@ public class Interpreter {
 			}
 			String sLValue = sLine.substring( 0, posEquals ).trim();
 			String sRValue = sLine.substring( posEquals + 1 ).trim();
+			if( trace ){
+				trace( "" ); // get off of command prompt
+				try {
+					String sMessage = String.format( "line %d L-value: [%s] R-value: [%s]\n", xLine, sLValue, sRValue );
+					trace( sMessage );
+				} catch( Throwable t ){}
+			}
 			if( ! zIsValidPythonIdentifier( sLValue, sbError ) ){
 				sbError.insert( 0, "Identifier \"" + sLValue + "\" used as an L-value in line " + xLine + " is invalid: " );
 				return null;
 			}
-			
 			if( sLValue.startsWith( "__" ) ){
 				listGlobals.add( sLine );
 			} else if( sLValue.startsWith( "_" ) ){
@@ -265,8 +273,6 @@ public class Interpreter {
 		}
 		
 		// determine whether to trace
-		final java.io.OutputStream streamTrace = ApplicationController.getInstance().getTextViewerOS();
-		
 		if( sLine_trace == null && !trace ){
 			// do not trace
 		} else {
@@ -280,28 +286,28 @@ public class Interpreter {
 				// do nothing, use default value
 			} else if( sRValue_allow_errors.equalsIgnoreCase( "true" ) ){
 				allow_errors = true;
-				if( trace )	streamTrace.write( "allow_errors set to true".getBytes() );
+				if( trace )	trace( "allow_errors set to true" );
 			} else if( sRValue_allow_errors.equalsIgnoreCase( "false" ) ){
 				allow_errors = false;
-				if( trace )	streamTrace.write( "allow_errors set to false".getBytes() );
+				if( trace )	trace( "allow_errors set to false" );
 			} else {
 				try {
-					mInterpreter.eval( sLine_allow_errors );
+					mInterpreter.exec( sLine_allow_errors );
 					PyObject po_allow_errors = mInterpreter.get( "allow_errors" );
 					allow_errors = Py.py2boolean( po_allow_errors );
-					if( trace )	streamTrace.write( ("allow_errors ( " + sLine_allow_errors + " ) evaluated to " + allow_errors).getBytes() );
+					if( trace )	trace( "allow_errors ( " + sLine_allow_errors + " ) evaluated to " + allow_errors );
 				} catch( org.python.core.PySyntaxError parse_error ) {
-					sbError.append( "syntax error processing allow_errors setting: " + parse_error );
+					sbError.append( "Python syntax error processing allow_errors setting: " + parse_error );
 					return null;
 				} catch( org.python.core.PyException python_error ) {
-					String sMessage = "python error processing allow_errors setting: " + python_error;
-					if( trace )	streamTrace.write( sMessage.getBytes() );
+					String sMessage = "Python error processing allow_errors setting: " + python_error;
+					if( trace )	trace( sMessage );
 					sbError.append( sMessage );
 					return null;
 				} catch( Throwable t ) {
 					String sMessage = "unexpected error while evaluating allow_errors parameter (" + sLine_allow_errors + "): " + Utility.errorExtractLine( t );
 					if( trace ){
-						streamTrace.write( sMessage.getBytes() );
+						trace( sMessage );
 					}
 					sbError.append( sMessage );
 					ApplicationController.vUnexpectedError( t, sbError );
@@ -325,38 +331,38 @@ public class Interpreter {
 			for( int xGlobal = 1; xGlobal <= listGlobals.size(); xGlobal++ ){
 				String sGlobal = listGlobals.get( xGlobal - 1 );
 				try {
-					mInterpreter.eval( sGlobal );
+					mInterpreter.exec( sGlobal );
 					if( trace ){
 						String sGlobalLValue = Utility_String.getLValue( sGlobal );
 						if( sGlobalLValue == null ){
 							String sMessage = "global " + sGlobal + " evaluated";
-							streamTrace.write( sMessage.getBytes() );
+							trace( sMessage );
 						} else {
 							PyObject po_global = mInterpreter.get( sGlobalLValue );
 							String sMessage = "global " + sGlobal + " evaluated to: " + po_global.toString();
-							streamTrace.write( sMessage.getBytes() );
+							trace( sMessage );
 						}
 					}
 				} catch( org.python.core.PySyntaxError parse_error ) {
-					String sMessage = "syntax error evaluating global ( " + sGlobal + " ): " + parse_error;
+					String sMessage = "Python syntax error executing global ( " + sGlobal + " ): " + parse_error;
 					if( trace ){
-						streamTrace.write( sMessage.getBytes() );
+						trace( sMessage );
 					}
 					sbError.append( sMessage );
 					if( !allow_errors ) return null;
 				} catch( org.python.core.PyException python_error ) {
-					String sMessage = "python error evaluating global (" + sGlobal + "): " + python_error;
+					String sMessage = "Python error executing global (" + sGlobal + "): " + python_error;
 					if( trace ){
-						streamTrace.write( sMessage.getBytes() );
+						trace( sMessage );
 					}
 					if( !allow_errors ){
 						sbError.append( sMessage );
 						return null;
 					}
 				} catch( Throwable t ) {
-					String sMessage = "unexpected error while evaluating global (" + sGlobal + "): " + Utility.errorExtractLine( t );
+					String sMessage = "unexpected error while executing global (" + sGlobal + "): " + Utility.errorExtractLine( t );
 					if( trace ){
-						streamTrace.write( sMessage.getBytes() );
+						trace( sMessage );
 					}
 					if( !allow_errors ){
 						sbError.append( sMessage );
@@ -372,7 +378,29 @@ public class Interpreter {
 		
 		// (2) The configuration values (type, name, and index_dimensions) are evaluated first in that order.
 
-		// determine the type of data (already done above)
+		// determine the type of data
+		String sExp_ValueType = hmExp.get( "type" );
+		if( sExp_ValueType == null ){
+			// default will be used 
+		} else {
+			String sEvaluatedType = evaluatePythonRValue_String( "type", sExp_ValueType, streamTrace, trace, sbError );
+			if( sEvaluatedType == null ){
+				if( allow_errors ){
+					// default will be used
+				} else {
+					sbError.insert( 0, "error evaluating value type: " );
+					return null;
+				}
+			} else {
+				DAP.DAP_TYPE eType =  DAP.getTypeEnumByName( sEvaluatedType );
+				if( eType == null ){
+					sbError.insert( 0, "unrecognized value type: " + sEvaluatedType );
+					return null;
+				} else {
+					type = eType;
+				}
+			}
+		}		
 
 		// determine the name of the value array
 		String sExp_ValueName = hmExp.get( "name" ); 
@@ -384,6 +412,7 @@ public class Interpreter {
 				if( allow_errors ){
 					// default will be used
 				} else {
+					sbError.insert( 0, "error evaluating value name: " );
 					return null;
 				}
 			} else {
@@ -537,20 +566,20 @@ public class Interpreter {
 					String[] asTrace = Utility_String.splitCommaWhiteSpace( sRValue_trace );
 					int ctTrace = asTrace.length; 
 					if( ctTrace != ctDimensions ){
-						streamTrace.write( ("trace parameter (" + sRValue_trace + ") parsed to have " + ctTrace + " entries, but there are " + ctDimensions + ". If trace parameters are used they must match the number of dimensions. Tracing will now be turned off.").getBytes() );
+						trace( "trace parameter (" + sRValue_trace + ") parsed to have " + ctTrace + " entries, but there are " + ctDimensions + ". If trace parameters are used they must match the number of dimensions. Tracing will now be turned off." );
 						trace = false;
 					} else {
 						for( int xTraceParameter = 1; xTraceParameter <= ctTrace; xTraceParameter++ ){
 							String sParameter = asTrace[xTraceParameter - 1];
 							String[] asTraceRange = Utility_String.split( sParameter, ':' );
 							if( asTraceRange.length > 2 ){
-								streamTrace.write( ("trace parameter " + xTraceParameter + " (" + sParameter + ") parsed to have " + asTraceRange.length + " entries, but only 1 or 2 were expected. Trace parameters must be either 0-based numbers or ranges of index values, e.g., \"23:45\". Tracing will now be turned off.").getBytes() );
+								trace( "trace parameter " + xTraceParameter + " (" + sParameter + ") parsed to have " + asTraceRange.length + " entries, but only 1 or 2 were expected. Trace parameters must be either 0-based numbers or ranges of index values, e.g., \"23:45\". Tracing will now be turned off." );
 								trace = false;
 								break;
 							}
 							int iParameter_begin = Utility_String.parseInteger_nonnegative( asTraceRange[0] );
 							if( iParameter_begin == -1 ){
-								streamTrace.write( ("trace parameter " + xTraceParameter + " (" + asTraceRange[0] + ") did not parse to a non-negative integer. Tracing will now be turned off.").getBytes() );
+								trace( "trace parameter " + xTraceParameter + " (" + asTraceRange[0] + ") did not parse to a non-negative integer. Tracing will now be turned off." );
 								trace = false;
 								break;
 							}
@@ -558,7 +587,7 @@ public class Interpreter {
 							if( asTraceRange.length == 2 ){
 								iParameter_end = Utility_String.parseInteger_nonnegative( asTraceRange[1] );
 								if( iParameter_begin == -1 ){
-									streamTrace.write( ("trace parameter " + xTraceParameter + ", end part (" + asTraceRange[1] + ") did not parse to a non-negative integer. Tracing will now be turned off.").getBytes() );
+									trace( "trace parameter " + xTraceParameter + ", end part (" + asTraceRange[1] + ") did not parse to a non-negative integer. Tracing will now be turned off." );
 									trace = false;
 									break;
 								}
@@ -566,7 +595,7 @@ public class Interpreter {
 								iParameter_end = iParameter_begin; 
 							}
 							if( iParameter_end < iParameter_begin ){
-								streamTrace.write( ("trace parameter " + xTraceParameter + " (" + sParameter+ ") is invalid because the begin value ( " + iParameter_begin + " ) is greater than the end value ( " + iParameter_end + " ). Tracing will now be turned off.").getBytes() );
+								trace( "trace parameter " + xTraceParameter + " (" + sParameter+ ") is invalid because the begin value ( " + iParameter_begin + " ) is greater than the end value ( " + iParameter_end + " ). Tracing will now be turned off." );
 								trace = false;
 								break;
 							}
@@ -613,7 +642,7 @@ public class Interpreter {
 		int x3 = 0;
 		int x4 = 0;
 		while( true ){
-			if( x1 == size1[1] && x2 == size1[2] && x3 == size1[3] && x4 == size1[4] ) break; // done
+			if( x1 > size1[1] || x2 > size1[2] || x3 > size1[3] || x4 > size1[4] ) break; // done
 			boolean zTraceLoop =
 				trace 	&& x1 >= trace_1_begin && x1 <= trace_1_end  
 						&& x2 >= trace_2_begin && x2 <= trace_2_end 
@@ -629,17 +658,17 @@ public class Interpreter {
 				}
 				String sPreIndexExp_after_macro = sMacroSubstitution( sPreIndexExp, x1, x2, x3, x4 ); 
 				if( zTraceLoop && ! sPreIndexExp.equals( sPreIndexExp_after_macro ) ){ // then there was a change
-					try { streamTrace.write( ("pre-index expression " + xPreIndexExp + " (" + sPreIndexExp + ") after macro substitution: " + sPreIndexExp_after_macro ).getBytes() ); } catch( Throwable t ){};
+					trace( "pre-index expression " + xPreIndexExp + " (" + sPreIndexExp + ") after macro substitution: " + sPreIndexExp_after_macro );
 				}
 				try {
-					mInterpreter.eval( sPreIndexExp_after_macro );
+					mInterpreter.exec( sPreIndexExp_after_macro );
 				} catch( org.python.core.PySyntaxError parse_error ) {
-					sbError.append( "syntax error evaluating pre-index expression (" + sPreIndexExp_after_macro + ": " + parse_error );
+					sbError.append( "Python syntax error executing pre-index statement (" + sPreIndexExp_after_macro + ": " + parse_error );
 					return null;
 				} catch( org.python.core.PyException python_error ) {
-					sbError.append( "python error evaluating pre-index expression (" + sPreIndexExp_after_macro + "): " + python_error );
+					sbError.append( "Python error executing pre-index statement (" + sPreIndexExp_after_macro + "): " + python_error );
 				} catch( Throwable t ) {
-					sbError.append( "while evaluating pre-index expression " + sPreIndexExp_after_macro );
+					sbError.append( "while executing pre-index statement " + sPreIndexExp_after_macro );
 					ApplicationController.vUnexpectedError( t, sbError );
 					return null;
 				}
@@ -657,7 +686,7 @@ public class Interpreter {
 					}
 					String sRValue_after_macro = sMacroSubstitution( sRValue, x1, x2, x3, x4 );
 					if( zTraceLoop && ! sRValue.equals( sRValue_after_macro ) ){ // then there was a change
-						try { streamTrace.write( ("index expression " + index_LValue[xDim][xIndex] + " (" + sRValue + ") after macro substitution: " + sRValue_after_macro ).getBytes() ); } catch( Throwable t ){};
+						trace( "index expression " + index_LValue[xDim][xIndex] + " (" + sRValue + ") after macro substitution: " + sRValue_after_macro );
 					}
 					try {
 						PyObject po_IndexValue = mInterpreter.eval( sRValue_after_macro );
@@ -673,34 +702,34 @@ public class Interpreter {
 						if( pvIndex[xDim][xIndex].set( xMember, 0, 0, 0, po_IndexValue, sbError ) ){
 							if( zTraceLoop ){
 								String sMessage = String.format( "value %d written for index, dim: %d, vector: %d, member: %d" , pvIndex[xDim][xIndex].getValue( xMember, 0, 0, 0 ), xDim, xIndex, xMember );
-								streamTrace.write( sMessage.getBytes() );
+								trace( sMessage );
 							}
 						} else {
 							sbError.insert( 0, String.format( "error setting value %s for index, dim: %d, vector: %d, member: %d: " , po_IndexValue.toString(), xDim, xIndex, xMember ) ); 
 							if( zTraceLoop ){
-								streamTrace.write( sbError.toString().getBytes() );
+								trace( sbError.toString() );
 							}
 							if( ! allow_errors ) return null;
 						}
 						
 					} catch( org.python.core.PySyntaxError parse_error ) {
-						String sMessage = "syntax error while evaluating " + index_LValue[xDim][xIndex] + " setting (" + sRValue_after_macro + "): " + parse_error;
+						String sMessage = "Python syntax error while evaluating " + index_LValue[xDim][xIndex] + " setting (" + sRValue_after_macro + "): " + parse_error;
 						if( zTraceLoop ){
-							try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+							trace( sMessage );
 						}
 						sbError.append( sMessage );
 						return null;
 					} catch( org.python.core.PyException python_error ) {
-						String sMessage = "python error evaluating " + index_LValue[xDim][xIndex] + " setting (" + sRValue_after_macro + "): " + python_error;
+						String sMessage = "Python error evaluating " + index_LValue[xDim][xIndex] + " setting (" + sRValue_after_macro + "): " + python_error;
 						if( zTraceLoop ){
-							try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+							trace( sMessage);
 						}
 						sbError.append( sMessage );
 						return null;
 					} catch( Throwable t ) {
 						String sMessage = "error while processing " + index_LValue[xDim][xIndex] + " setting (" + sRValue_after_macro + "): " + Utility.errorExtractLine( t );
 						if( zTraceLoop ){
-							try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+							trace( sMessage );
 						}
 						sbError.append( sMessage );
 						return null;
@@ -717,17 +746,17 @@ public class Interpreter {
 				}
 				String sPreValueExp_after_macro = sMacroSubstitution( sPreValueExp, x1, x2, x3, x4 ); 
 				if( zTraceLoop && ! sPreValueExp.equals( sPreValueExp_after_macro ) ){ // then there was a change
-					try { streamTrace.write( ("pre-value expression " + xPreValueExp + " (" + sPreValueExp + ") after macro substitution: " + sPreValueExp_after_macro ).getBytes() ); } catch( Throwable t ){};
+					trace( "pre-value expression " + xPreValueExp + " (" + sPreValueExp + ") after macro substitution: " + sPreValueExp_after_macro );
 				}
 				try {
-					mInterpreter.eval( sPreValueExp_after_macro );
+					mInterpreter.exec( sPreValueExp_after_macro + '\n' );
 				} catch( org.python.core.PySyntaxError parse_error ) {
-					sbError.append( "syntax error evaluating pre-value expression (" + sPreValueExp_after_macro + ": " + parse_error );
+					sbError.append( "Python syntax error executing pre-value statement (" + sPreValueExp_after_macro + "): " + parse_error );
 					return null;
 				} catch( org.python.core.PyException python_error ) {
-					sbError.append( "python error evaluating pre-value expression (" + sPreValueExp_after_macro + "): " + python_error );
+					sbError.append( "Python error executing pre-value statement (" + sPreValueExp_after_macro + "): " + python_error );
 				} catch( Throwable t ) {
-					sbError.append( "while evaluating pre-value expression " + sPreValueExp_after_macro );
+					sbError.append( "while executing pre-value statement " + sPreValueExp_after_macro );
 					ApplicationController.vUnexpectedError( t, sbError );
 					return null;
 				}
@@ -740,41 +769,41 @@ public class Interpreter {
 			}
 			String value_RValue_after_macro = sMacroSubstitution( value_RValue, x1, x2, x3, x4 );
 			if( zTraceLoop && ! value_RValue.equals( value_RValue_after_macro ) ){ // then there was a change
-				try { streamTrace.write( ("value expression (" + value_RValue + ") after macro substitution: " + value_RValue_after_macro ).getBytes() ); } catch( Throwable t ){};
+				trace( "value expression (" + value_RValue + ") after macro substitution: " + value_RValue_after_macro );
 			}
 			try {
 				PyObject po_IndexValue = mInterpreter.eval( value_RValue_after_macro );
 				if( pvValue.set( x1, x2, x3, x4, po_IndexValue, sbError ) ){
 					if( zTraceLoop ){
 						String sMessage = String.format( "value %s written for member [%d][%d][%d][%d]" , pvValue.getValue( x1, x2, x3, x4 ), x1, x2, x3, x4 );
-						streamTrace.write( sMessage.getBytes() );
+						trace( sMessage );
 					}
 				} else {
-					sbError.insert( 0, String.format( "error setting value %s for member [%d][%d][%d][%d]" , po_IndexValue.toString(), x1, x2, x3, x4 ) );
+					sbError.insert( 0, String.format( "error setting value %s for member [%d][%d][%d][%d]: " , po_IndexValue.toString(), x1, x2, x3, x4 ) );
 					if( zTraceLoop ){
-						streamTrace.write( sbError.toString().getBytes() );
+						trace( sbError.toString() );
 					}
 					if( ! allow_errors ) return null;
 				}
 				
 			} catch( org.python.core.PySyntaxError parse_error ) {
-				String sMessage = "syntax error while evaluating " + value_RValue + " setting (" + value_RValue_after_macro + "): " + parse_error;
+				String sMessage = "Python syntax error while evaluating " + value_RValue + " setting (" + value_RValue_after_macro + "): " + parse_error;
 				if( zTraceLoop ){
-					try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+					trace( sMessage);
 				}
 				sbError.append( sMessage );
 				return null;
 			} catch( org.python.core.PyException python_error ) {
-				String sMessage = "python error evaluating " + value_RValue + " setting (" + value_RValue_after_macro + "): " + python_error;
+				String sMessage = "Python error evaluating " + value_RValue + " setting (" + value_RValue_after_macro + "): " + python_error;
 				if( zTraceLoop ){
-					try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+					trace( sMessage );
 				}
 				sbError.append( sMessage );
 				return null;
 			} catch( Throwable t ) {
 				String sMessage = "error while processing " + value_RValue + " setting (" + value_RValue_after_macro + "): " + Utility.errorExtractLine( t );
 				if( zTraceLoop ){
-					try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+					trace( sMessage );
 				}
 				sbError.append( sMessage );
 				return null;
@@ -802,11 +831,12 @@ public class Interpreter {
 			opendap.dap.ServerVersion server_version = new opendap.dap.ServerVersion( sServerVersion, iHeaderType );
 			datadds = new opendap.dap.DataDDS( server_version );
 			opendap.dap.DefaultFactory factory = new opendap.dap.DefaultFactory();
+			StringBuffer sbDDS = new StringBuffer(1000);
 			
 			// create the value array
 			DArray darray = createDArray( factory, sValueName, type, pvValue.getInternalStorage(), sbError );
 			if( darray == null ){
-				sbError.insert( 0, String.format( "error creating DArray for value %s of type %s: ", sValueName, DAP.getType_String( type ) ) );
+				sbError.insert( 0, String.format( "error creating DArray for value \"%s\" of type %s: ", sValueName, DAP.getType_String( type ) ) );
 				return null;
 			}
 			
@@ -823,8 +853,8 @@ public class Interpreter {
 				}
 				iSizeOfValueArray *= size1[xDim]; 
 				if( index_vectors[xDim] > 0 ) zIndexPresent = true; 
-			}
-
+			}			
+			
 			// validate dimensions
 			if( pvValue.getTotalSize() != iSizeOfValueArray ){
 				sbError.append( "internal error, data vector size " + pvValue.getTotalSize() + " does not match dim size " + iSizeOfValueArray );
@@ -867,6 +897,9 @@ public class Interpreter {
 				datadds.addVariable( darray ); // creating a plain array
 			}
 			
+			// add the DDS to the dataset
+			System.out.println( "dds text: " + datadds.getDDSText() );
+			
 		} catch( Throwable t ) {
 			sbError.append( "while creating Data DDS" );
 			ApplicationController.vUnexpectedError( t, sbError );
@@ -883,6 +916,13 @@ public class Interpreter {
 		return model;
 	}
 
+	final private void trace( String sMessage ){
+		try {
+			streamTrace.write( sMessage.getBytes() );
+			streamTrace.write( '\n' );
+		} catch( Throwable t ) {}
+	}
+	
 	final private static String[] aPythonReservedWords = {
 		"and", "assert", "break", "class", "continue",
 		"def", "del", "elif", "else", "except",
@@ -916,7 +956,7 @@ public class Interpreter {
 					darray.addVariable( new opendap.dap.DFloat32() );
 					break;
 				case Float64:
-					darray.addVariable( new opendap.dap.DFloat32() );
+					darray.addVariable( new opendap.dap.DFloat64() );
 					break;
 				case String:
 					darray.addVariable( new opendap.dap.DString() );
@@ -989,32 +1029,32 @@ public class Interpreter {
 			if( iIndexDimensionCount_conversion < 0 || iIndexDimensionCount_conversion > 4 ){
 				String sMessage = "index dimension count expression (" + sRValue + ") for dimension " + iDimNumber + " did not evaluate to a valid integer between 1 and 4";
 				if( zTrace ){
-					streamTrace.write( sMessage.getBytes() );
+					trace( sMessage );
 				}
 				sbError.append( sMessage );
 				return -1;
 			} else {
-				streamTrace.write( ("Dimension count for index variable " + iDimNumber + " ( index_" + iDimNumber + "_dimension ) evaluated to have " + iIndexDimensionCount_conversion + " dimensions." ).getBytes() );
+				trace( "Dimension count for index variable " + iDimNumber + " ( index_" + iDimNumber + "_dimension ) evaluated to have " + iIndexDimensionCount_conversion + " dimensions." );
 				return iIndexDimensionCount_conversion;
 			}
 		} catch( org.python.core.PySyntaxError parse_error ) {
-			String sMessage = "syntax error while evaluating index_" + iDimNumber + "_dimensions setting (" + sRValue + "): " + parse_error;
+			String sMessage = "Python syntax error while evaluating index_" + iDimNumber + "_dimensions setting (" + sRValue + "): " + parse_error;
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+				trace( sMessage );
 			}
 			sbError.append( sMessage );
 			return -1;
 		} catch( org.python.core.PyException python_error ) {
-			String sMessage = "python error evaluating index_" + iDimNumber + "_dimensions setting (" + sRValue + "): " + python_error;
+			String sMessage = "Python error evaluating index_" + iDimNumber + "_dimensions setting (" + sRValue + "): " + python_error;
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+				trace( sMessage );
 			}
 			sbError.append( sMessage );
 			return -1;
 		} catch( Throwable t ) {
 			String sMessage = "error while processing index_" + iDimNumber + "_dimensions setting (" + sRValue + "): " + Utility.errorExtractLine( t );
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+				trace( sMessage );
 			}
 			sbError.append( sMessage );
 			return -1;
@@ -1028,32 +1068,32 @@ public class Interpreter {
 			if( iDimensionSize_conversion < 0 ){
 				String sMessage = "dimension size expression (" + sRValue + ") for dimension " + iDimNumber + " did not evaluate to a non-negative integer (" + iDimensionSize_conversion + ")";
 				if( zTrace ){
-					streamTrace.write( sMessage.getBytes() );
+					trace( sMessage );
 				}
 				sbError.append( sMessage );
 				return -1;
 			} else {
-				streamTrace.write( ("Size for dimension " + iDimNumber + " ( size_" + iDimNumber + " ) evaluated to " + iDimensionSize_conversion ).getBytes() );
+				trace( "Size for dimension " + iDimNumber + " ( size_" + iDimNumber + " ) evaluated to " + iDimensionSize_conversion );
 				return iDimensionSize_conversion;
 			}
 		} catch( org.python.core.PySyntaxError parse_error ) {
-			String sMessage = "syntax error while evaluating size_" + iDimNumber + " setting (" + sRValue + "): " + parse_error;
+			String sMessage = "Python syntax error while evaluating size_" + iDimNumber + " setting (" + sRValue + "): " + parse_error;
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+				trace( sMessage );
 			}
 			sbError.append( sMessage );
 			return -1;
 		} catch( org.python.core.PyException python_error ) {
-			String sMessage = "python error evaluating size_" + iDimNumber + " setting (" + sRValue + "): " + python_error;
+			String sMessage = "Python error evaluating size_" + iDimNumber + " setting (" + sRValue + "): " + python_error;
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+				trace( sMessage );
 			}
 			sbError.append( sMessage );
 			return -1;
 		} catch( Throwable t ) {
 			String sMessage = "error while processing size_" + iDimNumber + " setting (" + sRValue + "): " + Utility.errorExtractLine( t );
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+				trace( sMessage );
 			}
 			sbError.append( sMessage );
 			return -1;
@@ -1067,32 +1107,32 @@ public class Interpreter {
 			if( iParameter < 0 ){
 				String sMessage = sParameterName + " expression (" + sRValue + ") did not evaluate to a non-negative integer (" + iParameter + ")";
 				if( zTrace ){
-					streamTrace.write( sMessage.getBytes() );
+					trace( sMessage );
 				}
 				sbError.append( sMessage );
 				return -1;
 			} else {
-				streamTrace.write( ("Parameter " + sParameterName + " evaluated to " + iParameter ).getBytes() );
+				trace( "Parameter " + sParameterName + " evaluated to " + iParameter );
 				return iParameter;
 			}
 		} catch( org.python.core.PySyntaxError parse_error ) {
-			String sMessage = "syntax error while evaluating " + sParameterName + " setting (" + sRValue + "): " + parse_error;
+			String sMessage = "Python syntax error while evaluating " + sParameterName + " setting (" + sRValue + "): " + parse_error;
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+				try { trace( sMessage ); } catch( Throwable t ) {}
 			}
 			sbError.append( sMessage );
 			return -1;
 		} catch( org.python.core.PyException python_error ) {
-			String sMessage = "python error evaluating " + sParameterName + " setting (" + sRValue + "): " + python_error;
+			String sMessage = "Python error evaluating " + sParameterName + " setting (" + sRValue + "): " + python_error;
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+				try { trace( sMessage ); } catch( Throwable t ) {}
 			}
 			sbError.append( sMessage );
 			return -1;
 		} catch( Throwable t ) {
 			String sMessage = "error while processing " + sParameterName + " setting (" + sRValue + "): " + Utility.errorExtractLine( t );
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+				try { trace( sMessage ); } catch( Throwable trace_t ) {}
 			}
 			sbError.append( sMessage );
 			return -1;
@@ -1104,33 +1144,33 @@ public class Interpreter {
 			PyObject po_String = mInterpreter.eval( sRValue );
 			String sString = po_String.toString();
 			if( DAP.isValidIdentifier( sString, sbError) ){
-				streamTrace.write( ("String variable \"" + sLValue + "\" evaluated to \"" + sString + "\"" ).getBytes() );
+				trace( "String variable \"" + sLValue + "\" evaluated to \"" + sString + "\"" );
 				return sString;
 			} else {
 				sbError.insert( 0, "String expression (" + sLValue + ") evaluated to \"" + sString + "\" which not a valid identifier: " );
 				if( zTrace ){
-					streamTrace.write( sbError.toString().getBytes() );
+					trace( sbError.toString() );
 				}
 				return null;
 			}
 		} catch( org.python.core.PySyntaxError parse_error ) {
-			String sMessage = "syntax error while evaluating setting (" + sRValue + "): " + parse_error;
+			String sMessage = "Python syntax error while evaluating setting (" + sRValue + "): " + parse_error;
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+				try { trace( sMessage ); } catch( Throwable t ) {}
 			}
 			sbError.append( sMessage );
 			return null;
 		} catch( org.python.core.PyException python_error ) {
-			String sMessage = "python error evaluating setting (" + sRValue + "): " + python_error;
+			String sMessage = "Python error evaluating setting (" + sRValue + "): " + python_error;
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+				try { trace( sMessage ); } catch( Throwable t ) {}
 			}
 			sbError.append( sMessage );
 			return null;
 		} catch( Throwable t ) {
 			String sMessage = "error while processing setting (" + sRValue + "): " + Utility.errorExtractLine( t );
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+				try { trace( sMessage ); } catch( Throwable trace_t ) {}
 			}
 			sbError.append( sMessage );
 			return null;
@@ -1142,33 +1182,33 @@ public class Interpreter {
 			PyObject po_DimensionName = mInterpreter.eval( sRValue );
 			String sDimensionsName = po_DimensionName.toString();
 			if( DAP.isValidIdentifier( sDimensionsName, sbError) ){
-				streamTrace.write( ("Dimension " + iDimNumber + " name variable ( name_" + iDimNumber + " ) evaluated \"" + sDimensionsName + "\"" ).getBytes() );
+				trace( "Dimension " + iDimNumber + " name variable ( name_" + iDimNumber + " ) evaluated \"" + sDimensionsName + "\"" );
 				return sDimensionsName;
 			} else {
 				sbError.insert( 0, "dimension name expression (" + sRValue + ") for dimension " + iDimNumber + " did not evaluate to a valid identifier: " );
 				if( zTrace ){
-					streamTrace.write( sbError.toString().getBytes() );
+					trace( sbError.toString() );
 				}
 				return null;
 			}
 		} catch( org.python.core.PySyntaxError parse_error ) {
-			String sMessage = "syntax error while evaluating dimension name_" + iDimNumber + " setting (" + sRValue + "): " + parse_error;
+			String sMessage = "Python syntax error while evaluating dimension name_" + iDimNumber + " setting (" + sRValue + "): " + parse_error;
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+				try { trace( sMessage ); } catch( Throwable t ) {}
 			}
 			sbError.append( sMessage );
 			return null;
 		} catch( org.python.core.PyException python_error ) {
-			String sMessage = "python error evaluating dimension name_" + iDimNumber + " setting (" + sRValue + "): " + python_error;
+			String sMessage = "Python error evaluating dimension name_" + iDimNumber + " setting (" + sRValue + "): " + python_error;
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable t ) {}
+				try { trace( sMessage ); } catch( Throwable t ) {}
 			}
 			sbError.append( sMessage );
 			return null;
 		} catch( Throwable t ) {
 			String sMessage = "error while processing dimension name_" + iDimNumber + " setting (" + sRValue + "): " + Utility.errorExtractLine( t );
 			if( zTrace ){
-				try { streamTrace.write( sMessage.getBytes() ); } catch( Throwable trace_t ) {}
+				try { trace( sMessage ); } catch( Throwable trace_t ) {}
 			}
 			sbError.append( sMessage );
 			return null;
@@ -1250,7 +1290,7 @@ class PyPrimitiveVector {
 	public boolean set( int xDim1, int xDim2, int xDim3, int xDim4, PyObject pyValue, StringBuffer sbError ){
 		int xArray = xDim1 + iDim1 * xDim2 + iDim1 * iDim2 * xDim3 + iDim1 * iDim2 * iDim3 * xDim4;
 		if( xArray >= iTotalSize ){
-			sbError.append( String.format( "array size %d exceed by index coordinates %d %d %d %d", iTotalSize, xDim1, xDim2, xDim3, xDim4 ) );
+			sbError.append( String.format( "array size %d exceeded by index coordinates %d %d %d %d", iTotalSize, xDim1, xDim2, xDim3, xDim4 ) );
 			return false;
 		}
 		try {

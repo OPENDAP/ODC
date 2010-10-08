@@ -64,13 +64,13 @@ public class ApplicationFrame extends JFrame {
 
     public ApplicationFrame() {}
 
-    boolean zInitialize(String sTitle, ApplicationController appcontroller, StringBuffer sbError){
+    boolean zInitialize( String sTitle, ApplicationController appcontroller, StringBuffer sbError ){
 
 	    try {
 			ApplicationController.getInstance().vShowStartupMessage("initializing main frame");
 			mApplicationController = appcontroller;
 			if( mApplicationController == null ){
-				sbError.append("no controller exists");
+				sbError.append( "no controller exists" );
 				return false;
 			}
 
@@ -81,7 +81,7 @@ public class ApplicationFrame extends JFrame {
 			this.getContentPane().setLayout(new java.awt.BorderLayout());
 
 			// tabs
-			ApplicationController.getInstance().vShowStartupMessage("creating tabs");
+			ApplicationController.getInstance().vShowStartupMessage( "creating tabs" );
 			if( !this.zBuildMainTabs( jtpMain, sbError ) ){
 				sbError.insert(0, "failed to create interface: ");
 				return false;
@@ -293,9 +293,8 @@ public class ApplicationFrame extends JFrame {
 		jtpView.addTab(" Command", panelCommand);
 		jtpView.addTab(" Editor", panelTextEditor);
 		jtpView.addTab(" Data", panelDataView);
-//		jtpView.addTab(" Table", panelTableView);
-		jtpView.addTab(" Image File", panelImageView);
 		jtpView.addTab(" Plotter", panelPlotter);
+		jtpView.addTab(" Image", panelImageView);
 
 		jtpFeedback.addTab(" Email Comment", panelFeedbackEmail );
 		jtpFeedback.addTab(" Post Bug Report", panelFeedbackBug );

@@ -374,7 +374,7 @@ public class PanelTemplate extends SearchInterface implements ActionListener, Li
 						GregorianCalendar gc = new GregorianCalendar();
 						gc.setTime(dateNow);
 						int iCurrentYear = gc.get(GregorianCalendar.YEAR);
-						String sCurrentYear = Utility.sFormatFixedRight(iCurrentYear, 4, '0');
+						String sCurrentYear = Utility_String.sFormatFixedRight(iCurrentYear, 4, '0');
 						sTo = ((sToYear.length()==0) ? sCurrentYear : sToYear) + ((sToMonth.length()==0) ? "-12" : "-" + sToMonth) + ((sToDay.length()==0) ? "-31" : "-" + sToDay);
 					}
 

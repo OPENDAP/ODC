@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Resources
  * Description:  Standard borders and fonts
- * Copyright:    Copyright (c) 2005
+ * Copyright:    Copyright (c) 2005-2010
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.64
+ * @version      3.06
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -43,6 +43,7 @@ public class Resources {
 	public static ImageIcon imageiconSplash = null;
 	public static ImageIcon imageiconInternet = null;
 	public static ImageIcon imageiconCalculator = null;
+	private static ImageIcon imageiconScreen = null;
 
 	static Image imageIndicator_Granule = null;
 	static Image imageIndicator_Directory = null;
@@ -50,7 +51,28 @@ public class Resources {
 	static Image imageIndicator_Binary = null;
 	static Image imageIndicator_Image = null;
 	static Image imageConstrained = null;
+	static Image imageArrowUp = null;
+	static Image imageArrowDown = null;
+	static Image imageNavigateMinus = null;
+	static Image imageNavigatePlus = null;
 
+	public static enum Icons {
+		SplashScreen,
+		Internet,
+		Calculator,
+		DisplayScreen,
+		Granule,
+		Directory,
+		Catalog,
+		Binary,
+		Image,
+		Constrained,
+		ArrowUp,
+		ArrowDown,
+		Minus,
+		Plus
+	}
+	
     public Resources(){}
 
 	public static javax.swing.ImageIcon imageiconLoadResource( String sResourcePath, StringBuffer sbError ){
@@ -73,9 +95,60 @@ public class Resources {
 		}
 	}
 	
+	// icon delivery is set up this way so that icon fetches can occur in an ad hoc manner without
+	// all icons having to be loaded; this is useful when running an isolated panel in testing, for example
+	// in such a case the regular app may not have been started so no general load of all icons will have occurred
+	public static ImageIcon getIcon( Icons eIcon ){
+		String sBasePath = "/opendap/clients/odc/icons/";
+		String sIconFileName = null;
+		switch( eIcon ){
+			case SplashScreen:
+				break;
+			case Internet:
+				break;
+			case Calculator:
+				break;
+			case DisplayScreen:
+				if( imageiconScreen == null ){
+					sIconFileName = "computer_monitor.png";
+				} else return imageiconScreen;
+				break;
+			case Granule:
+				break;
+			case Directory:
+				break;
+			case Catalog:
+				break;
+			case Binary:
+				break;
+			case Image:
+				break;
+			case Constrained:
+				break;
+			case ArrowUp:
+				break;
+			case ArrowDown:
+				break;
+			case Minus:
+				break;
+			case Plus:
+				break;
+			default:
+				// question mark?
+		}
+		StringBuffer sbError = new StringBuffer();
+		imageiconScreen = Resources.imageiconLoadResource( sBasePath + sIconFileName, sbError );
+		if( imageiconScreen == null ){
+			ApplicationController.vShowError_NoModal( sIconFileName + " icon not loaded: " + sbError );
+			sbError.setLength( 0 );
+		}
+		return imageiconScreen;
+	}
+
+	
 	public static java.awt.Image imageLoadResource( String sResourcePath, StringBuffer sbError ){
 		try {
-			java.net.URL url = ApplicationController.getInstance().getClass().getResource(sResourcePath);
+			java.net.URL url = ApplicationController.getInstance().getClass().getResource( sResourcePath );
 			if( url == null ){
 				sbError.append("image resource not found (was missing from the class path or jar file)");
 				return null;
@@ -142,19 +215,19 @@ public class Resources {
 				sIconPath = "/icons/icon-32.gif";
 			} else {
 				sIconPath = "/icons/icon-32.gif";
-				ApplicationController.getInstance().vShowWarning("Unknown icon size [" + sIconSize + "]. Supported sizes are \"16\", \"24\" and \"32\".");
+				ApplicationController.vShowWarning("Unknown icon size [" + sIconSize + "]. Supported sizes are \"16\", \"24\" and \"32\".");
 				return;
 			}
 			sIconPath = Utility.sConnectPaths("/opendap/clients/odc", "/", sIconPath);
 			StringBuffer sbError = new StringBuffer();
 			javax.swing.ImageIcon icon = imageiconLoadResource( sIconPath, sbError );
 			if( icon == null ){
-				ApplicationController.getInstance().vShowWarning("failed to load icon " + sIconPath + ": " +sbError);
+				ApplicationController.vShowWarning("failed to load icon " + sIconPath + ": " +sbError);
 				return;
 			}
 			theFrame.setIconImage(icon.getImage());
 		} catch(Exception ex) {
-			ApplicationController.getInstance().vShowWarning("Unexpected error setting up icon. Default icon will appear.");
+			ApplicationController.vShowWarning("Unexpected error setting up icon. Default icon will appear.");
 		}
 	}
 
@@ -162,6 +235,7 @@ public class Resources {
 		String sPath = "/opendap/clients/odc/icons/";
 		try {
 			String pathSplashScreen = Utility.sConnectPaths( dirImages, "splash-1.png" );
+			// System.out.println( "ss: " + pathSplashScreen );
 			imageiconSplash = imageiconLoadResource(pathSplashScreen, sbError);
 			if( imageiconSplash == null ){
 				ApplicationController.vShowError_NoModal("Splash screen [" + pathSplashScreen + "] not loaded: " + sbError);
@@ -180,6 +254,12 @@ public class Resources {
 				sbError.setLength( 0 );
 			}
 
+			imageiconScreen = Resources.imageiconLoadResource( sPath + "computer_monitor.png", sbError );
+			if( imageiconScreen == null ){
+				ApplicationController.vShowError_NoModal("Display screen icon not loaded: " + sbError);
+				sbError.setLength( 0 );
+			}
+			
 			javax.swing.ImageIcon image;
 
 			image = imageiconLoadResource(sPath + "dataset-granule.gif", sbError);
@@ -224,6 +304,34 @@ public class Resources {
 			}
 			imageConstrained = image.getImage();
 
+			image = imageiconLoadResource(sPath + "arrow_up_blue.png", sbError);
+			if( image == null ){
+				sbError.insert( 0, "icon " + sPath + "arrow_up_blue.png" + " not found: " );
+				return false;
+			}
+			imageArrowUp = image.getImage();
+
+			image = imageiconLoadResource(sPath + "arrow_down_blue.png", sbError);
+			if( image == null ){
+				sbError.insert( 0, "icon " + sPath + "arrow_down_blue.png" + " not found: " );
+				return false;
+			}
+			imageArrowDown = image.getImage();
+
+			image = imageiconLoadResource(sPath + "navigate_plus.png", sbError);
+			if( image == null ){
+				sbError.insert( 0, "icon " + sPath + "navigate_plus.png" + " not found: " );
+				return false;
+			}
+			imageNavigatePlus = image.getImage();
+
+			image = imageiconLoadResource(sPath + "navigate_minus.png", sbError);
+			if( image == null ){
+				sbError.insert( 0, "icon " + sPath + "navigate_minus.png" + " not found: " );
+				return false;
+			}
+			imageNavigateMinus = image.getImage();
+			
 			return true;
 		} catch(Exception ex) {
 			ApplicationController.vUnexpectedError( ex, sbError );

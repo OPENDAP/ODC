@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * <p>Copyright: Copyright (c) 2005</p>
  * <p>Company: OPeNDAP.org</p>
  * @author John Chamberlain
- * @version 2.59
+ * @version 3.05
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ public class Panel_URLList_JTable extends JPanel {
 		ButtonEditor buttonEditorInfo = new ButtonEditor();
 		Continuation_DoCancel conInfo = new Continuation_DoCancel(){
 			public void Do(){
-				int iClickedRow = mjtableSelected.getSelectedRow();
+				// int iClickedRow = mjtableSelected.getSelectedRow();
 				// model.vShowURLInfo(iClickedRow); TODO NO LONGER WORKING SINCE REWORK
 			}
 			public void Cancel(){}
@@ -68,8 +68,6 @@ public class Panel_URLList_JTable extends JPanel {
 		tcInfo.setCellEditor(buttonEditorInfo);
 		tcInfo.setCellRenderer(buttonEditorInfo.getRenderer());
 
-		final ListSelectionModel selectionmodel = mjtableSelected.getSelectionModel();
-
 		// setup title column
 		TableColumn tcTitle = mjtableSelected.getColumn("title");
 		tcTitle.setCellRenderer(new DatasetListRenderer(mjtableSelected, false, true));
@@ -77,11 +75,17 @@ public class Panel_URLList_JTable extends JPanel {
 		mjtableSelected.addKeyListener(
 			new java.awt.event.KeyListener(){
 				public void keyPressed( java.awt.event.KeyEvent ke ){
-					if( ke.getKeyCode() == ke.VK_DELETE ){
-						int[] aiSelectedToDelete = mjtableSelected.getSelectedRows();
+					if( ke.getKeyCode() == java.awt.event.KeyEvent.VK_DELETE ){
+						// TODO
+						// int[] aiSelectedToDelete = mjtableSelected.getSelectedRows();
 						// NO LONGER FUNCTIONAL -- ApplicationController.getInstance().getRetrieveModel().getURLList().vSelectedDatasets_Remove(aiSelectedToDelete);
-					} else if( ke.getKeyCode() == ke.VK_F3 ){
-						ApplicationController.getInstance().getRetrieveModel().vEnterURLByHand(null);
+					} else if( ke.getKeyCode() == java.awt.event.KeyEvent.VK_F3 ){
+						StringBuffer sbError = new StringBuffer( 256 );
+						if( ApplicationController.getInstance().getRetrieveModel().zEnterURLByHand( null, sbError ) ){
+							// success
+						} else {
+							JOptionPane.showMessageDialog( Panel_URLList_JTable.this, "failed to initialize URL in table: " + sbError.toString() );
+						}
 					}
 				}
 				public void keyReleased( java.awt.event.KeyEvent ke ){

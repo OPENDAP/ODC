@@ -158,7 +158,7 @@ public class FormLayout implements LayoutManager2 {
 	public static final int ALIGNMENT_Label = 4;
 	public static final int ALIGNMENT_Control = 5;
 	public static final int USE_DEFAULT = -1;
-	public int DEFAULT_SPACING_indent = 4;
+	public int DEFAULT_SPACING_indent = 0;
 	public int DEFAULT_SPACING_separation = 3;
 	public int DEFAULT_SPACING_trailing = 8;
 	public int DEFAULT_SPACING_above = 0;
@@ -657,6 +657,8 @@ System.out.println("preferred height of current row: " + pxPreferredHeight_Curre
 			apxHeight_maximum_row[xRow] = pxMaximumHeight_CurrentRow;
 		}
 
+System.out.format( "************************ margins top %d, bottom %d, left %d, right %d\n", MARGIN_top, MARGIN_bottom, MARGIN_left, MARGIN_right );
+		
 		int pxMinimumHeight_form = 0;
 		int pxPreferredHeight_form = 0;
 		int pxMaximumHeight_form = 0;
@@ -721,6 +723,7 @@ System.out.println("************************ setting preferred height to: " + mp
 		int px_x = 0;
 		int px_y = 0;
 		px_y = insetsContainer.top + MARGIN_top;
+System.out.format( "margin top left: %d %d\n", MARGIN_top, MARGIN_left );
 		for( int xRow = 1; xRow <= ctRows; xRow++ ){
 			px_x = insetsContainer.left + MARGIN_left;
 			for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
@@ -893,7 +896,7 @@ System.out.println("returning preferred size: " + dimPreferred );
 		DEFAULT_SPACING_indent = ( indent == USE_DEFAULT ) ? 4 : indent;
 		DEFAULT_SPACING_separation = ( separation == USE_DEFAULT ) ? 3 : separation;
 		DEFAULT_SPACING_trailing = ( trailing == USE_DEFAULT ) ? 2 : trailing;
-		DEFAULT_SPACING_above = ( above == USE_DEFAULT ) ? 0 : above;
+		DEFAULT_SPACING_above = ( above == USE_DEFAULT ) ? 4 : above;
 		DEFAULT_SPACING_below = ( below == USE_DEFAULT ) ? 6 : below;
 	}
 	public void setSpacing( Component item, int indent, int separation, int trailing, int above, int below ){
@@ -902,7 +905,7 @@ System.out.println("returning preferred size: " + dimPreferred );
 		element.miSpacing_indent = ( indent == USE_DEFAULT ) ? 4 : indent;
 		element.miSpacing_separation = ( separation == USE_DEFAULT ) ? 3 : separation;
 		element.miSpacing_trailing = ( trailing == USE_DEFAULT ) ? 2 : trailing;
-		element.miSpacing_line_above = ( above == USE_DEFAULT ) ? 0 : above;
+		element.miSpacing_line_above = ( above == USE_DEFAULT ) ? 4 : above;
 		element.miSpacing_line_below = ( below == USE_DEFAULT ) ? 6 : below;
 	}
 
@@ -1045,8 +1048,8 @@ class FormElement {
 	int miSpacing_indent;
 	int miSpacing_separation;
 	int miSpacing_trailing;
-	int miSpacing_line_above;
-	int miSpacing_line_below;
+	int miSpacing_line_above; // pixels above element
+	int miSpacing_line_below; // pixels below element
 	int miWeighting;
 	int miAlignment;
 	boolean mzFill = false;
@@ -1164,8 +1167,9 @@ System.out.println("label 1 preferred size: " + label1.getPreferredSize().getWid
 		panelDisplay.add( new JLabel("label 6") );
 		panelDisplay.add( new JTextField("text field 6") );
 
+		layout.setMargin( 4, 4 );
+
 //		layout.setSpacing_Default( 0, 5, 0, 0, 10 );
-		layout.setMargin( 0 );
 
 	}
 

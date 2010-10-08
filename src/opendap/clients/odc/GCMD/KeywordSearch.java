@@ -114,7 +114,7 @@ public class KeywordSearch extends PanelTemplate {
 
 				// add topic constraint
 				String sTopic = jlistTopic.getSelectedValue().toString().toUpperCase();
-				sTopic = Utility.sReplaceString(sTopic, " ", "%20");
+				sTopic = Utility_String.sReplaceString(sTopic, " ", "%20");
 				sQueryString += "[Parameters:Category='" + sCategory + "',Topic='" + sTopic + "'";
 
 				// add term constraints
@@ -122,19 +122,19 @@ public class KeywordSearch extends PanelTemplate {
 				if (select.length > 0) { // if no term selected, show all with this topic
 					int indexOfSep = select[0].toString().indexOf('>');
 					String term = select[0].toString().substring(0, indexOfSep-1);
-					term = Utility.sReplaceString(term, " ", "%20");
+					term = Utility_String.sReplaceString( term, " ", "%20" );
 					String var = select[0].toString().substring(indexOfSep+2);
 					if (var.equals("")) { // if variable is empty, show all with this term
 						sQueryString +=  ",Term='" + term + "'";
 					} else {
-						var = Utility.sReplaceString(var, " ", "%20");
+						var = Utility_String.sReplaceString( var, " ", "%20" );
 						sQueryString +=  ",Term='" + term + "',Variable='" + var + "'";
 						for(int i=1;i<select.length;i++) { // if more than one selected
 							indexOfSep = select[i].toString().indexOf('>');
 							term = select[i].toString().substring(0, indexOfSep-1);
 							var = select[i].toString().substring(indexOfSep+2);
-							term = Utility.sReplaceString(term, " ", "%20");
-							var = Utility.sReplaceString(var, " ", "%20");
+							term = Utility_String.sReplaceString(term, " ", "%20");
+							var = Utility_String.sReplaceString(var, " ", "%20");
 							sQueryString += "] OR " + "[Parameters:Category='" + sCategory + "',Topic='" + sTopic + "',Term='" + term + "',Variable='" + var + "'";
 						}
 					}

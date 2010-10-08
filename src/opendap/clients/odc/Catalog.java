@@ -263,15 +263,21 @@ public class Catalog extends JPanel implements ActionListener {
 
 						String urlName = ((DString) tvar.nextElement()).getName();
 						String dateName = "";
-						if (tvar.hasMoreElements()) { 	// get date field
+						if( tvar.hasMoreElements() ){ 	// get date field
 							dateName = ((DString) tvar.nextElement()).getName();
 						}
 
 						Catalog.this.URLs = new Model_Dataset[seq.getRowCount()];
+						StringBuffer sbError = new StringBuffer();
 						for (int i = 0; i < seq.getRowCount(); i++) {
 							String sURL = ((DString) seq.getVariable(i,urlName)).getValue();
-							Catalog.this.URLs[i] = new Model_Dataset(sURL, Model_Dataset.TYPE_Data);
-							if (dateName != "") {
+							Model_Dataset model = Model_Dataset.createDataFromURL( sURL, sbError );
+							if( model == null ){
+								ApplicationController.vShowError( "unable to create URL model: " + sbError );
+								return;
+							}
+							Catalog.this.URLs[i] = model;
+							if( dateName != "" ){
 								URLs[i].setTitle( ((DString) seq.getVariable(i,dateName)).getValue()
 										+ " - " + datasetName + " - " + URLs[i].getBaseURL() );
 							}

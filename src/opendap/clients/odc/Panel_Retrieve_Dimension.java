@@ -69,7 +69,7 @@ public class Panel_Retrieve_Dimension extends JPanel {
 		int iListSize = jcStep.getModel().getSize();
 		for( int xList = 0; xList < iListSize; xList++ ){
 			Object oItem = jcStep.getModel().getElementAt(xList);
-			int iInteger = Utility.parseInteger_positive(oItem.toString());
+			int iInteger = Utility_String.parseInteger_positive( oItem.toString() );
 			if( iInteger == iStep ){
 				jcStep.setSelectedIndex(xList);
 				break;
@@ -81,7 +81,7 @@ public class Panel_Retrieve_Dimension extends JPanel {
 		int xFrom = miDimensionStart;
 		if( eMODE_Step == MODE_Step_Text ){
 			String sValue = jtfFrom.getText();
-			xFrom = Utility.parseInteger_nonnegative( sValue );
+			xFrom = Utility_String.parseInteger_nonnegative( sValue );
 			if( xFrom == -1 ){
 				xFrom = 1;
 				ApplicationController.vShowWarning("unable to interpret " + sValue + " as non-negative integer in constraint for grid dim " + msDimensionName);
@@ -95,10 +95,10 @@ public class Panel_Retrieve_Dimension extends JPanel {
 		int xTo = miDimensionStop;
 		if( eMODE_Step == MODE_Step_Text ){
 		    String sValue = jtfTo.getText();
-		    xTo = Utility.parseInteger_nonnegative( sValue );
+		    xTo = Utility_String.parseInteger_nonnegative( sValue );
 			if( xTo == -1 ){
 				xTo = miDimensionStop;
-				ApplicationController.vShowWarning("unable to interpret " + sValue + " as non-negative integer in constraint for grid dim " + msDimensionName);
+				ApplicationController.vShowWarning( "unable to interpret " + sValue + " as non-negative integer in constraint for grid dim " + msDimensionName);
 			}
 		} else {
 			xTo = jcTo.getSelectedIndex();
@@ -119,7 +119,7 @@ public class Panel_Retrieve_Dimension extends JPanel {
 
 		// right now always using combo box
 			String sStride = jcStep.getSelectedItem().toString();
-			xStride = Utility.parseInteger_positive( sStride );
+			xStride = Utility_String.parseInteger_positive( sStride );
 			if( xStride == -1 ){
 				xStride = miDimensionStride;
 				ApplicationController.vShowWarning("unable to interpret " + sStride + " as positive integer in constraint for grid dim " + msDimensionName);

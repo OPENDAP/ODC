@@ -41,7 +41,6 @@ public class Panel_Retrieve_Location extends JPanel {
 
 	private Model_Retrieve model;
     private javax.swing.JTextField jtfLocation;
-	private JButton jbuttonAddToList;
 
     boolean zInitialize(StringBuffer sbError){
 
@@ -67,15 +66,21 @@ public class Panel_Retrieve_Location extends JPanel {
 					public void actionPerformed(ActionEvent event) {
 						String sLocationString = Panel_Retrieve_Location.this.getLocationString();
 						if( sLocationString == null ){
-							JOptionPane.showMessageDialog(null, "no location string");
+							JOptionPane.showMessageDialog( null, "no location string" );
 							return;
 						}
 						sLocationString = sLocationString.trim();
 						if( sLocationString.length() == 0 ){
-							JOptionPane.showMessageDialog(null, "location string is blank");
+							JOptionPane.showMessageDialog( null, "location string is blank" );
 							return;
 						}
-						model.vEnterURLByHand(sLocationString);
+						StringBuffer sbError = new StringBuffer( 256 );
+						if( model.zEnterURLByHand( sLocationString, sbError ) ){
+							// success
+						} else {
+							JOptionPane.showMessageDialog( null, "error initializing URL: " + sbError.toString() );
+							return;
+						}
 					}
 				};
 			jbuttonAddToList.addActionListener(actionGo);
@@ -86,11 +91,11 @@ public class Panel_Retrieve_Location extends JPanel {
 			gbc.gridx = 0;
 			gbc.gridy = 0;
 			gbc.weightx = 0;
-			gbc.fill = gbc.NONE;
+			gbc.fill = GridBagConstraints.NONE;
 			this.add(jlabelLocation, gbc);
 
 			gbc.insets = new Insets(2, 0, 2, 5);
-			gbc.fill = gbc.HORIZONTAL;
+			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc.gridx = 1;
 			gbc.weightx = 1;
 			this.add(jtfLocation, gbc);

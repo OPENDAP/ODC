@@ -6,13 +6,25 @@ import javax.swing.AbstractListModel;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListDataEvent;
 
+/** The application controller maintains this object */
+
 public class Model_LoadedDatasets extends AbstractListModel implements MutableComboBoxModel {
+	private static int mctSessionDatasets = 0; // keeps track of total number of datasets created in this session
 	private int miCapacity = 1000;
 	private int mctDatasets = 0;
 	private int miSelectedItem = 0;
 	private Model_Dataset[] maDatasets = new Model_Dataset[ 1000 ];
 	private ArrayList<ListDataListener> listListeners = new ArrayList<ListDataListener>(); 
 
+	private Model_LoadedDatasets(){}
+	
+	public static Model_LoadedDatasets create(){
+		Model_LoadedDatasets new_model = new Model_LoadedDatasets();
+		return new_model;
+	}
+	
+	public static int getSessionDatasetCount(){ return mctSessionDatasets; }
+	
 	boolean _contains( Model_Dataset model ){
 		for( int xModel = 1; xModel <= mctDatasets; xModel++ ) if( maDatasets[xModel].equals( model ) ) return true;
 		return false;
@@ -52,6 +64,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 		}
 		maDatasets[mctDatasets] = url;
 		mctDatasets++;
+		mctSessionDatasets--;
 		int interval_index = mctDatasets - 1;
 		miSelectedItem = interval_index;
 		for( ListDataListener listener : listListeners ){

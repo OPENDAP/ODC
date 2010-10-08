@@ -72,6 +72,21 @@ public class DAP {
 		String
 	}
 	
+	public static enum DAP_VARIABLE {
+		Array,
+		Grid,
+		Sequence,
+		Structure,
+		Byte,
+		Int16,
+		Int32,
+		UInt16,
+		UInt32,
+		Float32,
+		Float64,
+		String
+	}
+	
 	public static int getDataSize( DAP_TYPE eTYPE ){
 		switch( eTYPE ){
 			case Byte: return 1;
@@ -100,8 +115,31 @@ public class DAP {
 		}
 	}
 	
+	public static DAP_VARIABLE getVariableType( BaseType bt, StringBuffer sbError ){
+		if( bt instanceof DArray ) return DAP_VARIABLE.Array;
+		else if( bt instanceof DGrid ) return DAP_VARIABLE.Grid;
+		else if( bt instanceof DSequence ) return DAP_VARIABLE.Sequence;
+		else if( bt instanceof DStructure ) return DAP_VARIABLE.Structure;
+		else if( bt instanceof DByte ) return DAP_VARIABLE.Byte;
+		else if( bt instanceof DInt16 ) return DAP_VARIABLE.Int16;
+		else if( bt instanceof DInt32 ) return DAP_VARIABLE.Int32;
+		else if( bt instanceof DUInt16 ) return DAP_VARIABLE.UInt16;
+		else if( bt instanceof DUInt32 ) return DAP_VARIABLE.UInt32;
+		else if( bt instanceof DFloat32 ) return DAP_VARIABLE.Float32;
+		else if( bt instanceof DFloat64 ) return DAP_VARIABLE.Float64;
+		else if( bt instanceof DString ) return DAP_VARIABLE.String;
+		else {
+			sbError.append( "base type is unknown or obsolete, " + bt );
+			return null;
+		}
+	}
+	
 	public final static DDS getDDSforText( String sTextDDS, StringBuffer sbError ){
 		try {
+			if( sTextDDS == null || sTextDDS.length() == 0 ){
+				sbError.append( "DDS Text is blank" );
+				return null;
+			}
 			opendap.dap.DDS dds = new opendap.dap.DDS();
 			ByteArrayInputStream isTextDDS = new ByteArrayInputStream( sTextDDS.getBytes() ); 
 			dds.parse( isTextDDS );
@@ -178,6 +216,22 @@ public class DAP {
 		return 0;
 	}
 
+	public static DAP_TYPE getTypeEnumByName( String sTypeName ){
+		switch( getTypeByName( sTypeName ) ){
+			case 0:
+				return null;
+			case DAP.DATA_TYPE_Byte:	return DAP_TYPE.Byte;
+			case DAP.DATA_TYPE_Int16:	return DAP_TYPE.Int16;
+			case DAP.DATA_TYPE_UInt16:	return DAP_TYPE.UInt16;
+			case DAP.DATA_TYPE_Int32:	return DAP_TYPE.Int32;
+			case DAP.DATA_TYPE_UInt32:	return DAP_TYPE.UInt32;
+			case DAP.DATA_TYPE_Float32:	return DAP_TYPE.Float32;
+			case DAP.DATA_TYPE_Float64:	return DAP_TYPE.Float64;
+			case DAP.DATA_TYPE_String:	return DAP_TYPE.String;
+			default: return null;
+		}
+	}
+	
 	public static String getType_String( BaseType bt ){
 		if( bt == null ) return "[null error]";
 		if( bt instanceof DByte ) return "Byte";

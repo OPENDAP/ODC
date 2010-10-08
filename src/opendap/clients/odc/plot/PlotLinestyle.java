@@ -23,7 +23,7 @@
 package opendap.clients.odc.plot;
 
 import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.Utility;
+import opendap.clients.odc.Utility_String;
 import java.awt.Color;
 import java.awt.BasicStroke;
 
@@ -88,7 +88,7 @@ public class PlotLinestyle {
 			mStroke = new BasicStroke(miThickness, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, fMiterLimit);
 		} else {
 			sDashPattern = sDashPattern.trim();
-			String[] asPhase = Utility.split(sDashPattern, ':');
+			String[] asPhase = Utility_String.split( sDashPattern, ':' );
 			float fDashPhase = 0f; // default;
 			String sDashPhase = null;
 			if( asPhase.length > 1 ){
@@ -96,7 +96,7 @@ public class PlotLinestyle {
 				sDashPhase = asPhase[1].trim();
 			}
 			int iDashPatternLength = 0;
-			String[] asPattern = Utility.splitCommaWhiteSpace(sDashPattern);
+			String[] asPattern = Utility_String.splitCommaWhiteSpace( sDashPattern );
 			int ctIntervals = asPattern.length;
 			float[] afDashPattern = new float[ctIntervals];
 			for( int xInterval = 0; xInterval < ctIntervals; xInterval++ ){

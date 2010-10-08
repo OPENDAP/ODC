@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // This file is part of the OPeNDAP Data Connector project.
 //
-// Copyright (c) 2007 OPeNDAP, Inc.
+// Copyright (c) 2007-2010 OPeNDAP, Inc.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -25,23 +25,26 @@ package opendap.clients.odc.plot;
 /**
  * Title:        Panel_Plot
  * Description:  Base class for plotting
- * Copyright:    Copyright (c) 2002-8
+ * Copyright:    Copyright (c) 2002-10
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.02
+ * @version      3.06
  */
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.Utility;
+import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.Styles;
-import opendap.clients.odc.Model_Dataset;
+
 import java.awt.event.*;
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.geom.AffineTransform;
 import java.awt.print.*;
+
 import javax.swing.*;
+
 
 abstract class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotionListener, Scrollable {
 
@@ -96,31 +99,59 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	final private static String FORMAT_ID_date = "yyyyMMdd";
 	private String msID;
 	private String msCaption = null;
-	private Model_Dataset mURL = null;
 
-	abstract public void vGenerateImage(int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight );
 	abstract public String getDescriptor();
+	abstract public void vGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight );
 	abstract public boolean zCreateRGBArray(int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError);
 
-	Panel_Plot( PlotScale ps, String sID_descriptive, String sCaption, Model_Dataset url ){
+	public static void main(String[] args) {
+		Frame frame = new Frame("Plot Demo");
+		frame.setSize( 600, 600 );
+		PlotScale scale = new PlotScale();
+		String sID = "demo_id";
+		String sCaption = "demo plot";
+		scale.setOuputDimensions( new Dimension( 600, 600 ) );
+		scale.setDataDimension( 600, 600 );
+		Panel_Plot_Surface demo_surface = new Panel_Plot_Surface( scale, sID, sCaption );
+		StringBuffer sbError = new StringBuffer();
+		if( ! demo_surface.zPlot( sbError ) ){
+			System.err.println( "plot failed: " + sbError.toString() );
+		}
+		frame.add( demo_surface );
+		frame.addWindowListener( new WindowAdapter(){
+			public void windowClosing(WindowEvent e) {
+				new Thread(new Runnable() {
+					public void run() {
+						System.exit(0);
+					}
+				}).start();
+			}
+		});
+		frame.setVisible( true );
+	}
+	
+	Panel_Plot( PlotScale ps, String sID_descriptive, String sCaption ){
 		if( ps == null ){
 			ApplicationController.vShowError("system error, invalid plot panel, no scale");
 		}
 		if( miSessionCount == 0 ){ // update from properties
-			miSessionCount = ConfigurationManager.getInstance().getProperty_PlotCount();
+			if( ConfigurationManager.getInstance() == null ){
+				miSessionCount = 0;
+			} else {
+				miSessionCount = ConfigurationManager.getInstance().getProperty_PlotCount();
+			}
 		}
 		miSessionCount++;
-		ConfigurationManager.getInstance().setOption(ConfigurationManager.PROPERTY_COUNT_Plots, Integer.toString(miSessionCount));
+		if( ConfigurationManager.getInstance() != null ) ConfigurationManager.getInstance().setOption(ConfigurationManager.PROPERTY_COUNT_Plots, Integer.toString(miSessionCount));
 		int iCountWidth;
 		if( miSessionCount < 1000 ) iCountWidth = 3;
 		else if( miSessionCount < 100000 ) iCountWidth = 5;
 		else iCountWidth = 10;
 		if( sID_descriptive == null ){ // descriptive portion of id is generated from date and type
-			sID_descriptive = Utility.getCurrentDate(FORMAT_ID_date);
+			sID_descriptive = Utility.getCurrentDate( FORMAT_ID_date );
 		}
-		msID = sID_descriptive + "-" + getDescriptor() + "-" + Utility.sFormatFixedRight(miSessionCount, iCountWidth, '0'); // append plot count to ID descriptive string
+		msID = sID_descriptive + "-" + getDescriptor() + "-" + Utility_String.sFormatFixedRight( miSessionCount, iCountWidth, '0' ); // append plot count to ID descriptive string
 		mScale = ps;
-		mURL = url;
 		msCaption = sCaption;
 	}
 
@@ -135,7 +166,6 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	BufferedImage getImage(){ return mbi; }
 	String getID(){ return msID; }
 	String getCaption(){ return msCaption; }
-	Model_Dataset getURL(){ return mURL; }
 
 	// the way printing works is that the printer keeps asking for pages and when you return no_such_page it stops
 	// in the current implementation the Java printer always asks for the same page twice (with different
@@ -185,13 +215,13 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		}
 	}
 
-	private void vCreateImage(boolean zFill ){
+	private void vCreateImage( boolean zFill ){
 
 		// standard scaled area
-		int pxCanvasWidth = mScale.getCanvas_Width(zFill);
-		int pxCanvasHeight = mScale.getCanvas_Height(zFill);
-		int pxPlotWidth = mScale.getPlot_Width(zFill);
-		int pxPlotHeight = mScale.getPlot_Height(zFill);
+		int pxCanvasWidth = mScale.getCanvas_Width();
+		int pxCanvasHeight = mScale.getCanvas_Height();
+		int pxPlotWidth = mScale.getPlot_Width();
+		int pxPlotHeight = mScale.getPlot_Height();
 
 		if( mOptions != null ){
 			mzBoxed = mOptions.getValue_boolean(PlotOptions.OPTION_Boxed);
@@ -206,9 +236,13 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		}
 
 		// establish scale
-		mScale.setDataDimension( mPlottable.getDimension_x(), mPlottable.getDimension_y() );
+		if( mPlottable == null ){
+			mScale.setDataDimension( pxPlotWidth, pxPlotHeight );  
+		} else {
+			mScale.setDataDimension( mPlottable.getDimension_x(), mPlottable.getDimension_y() );
+		}
 		mpxMargin_Left   = mScale.getMarginLeft_px();
-		mpxMargin_Right  = mScale.getMarginLeft_px();
+		mpxMargin_Right  = mScale.getMarginRight_px();
 		mpxMargin_Top    = mScale.getMarginTop_px();
 		mpxMargin_Bottom = mScale.getMarginBottom_px();		
 		
@@ -259,7 +293,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			g2.setClip(pxPlotLeft, pxPlotTop, pxPlotWidth, pxPlotHeight);
 			mpxPreferredWidth = pxCanvasWidth;
 			mpxPreferredHeight = pxCanvasHeight;
-			vGenerateImage(pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
+			vGenerateImage( pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
 			g2.setClip(0, 0, pxCanvasWidth, pxCanvasHeight);
 			 // todo regularize histograms
 			if( !(this instanceof Panel_Plot_Histogram) ) vDrawAnnotations(g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight);
@@ -381,10 +415,10 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	}
 
 	private void vGenerateText(){
+		if( mOptions == null || mText == null ) return;  // need these structures to continue
 		mText.remove(TEXT_ID_CaptionY); // there may be a pre-existing, automatically generated caption
 		mText.remove(TEXT_ID_CaptionX); // there may be a pre-existing, automatically generated caption
 		mText.remove(TEXT_ID_CaptionColorBar); // there may be a pre-existing, automatically generated caption
-		if( mOptions == null || mText == null ) return;  // need these structures to continue
 	    if( ! mOptions.getValue_boolean(PlotOptions.OPTION_GenerateAxisCaptions) ) return;
 
 		// it is kind of hokey to have this here but there is no other easy option
@@ -883,6 +917,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	}
 
 	protected void vDrawScale( Graphics2D g2, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
+		if( mOptions == null ) return;
 		if( !mOptions.option_scale_zShow ) return;
 		PlotLayout layout = mOptions.option_scale_Layout;
 		Font font = Styles.fontSansSerif10; // todo make settable font

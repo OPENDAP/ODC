@@ -33,6 +33,7 @@ package opendap.clients.odc.plot;
 
 import opendap.dap.*;
 import opendap.clients.odc.*;
+
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -171,6 +172,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			javax.swing.border.Border borderStandard = BorderFactory.createEtchedBorder();
 			this.setBorder(borderStandard);
 
+			ApplicationController.getInstance().vShowStartupMessage("creating definition panel");
 			mDefinitionPanel = new Panel_Definition();
 			if( !mDefinitionPanel.zInitialize( this, sbError ) ){
 				sbError.insert(0, "failed to initialize definition panel");
@@ -205,6 +207,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			jcbOutputOptions.setSelectedIndex(0);
 
 			// Create command panel
+			ApplicationController.getInstance().vShowStartupMessage("creating plotter panels");
 			JPanel panelCommand = new JPanel();
 			panelCommand.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 			Styles.vApply(Styles.STYLE_BigBlueButton, buttonPlot);
@@ -244,6 +247,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			panelChecks.add( jcheckFreezeDefinition );
 
 			// create zoom control
+			ApplicationController.getInstance().vShowStartupMessage("creating plotter zoom control");
 			panelZoom.setLayout(new BoxLayout(panelZoom, BoxLayout.X_AXIS));
 			final JButton buttonZoom_In = new JButton("+");
 			final JButton buttonZoom_Out = new JButton("-");
@@ -286,6 +290,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			buttonZoom_Maximize.addActionListener(listenerZoom);
 
 			// thumbnail control
+			ApplicationController.getInstance().vShowStartupMessage("creating thumbnail panels");
 			panelTN_Controls.setLayout(new BoxLayout(panelTN_Controls, BoxLayout.X_AXIS));
 			final JButton buttonTN_SelectAll = new JButton("Select All");
 			final JButton buttonTN_DeleteSelected = new JButton("Delete Selected");
@@ -385,14 +390,20 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		ApplicationController.vShowWarning("URL not found in dataset list: " + urlToPlot);
 	}
 
-	public static int getOutputOption(){ return thisInstance.jcbOutputOptions.getSelectedIndex() + 1; }
+	public static int getOutputOption(){
+		if( thisInstance == null ){
+			return Output_ToPlot.FORMAT_NewWindow;
+		} else {
+			return thisInstance.jcbOutputOptions.getSelectedIndex() + 1;
+		}
+	}
 
 	boolean zPlot(){
 		int eOutputOption = getOutputOption();
 		return zPlot(eOutputOption);
 	}
 
-	boolean zPlot(final int eOutputOption){ // on the event loop
+	boolean zPlot( final int eOutputOption ){ // on the event loop
 		try {
 
 			if( eOutputOption == Output_ToPlot.FORMAT_Thumbnail && Panel_View_Plot.getPlotType() == Output_ToPlot.PLOT_TYPE_Vector ){

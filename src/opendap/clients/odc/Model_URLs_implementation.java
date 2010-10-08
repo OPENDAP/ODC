@@ -168,7 +168,7 @@ return null;
 				String sDirTitle = aurlSelected[xURL].getTitle();
 				String sBaseURL = aurlSelected[xURL].getBaseURL();
 				String sCE = aurlSelected[xURL].getConstraintExpression_Encoded();
-				Model_Dataset[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
+				Model_Dataset[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE); // TODO problem here, unused variable
 			}
 		}
 		Model_Dataset[] aurlCumulative = new Model_Dataset[ctDataURLs + ctDirectoryURLs];
@@ -228,11 +228,22 @@ return null;
 				if( !sURL.toUpperCase().startsWith("HTTP://") ){ // if URL is relative or bad then construct it
 					sURL = Utility.sConnectPaths(sDirectory, "/", asSelectedFiles[xFile]);
 				}
+				StringBuffer sbError = new StringBuffer( 256 );
 				if( Utility.isImage( sURL ) ){
-					aURLselected[xFile-1] = new Model_Dataset(sURL, Model_Dataset.TYPE_Image);
+					Model_Dataset model = Model_Dataset.createImageFromURL(sURL, sbError);
+					if( model == null ){
+						ApplicationController.vShowError( "internal error in recursive implementation getting sub-selected image URL, unable to create model: " + sbError.toString() );
+						return null;
+					}
+					aURLselected[xFile-1] = model;
 					aURLselected[xFile-1].setTitle(asSelectedFiles[xFile]);
 				} else {
-					aURLselected[xFile-1] = new Model_Dataset(sURL, Model_Dataset.TYPE_Data);
+					Model_Dataset model = Model_Dataset.createImageFromURL(sURL, sbError);
+					if( model == null ){
+						ApplicationController.vShowError( "internal error in recursive implementation getting sub-selected data URL, unable to create model: " + sbError.toString() );
+						return null;
+					}
+					aURLselected[xFile-1] = model;
 					aURLselected[xFile-1].setTitle(sDirTitle + " " + asSelectedFiles[xFile] + " " + sCE);
 					aURLselected[xFile-1].setConstraintExpression(sCE);
 				}

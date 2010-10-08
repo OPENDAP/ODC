@@ -109,7 +109,7 @@ public class IO {
      * @param sbError Buffer to write any error message to.
      * @return the content of the return as a String or null in the case of an error.
      */
-	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList<String> listClientCookies, ArrayList listServerCookies, String sBasicAuthentication, String[] eggLocation, ByteCounter bc, Activity activity, int iRedirectCount, StringBuffer sbError) {
+	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList<String> listClientCookies, ArrayList<String> listServerCookies, String sBasicAuthentication, String[] eggLocation, ByteCounter bc, Activity activity, int iRedirectCount, StringBuffer sbError) {
 		if( sHost == null ){
 			sbError.append("host missing");
 			return null;
@@ -152,7 +152,7 @@ public class IO {
 			sRequest += "\r\n"; // end of header
 		}
 
-		if( zLogHeaders ) ApplicationController.getInstance().vShowStatus("Request header:\n" + Utility.sShowUnprintable(sRequest));
+		if( zLogHeaders ) ApplicationController.vShowStatus("Request header:\n" + Utility_String.sShowUnprintable(sRequest));
 
 		try {
 			byte[] ab = sRequest.getBytes();
@@ -179,23 +179,23 @@ public class IO {
 		boolean zChunked = false;
 		if( zHeaderExists ){
 
-			if( zLogHeaders ) ApplicationController.getInstance().vShowStatus("Response header http://" + sHost + ":" + iPort + sRequestLocator + ":\n" + Utility.sShowUnprintable(sHeader));
+			if( zLogHeaders ) ApplicationController.vShowStatus("Response header http://" + sHost + ":" + iPort + sRequestLocator + ":\n" + Utility_String.sShowUnprintable(sHeader));
 
 			// validate HTTP protocol, load and check headers
 			String sHTTP_Response = getHeaderField( sHeader, 1 );
 			if( sHTTP_Response == null ){
-				sbError.append("server response was empty");
+				sbError.append( "server response was empty");
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
 			if( !sHTTP_Response.startsWith("HTTP/") ){
-				sbError.append("server response was not HTTP: " + Utility.sSafeSubstring(sHTTP_Response, 0, 120));
+				sbError.append( "server response was not HTTP: " + Utility_String.sSafeSubstring(sHTTP_Response, 0, 120 ) );
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
-			String[] asHTTPResponse = Utility.split(sHTTP_Response, ' ');
+			String[] asHTTPResponse = Utility_String.split( sHTTP_Response, ' ' );
 			if( asHTTPResponse.length == 1 ){
-				sbError.append("server response had no error/success code: " + Utility.sSafeSubstring(sHTTP_Response, 0, 120));
+				sbError.append( "server response had no error/success code: " + Utility_String.sSafeSubstring(sHTTP_Response, 0, 120 ) );
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
@@ -217,12 +217,12 @@ public class IO {
 				}
 			}
 			if( sResponseCode == null ){
-				sbError.append("server response had no error/success code2: " + Utility.sSafeSubstring(sHTTP_Response, 0, 120));
+				sbError.append("server response had no error/success code2: " + Utility_String.sSafeSubstring( sHTTP_Response, 0, 120 ));
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
-			if( !sResponseCode.equals("200") && !sResponseCode.equals("302") && !sResponseCode.equals("303") ){
-				sbError.append("server returned HTTP error code: " + Utility.sSafeSubstring(sHTTP_Response, 0, 500));
+			if( !sResponseCode.equals("200") && !sResponseCode.equals("302") && !sResponseCode.equals( "303" ) ){
+				sbError.append("server returned HTTP error code: " + Utility_String.sSafeSubstring( sHTTP_Response, 0, 500 ));
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
@@ -307,7 +307,7 @@ public class IO {
 			}
 
 		} else {
-			if( zLogHeaders ) ApplicationController.getInstance().vShowWarning("No header http://" + sHost + ":" + iPort + sRequestLocator);
+			if( zLogHeaders ) ApplicationController.vShowWarning("No header http://" + sHost + ":" + iPort + sRequestLocator);
 		}
 
 		String sDocument;
@@ -347,7 +347,7 @@ ReadHeader:
 			while( true ){
 				switch( socket_channel.read(buffer) ){
 					case -1: // end of stream
-						String sHeader1000 = Utility.sSafeSubstring(sbHeader.toString(), 1, 1000);
+						String sHeader1000 = Utility_String.sSafeSubstring(sbHeader.toString(), 1, 1000);
 						// sHeader1000 = Utility.sReplaceString(sHeader1000, "\r", "\\r");
 						// sHeader1000 = Utility.sReplaceString(sHeader1000, "\n", "\\n");
 						try { socket_channel.close(); } catch( Throwable t_is ){}
@@ -363,11 +363,11 @@ ReadHeader:
 						if( (System.currentTimeMillis() - nLastDot) > 1000 ){ // make a dot every second
 							ctDots++;
 							nLastDot = System.currentTimeMillis();
-							String sStatus = "waiting for header " + Utility.sRepeatChar('.', ctDots);
+							String sStatus = "waiting for header " + Utility_String.sRepeatChar('.', ctDots);
 							ApplicationController.vShowStatus_NoCache(sStatus);
 						}
 						if( (System.currentTimeMillis() - nReadStarted) > iTimeoutRead_seconds * 1000 ){
-							sbError.append( "timeout waiting to read (see help topic Timeouts) after " + ctTotalBytesRead + " bytes read, header: [" + Utility.sSafeSubstring(sbHeader.toString(), 1, 120) + "]" );
+							sbError.append( "timeout waiting to read (see help topic Timeouts) after " + ctTotalBytesRead + " bytes read, header: [" + Utility_String.sSafeSubstring(sbHeader.toString(), 1, 120) + "]" );
 							try { socket_channel.close(); } catch( Throwable t_is ){}
 							ApplicationController.vClearStatus(); // clear the waiting for header status message
 							return null;
@@ -381,7 +381,7 @@ ReadHeader:
 						ctTotalBytesRead++;
 						ctLineBytesRead++;
 						if( ctTotalBytesRead > MAX_HEADER_BYTES ){
-							sbError.append("Maximum number of header bytes (" + MAX_HEADER_BYTES + ") exceeded by header: [" + Utility.sSafeSubstring(sbHeader.toString(), 1, 120) + "...]" );
+							sbError.append("Maximum number of header bytes (" + MAX_HEADER_BYTES + ") exceeded by header: [" + Utility_String.sSafeSubstring(sbHeader.toString(), 1, 120) + "...]" );
 							try { socket_channel.close(); } catch( Throwable t_is ){}
 							ApplicationController.vClearStatus(); // clear the waiting for header status message
 							return null;
@@ -492,7 +492,7 @@ ReadHeader:
 					case 0: // nothing read
 						Thread.sleep(TIMEOUT_CHECK_INTERVAL_ms);
 						if( (System.currentTimeMillis() - nReadStarted) > iReadTimeout_seconds * 1000 ){
-							sbError.append( "timeout waiting to read (see help topic Timeouts) remainder after " + ctTotalBytesRead + " bytes read, content: [" + Utility.sSafeSubstring(sbContent, 1, 120) + "]" );
+							sbError.append( "timeout waiting to read (see help topic Timeouts) remainder after " + ctTotalBytesRead + " bytes read, content: [" + Utility_String.sSafeSubstring(sbContent, 1, 120) + "]" );
 							if( byte_counter != null ) byte_counter.vReportByteCount_Total( ctTotalBytesRead );
 							return null;
 						}
@@ -544,7 +544,7 @@ ReadHeader:
 					case 0: // nothing read
 						Thread.sleep(TIMEOUT_CHECK_INTERVAL_ms);
 						if( (System.currentTimeMillis() - nReadStarted) > iReadTimeout_seconds * 1000 ){
-							sbError.append( "timeout waiting to read (see help topic Timeouts) remainder after " + ctTotalBytesRead + " bytes read, content: [" + Utility.sSafeSubstring(sbContent, 1, 120) + "]" );
+							sbError.append( "timeout waiting to read (see help topic Timeouts) remainder after " + ctTotalBytesRead + " bytes read, content: [" + Utility_String.sSafeSubstring(sbContent, 1, 120) + "]" );
 							if( byte_counter != null ) byte_counter.vReportByteCount_Total( ctTotalBytesRead );
 							return null;
 						}
@@ -564,7 +564,7 @@ ReadHeader:
 										iChunkSize = Integer.parseInt(sChunkSize, 16);
 										sbChunkHeader.setLength(0); // reset buffer
 									} catch(Exception ex) {
-										sbError.append("cannot interpret (" + Utility.sShowUnprintable(sChunkSize) + ") as a chunk size");
+										sbError.append("cannot interpret (" + Utility_String.sShowUnprintable(sChunkSize) + ") as a chunk size");
 										return null;
 									}
 									if( iChunkSize == 0 ){
@@ -613,7 +613,7 @@ ReadHeader:
 		if( zUseProxy ){
 			sConnection_Host = ConfigurationManager.getInstance().getProperty_ProxyHost();
 			String sConnection_Port = ConfigurationManager.getInstance().getProperty_ProxyPort();
-			iConnection_Port = Utility.parseInteger_nonnegative( sConnection_Port );
+			iConnection_Port = Utility_String.parseInteger_nonnegative( sConnection_Port );
 			if( iConnection_Port < 0 || iConnection_Port > 65535 ){
 				sbError.append("The specified proxy port [" + sConnection_Port + "] is not a non-negative integer less than 65536. Currently the ODC is set to use a proxy (config setting proxy.Use) but the proxy port [" + sConnection_Port + "] is invalid.");
 				return null;
@@ -675,11 +675,11 @@ ReadHeader:
 	public static final Cookie parseCookie( String sServerCookie, StringBuffer sbError ){
 		if( sServerCookie == null ){ sbError.append("cookie was null"); return null; }
 		if( sServerCookie.trim().length() == 0 ){ sbError.append("cookie was blank"); return null; }
-		String[] asCookieFields = Utility.split( sServerCookie, ';' );
+		String[] asCookieFields = Utility_String.split( sServerCookie, ';' );
 
 		// the first field must have the name=value pair
 		if( asCookieFields[0].trim().length() == 0 ){ sbError.append("cookie name/value field was blank"); return null; }
-		String[] asNameField = Utility.split( asCookieFields[0], '=' );
+		String[] asNameField = Utility_String.split( asCookieFields[0], '=' );
 		if( asNameField[0].trim().length() == 0 ){ sbError.append("cookie name field was blank"); return null; }
 		if( asNameField[1].trim().length() == 0 ){ sbError.append("cookie value field was blank"); return null; }
 		Cookie theCookie = new Cookie();
@@ -687,7 +687,7 @@ ReadHeader:
 		theCookie.sValue = asNameField[1].trim();
 
 		for( int xField = 2; xField <= asCookieFields.length; xField++ ){
-			String[] asParam = Utility.split( asCookieFields[xField - 1], '=' );
+			String[] asParam = Utility_String.split( asCookieFields[xField - 1], '=' );
 			if( asParam[0].trim().equalsIgnoreCase("expires") ){
 				theCookie.sExpires = asParam[1].trim();
 			}

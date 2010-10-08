@@ -134,7 +134,7 @@ public class OpendapConnection {
 			sRequest_Print = "http://" + sRequest_Host + ":" + iRequest_Port + sRequestLocator;
 		}
 
-		if( zLogHeaders ) ApplicationController.getInstance().vShowStatus("Request header:\n" + Utility.sShowUnprintable(sRequest));
+		if( zLogHeaders ) ApplicationController.vShowStatus("Request header:\n" + Utility_String.sShowUnprintable(sRequest));
 
 		try {
 			if( activity != null ) activity.vUpdateStatus("sending request");
@@ -157,16 +157,16 @@ public class OpendapConnection {
 
 		if( zHeaderExists ){
 			if( zLogHeaders )
-				ApplicationController.getInstance().vShowStatus("Response header for (" + sRequest_Print + "):\n" + Utility.sShowUnprintable(sHeader));
+				ApplicationController.vShowStatus("Response header for (" + sRequest_Print + "):\n" + Utility_String.sShowUnprintable(sHeader));
 			String sHTTP_Response = getHeaderField( sHeader, 1 );
 			if( sHTTP_Response == null ){
 				sbError.append("server response was empty");
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
-			String[] asHTTPResponse = Utility.split(sHTTP_Response, ' ');
+			String[] asHTTPResponse = Utility_String.split(sHTTP_Response, ' ');
 			if( asHTTPResponse.length == 1 ){
-				sbError.append("server response had no error/success code: " + Utility.sSafeSubstring(sHTTP_Response, 0, 120));
+				sbError.append("server response had no error/success code: " + Utility_String.sSafeSubstring(sHTTP_Response, 0, 120));
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
@@ -178,7 +178,7 @@ public class OpendapConnection {
 				}
 			}
 			if( sResponseCode == null ){
-				sbError.append("server response had no error/success code2: " + Utility.sSafeSubstring(sHTTP_Response, 0, 120));
+				sbError.append("server response had no error/success code2: " + Utility_String.sSafeSubstring(sHTTP_Response, 0, 120));
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
@@ -198,7 +198,7 @@ public class OpendapConnection {
 					sbError.append( "proxy server requires a non-supported authentication scheme: " + sAuthenticationScheme );
 				}
 			} else {
-				sbError.append("server returned HTTP error code: " + Utility.sSafeSubstring(sHTTP_Response, 0, 250));
+				sbError.append("server returned HTTP error code: " + Utility_String.sSafeSubstring(sHTTP_Response, 0, 250));
 //				System.out.println( getRemainder(socket_channel, 10000, iReadTimeout_seconds) );
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
@@ -209,8 +209,6 @@ public class OpendapConnection {
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
-
-
 
             // Determine the Server VErsion from the HTTP header.
             String sServerVersion = getHeaderField(sHeader, "xdap");
@@ -243,12 +241,6 @@ public class OpendapConnection {
                 }
             }
             
-
-
-
-
-
-
             String sTransferEncoding = getHeaderField(sHeader, "transfer-encoding");
 			if( sTransferEncoding != null ){
 				if( sProtocol.equals("HTTP/1.0") ){
@@ -269,7 +261,7 @@ public class OpendapConnection {
 			}
 		} else {
 			if( zLogHeaders )
-				ApplicationController.getInstance().vShowWarning("No header returned for " + sRequest_Print);
+				ApplicationController.vShowWarning("No header returned for " + sRequest_Print);
 		}
 
 		// create and return the ByteTracker
@@ -327,7 +319,7 @@ public class OpendapConnection {
 					case 0: // nothing read
 						Thread.sleep(TIMEOUT_CHECK_INTERVAL_ms);
 						if( (System.currentTimeMillis() - nReadStarted) > iReadTimeout_seconds * 1000 ){
-							sbContent.append( "timeout waiting to read (see help topic Timeouts), remainder after " + ctTotalBytesRead + " bytes read, content: [" + Utility.sSafeSubstring(sbContent, 1, 120) + "]" );
+							sbContent.append( "timeout waiting to read (see help topic Timeouts), remainder after " + ctTotalBytesRead + " bytes read, content: [" + Utility_String.sSafeSubstring(sbContent, 1, 120) + "]" );
 							return sbContent.toString();
 						}
 					default: // read bytes

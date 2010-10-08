@@ -60,7 +60,7 @@ public class Model_Dimension {
 		return maiIndex1[iSliceNumber1];
 	}
 	String getSliceCaption( int iSliceNumber1 ){
-		String[] as = Utility.split(msCaption, ',');
+		String[] as = Utility_String.split( msCaption, ',' );
 		if( as == null ) return null;
 		if( iSliceNumber1 < 1 || iSliceNumber1 > as.length ) return null;
 		return as[iSliceNumber1 - 1].trim();
@@ -81,7 +81,7 @@ public class Model_Dimension {
 				return true;
 			}
 			StringBuffer sbConstraint = new StringBuffer();
-			String[] asRanges = Utility.split(s, ',');
+			String[] asRanges = Utility_String.split( s, ',' );
 			int ctRanges = asRanges.length;
 			int xRange = 0;
 			for( xRange = 0; xRange < ctRanges; xRange++ ){ asRanges[xRange] = asRanges[xRange].trim(); }
@@ -92,9 +92,9 @@ public class Model_Dimension {
 			for( xRange = 0; xRange < ctRanges; xRange++ ){
 				String[] asBeginEnd;
 				if( asRanges[xRange].indexOf(':') >= 0 ){
-					asBeginEnd = Utility.split(asRanges[xRange], ':');
+					asBeginEnd = Utility_String.split(asRanges[xRange], ':');
 				} else {
-					asBeginEnd = Utility.split(asRanges[xRange], '-');
+					asBeginEnd = Utility_String.split(asRanges[xRange], '-');
 				}
 				int ctBeginEnd = asBeginEnd.length;
 				for( int xBeginEnd = 0; xBeginEnd < ctBeginEnd; xBeginEnd++ ){ asBeginEnd[xBeginEnd] = asBeginEnd[xBeginEnd].trim(); }
@@ -148,9 +148,9 @@ public class Model_Dimension {
 			for( xRange = 0; xRange < ctRanges; xRange++ ){
 				String[] asBeginEnd;
 				if( asRanges[xRange].indexOf(':') >= 0 ){
-					asBeginEnd = Utility.split(asRanges[xRange], ':');
+					asBeginEnd = Utility_String.split(asRanges[xRange], ':');
 				} else {
-					asBeginEnd = Utility.split(asRanges[xRange], '-');
+					asBeginEnd = Utility_String.split(asRanges[xRange], '-');
 				}
 				int ctBeginEnd = asBeginEnd.length;
 				for( int xBeginEnd = 0; xBeginEnd < asBeginEnd.length; xBeginEnd++ ){ asBeginEnd[xBeginEnd] = asBeginEnd[xBeginEnd].trim(); }

@@ -195,7 +195,7 @@ public class VSelector_DGrid extends VariableSelector {
 		msbLabel.setLength(0);
 		String sName = getQualifiedName( mDGrid );
 		long nSize = Panel_Retrieve_Dimension.getEstimatedSize( listDimPanels, miDataWidth );
-		String sSize = Utility.getByteCountString( nSize );
+		String sSize = Utility_String.getByteCountString( nSize );
 		msbLabel.append( sName ).append(' ');
 		appendDimensionSizes( msbLabel );
 		msbLabel.append(' ').append('(').append(sSize).append(')');

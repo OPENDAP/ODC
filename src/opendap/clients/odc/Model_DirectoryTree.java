@@ -90,9 +90,9 @@ public class Model_DirectoryTree extends DefaultTreeModel {
 		return getPrintoutForNode( nodeRoot, 0 );
 	}
 	private String getPrintoutForNode(DirectoryTreeNode node, int iIndent){
-		if( node == null ) return Utility.sRepeatChar('\t', iIndent) + "[null]\n";
+		if( node == null ) return Utility_String.sRepeatChar('\t', iIndent) + "[null]\n";
 		StringBuffer sbOut = new StringBuffer();
-		sbOut.append(Utility.sRepeatChar('\t', iIndent));
+		sbOut.append( Utility_String.sRepeatChar('\t', iIndent));
 		String sNodeTitle = node.getTitle();
 	    if( sNodeTitle == null ) sNodeTitle = "[unnamed node]";
 		if( node.getError() == null ){
@@ -103,7 +103,7 @@ public class Model_DirectoryTree extends DefaultTreeModel {
 		String[] asFiles = node.getFileList();
 		if( asFiles.length > 1 ){
 			for( int xFile = 0; xFile < asFiles.length; xFile++ ){
-				sbOut.append(Utility.sRepeatChar('\t', iIndent) + "- " + asFiles[xFile] + (node.zFileSelected(xFile) ? " *\n" : "\n"));
+				sbOut.append( Utility_String.sRepeatChar('\t', iIndent) + "- " + asFiles[xFile] + (node.zFileSelected(xFile) ? " *\n" : "\n"));
 			}
 		}
 		for( int xChild = 0; xChild < node.getChildCount(); xChild++ ){
@@ -118,7 +118,7 @@ public class Model_DirectoryTree extends DefaultTreeModel {
 		if( sPath.length()==0 ){ return nodeRoot.getFileList(); }
 		if( sPath.equals("/") ){ return nodeRoot.getFileList(); }
 		// 1.4.1 only: String[] asDirs = sPath.split("/"); replaced by:
-		String[] asDirs = Utility.split(sPath, '/');
+		String[] asDirs = Utility_String.split( sPath, '/' );
 		int xDir = 0;
 		DirectoryTreeNode nodeCurrent = nodeRoot;
 		String sPathCurrent = "";

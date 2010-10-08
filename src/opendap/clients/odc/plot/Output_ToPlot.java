@@ -265,11 +265,11 @@ public class Output_ToPlot {
 //     1 x/y/slice       n slices
 //       n slices        n slices    (number of slices must match for both variables)
 
-	static boolean zPlot_XY( PlotScale scale, Model_Dataset url, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
+	static boolean zPlot_XY( PlotScale scale, Model_Dataset model, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
 		try {
 
 			// initialize panel
-			Panel_Plot_Line panelPL = new Panel_Plot_Line(ps, null, sCaption, url);
+			Panel_Plot_Line panelPL = new Panel_Plot_Line( ps, null, sCaption );
 			panelPL.setColors(cs);
 			panelPL.setOptions(po);
 			panelPL.setText(pt);
@@ -390,7 +390,7 @@ public class Output_ToPlot {
 				return false;
 			}
 
-			return zPlot(panelPL, eOutputOption, sbError);
+			return zPlot( panelPL, model, eOutputOption, sbError );
 		} catch(Exception ex) {
 			sbError.append("While building line plot: ");
 			ApplicationController.vUnexpectedError(ex, sbError);
@@ -398,7 +398,7 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot_Histogram( Model_Dataset url, String sCaption, PlottingVariable pv, PlotOptions po, int eOutputOption, PlotScale ps, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_Histogram( Model_Dataset model, String sCaption, PlottingVariable pv, PlotOptions po, int eOutputOption, PlotScale ps, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
 
 			if( eOutputOption == FORMAT_Thumbnail ){
@@ -411,7 +411,7 @@ public class Output_ToPlot {
 			Object[] eggHistogramData = pv.getDataEgg();
 			Object[] eggHistogramMissing = pv.getMissingEgg();
 
-			Panel_Plot_Histogram plotHistogram = new Panel_Plot_Histogram(ps, null, sCaption, url);
+			Panel_Plot_Histogram plotHistogram = new Panel_Plot_Histogram( ps, null, sCaption );
 			plotHistogram.setText(pt);
 			plotHistogram.setBoxed(false);
 			plotHistogram.setMarginPixels_Top( 50 );
@@ -427,7 +427,7 @@ public class Output_ToPlot {
 				sbError.insert(0, "failed to set data for histogram of " + iDataPointCount + " values: ");
 				return false;
 			}
-			return zPlot(plotHistogram, eOutputOption, iFrame, ctFrames, sbError);
+			return zPlot( plotHistogram, model, eOutputOption, iFrame, ctFrames, sbError );
 		} catch(Exception ex) {
 			sbError.append("While building histogram: ");
 			ApplicationController.vUnexpectedError(ex, sbError);
@@ -435,7 +435,7 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot_PseudoColor( Model_Dataset url, String sCaption, PlottingVariable pv, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_PseudoColor( Model_Dataset model, String sCaption, PlottingVariable pv, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
 
 			int eDATA_TYPE   = pv.getDataType();
@@ -468,12 +468,12 @@ public class Output_ToPlot {
 				int pxThumbnailWidth = po.get(PlotOptions.OPTION_ThumbnailWidth).getValue_int();
 				int pxThumbnailHeight = iHeight * pxThumbnailWidth / iWidth;
 				PlotScale psThumbnail = new PlotScale();
-				psThumbnail.setScaleMode(PlotScale.SCALE_MODE_PlotArea);
-				psThumbnail.setPixelWidth(pxThumbnailWidth);
-				psThumbnail.setPixelHeight(pxThumbnailHeight);
-				panelPC = new Panel_Plot_Pseudocolor(psThumbnail, null, sCaption, url);
+				psThumbnail.setScaleMode( PlotScale.SCALE_MODE.PlotArea );
+				psThumbnail.setPixelWidth_PlotArea( pxThumbnailWidth );
+				psThumbnail.setPixelHeight_PlotArea( pxThumbnailHeight );
+				panelPC = new Panel_Plot_Pseudocolor(psThumbnail, null, sCaption );
 			} else {
-				panelPC = new Panel_Plot_Pseudocolor(ps, null, sCaption, url);
+				panelPC = new Panel_Plot_Pseudocolor(ps, null, sCaption );
 			}
 			panelPC.setColors(cs);
 			panelPC.setText(pt);
@@ -551,7 +551,7 @@ public class Output_ToPlot {
 
 			panelPC.setLabel_Values(pv.getDataCaption());
 
-			return zPlot(panelPC, eOutputOption, iFrame, ctFrames, sbError);
+			return zPlot( panelPC, model, eOutputOption, iFrame, ctFrames, sbError );
 		} catch(Exception ex) {
 			sbError.append("While building pseudocolor plot: ");
 			ApplicationController.vUnexpectedError(ex, sbError);
@@ -559,9 +559,9 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot_Vector( Model_Dataset url, String sCaption, PlottingVariable pv, PlottingVariable pv2, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_Vector( Model_Dataset model, String sCaption, PlottingVariable pv, PlottingVariable pv2, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
-			Panel_Plot_Vector panelVector = new Panel_Plot_Vector(ps, null, sCaption, url);
+			Panel_Plot_Vector panelVector = new Panel_Plot_Vector( ps, null, sCaption );
 			if( pv == null || pv2 == null ){
 				sbError.append("a vector plot requires exactly two variables");
 				return false;
@@ -659,7 +659,7 @@ public class Output_ToPlot {
 			panelVector.setColors(cs);
 			panelVector.setOptions(po);
 			panelVector.setText(pt);
-			return zPlot(panelVector, eOutputOption, iFrame, ctFrames, sbError);
+			return zPlot( panelVector, model, eOutputOption, iFrame, ctFrames, sbError );
 		} catch(Exception ex) {
 			sbError.append("While building vector plot: ");
 			ApplicationController.vUnexpectedError(ex, sbError);
@@ -667,11 +667,11 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot( Panel_Plot panelPlot, int eOutputOption, StringBuffer sbError ){
-		return zPlot( panelPlot, eOutputOption, 1, 1, sbError );
+	static boolean zPlot( Panel_Plot panelPlot, Model_Dataset model, int eOutputOption, StringBuffer sbError ){
+		return zPlot( panelPlot, model, eOutputOption, 1, 1, sbError );
 	}
 
-	static boolean zPlot( Panel_Plot panelPlot, int eOutputOption, int iFrameNumber, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot( Panel_Plot panelPlot, Model_Dataset model, int eOutputOption, int iFrameNumber, int ctFrames, StringBuffer sbError ){
 		try {
 			PlotScale scale;
 			String sOutput;
@@ -705,8 +705,8 @@ public class Output_ToPlot {
 					}
 					JComponent compToAdd;
 					scale = panelPlot.getPlotScale();
-					if( (float)scale.getCanvas_Width(false) > .9f * SCREEN_Width ||
-					    (float)scale.getCanvas_Height(false) > .9f * SCREEN_Height ){
+					if( (float)scale.getCanvas_Width() > .9f * SCREEN_Width ||
+					    (float)scale.getCanvas_Height() > .9f * SCREEN_Height ){
 						if( iFrameNumber == 1 ) frame.setSize(SCREEN_Width, SCREEN_Height);
 						JScrollPane jspNew = new JScrollPane(panelPlot);
 						compToAdd = jspNew;
@@ -714,8 +714,8 @@ public class Output_ToPlot {
 						if( iFrameNumber == 1 ){
 							int iExtraWidth = ApplicationController.getInstance().getFrame_ExtraWidth();
 	    					int iExtraHeight = ApplicationController.getInstance().getFrame_ExtraHeight();
-		    				int iFrameWidth = scale.getCanvas_Width(false) + iExtraWidth;
-			    			int iFrameHeight = scale.getCanvas_Height(false) + iExtraHeight;
+		    				int iFrameWidth = scale.getCanvas_Width() + iExtraWidth;
+			    			int iFrameHeight = scale.getCanvas_Height() + iExtraHeight;
 				    		frame.setSize(iFrameWidth, iFrameHeight);
 						}
 						compToAdd = panelPlot;
@@ -735,8 +735,8 @@ public class Output_ToPlot {
 					if( iFrameNumber > 1 ) Thread.sleep(miMultisliceDelay); // wait for two seconds before continuing
 					sOutput = "full screen";
 					scale = panelPlot.getPlotScale();
-					int iPanelWidth = scale.getCanvas_Width(false);
-					int iPanelHeight = scale.getCanvas_Height(false);
+					int iPanelWidth = scale.getCanvas_Width();
+					int iPanelHeight = scale.getCanvas_Height();
 					java.awt.Container container = windowFullScreen_final.getContentPane();
 					container.removeAll();
 					container.add(panelPlot);
@@ -809,7 +809,7 @@ public class Output_ToPlot {
 					Graphics g = biThumbnail.getGraphics();
 					g.setColor(Color.BLACK);
 					g.drawRect(0, 0, pxThumbnailWidth - 1, pxThumbnailHeight - 1);
-					panelThumbnails.addThumbnail(panelPlot.getURL(), panelPlot.getCaption(), biThumbnail);
+					panelThumbnails.addThumbnail( model, panelPlot.getCaption(), biThumbnail );
 					panelThumbnails.revalidate();
 					sOutput = "thumbnail";
 					break;

@@ -378,7 +378,6 @@ public class Utility {
 					} else if( c == 10 ){ // end of UNIX line
 						listLines.add(sbLine.toString());
 						sbLine.setLength(0);
-						pos++;
 					} else {
 						sbLine.append(c);
 					}

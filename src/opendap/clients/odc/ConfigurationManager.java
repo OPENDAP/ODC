@@ -236,17 +236,17 @@ public class ConfigurationManager {
 		try {
 		    fileBaseDirectory = new File( sBaseDirectoryPath );
 		} catch(Exception ex) {
-			sbError.append("base directory string could not be interpreted as a path (" + Utility.sSafeSubstring(sBaseDirectoryPath, 0, 80) + ")");
+			sbError.append("base directory string could not be interpreted as a path (" + Utility_String.sSafeSubstring(sBaseDirectoryPath, 0, 80) + ")");
 			return false;
 		}
 		try {
 		    sCanonicalPath = fileBaseDirectory.getCanonicalPath();
 			if( sCanonicalPath == null || sCanonicalPath.length() == 0 ){
-			   sbError.append("could not obtain canonical path for base directory (" + Utility.sSafeSubstring(sBaseDirectoryPath, 0, 80) + ")");
+			   sbError.append("could not obtain canonical path for base directory (" + Utility_String.sSafeSubstring(sBaseDirectoryPath, 0, 80) + ")");
 			   return false;
 			}
 		} catch(Exception ex) {
-			sbError.append("error obtaining canonical path for base directory (" + Utility.sSafeSubstring(sBaseDirectoryPath, 0, 80) + "): " + ex);
+			sbError.append("error obtaining canonical path for base directory (" + Utility_String.sSafeSubstring(sBaseDirectoryPath, 0, 80) + "): " + ex);
 			return false;
 		}
 		if( !fileBaseDirectory.isDirectory() ){

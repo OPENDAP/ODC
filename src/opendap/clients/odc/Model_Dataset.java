@@ -7,14 +7,14 @@ package opendap.clients.odc;
  * the URL.  It should be used over <code>String</code> to represent
  * Dods URLs whenever possible.
  *
- * @author rhonhart (original version)
+ * @author rhonhart (original version, many moons ago)
  * @author John S. Chamberlain
  */
 
 /////////////////////////////////////////////////////////////////////////////
 // This file is part of the OPeNDAP Data Connector project.
 //
-// Copyright (c) 2007 OPeNDAP, Inc.
+// Copyright (c) 2007-2010 OPeNDAP, Inc.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -46,14 +46,15 @@ public class Model_Dataset implements java.io.Serializable {
 	private static final long serialVersionUID = 2L;
 
     public final static int TYPE_Data = 0;
-    public final static int TYPE_Directory = 1;
-    public final static int TYPE_Catalog = 2;
-    public final static int TYPE_Image = 3;
-    public final static int TYPE_HTML = 4;
-    public final static int TYPE_Text = 5;
-    public final static int TYPE_Binary = 6;
-    public final static int TYPE_Expression = 7;
-    public final static int TYPE_Stream = 8;
+    public final static int TYPE_Definition = 1;
+    public final static int TYPE_Directory = 2;
+    public final static int TYPE_Catalog = 3;
+    public final static int TYPE_Image = 4;
+    public final static int TYPE_HTML = 5;
+    public final static int TYPE_Text = 6;
+    public final static int TYPE_Binary = 7;
+    public final static int TYPE_Expression = 8;
+    public final static int TYPE_Stream = 9;
 
     private String msURL;
     private String msCE;
@@ -83,49 +84,29 @@ public class Model_Dataset implements java.io.Serializable {
 
 	transient int miID; // used to tag an URL with an arbitrary id such as for favorites and recent
 
+	private Model_Dataset(){} // prevent external creation of class, users must employ factory constructors
+	
     /**
-     * Create an empty <code>DodsURL</code>.
+     * Create a new <code>Model_Dataset</code> of the data type.
      */
-    public Model_Dataset( final int type ){
-		msURL = "";
-		msCE = "";
-		miURLType = type;
-		msTitle = null;
-		msMIMEType = null;
-		mSavable = new SavableImplementation( this.getClass(), null, null );
-    }
-
-    /**
-     * Create a <code>DodsURL</code> by copying an existing <code>DodsURL</code>
-     * @param dodsURL The url to copy.
-     */
-    public Model_Dataset( Model_Dataset dodsURL ){
-		msURL = dodsURL.msURL;
-		msCE = dodsURL.msCE;
-		miURLType = dodsURL.miURLType;
-		msTitle = dodsURL.msTitle;
-		msSubDirectory = dodsURL.msSubDirectory; // with no leading slash
-		msDirectoryRegex = dodsURL.msDirectoryRegex;
-		msMIMEType = dodsURL.msMIMEType;
-		mSavable = new SavableImplementation( this.getClass(), msTitle, null );
-    }
-
-    /**
-     * Create a <code>DodsURL</code> with a specific base URL and constraint
-     * expression.  This url is assumed to be a TYPE_Data, and it uses the
-     * default TYPE_Data processor.
-     * @param dodsURL The base url.
-     * @param dodsCE The constraint expression.
-     */
-    public Model_Dataset(String dodsURL, String dodsCE) {
-		msURL = dodsURL;
-		msCE = dodsCE;
-
-		// It only makes sense to supply a constraint expression for a
-		// data URL, so we can assume this is a data URL.
-		miURLType = TYPE_Data;
-		msTitle = null;
-		mSavable = new SavableImplementation( this.getClass(), null, null );
+    public final static Model_Dataset createData( final DataDDS data, final StringBuffer sbError ){
+    	String sTextDDS = data.getDDSText();
+    	DDS dds = DAP.getDDSforText( sTextDDS, sbError );
+    	if( dds == null ){
+    		sbError.insert( 0, "unable to generate DDS from text: " );
+    		return null;
+    	}
+    	Model_Dataset model = new Model_Dataset();
+		model.msURL = "";
+		model.msCE = "";
+		model.miURLType = TYPE_Data;
+		model.msTitle = null;
+		model.msMIMEType = null;
+		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
+		model.mDataDDS = data;
+		model.mDDS_Full = dds;
+		model.msDDS_Text = dds.getDDSText();
+		return model;
     }
 
     /**
@@ -135,14 +116,141 @@ public class Model_Dataset implements java.io.Serializable {
      * @param dodsURL The base url.
      * @param type The type of URL.
      */
-    public Model_Dataset(String dodsURL, int type) {
+    public final static Model_Dataset createDataFromURL( final String sURL, StringBuffer sbError ){
+    	if( sURL == null ){
+    		sbError.append( "no URL supplied" );
+    		return null;
+    	}
+    	Model_Dataset model = new Model_Dataset();
+		model.msURL = sURL;
+		model.msCE = "";
+		model.miURLType = TYPE_Data;
+		model.msTitle = null;
+		model.msMIMEType = null;
+		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
+		return model;
+    }
+
+    /**
+     * Create a <code>DodsURL model</code> of the Directory type.
+     * The constraint expression is set to an empty string
+     * and the urlProcessor is set to the default for the give type.
+     * @param dodsURL The base url.
+     * @param type The type of URL.
+     */
+    public final static Model_Dataset createDirectoryFromURL( final String sURL, StringBuffer sbError ){
+    	if( sURL == null ){
+    		sbError.append( "no URL supplied" );
+    		return null;
+    	}
+    	Model_Dataset model = new Model_Dataset();
+		model.msURL = sURL;
+		model.msCE = "";
+		model.miURLType = TYPE_Directory;
+		model.msTitle = null;
+		model.msMIMEType = null;
+		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
+		return model;
+    }
+    
+    /**
+     * Create a new <code>Model_Dataset</code> of the data type.
+     */
+    public final static Model_Dataset createExpression( final DDS dds, final StringBuffer sbError ){
+    	if( dds == null ){
+    		sbError.append( "no DDS" );
+    		return null;
+    	}
+    	Model_Dataset model = new Model_Dataset();
+		model.msURL = "";
+		model.msCE = "";
+		model.miURLType = TYPE_Expression;
+		model.mDDS_Full = dds;
+		model.msDDS_Text = dds.getDDSText();
+		model.msTitle = null;
+		model.msMIMEType = null;
+		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
+		return model;
+    }
+
+    /**
+     * Create a new <code>Model_Dataset</code> of the data type.
+     */
+    public final static Model_Dataset createDataDefinition( final DDS dds, final StringBuffer sbError ){
+    	if( dds == null ){
+    		sbError.append( "no DDS" );
+    		return null;
+    	}
+    	Model_Dataset model = new Model_Dataset();
+		model.msURL = "";
+		model.msCE = "";
+		model.miURLType = TYPE_Definition;
+		model.mDDS_Full = dds;
+		model.msDDS_Text = dds.getDDSText();
+		model.msTitle = null;
+		model.msMIMEType = null;
+		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
+		return model;
+    }
+    
+    /**
+     * Create a new <code>Model_Dataset</code> of the image type.
+     */
+    public final static Model_Dataset createImageFromURL( final String sURL, final StringBuffer sbError ){
+    	Model_Dataset model = new Model_Dataset();
+		model.msURL = "";
+		model.msCE = "";
+		model.miURLType = TYPE_Image;
+		model.msTitle = null;
+		model.msMIMEType = Utility.getMIMEtype( sURL );
+		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
+		return model;
+    }
+    
+    /**
+     * Create a <code>Model_Dataset</code> by copying an existing <code>Model_Dataset</code>
+     * @param model The model to copy.
+     */
+    public final static Model_Dataset createClone( Model_Dataset existing_model ){
+    	if( existing_model == null ) return null;
+    	Model_Dataset model = new Model_Dataset();
+		model.msURL = existing_model.msURL;
+		model.msCE = existing_model.msCE;
+		model.msSubDirectory = existing_model.msSubDirectory; // with no leading slash
+		model.msDirectoryRegex = existing_model.msDirectoryRegex;
+		model.miURLType = existing_model.miURLType;
+		model.msTitle = existing_model.msTitle;
+		model.miDigest = existing_model.miDigest;
+		model.msMIMEType = existing_model.msMIMEType;
+		model.msDDS_Text= existing_model.msDDS_Text;
+		model.msDAS_Text= existing_model.msDAS_Text;
+		model.msDDX_Text= existing_model.msDDX_Text;
+		model.msInfo_Text= existing_model.msInfo_Text;
+		model.msExpression_Text= existing_model.msExpression_Text;
+		model.mDDS_Subset = existing_model.mDDS_Subset;
+		model.mDDS_Full = existing_model.mDDS_Full;
+		model.mDAS = existing_model.mDAS;
+		model.mSavable = new SavableImplementation( Model_Dataset.class, existing_model.msTitle, null );
+		return model;
+    }
+
+    /** terminate
+     * Create a <code>DodsURL</code> with a specific base URL and constraint
+     * expression.  This url is assumed to be a TYPE_Data, and it uses the
+     * default TYPE_Data processor.
+     * @param dodsURL The base url.
+     * @param dodsCE The constraint expression.
+    public Model_Dataset( String dodsURL, String dodsCE ){
 		msURL = dodsURL;
-		msCE = "";
-		miURLType = type;
+		msCE = dodsCE;
+
+		// It only makes sense to supply a constraint expression for a
+		// data URL, so we can assume this is a data URL.
+		miURLType = TYPE_Data;
 		msTitle = null;
-		if( type == Model_Dataset.TYPE_Image ) msMIMEType = Utility.getMIMEtype(dodsURL);
 		mSavable = new SavableImplementation( this.getClass(), null, null );
     }
+     */
 
 	public boolean equals( Object o ){
 		if( this == o ) return true;
@@ -187,6 +295,7 @@ public class Model_Dataset implements java.io.Serializable {
 				sbInfo.append(this.getDirectoryTree().getPrintout());
 			}
 		}
+
 		if( iType == Model_Dataset.TYPE_Catalog ){
 			sbInfo.append("[Additional catalog info not supported]");
 		}
@@ -275,7 +384,7 @@ public class Model_Dataset implements java.io.Serializable {
 		if( Utility.isDodsURL(sFullURL) && sFullURL.toUpperCase().endsWith(".HTML") ){
 			sFullURL.substring(0, sFullURL.length()-5); // strip .HTML
 		}
-		String sReverseURL = Utility.sReverse(sFullURL);
+		String sReverseURL = Utility_String.sReverse(sFullURL);
 		int pos = 0;
 		int len = sReverseURL.length();
 		String sFileName = sFullURL;
@@ -328,7 +437,7 @@ public class Model_Dataset implements java.io.Serializable {
 	public String getConstraintExpression_Encoded() {
 		try {
 			// return java.net.URLEncoder.encode( msCE, "UTF-8" ); // standard Java escape
-			String sEscapedCE = Utility.sEscapeURL(msCE);
+			String sEscapedCE = Utility_String.sEscapeURL(msCE);
 			return sEscapedCE;
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("error escaping CE: ");
@@ -523,7 +632,7 @@ public class Model_Dataset implements java.io.Serializable {
 	public String getSizeEstimateS(){
 		long nSize = getSizeEstimate();
 		if( nSize == 0 ) return "----";
-		return Utility.getByteCountString( nSize );
+		return Utility_String.getByteCountString( nSize );
 	}
 
 	public long getSizeEstimate(){
@@ -636,7 +745,31 @@ public class Model_Dataset implements java.io.Serializable {
 			return null;
 		}
 	}
-
+	
+	Model_DataTree getDataTree( StringBuffer sbError ){
+		BaseType bt_root;
+		if( this.getType() == TYPE_Data ){
+			DataDDS data = this.getData();
+			if( data == null ){
+				sbError.append( "internal error, model is defined as a DataDDS but there is no data structure present." );
+				return null;
+			}
+			bt_root = data;
+		} else if( this.getType() == TYPE_Definition ){
+			bt_root = this.getDDS_Full();
+			if( bt_root == null ){
+				sbError.append( "internal error, model is defined as a DDS but there is no structure present." );
+				return null;
+			}
+		} else {
+			sbError.append( "dataset type is " + this.getTypeString() + " which cannot be interpreted as a tree" );
+			return null;
+		}
+		DataTreeNode root = new DataTreeNode( bt_root );
+		Model_DataTree tree = new Model_DataTree( root );
+		return tree;
+	}
+	
 }
 
 

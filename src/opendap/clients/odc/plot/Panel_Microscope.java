@@ -31,7 +31,7 @@ package opendap.clients.odc.plot;
  * @version      2.25
  */
 
-import opendap.clients.odc.Utility;
+import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.Styles;
 import javax.swing.JPanel;
 
@@ -194,7 +194,7 @@ public class Panel_Microscope extends JPanel implements MouseListener {
 				int iRasterIndex = 6 * (xRow-1) + (xColumn-1);
 				maColors[xRow][xColumn] = new Color(rgbRaster[iRasterIndex]);
 				masValues[xRow][xColumn] = asValues[iRasterIndex];
-				masColors[xRow][xColumn] = Utility.sToHex( Color_HSB.iRGBtoHSB(rgbRaster[iRasterIndex]), 8);
+				masColors[xRow][xColumn] = Utility_String.sToHex( Color_HSB.iRGBtoHSB(rgbRaster[iRasterIndex]), 8);
 			}
 		}
 	}

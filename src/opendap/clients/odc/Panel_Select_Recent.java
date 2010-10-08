@@ -34,7 +34,6 @@ package opendap.clients.odc;
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.File;
 
 public class Panel_Select_Recent extends SearchInterface implements IControlPanel {
@@ -155,7 +154,7 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 	/** Returns -1 if not found. Returns zero-based index if is found. */
 	int xIndexOfMatchingBaseURL( Model_Dataset url ){
 		if( url == null ){
-			ApplicationController.getInstance().vShowError("internal error: null supplied to zInList");
+			ApplicationController.vShowError("internal error: null supplied to zInList");
 			return -1;
 		}
 		if( maURLs == null ) return -1;
@@ -173,21 +172,21 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 		RecentFilter filter = new RecentFilter();
 		File[] afile = ConfigurationManager.getPreferencesFiles(filter);
 		if( afile == null ){
-			ApplicationController.getInstance().vShowError("error adding recent: directory list unexpectedly null");
+			ApplicationController.vShowError("error adding recent: directory list unexpectedly null");
 			return;
 		}
 
 		// see if the URL is already present
 		Panel_Select_Recent panelRecent = ApplicationController.getInstance().getAppFrame().getPanel_Recent();
 		if( panelRecent == null ){
-			ApplicationController.getInstance().vShowWarning("error adding recent: recent panel unavailable");
+			ApplicationController.vShowWarning("error adding recent: recent panel unavailable");
 			return;
 		}
 		int xFileToDelete = panelRecent.xIndexOfMatchingBaseURL(url);
 		if( xFileToDelete != - 1 ){ // already in there (replace existing object)
 			String sFilename = afile[xFileToDelete].getName();
 			if( !ApplicationController.zDeletePreferenceObject(sFilename, sbError) ){
-				ApplicationController.getInstance().vShowWarning("failed to delete matching recent: " + sbError);
+				ApplicationController.vShowWarning("failed to delete matching recent: " + sbError);
 				return;
 			}
 		}
@@ -199,7 +198,7 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 			for( xFileToDelete = 0; xFileToDelete < ctToDelete; xFileToDelete++ ){
 				String sFilename = afile[xFileToDelete].getName();
 				if( !ApplicationController.zDeletePreferenceObject(sFilename, sbError) ){
-					ApplicationController.getInstance().vShowWarning("failed to delete extra recent: " + sbError);
+					ApplicationController.vShowWarning("failed to delete extra recent: " + sbError);
 				}
 			}
 		}
@@ -222,7 +221,7 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 						// do nothing
 					}
 				}
-				String sNumberNew = Utility.sFixedWidth(Integer.toString(iMaxFavoriteNumber+1), 7, '0', Utility.ALIGNMENT_RIGHT);
+				String sNumberNew = Utility_String.sFixedWidth( Integer.toString(iMaxFavoriteNumber+1), 7, '0', Utility_String.ALIGNMENT_RIGHT);
 				sFilename = "recent-" + sNumberNew + ".ser";
 			}
 		}

@@ -665,5 +665,12 @@ ScanForStartOfMatch:
 			if( posEquals == -1 ) return null;  // no equals sign
 			return sExpression.substring( 0, posEquals ).trim();
 	}
+
+	/** Truncates a string after and including the last occurrence of the specified character */
+	final public static String truncate( String s, char c ){
+		int pos = sReverse( s ).lastIndexOf( c );
+		if( pos == -1 ) return s;
+		return s.substring( 0, pos );
+	}
 	
 }

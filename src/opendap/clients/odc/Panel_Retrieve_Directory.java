@@ -229,13 +229,22 @@ public class Panel_Retrieve_Directory extends JPanel {
 										modelRetrieve.vShowDDS(sBaseURL, null);
 									}
 								} else {
-									int eTYPE;
+									Model_Dataset modelURL;
+									StringBuffer sbError = new StringBuffer( 256 );
 									if( Utility.isImage(sBaseURL) ){
-										eTYPE = Model_Dataset.TYPE_Image;
+										 modelURL = Model_Dataset.createImageFromURL( sBaseURL, sbError );
+										 if( model == null ){
+											 ApplicationController.vShowError( "failed to create image model for URL " + sBaseURL + ": " + sbError.toString() );
+											 return;
+										 }
 									} else {
-										eTYPE = Model_Dataset.TYPE_Data; // todo see if we can make more discrimination
-									}
-									murlFile = new Model_Dataset(sBaseURL, eTYPE);
+										 modelURL = Model_Dataset.createDataFromURL( sBaseURL, sbError );
+										 if( model == null ){
+											 ApplicationController.vShowError( "failed to create data model for URL " + sBaseURL + ": " + sbError.toString() );
+											 return;
+										 }
+									}									
+									murlFile = modelURL; 
 									murlFile.setTitle(mActiveNode.getFileName(xItem));
 									mActiveNode.setFileURL(xItem, murlFile);
 									Model_Dataset[] aURL = new Model_Dataset[1];
@@ -461,7 +470,7 @@ class LeaflessTreeCellRenderer extends DefaultTreeCellRenderer {
 						  boolean leaf, int row,
 						  boolean hasFocus) {
 		Component componentDefault = super.getTreeCellRendererComponent( tree, value, sel, expanded, leaf, row, hasFocus );
-		if (tree.isEnabled()) {
+		if( tree.isEnabled() ){
 			if( leaf ){
 				setIcon(getClosedIcon());
 			}

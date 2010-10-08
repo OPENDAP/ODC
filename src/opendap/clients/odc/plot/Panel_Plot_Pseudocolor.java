@@ -44,8 +44,8 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 
 	private int mpxRenderedPlotWidth, mpxRenderedPlotHeight;
 
-	Panel_Plot_Pseudocolor( PlotScale scale, String sID, String sCaption, Model_Dataset url ){
-		super(scale, sID, sCaption, url);
+	Panel_Plot_Pseudocolor( PlotScale scale, String sID, String sCaption ){
+		super( scale, sID, sCaption );
 //		addMouseListener(this); // interfering with full screen cancel
 	}
 

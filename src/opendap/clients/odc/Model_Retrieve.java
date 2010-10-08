@@ -146,7 +146,7 @@ public class Model_Retrieve {
 			} else if( sDDS.length() == 0 ) {
 				vShowMessage("[returned DDS was blank for (" + sBaseURL + ")]");
 			} else {
-				vShowMessage(sDDS);
+				vShowMessage( sDDS );
 			}
 		} catch( Exception ex) {
 			ApplicationController.vUnexpectedError(ex, sbError);
@@ -387,7 +387,7 @@ public class Model_Retrieve {
 //			ce.parseConstraint(rs.getConstraintExpression());
 			nTotalSize += urlCurrent.getSizeEstimate();
 		}
-		retrieve_panel.setEstimatedDownloadSize( Utility.getByteCountString( nTotalSize ) );
+		retrieve_panel.setEstimatedDownloadSize( Utility_String.getByteCountString( nTotalSize ) );
 	}
 
 // does not work because server methods written around ServerDDS
@@ -439,7 +439,7 @@ public class Model_Retrieve {
 					if( sInfo == null ){
 						ApplicationController.vShowError("Info for " + sBaseURL + " not available: " + sbError + "\n");
 					} else {
-						sInfo = Utility.sStripTags(sInfo); // get rid of html tags
+						sInfo = Utility_String.sStripTags(sInfo); // get rid of html tags
 						url.setInfo_Text(sInfo);
 					}
 				}
@@ -454,19 +454,31 @@ public class Model_Retrieve {
 		return;
 	}
 
-	void vEnterURLByHand(String sURL){
+	boolean zEnterURLByHand( String sURL, StringBuffer sbError ){
 		if( sURL == null ){
 			sURL = javax.swing.JOptionPane.showInputDialog("Enter URL:");
-			if( sURL.length() ==  0 ) return;
+			if( sURL.length() ==  0 ) return true; // user cancel
 		}
-		String sTitle = javax.swing.JOptionPane.showInputDialog("Enter a title for URL:");
-		if( sTitle == null || sTitle.length() == 0 ) return;
+		String sTitle = javax.swing.JOptionPane.showInputDialog( "Enter a title for URL:" );
+		if( sTitle == null || sTitle.length() == 0 ) return true; // user cancel
 		Model_Dataset[] aURL = new Model_Dataset[1];
 		boolean zIsDirectory = sURL.endsWith("/");
 		if( zIsDirectory ){
-			aURL[0]	= new Model_Dataset(sURL, Model_Dataset.TYPE_Directory);
+			Model_Dataset model = Model_Dataset.createDirectoryFromURL( sURL, sbError );
+			if( model == null ){
+				sbError.insert( 0, "unable to create directory model: " );
+				return false;
+			} else {
+				aURL[0]	= model;
+			}
 		} else {
-			aURL[0]	= new Model_Dataset(sURL, Model_Dataset.TYPE_Data);
+			Model_Dataset model = Model_Dataset.createDataFromURL( sURL, sbError );
+			if( model == null ){
+				sbError.insert( 0, "unable to create data model: " );
+				return false;
+			} else {
+				aURL[0]	= model;
+			}
 		}
 /* code for constrained dir not implemented currently
 			sURL = sURL.substring(0, posDirectoryEnd - 1);
@@ -476,6 +488,7 @@ public class Model_Retrieve {
 */
 		aURL[0].setTitle(sTitle);
 		getURLList().vDatasets_Add(aURL, true);
+		return true;
 	}
 
 	void setLocationString( String sLocation ){
@@ -1116,7 +1129,7 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 			int posURL_begin = eggURLposition[0];
 			int posURL_end = sPageHTML.indexOf( sURL_end_token, posURL_begin );
 			if( posURL_end == -1 ){
-				sbError.append("no closing bracket found after HREF beginning " + Utility.sSafeSubstring( sPageHTML, posHREF_begin + 1, 250 ));
+				sbError.append("no closing bracket found after HREF beginning " + Utility_String.sSafeSubstring( sPageHTML, posHREF_begin + 1, 250 ));
 				return false;
 			}
 			int xLabel_begin = posURL_end + lenURL_end_token;
@@ -1124,7 +1137,7 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 			int xLabel_end_lower = sPageHTML.indexOf("</a>", posHREF_begin);
 			int xLabel_end = (xLabel_end_upper == -1) ? xLabel_end_lower : ( xLabel_end_lower == -1 ? xLabel_end_upper : ((xLabel_end_upper > xLabel_end_lower) ? xLabel_end_lower : xLabel_end_upper));
 			if( xLabel_begin > xLabel_end ){
-				sbError.append("unclosed HREF " + Utility.sSafeSubstring(sPageHTML, posHREF_begin + 1, xLabel_begin - posHREF_begin + 1));
+				sbError.append("unclosed HREF " + Utility_String.sSafeSubstring(sPageHTML, posHREF_begin + 1, xLabel_begin - posHREF_begin + 1));
 				return false;
 			}
 			String sURL = sPageHTML.substring(posURL_begin, posURL_end).trim();
@@ -1298,7 +1311,7 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 			int posURL_begin = eggURLposition[0];
 			int posURL_end = sPageHTML.indexOf(">", posURL_begin);
 			if( posURL_end == -1 ){
-				sbError.append("no closing bracket found after HREF beginning " + Utility.sSafeSubstring(sPageHTML, posHREF_begin + 1, 250));
+				sbError.append("no closing bracket found after HREF beginning " + Utility_String.sSafeSubstring(sPageHTML, posHREF_begin + 1, 250));
 				return false;
 			}
 			int xLabel_begin = posURL_end + 1;
@@ -1306,7 +1319,7 @@ System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 			int xLabel_end_lower = sPageHTML.indexOf("</a>", posHREF_begin);
 			int xLabel_end = (xLabel_end_upper == -1) ? xLabel_end_lower : ( xLabel_end_lower == -1 ? xLabel_end_upper : ((xLabel_end_upper > xLabel_end_lower) ? xLabel_end_lower : xLabel_end_upper));
 			if( xLabel_begin > xLabel_end ){
-				sbError.append("unclosed HREF " + Utility.sSafeSubstring(sPageHTML, posHREF_begin + 1, xLabel_begin - posHREF_begin + 1));
+				sbError.append("unclosed HREF " + Utility_String.sSafeSubstring(sPageHTML, posHREF_begin + 1, xLabel_begin - posHREF_begin + 1));
 				return false;
 			}
 			String sURL = sPageHTML.substring(posURL_begin, posURL_end).trim();
