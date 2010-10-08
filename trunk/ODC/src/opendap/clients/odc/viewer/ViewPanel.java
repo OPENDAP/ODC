@@ -185,8 +185,17 @@ public class ViewPanel extends JPanel implements MouseWheelListener, MouseListen
 	public void mouseReleased( MouseEvent evt ){ }
 	public void mouseEntered( MouseEvent evt ) { }
 	public void mouseExited( MouseEvent evt ) { }
+
+	// mouse click only occurs if the press and release occur at exactly the same location
 	public void mouseClicked( MouseEvent e ){
-		// mouse click only occurs if the press and release occur at exactly the same location
+		final int x = e.getX();
+		final int y = e.getY();
+		int iModifiers = e.getModifiersEx();
+		if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
+			hud.mouseClick_Control( x, y );
+		} else {
+			hud.mouseClick( x, y );
+		}
 	}
 
 	// Mouse motion interface

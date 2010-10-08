@@ -44,7 +44,7 @@ public class OutputEngine implements ByteCounter {
 	// mechanism that uses the methods below
 	long mTotalBytes = 0;
 	public void vReportByteCount_EverySecond( long nByteCount ){
-		ApplicationController.vShowStatus_NoCache("Received " + Utility.getByteCountString(nByteCount) + " (" + nByteCount + ")");
+		ApplicationController.vShowStatus_NoCache("Received " + Utility_String.getByteCountString(nByteCount) + " (" + nByteCount + ")");
 	}
 	public void vReportByteCount_Total( long nByteCount ){
 		mTotalBytes = nByteCount;
@@ -400,7 +400,7 @@ public class OutputEngine implements ByteCounter {
 		}
 		OutputProfile getOutputProfile(){ return mOutputProfile; }
 		public void vReportByteCount_EverySecond( long nByteCount ){
-			ApplicationController.vShowStatus_NoCache("Received " + Utility.getByteCountString(nByteCount) + " (" + nByteCount + ")");
+			ApplicationController.vShowStatus_NoCache("Received " + Utility_String.getByteCountString(nByteCount) + " (" + nByteCount + ")");
 		}
 		public void vReportByteCount_Total( long nByteCount ){
 			mTotalBytes = nByteCount;
@@ -760,7 +760,7 @@ public class OutputEngine implements ByteCounter {
 						ApplicationController.vShowError("Error getting data for " + sFullURL + " at " + mTotalBytes +": " + sbError);
 					return null;
 				} else {
-					ApplicationController.vShowStatus("Received " + Utility.getByteCountString(mTotalBytes) + " (" + mTotalBytes + ") for " + sFullURL);
+					ApplicationController.vShowStatus("Received " + Utility_String.getByteCountString(mTotalBytes) + " (" + mTotalBytes + ") for " + sFullURL);
 				}
 				return datadds;
 			} catch(Exception ex) {
@@ -1407,7 +1407,7 @@ public class OutputEngine implements ByteCounter {
 									ApplicationController.vShowError("Error getting data for " + sSubsettedURL + " at " + mTotalBytes +": " + sbError);
 								return;
 							} else {
-								ApplicationController.vShowStatus("Received " + Utility.getByteCountString(mTotalBytes) + " (" + mTotalBytes + ") for " + sSubsettedURL);
+								ApplicationController.vShowStatus("Received " + Utility_String.getByteCountString(mTotalBytes) + " (" + mTotalBytes + ") for " + sSubsettedURL);
 							}
 							url.setData(dataDDS);
 

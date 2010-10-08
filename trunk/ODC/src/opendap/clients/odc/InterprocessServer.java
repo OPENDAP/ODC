@@ -36,7 +36,7 @@ public class InterprocessServer extends Thread {
 
 	private ServerSocket msocketServer = null;
 	private int miPort;
-	private ArrayList mlistClients = new ArrayList();
+	private ArrayList<CommandListener> mlistClients = new ArrayList<CommandListener>();
 
 	boolean zInitialize( StringBuffer sbError ){
 		miPort = ConfigurationManager.getInstance().getProperty_InterprocessServerPort();
@@ -81,8 +81,8 @@ public class InterprocessServer extends Thread {
 		}
 	}
 
-	protected void vTerminateClient(CommandListener theClient) {
-		try { mlistClients.remove(theClient); } catch(Exception ex) {}
+	protected void vTerminateClient( CommandListener theClient ){
+		try { mlistClients.remove( theClient ); } catch(Exception ex) {}
 	}
 
 	// release external resources (the listener socket)
@@ -97,14 +97,14 @@ public class InterprocessServer extends Thread {
 		}
 	}
 
-	void writeLineToClients(String sLineText) {
-		Iterator iteratorClients = mlistClients.iterator();
-		if (iteratorClients != null) {
-			while(iteratorClients.hasNext()) {
-				Object oClient = iteratorClients.next();
-				if (oClient != null) {
+	void writeLineToClients( String sLineText ){
+		Iterator<CommandListener> iteratorClients = mlistClients.iterator();
+		if( iteratorClients != null ){
+			while( iteratorClients.hasNext() ){
+				CommandListener oClient = iteratorClients.next();
+				if( oClient != null ){
 					try {
-						((CommandListener)oClient).writeLine(sLineText);
+						oClient.writeLine(sLineText);
 					} catch(Exception ex) {}
 				}
 			}
@@ -359,11 +359,11 @@ class CommandListener extends Thread {
 				Thread.yield();
 				writeLine("made system request to run garbage collector");
 			} else if( sCommandUpper.equals("SHOW ACTIVITIES") ){
-				ArrayList listActivities = ApplicationController.getInstance().getActivities();
+				ArrayList<Activity> listActivities = ApplicationController.getInstance().getActivities();
 				if( listActivities.size() == 0 ){
 					writeLine("[no activities running]");
 				} else {
-					Iterator iter = listActivities.iterator();
+					Iterator<Activity> iter = listActivities.iterator();
 					while(iter.hasNext()){
 						Activity activityCurrent = (Activity)iter.next();
 						String sMessage = activityCurrent.getMessage();
@@ -394,12 +394,28 @@ class CommandListener extends Thread {
 				if( sURL.length() == 0 ){
 					writeLine("no URL specified");
 				} else {
-					int iType = sURL.endsWith("/") ? Model_Dataset.TYPE_Directory : Model_Dataset.TYPE_Data;
+					Model_Dataset model = null;
+					String sType;
+					if( sURL.endsWith("/") ){
+						model = Model_Dataset.createDirectoryFromURL( sURL, sbError);
+						if( model == null ){
+							writeLine( "error creating directory URL model: " + sbError );
+							return;
+						}
+						sType = "Directory";
+					} else {
+						model = Model_Dataset.createDataFromURL( sURL, sbError);
+						if( model == null ){
+							writeLine( "error creating data URL model: " + sbError );
+							return;
+						}
+						sType = "Data";
+					}
 					Model_Dataset[] aURL = new Model_Dataset[1];
-					aURL[0] = new Model_Dataset(sURL, iType);
+					aURL[0] = model;
 					aURL[0].setTitle("[untitled]");
 					ApplicationController.getInstance().getRetrieveModel().getURLList().vDatasets_Add(aURL);
-					writeLine(((iType==Model_Dataset.TYPE_Directory) ? "Directory" : "Data") + " URL added: " + aURL[0].toString());
+					writeLine( sType + " URL added: " + aURL[0].toString() );
 				}
 			} else if( sCommandUpper.startsWith("GETSELECTIONCOUNT")){
 				int iCount = urllist.getSelectedURLsCount();
@@ -518,7 +534,7 @@ class CommandListener extends Thread {
 						url = urllist.getSelectedURL();
 					} else {
 						String sParam = sCommand.substring(posParamDelimiter);
-						String[] asParams = Utility.split(sParam, '=');
+						String[] asParams = Utility_String.split(sParam, '=');
 						if( asParams.length != 2 ){
 							String sError = "[Error: url selection parameter has invalid format: " + sParam + "]";
 							writeLine(sError);
@@ -611,7 +627,7 @@ class CommandListener extends Thread {
  				}
  				return;
 			} else if( sCommandUpper.startsWith("TABLESET") ){ // test routine
-				String[] args = Utility.splitCommaWhiteSpace(sCommand);
+				String[] args = Utility_String.splitCommaWhiteSpace(sCommand);
 				int iRows = Integer.parseInt(args[1]);
 				int iCols = Integer.parseInt(args[2]);
 				int[][] data = new int[iRows][iCols];
@@ -654,11 +670,6 @@ class CommandListener extends Thread {
 		mbwriter.write(sLineText);
 		mbwriter.newLine();
 		mbwriter.flush();
-	}
-	private void writeLine(BufferedWriter writer, String sLineText) throws java.io.IOException {
-		writer.write(sLineText);
-		writer.newLine();
-		writer.flush();
 	}
 }
 

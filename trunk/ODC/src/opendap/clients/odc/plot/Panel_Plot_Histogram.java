@@ -50,8 +50,8 @@ class Panel_Plot_Histogram extends Panel_Plot {
 	private final static Dimension MIN_DIMENSION = new Dimension(200, 400);
 	private String mDisplay_sMessage = null;
 
-	Panel_Plot_Histogram( PlotScale scale, String sID, String sCaption, Model_Dataset url ){
-		super(scale, sID, sCaption, url);
+	Panel_Plot_Histogram( PlotScale scale, String sID, String sCaption ){
+		super( scale, sID, sCaption );
 		addMouseListener(this);
 	}
 
@@ -117,8 +117,8 @@ class Panel_Plot_Histogram extends Panel_Plot {
 
 	boolean setData( PlotScale scale, int eTYPE, Object[] eggData, Object[] eggMissing, PlotOptions plot_options, StringBuffer sbError ){
 		try {
-			int pxCanvasWidth = scale.getCanvas_Width(true);
-			int pxPlotWidth = scale.getPlot_Width(true);
+			int pxCanvasWidth = scale.getCanvas_Width();
+			int pxPlotWidth = scale.getPlot_Width();
 			meTYPE = eTYPE;
 			int ctMissing;
 			switch(meTYPE){
@@ -865,7 +865,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 			g2.drawLine(pxHTick_Left, pxHTick_Top, pxHTick_Left, pxHTick_Top + mpxTickMajorLength);
 			double dBegin = getValue_double(0);
 			int iDisplayPrecision = iDetermineDisplayValuePrecision(dBegin);
-			String sHLabel = Utility.sDoubleToPrecisionString(dBegin, iDisplayPrecision);
+			String sHLabel = Utility_String.sDoubleToPrecisionString(dBegin, iDisplayPrecision);
 			int pxHLabelTop  = pxHTick_Top + mpxTickMajorLength + mpxHorizontalTick_LabelOffset + iLabelHeight_SanSerif10;
 			g2.drawString(sHLabel, pxHTick_Left, pxHLabelTop);
 
@@ -874,7 +874,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 			g2.drawLine(pxHTick_Left, pxHTick_Top, pxHTick_Left, pxHTick_Top + mpxTickMajorLength);
 			double dEnd = getValue_double(miDataElementCount - 1);
 			iDisplayPrecision = iDetermineDisplayValuePrecision(dEnd);
-			sHLabel = Utility.sDoubleToPrecisionString(dEnd, iDisplayPrecision);
+			sHLabel = Utility_String.sDoubleToPrecisionString(dEnd, iDisplayPrecision);
 			int pxHLabelLeft = pxHTick_Left - mfontmetricsSansSerif10.stringWidth(sHLabel);
 			g2.drawString(sHLabel, pxHLabelLeft, pxHLabelTop);
 		}
@@ -961,7 +961,7 @@ class Panel_Plot_Histogram extends Panel_Plot {
 			OutputStream os = ApplicationController.getInstance().getAppFrame().getTextViewerOS();
 			if( os == null ) return;
 			String sTitle = " Histogram Report with " + iReportLines + " classes\n";
-			String sRule  = Utility.sRepeatChar('-',140) + "\n";
+			String sRule  = Utility_String.sRepeatChar('-',140) + "\n";
 			os.write(sRule.getBytes());
 			os.write(sTitle.getBytes());
 			StringBuffer sbInfo = new StringBuffer(160);
@@ -985,17 +985,17 @@ class Panel_Plot_Histogram extends Panel_Plot {
 			for( int xClass = 1; xClass <= iReportLines; xClass++ ){
 				sbInfo.setLength(0);
 				sbInfo.append("  ");
-				sbInfo.append(Utility.sFormatFixedRight(xClass, 6, ' '));
+				sbInfo.append(Utility_String.sFormatFixedRight(xClass, 6, ' '));
 				sbInfo.append("  ");
-				sbInfo.append(Utility.sFormatFixedRight(maiClassSize1[xClass], 8, ' '));
+				sbInfo.append(Utility_String.sFormatFixedRight(maiClassSize1[xClass], 8, ' '));
 				if( maiClassSize1[xClass] == 0 ) continue; // none of the remaining info is relevant
 				sbInfo.append("  ");
-				sbInfo.append(Utility.sFixedWidth(getValueString(maiClassBegin1[xClass]), 12, ' '));
+				sbInfo.append(Utility_String.sFixedWidth(getValueString(maiClassBegin1[xClass]), 12, ' '));
 				sbInfo.append("  ");
-				sbInfo.append(Utility.sFixedWidth(getValueString(maiClassEnd1[xClass]), 12, ' '));
+				sbInfo.append(Utility_String.sFixedWidth(getValueString(maiClassEnd1[xClass]), 12, ' '));
 				int ctUnique = getUnique( xClass, as );
 				sbInfo.append("  ");
-				sbInfo.append(Utility.sFormatFixedRight(ctUnique, 8, ' '));
+				sbInfo.append(Utility_String.sFormatFixedRight(ctUnique, 8, ' '));
 				sbInfo.append("  ");
 				int ctValues = ctUnique > 10 ? 10 : ctUnique;
 				for( int xUnique = 1; xUnique <= ctValues; xUnique++ ){
@@ -1018,9 +1018,9 @@ class Panel_Plot_Histogram extends Panel_Plot {
 			} else {
 				sbInfo.append("    Used: ");
 			}
-			sbInfo.append(Utility.sFormatFixedRight(iTotal_ClassSize, 8, ' '));
-			sbInfo.append(Utility.sRepeatChar(' ', 30));
-			sbInfo.append(Utility.sFormatFixedRight(iTotal_Unique, 8, ' '));
+			sbInfo.append(Utility_String.sFormatFixedRight(iTotal_ClassSize, 8, ' '));
+			sbInfo.append(Utility_String.sRepeatChar(' ', 30));
+			sbInfo.append(Utility_String.sFormatFixedRight(iTotal_Unique, 8, ' '));
 			sbInfo.append('\n');
 			os.write(sbInfo.toString().getBytes());
 			if( mctMissing_Histogram > 0 ){
@@ -1028,9 +1028,9 @@ class Panel_Plot_Histogram extends Panel_Plot {
 				// missing line
 				sbInfo.setLength(0);
 				sbInfo.append(" Missing: ");
-				sbInfo.append(Utility.sFormatFixedRight(mctMissing_Histogram_Total, 8, ' '));
-				sbInfo.append(Utility.sRepeatChar(' ', 30));
-				sbInfo.append(Utility.sFormatFixedRight(mctMissing_Histogram, 8, ' '));
+				sbInfo.append(Utility_String.sFormatFixedRight(mctMissing_Histogram_Total, 8, ' '));
+				sbInfo.append(Utility_String.sRepeatChar(' ', 30));
+				sbInfo.append(Utility_String.sFormatFixedRight(mctMissing_Histogram, 8, ' '));
 				sbInfo.append("  ");
 				int ctMissing = mctMissing_Histogram > 10 ? 10 : mctMissing_Histogram;
 				as = getMissingAll();
@@ -1045,9 +1045,9 @@ class Panel_Plot_Histogram extends Panel_Plot {
 				// total line
 				sbInfo.setLength(0);
 				sbInfo.append("   Total: ");
-				sbInfo.append(Utility.sFormatFixedRight((iTotal_ClassSize + mctMissing_Histogram_Total), 8, ' '));
-				sbInfo.append(Utility.sRepeatChar(' ', 30));
-				sbInfo.append(Utility.sFormatFixedRight(iTotal_Unique + mctMissing_Histogram, 8, ' '));
+				sbInfo.append(Utility_String.sFormatFixedRight((iTotal_ClassSize + mctMissing_Histogram_Total), 8, ' '));
+				sbInfo.append(Utility_String.sRepeatChar(' ', 30));
+				sbInfo.append(Utility_String.sFormatFixedRight(iTotal_Unique + mctMissing_Histogram, 8, ' '));
 				sbInfo.append('\n');
 				os.write(sbInfo.toString().getBytes());
 			}

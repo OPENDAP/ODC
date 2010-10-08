@@ -25,20 +25,25 @@ package opendap.clients.odc.plot;
 /**
  * Title:        PlotScale
  * Description:  Support for defining plotting scales
- * Copyright:    Copyright (c) 2003
+ * Copyright:    Copyright (c) 2003-2010
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.38
+ * @version      3.06
  */
 
 import opendap.clients.odc.ApplicationController;
+import opendap.clients.odc.Resources;
 import opendap.clients.odc.Utility;
+
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.JRadioButton;
 import javax.swing.JCheckBox;
+import javax.swing.JButton;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.BorderFactory;
@@ -53,48 +58,70 @@ public class PlotScale {
 
 	final static int SECTION_Margin = 1;
 	final static int SECTION_Zoom = 2;
-	final static int UNITS_Pixels = 1;
-	final static int UNITS_Inches_Tenths = 2;
-	final static int UNITS_Inches_Eighths = 3; // integral
-	final static int UNITS_Centimeters = 4;
-	final static int SCALE_MODE_Canvas = 1;
-	final static int SCALE_MODE_PlotArea = 2;
-	final static int SCALE_MODE_Output = 3;
-	final static int SCALE_MODE_Zoom = 4;
-	final static int ZOOM_Max = 1;
-	final static int ZOOM_50 = 2;
-	final static int ZOOM_75 = 3;
-	final static int ZOOM_100 = 4;
-	final static int ZOOM_200 = 5;
-	final static int ZOOM_300 = 6;
-	final static int ZOOM_400 = 7;
-	final static int ZOOM_Custom = 8;
+	
+	public static enum UNITS {
+		Pixels,
+		Inches_Tenths,
+		Inches_Eighths,
+		Centimeters
+	};
+	
+	public static enum SCALE_MODE {
+		Canvas,
+		PlotArea,
+		Output,
+		Zoom
+	}
+		
+	public static enum ZOOM_FACTOR {
+		Max,
+		Zoom50,
+		Zoom75,
+		Zoom100,
+		Zoom200,
+		Zoom300,
+		Zoom400,
+		Custom
+	}
 	final static String[] AS_Units = { "pixels", "inches", "1/8\"", "cm" };
 	final static String[] AS_ScaleMode = { "canvas", "plot area", "output", "zoom" };
 	final static String[] AS_ZoomFactor = { "Max", "50%","75%","100%","200%","300%","400%", "Custom" };
-	private float mfMarginLeft, mfMarginTop, mfMarginRight, mfMarginBottom;
-	int miPixelsPerData, miDataPointsPerPixel;
-	private int meMarginUnits = UNITS_Pixels;
-	private int meScaleMode = SCALE_MODE_Output;
-	private int meScaleUnits = UNITS_Pixels;
-	private int meZoom = ZOOM_Max;
-	private int miPixelWidth, miPixelHeight;
+	final static int[] AI_ZoomFactor = { 0, 50, 75, 100, 200, 300, 400, 0 };
 	public final static int PX_DEFAULT_MARGIN = 50;
-	final static float fPIXELS_PER_CM = 28.34645669291f;
-	int miDataWidth, miDataHeight;
 
+	// independent values
+	int miDataWidth;  // the number of data elements in the x-dimension
+	int miDataHeight; // the number of data elements in the y-dimension
+	int dpiOutput;
+	private SCALE_MODE meScaleMode = SCALE_MODE.Zoom;
+	private ZOOM_FACTOR meZoomFactor = ZOOM_FACTOR.Max;
+	private float mfMarginLeft, mfMarginTop, mfMarginRight, mfMarginBottom;
+	private UNITS meMarginUnits = UNITS.Pixels;
+	private UNITS meScaleUnits = UNITS.Pixels;
+	private Dimension dimOutput = null;
+
+	// dependent values
+	private int miPixelsPerData;
+	private int miDataPointsPerPixel;
+	private int miPixelWidth_PlotArea;
+	private int miPixelHeight_PlotArea;
+	private int miPixelWidth_Canvas;
+	private int miPixelHeight_Canvas;
+	private int miMarginLeft, miMarginTop, miMarginRight, miMarginBottom;
+	
 	IChanged mListener;
 
 	PlotScale(){ // set defaults
+		dpiOutput = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
 		mfMarginLeft = 65;
 		mfMarginTop = PX_DEFAULT_MARGIN;
 		mfMarginRight = PX_DEFAULT_MARGIN;
 		mfMarginBottom = PX_DEFAULT_MARGIN;
-		meMarginUnits = UNITS_Pixels;
+		meMarginUnits = UNITS.Pixels;
 		miPixelsPerData = 1;
 		miDataPointsPerPixel = 1;
-		meScaleMode = SCALE_MODE_Output; // peter wants max to be the default
-	    meScaleUnits = UNITS_Pixels;
+		meScaleMode = SCALE_MODE.Zoom; // peter wants max to be the default
+	    meScaleUnits = UNITS.Pixels;
 	}
 
 	void setListener( IChanged listener ){
@@ -102,8 +129,9 @@ public class PlotScale {
 	}
 
 	/**************** GET ******************************/
-	int getScaleMode(){ return meScaleMode; }
-	int getScaleUnits(){ return meScaleUnits; }
+	int getOutputResolution(){ return this.dpiOutput; }
+	SCALE_MODE getScaleMode(){ return meScaleMode; }
+	UNITS getScaleUnits(){ return meScaleUnits; }
 	String getUnits_String(int e){
 		if( e < 1 || e > PlotScale.AS_Units.length ) e = 1;
 		return PlotScale.AS_Units[e-1];
@@ -112,104 +140,58 @@ public class PlotScale {
 		if( e < 1 || e > PlotScale.AS_ScaleMode.length ) e = 1;
 		return PlotScale.AS_ScaleMode[e-1];
 	}
-	int getMarginUnits(){ return meMarginUnits; }
+	UNITS getMarginUnits(){ return meMarginUnits; }
 	int getMarginLeft_px(){ return getPixels( mfMarginLeft, meMarginUnits); }
 	int getMarginTop_px(){ return getPixels( mfMarginTop, meMarginUnits); }
 	int getMarginRight_px(){ return getPixels( mfMarginRight, meMarginUnits); }
 	int getMarginBottom_px(){ return getPixels( mfMarginBottom, meMarginUnits); }
 
-	int getCanvas_Width( boolean zFillOutput ){
-		switch( meScaleMode ){
-			case SCALE_MODE_Canvas:
-				return getAbsoluteWidth_px();
-			case SCALE_MODE_PlotArea:
-				return getAbsoluteWidth_px() + getMarginLeft_px() + getMarginRight_px();
-			case SCALE_MODE_Output:
-				if( zFillOutput ){
-					return getOutputWidth();
-				} else { // make proportional output
-					float fScale = getOutputScale();
-					return (int)((float)miDataWidth * fScale) + getMarginLeft_px() + getMarginRight_px();
-				}
-			default:
-			case SCALE_MODE_Zoom:
-				int iCanvasWidth = miDataWidth * miPixelsPerData / miDataPointsPerPixel + getMarginLeft_px() + getMarginRight_px();
-				return iCanvasWidth;
-		}
+	int getCanvas_Width(){
+		return miPixelWidth_Canvas;
 	}
-	int getCanvas_Height( boolean zFillOutput ){
-		switch( meScaleMode ){
-			case SCALE_MODE_Canvas:
-				return getAbsoluteHeight_px();
-			case SCALE_MODE_PlotArea:
-				return getAbsoluteHeight_px() + getMarginTop_px() + getMarginBottom_px();
-			case SCALE_MODE_Output:
-				if( zFillOutput ){
-					return getOutputHeight();
-				} else { // make proportional output
-					float fScale = getOutputScale();
-					return (int)((float)miDataHeight * fScale) + getMarginTop_px() + getMarginBottom_px();
-				}
-			default:
-			case SCALE_MODE_Zoom:
-				return miDataHeight * miPixelsPerData / miDataPointsPerPixel + getMarginTop_px() + getMarginBottom_px();
-		}
+	int getCanvas_Height(){
+		return miPixelHeight_Canvas;
 	}
 
-	int getPlot_Width( boolean zFillOutput ){
-		switch( meScaleMode ){
-			case SCALE_MODE_Canvas:
-				return getAbsoluteWidth_px() - (getMarginLeft_px() + getMarginRight_px());
-			case SCALE_MODE_PlotArea:
-				return getAbsoluteWidth_px();
-			case SCALE_MODE_Output:
-				if( zFillOutput ){
-					return getOutputWidth() - (getMarginLeft_px() + getMarginRight_px());
-				} else { // make proportional output
-					float fScale = getOutputScale();
-					return (int)((float)miDataWidth * fScale);
-				}
-			default:
-			case SCALE_MODE_Zoom:
-				return miDataWidth * miPixelsPerData / miDataPointsPerPixel;
-		}
+	int getPlot_Width(){
+		return miPixelWidth_PlotArea;
 	}
 
-	int getPlot_Height( boolean zFillOutput ){
-		switch( meScaleMode ){
-			case SCALE_MODE_Canvas:
-				return getAbsoluteHeight_px() - (getMarginTop_px() + getMarginBottom_px());
-			case SCALE_MODE_PlotArea:
-				return getAbsoluteHeight_px();
-			case SCALE_MODE_Output:
-				if( zFillOutput ){
-					return getOutputHeight() - (getMarginTop_px() + getMarginBottom_px());
-				} else { // make proportional output
-					float fScale = getOutputScale();
-					return (int)((float)miDataHeight * fScale);
-				}
-			default:
-			case SCALE_MODE_Zoom:
-				return miDataHeight * miPixelsPerData / miDataPointsPerPixel;
-		}
+	int getPlot_Height(){
+		return miPixelHeight_PlotArea;
 	}
 
-	private float getOutputScale(){
-		int iOutputWidth = getOutputWidth();
-		int iOutputHeight = getOutputHeight();
-		if( iOutputWidth == 0 || iOutputHeight == 0 ){
-			ApplicationController.vShowWarning("System error: output width/height undetermined, returning default canvas width");
-			return 1.0f;
-		}
-		int pxAvailableWidth = iOutputWidth - getMarginLeft_px() - getMarginRight_px();
-		int pxAvailableHeight = iOutputHeight - getMarginTop_px() - getMarginBottom_px();
-		float fScaleByWidth = pxAvailableWidth / (float)miDataWidth;
-		float fScaleByHeight = pxAvailableHeight / (float)miDataHeight;
-		return fScaleByWidth < fScaleByHeight ? fScaleByWidth : fScaleByHeight;
-	}
+//	private float getOutputScale(){
+//		int iOutputWidth = getOutputWidth();
+//		int iOutputHeight = getOutputHeight();
+//		if( iOutputWidth == 0 || iOutputHeight == 0 ){
+//			ApplicationController.vShowWarning("System error: output width/height undetermined, returning default canvas width");
+//			return 1.0f;
+//		}
+//		int pxAvailableWidth = iOutputWidth - getMarginLeft_px() - getMarginRight_px();
+//		int pxAvailableHeight = iOutputHeight - getMarginTop_px() - getMarginBottom_px();
+//		float fScaleByWidth = pxAvailableWidth / (float)miDataWidth;
+//		float fScaleByHeight = pxAvailableHeight / (float)miDataHeight;
+//		return fScaleByWidth < fScaleByHeight ? fScaleByWidth : fScaleByHeight;
+//	}
 
 	/**************** Active Accessors ************************/
 
+	void setOuputDimensions( Dimension dimOutput ){
+		this.dimOutput = dimOutput;
+	}
+	
+	void setOutputResolution( int iNewOutputResolution ){
+		if( this.dpiOutput == iNewOutputResolution ) return;
+		this.dpiOutput = iNewOutputResolution;
+		notifyListener();
+	}
+	
+	void setOutputToScreenResolution(){
+		int dpiScreen = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
+		setOutputResolution( dpiScreen ); 
+	}
+	
 	void setMarginLeft( float f ){
 		mfMarginLeft = f;
 		notifyListener(SECTION_Margin);
@@ -226,29 +208,75 @@ public class PlotScale {
 		mfMarginBottom = f;
 		notifyListener(SECTION_Margin);
 	}
-	void setMarginUnits(int eUnits){
+	void setMarginUnits( UNITS eUnits ){
 		meMarginUnits = eUnits;
 		notifyListener(SECTION_Margin);
 	}
 
-	void setPixelWidth( int i ){
-	    if( i < 0 ) return;
-		miPixelWidth = i;
-		notifyListener();
+	/** the pixel width for the canvas */
+	void setPixelWidth_Canvas( int i ){
+		if( ! ( meScaleMode == SCALE_MODE.Canvas) ){
+			ApplicationController.getInstance().vShowError_NoModal( "internal error, attempt to set canvas width outside of canvas scale mode" );
+			return;
+		}
+		if( i <= ( miMarginLeft + miMarginRight ) ){
+			ApplicationController.getInstance().vShowError_NoModal( "internal error, attempt to set canvas width to less than margins" );
+			return;
+		}
+		miPixelWidth_Canvas = i;
+		miPixelWidth_PlotArea = miPixelWidth_Canvas - ( miMarginLeft + miMarginRight );
 	}
-	void setPixelHeight( int i ){
-		if( i < 0 ) return;
-		miPixelHeight = i;
-		notifyListener();
-	}
-	void setUnits( int eUnits ){
-	    meScaleUnits = eUnits;
-		notifyListener();
+	
+	/** the pixel height for the canvas */
+	void setPixelHeight_Canvas( int i ){
+		if( ! ( meScaleMode == SCALE_MODE.Canvas) ){
+			ApplicationController.getInstance().vShowError_NoModal( "internal error, attempt to set canvas height outside of canvas scale mode" );
+			return;
+		}
+		if( i <= ( miMarginTop + miMarginBottom ) ){
+			ApplicationController.getInstance().vShowError_NoModal( "internal error, attempt to set canvas height to less than margins" );
+			return;
+		}
+		miPixelHeight_Canvas = i;
+		miPixelHeight_PlotArea = miPixelHeight_Canvas - ( miMarginTop + miMarginBottom );
 	}
 
-	void setScaleMode( int eScaleMode ){
+	/** the pixel width for the plot area */
+	void setPixelWidth_PlotArea( int i ){
+		if( ! ( meScaleMode == SCALE_MODE.PlotArea ) ){
+			ApplicationController.getInstance().vShowError_NoModal( "internal error, attempt to set plot area width outside of plot area scale mode" );
+			return;
+		}
+		if( i <= 0 ){
+			ApplicationController.getInstance().vShowError_NoModal( "internal error, attempt to set plot area width to " + i );
+			return;
+		}
+		miPixelWidth_PlotArea = i;
+		miPixelWidth_Canvas = miPixelWidth_PlotArea + ( miMarginLeft + miMarginRight );
+	}
+	
+	/** the pixel height for the plot area */
+	void setPixelHeight_PlotArea( int i ){
+		if( ! ( meScaleMode == SCALE_MODE.Canvas) ){
+			ApplicationController.getInstance().vShowError_NoModal( "internal error, attempt to set plot area height outside of plot area scale mode" );
+			return;
+		}
+		if( i <= 0 ){
+			ApplicationController.getInstance().vShowError_NoModal( "internal error, attempt to set plot area height to " + i );
+			return;
+		}
+		miPixelHeight_PlotArea = i;
+		miPixelHeight_Canvas = miPixelHeight_PlotArea + ( miMarginTop + miMarginBottom );
+	}
+	
+	void setUnits( UNITS eUnits ){
+	    meScaleUnits = eUnits;
+		vUpdateValues();
+	}
+
+	void setScaleMode( SCALE_MODE eScaleMode ){
 		meScaleMode = eScaleMode;
-		notifyListener();
+		vUpdateValues();
 	}
 
 	void setScaleRatio( int iPixelsPerDataPoint, int iDataPointsPerPixel ){
@@ -257,43 +285,132 @@ public class PlotScale {
 		notifyListener();
 	}
 
+	/** This sets the "Data Dimension" which is the number of elements in the data array for a given dimension. */
 	void setDataDimension( int iNewWidth, int iNewHeight ){
 		if( iNewWidth < 1 || iNewHeight < 1 ){
 			ApplicationController.vShowWarning("invalid output dimensions (" + iNewWidth + ", " + iNewHeight + "), change ignored by scale");
 		} else {
 			miDataWidth = iNewWidth;
 			miDataHeight = iNewHeight;
-			notifyListener();
+			vUpdateValues();
 		}
 	}
 
-	boolean zZoomIn(){
-		if( meZoom == ZOOM_400 || meZoom == ZOOM_Custom ) return false; // already big (or custom)
-		if( meZoom == ZOOM_Max ){
-			meZoom = ZOOM_100;
-		} else {
-			meZoom++;
+	// independent values
+//	int miDataWidth;  // the number of data elements in the x-dimension
+//	int miDataHeight; // the number of data elements in the y-dimension
+//	int dpiOutput;
+//	private SCALE_MODE meScaleMode = SCALE_MODE.Zoom;
+//	private ZOOM_FACTOR meZoomFactor = ZOOM_FACTOR.Max;
+//	private float mfMarginLeft, mfMarginTop, mfMarginRight, mfMarginBottom;
+//	private int meMarginUnits = UNITS_Pixels;
+//	private int meScaleUnits = UNITS_Pixels;
+
+	// dependent values
+//	int miPixelsPerData, miDataPointsPerPixel;
+//	private int miPixelWidth; // pixel width value, may be width of canvas or plot area depending on scale mode
+//	private int miPixelHeight; // pixel height value, may be height of canvas or plot area depending on scale mode
+	
+	void vUpdateValues(){
+		int iOutputWidth_px = getOutputWidth();
+		int iOutputHeight_px = getOutputHeight();
+		switch( meScaleMode ){
+			case Canvas:
+			case PlotArea:
+				// in this case the 
+				return;
+			case Output:
+				miPixelWidth_Canvas = iOutputWidth_px;
+				miPixelHeight_Canvas = iOutputHeight_px;
+				vAdjustPlotAreaToCanvas();
+				break;
+			case Zoom:
+				switch( meZoomFactor ){
+					case Max:
+						miPixelWidth_Canvas = iOutputWidth_px;
+						miPixelHeight_Canvas = iOutputHeight_px;
+						vAdjustPlotAreaToCanvas();
+						break;
+					case Zoom50:
+						miPixelWidth_PlotArea = miDataWidth / 2;
+						miPixelHeight_PlotArea = miDataHeight / 2;
+						vAdjustCanvasToPlotArea();
+						break;
+					case Zoom75:
+						miPixelWidth_PlotArea = miDataWidth * 3 / 4;
+						miPixelHeight_PlotArea = miDataHeight * 3 / 4;
+						vAdjustCanvasToPlotArea();
+						break;
+					case Zoom100:
+						miPixelWidth_PlotArea = miDataWidth;
+						miPixelHeight_PlotArea = miDataHeight;
+						vAdjustCanvasToPlotArea();
+						break;
+					case Zoom200:
+						miPixelWidth_PlotArea = miDataWidth * 2;
+						miPixelHeight_PlotArea = miDataHeight * 2;
+						vAdjustCanvasToPlotArea();
+						break;
+					case Zoom300:
+						miPixelWidth_PlotArea = miDataWidth * 3;
+						miPixelHeight_PlotArea = miDataHeight * 3;
+						vAdjustCanvasToPlotArea();
+						break;
+					case Zoom400:
+						miPixelWidth_PlotArea = miDataWidth * 4;
+						miPixelHeight_PlotArea = miDataHeight * 4;
+						vAdjustCanvasToPlotArea();
+						break;
+					case Custom:
+						return; // nothing needs to be done
+				}
 		}
-		notifyListener(SECTION_Zoom);
+		notifyListener();
+	}
+	
+	private void vAdjustCanvasToPlotArea(){
+		miPixelWidth_Canvas = miPixelWidth_PlotArea + ( miMarginLeft + miMarginRight );
+		miPixelHeight_Canvas = miPixelHeight_PlotArea + ( miMarginTop + miMarginBottom );
+	}
+
+	private void vAdjustPlotAreaToCanvas(){
+		miPixelWidth_PlotArea = miPixelWidth_Canvas - ( miMarginLeft + miMarginRight );
+		miPixelHeight_PlotArea = miPixelHeight_Canvas - ( miMarginTop + miMarginBottom );
+	}
+	
+	boolean zZoomIn(){
+		if( meZoomFactor == ZOOM_FACTOR.Zoom400 || meZoomFactor == ZOOM_FACTOR.Custom ) return false; // already big (or custom)
+		if( meZoomFactor == ZOOM_FACTOR.Max ){
+			meZoomFactor = ZOOM_FACTOR.Zoom100;
+		} else {
+			meZoomFactor = ZOOM_FACTOR.values()[meZoomFactor.ordinal() + 1];
+		}
+		vUpdateValues();
 		return true;
 	}
 
 	boolean zZoomOut(){
-		if( meZoom == ZOOM_50 || meZoom == ZOOM_Custom ) return false; // already small (or custom)
-		if( meZoom == ZOOM_Max ){
-			meZoom = ZOOM_100;
+		if( meZoomFactor == ZOOM_FACTOR.Zoom50 || meZoomFactor == ZOOM_FACTOR.Custom ) return false; // already small (or custom)
+		if( meZoomFactor == ZOOM_FACTOR.Max ){
+			meZoomFactor = ZOOM_FACTOR.Zoom100;
 		} else {
-			meZoom--;
+			meZoomFactor = ZOOM_FACTOR.values()[meZoomFactor.ordinal() + 1];
 		}
-		notifyListener(SECTION_Zoom);
+		vUpdateValues();
 		return true;
 	}
 
 	boolean zZoomMaximize(){
-		if( meZoom == ZOOM_Max ) return false; // already maxed
-		meZoom = ZOOM_Max;
-		notifyListener(SECTION_Zoom);
+		if( meZoomFactor == ZOOM_FACTOR.Max ) return false; // already maxed
+		meZoomFactor = ZOOM_FACTOR.Max;
+		vUpdateValues();
 		return true;
+	}
+	
+	void setZoomFactor( ZOOM_FACTOR eZoomFactor ){
+		if( eZoomFactor == this.meZoomFactor ) return;
+		this.meZoomFactor = eZoomFactor;
+		vUpdateValues();
 	}
 
 	private void setPixelsPerData(int i){
@@ -319,43 +436,38 @@ public class PlotScale {
 
 	///////////////// Passive Accessors
 
-	int getPixels( float f, int eUnits ){
+	int getPixels( float f, UNITS eUnits ){
 		switch( eUnits ){
-			case UNITS_Inches_Tenths:
-				return (int)(f*72);
-			case UNITS_Inches_Eighths:
-				return (int)(f*9);
-			case UNITS_Centimeters:
-				return (int)(f*fPIXELS_PER_CM);
-			case UNITS_Pixels:
+			case Inches_Tenths:
+				return (int)(f*dpiOutput);
+			case Inches_Eighths:
+				return (int)(f*dpiOutput/8.0f);
+			case Centimeters:
+				return (int)(f*(dpiOutput/2.54f));
+			case Pixels:
 			default:
 				return (int)f;
 		}
 	}
-	float getUnits( int pixels, int eUnits ){
+	float getUnits( int pixels, UNITS eUnits ){
 		switch( eUnits ){
-			case UNITS_Inches_Tenths:
-				return (float)pixels/72;
-			case UNITS_Inches_Eighths:
-				return (float)pixels/9;
-			case UNITS_Centimeters:
-				return (float)pixels/fPIXELS_PER_CM;
-			case UNITS_Pixels:
+			case Inches_Tenths:
+				return (float)pixels/(dpiOutput);
+			case Inches_Eighths:
+				return (float)pixels/(dpiOutput/8.0f);
+			case Centimeters:
+				return (float)pixels/(dpiOutput/2.54f);
+			case Pixels:
 			default:
 				return (float)pixels;
 		}
 	}
-	private int getAbsoluteHeight_px(){
-		return miPixelHeight;
-	}
-	private int getAbsoluteWidth_px(){
-		return miPixelWidth;
-	}
-
+	
 	private int getPixelsPerData(){ return miPixelsPerData; }
 	private int getDataPointsPerPixel(){ return miDataPointsPerPixel; }
 
 	public int getOutputWidth(){
+		if( dimOutput != null ) return dimOutput.width;
 		int eOutputOption = Panel_View_Plot.getOutputOption();
 		switch( eOutputOption ){
 			case Output_ToPlot.FORMAT_ExternalWindow:
@@ -386,6 +498,7 @@ public class PlotScale {
 	}
 
 	public int getOutputHeight(){
+		if( dimOutput != null ) return dimOutput.height;
 		int eOutputOption = Panel_View_Plot.getOutputOption();
 		switch( eOutputOption ){
 			case Output_ToPlot.FORMAT_ExternalWindow:
@@ -414,75 +527,101 @@ public class PlotScale {
 	public String toString(){
 		StringBuffer sb = new StringBuffer(250);
 		sb.append("Scale {\n");
-		sb.append("\tmargin_units: " + getUnits_String(meMarginUnits) + "\n");
+		sb.append("\tmargin_units: " + meMarginUnits.toString() + "\n");
 		sb.append("\tmargin_left: " + mfMarginLeft + "\n");
 		sb.append("\tmargin_top: " + mfMarginTop + "\n");
 		sb.append("\tmargin_right: " + mfMarginRight + "\n");
 		sb.append("\tmargin_bottom: " + mfMarginBottom + "\n");
 		sb.append("\tpixels_per_data: " + miPixelsPerData + "\n");
 		sb.append("\tdata_per_pixel: " + miDataPointsPerPixel + "\n");
-		sb.append("\tscale_mode: " + getScaleMode_String(meScaleMode) + "\n");
-		sb.append("\tpixel_height: " + miPixelHeight + "\n");
-		sb.append("\tpixel_width: " + miPixelWidth + "\n");
-		sb.append("\tzoom: " + getZoomDescriptor(meZoom) + "\n");
+		sb.append("\tscale_mode: " + meScaleMode + "\n");
+		sb.append("\tpixel_height_canvas: " + miPixelHeight_Canvas + "\n");
+		sb.append("\tpixel_width_canvas: " + miPixelWidth_Canvas + "\n");
+		sb.append("\tpixel_height_plot_area: " + miPixelHeight_PlotArea + "\n");
+		sb.append("\tpixel_width_plot_area: " + miPixelWidth_PlotArea + "\n");
+		sb.append("\tzoom: " + getZoomDescriptor( meZoomFactor ) + "\n");
 		sb.append("}\n");
 		return sb.toString();
 	}
 
-	private String getZoomDescriptor( int eZoom ){
+	private String getZoomDescriptor( ZOOM_FACTOR eZoom ){
 		switch( eZoom ){
-			case ZOOM_Max: return "Max";
-			case ZOOM_50: return "50";
-			case ZOOM_75: return "75";
-			case ZOOM_100: return "100";
-			case ZOOM_200: return "200";
-			case ZOOM_300: return "300";
-			case ZOOM_400: return "400";
-			case ZOOM_Custom: return "Custom";
+			case Max: return "Max";
+			case Zoom50: return "50";
+			case Zoom75: return "75";
+			case Zoom100: return "100";
+			case Zoom200: return "200";
+			case Zoom300: return "300";
+			case Zoom400: return "400";
+			case Custom: return "Custom";
 			default: return "?";
 		}
 	}
 
-	private int getZoomFromDescriptor( String sDescriptor ){
-		for( int eZoom = 1; eZoom <= ZOOM_Custom; eZoom++ ){
-			if( getZoomDescriptor(eZoom).equalsIgnoreCase(sDescriptor) ) return eZoom;
-		}
-		return ZOOM_Max;
-	}
+//	private int getZoomFromDescriptor( String sDescriptor ){
+//		for( int eZoom = 1; eZoom <= Custom; eZoom++ ){
+//			if( getZoomDescriptor(eZoom).equalsIgnoreCase(sDescriptor) ) return eZoom;
+//		}
+//		return ZOOM_Max;
+//	}
 
 }
 
 class Panel_PlotScale extends JPanel implements IChanged {
 
+	public static void main( String[] args ){
+		try {
+			JDialog jd;
+			JOptionPane jop;
+			Panel_PlotScale panelPlotScale = new Panel_PlotScale();
+			PlotScale plot_scale = new PlotScale();
+			plot_scale.setDataDimension( 1000, 900 );
+			panelPlotScale._setScale( plot_scale );
+			jop = new JOptionPane( panelPlotScale, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION );
+			jd = jop.createDialog( null, "Set Scale" );
+			jd.setVisible( true );
+//			System.out.println( mHSBpicker.getCurrentColor_ARGB() );
+//			System.out.println( mHSBpicker.getComparisonColor_ARGB() );
+			System.exit( 0 );
+		} catch( Throwable ex ) {
+			System.err.println("Error: " + ex);
+		}
+	}
+	
 	PlotScale mScale = null;
-	JComboBox jcbMarginUnits = new JComboBox(PlotScale.AS_Units);
-	JComboBox jcbScaleUnits = new JComboBox(PlotScale.AS_Units);
-	JComboBox jcbZoomFactor = new JComboBox(PlotScale.AS_ZoomFactor);
-	JRadioButton jrbPixelsPerData = new JRadioButton();
-	JRadioButton jrbEntireCanvas = new JRadioButton("Entire Canvas");
-	JRadioButton jrbPlotArea = new JRadioButton("Plot Area");
-	JTextField jtfMarginLeft = new JTextField(6);
-	JTextField jtfMarginTop = new JTextField(6);
-	JTextField jtfMarginRight = new JTextField(6);
-	JTextField jtfMarginBottom = new JTextField(6);
-	JTextField jtfPixelsPerData = new JTextField(5);
-	JTextField jtfDataPointsPerPixel = new JTextField(5);
-	JTextField jtfWidth = new JTextField(6);
-	JTextField jtfHeight = new JTextField(6);
-	JCheckBox jcheckAspectRatio = new JCheckBox("Maintain Aspect Ratio: ");
+	private final JComboBox jcbMarginUnits = new JComboBox(PlotScale.AS_Units);
+	private final JComboBox jcbScaleUnits = new JComboBox(PlotScale.AS_Units);
+	private final JComboBox jcbZoomFactor = new JComboBox(PlotScale.AS_ZoomFactor);
+	private final JRadioButton jrbPixelsPerData = new JRadioButton();
+	private final JRadioButton jrbEntireCanvas = new JRadioButton("Entire Canvas");
+	private final JRadioButton jrbPlotArea = new JRadioButton("Plot Area");
+	private final JTextField jtfMarginLeft = new JTextField(6);
+	private final JTextField jtfMarginTop = new JTextField(6);
+	private final JTextField jtfMarginRight = new JTextField(6);
+	private final JTextField jtfMarginBottom = new JTextField(6);
+	private final JTextField jtfPixelsPerData = new JTextField(5);
+	private final JTextField jtfDataPointsPerPixel = new JTextField(5);
+	private final JTextField jtfWidth = new JTextField(6);
+	private final JTextField jtfHeight = new JTextField(6);
+	private final JTextField jtfResolution = new JTextField(6);
+	private final JCheckBox jcheckAspectRatio = new JCheckBox("Maintain Aspect Ratio: ");
+	private final JButton jbSetScreenDPI = new JButton( Resources.getIcon( Resources.Icons.DisplayScreen ) );
+
 	Panel_PlotScale(){
 
-		JLabel labMarginTitle = new JLabel("Margins: ");
-		JLabel labMarginLeft = new JLabel("Left: ", JLabel.RIGHT);
-		JLabel labMarginTop = new JLabel("Top: ", JLabel.RIGHT);
-		JLabel labMarginBottom = new JLabel("Bottom: ", JLabel.RIGHT);
-		JLabel labMarginRight = new JLabel("Right: ", JLabel.RIGHT);
-		JLabel labMarginUnits = new JLabel("Margin Units: ", JLabel.RIGHT);
-		JLabel labScale = new JLabel("Scale", JLabel.RIGHT);
-		JLabel labScaleUnits = new JLabel("Units: ", JLabel.RIGHT);
-		JLabel labZoom = new JLabel("Zoom Factor: ", JLabel.RIGHT);
-		JLabel labWidth = new JLabel("Width: ", JLabel.RIGHT);
-		JLabel labHeight = new JLabel("Height: ", JLabel.RIGHT);
+		JLabel labMarginTitle = new JLabel( "Margins: ");
+		JLabel labMarginLeft = new JLabel( "Left: ", JLabel.RIGHT);
+		JLabel labMarginTop = new JLabel( "Top: ", JLabel.RIGHT);
+		JLabel labMarginBottom = new JLabel( "Bottom: ", JLabel.RIGHT);
+		JLabel labMarginRight = new JLabel( "Right: ", JLabel.RIGHT);
+		JLabel labMarginUnits = new JLabel( "Margin Units: ", JLabel.RIGHT);
+		JLabel labScale = new JLabel( "Scale", JLabel.RIGHT);
+		JLabel labScaleUnits = new JLabel( "Units: ", JLabel.RIGHT);
+		JLabel labZoom = new JLabel( "Zoom Factor: ", JLabel.RIGHT);
+		JLabel labWidth = new JLabel( "Width: ", JLabel.RIGHT);
+		JLabel labHeight = new JLabel( "Height: ", JLabel.RIGHT);
+		JLabel labResolution = new JLabel( "Resolution: ", JLabel.RIGHT);
+		JLabel labDPI = new JLabel( "dpi", JLabel.LEFT);
 		javax.swing.ButtonGroup bg = new javax.swing.ButtonGroup();
 		bg.add(jrbPixelsPerData);
 		bg.add(jrbEntireCanvas);
@@ -490,6 +629,23 @@ class Panel_PlotScale extends JPanel implements IChanged {
 		jrbPixelsPerData.setSelected(true);
 		vSetupListeners();
 
+		jbSetScreenDPI.setToolTipText( "Set resolution to native display resolution in dots per inch (dpi)." );
+		jtfResolution.setToolTipText( "Output resolution in dots per inch (dpi)." );
+		
+		JPanel panelDPI = new JPanel();
+		panelDPI.setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 0) );  // top left bottom right
+		panelDPI.setLayout( new BoxLayout( panelDPI, BoxLayout.X_AXIS ));
+		panelDPI.add( jtfResolution );
+		panelDPI.add( labDPI );
+		panelDPI.add( Box.createHorizontalStrut(6) );
+		panelDPI.add( jbSetScreenDPI );
+
+		JPanel panelScaleContext = new JPanel(); // used for the two radio buttons
+		panelScaleContext.setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 0) );  // top left bottom right
+		panelScaleContext.setLayout( new BoxLayout( panelScaleContext, BoxLayout.X_AXIS ));
+		panelScaleContext.add( jrbEntireCanvas );
+		panelScaleContext.add( jrbPlotArea );
+		
 		JPanel panelScale = new JPanel();
 		panelScale.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Plot Scale"));
 		panelScale.setLayout(new java.awt.GridBagLayout());
@@ -554,13 +710,13 @@ class Panel_PlotScale extends JPanel implements IChanged {
 		gbc.gridx = 0; gbc.gridy = 6; gbc.weightx = 0.0; gbc.weighty = 0.0; gbc.gridwidth = 7;
 		panelScale.add(Box.createVerticalStrut(10), gbc);
 
-		// zoom
+		// resolution/DPI panel
 		gbc.gridx = 0; gbc.gridy = 7; gbc.weightx = 1; gbc.weighty = 0.0; gbc.gridwidth = 1; gbc.gridheight = 1;
 		panelScale.add(Box.createHorizontalGlue(), gbc);
 		gbc.gridx = 1; gbc.gridy = 7; gbc.weightx = 0.0; gbc.weighty = 0.0; gbc.gridwidth = 1;
-		panelScale.add(labZoom, gbc);
+		panelScale.add(labResolution, gbc);
 		gbc.gridx = 2; gbc.gridy = 7; gbc.weightx = 0.0; gbc.weighty = 0.0; gbc.gridwidth = 1;
-		panelScale.add(jcbZoomFactor, gbc);
+		panelScale.add(panelDPI, gbc);
 		gbc.gridx = 3; gbc.gridy = 7; gbc.weightx = 1; gbc.weighty = 0.0; gbc.gridwidth = 2;
 		panelScale.add(Box.createHorizontalGlue(), gbc);
 
@@ -568,23 +724,23 @@ class Panel_PlotScale extends JPanel implements IChanged {
 		gbc.gridx = 0; gbc.gridy = 8; gbc.weightx = 0.0; gbc.weighty = 0.0; gbc.gridwidth = 7;
 		panelScale.add(Box.createVerticalStrut(10), gbc);
 
-		// absolute - canvas
+		// zoom
 		gbc.gridx = 0; gbc.gridy = 9; gbc.weightx = 1; gbc.weighty = 0.0; gbc.gridwidth = 1; gbc.gridheight = 1;
 		panelScale.add(Box.createHorizontalGlue(), gbc);
 		gbc.gridx = 1; gbc.gridy = 9; gbc.weightx = 0.0; gbc.weighty = 0.0; gbc.gridwidth = 1;
-		panelScale.add(Box.createVerticalStrut(10), gbc);
+		panelScale.add(labZoom, gbc);
 		gbc.gridx = 2; gbc.gridy = 9; gbc.weightx = 0.0; gbc.weighty = 0.0; gbc.gridwidth = 1;
-		panelScale.add(jrbEntireCanvas, gbc);
+		panelScale.add(jcbZoomFactor, gbc);
 		gbc.gridx = 3; gbc.gridy = 9; gbc.weightx = 1; gbc.weighty = 0.0; gbc.gridwidth = 2;
 		panelScale.add(Box.createHorizontalGlue(), gbc);
 
-		// absolute - plot area
+		// plot area / canvas radio selector
 		gbc.gridx = 0; gbc.gridy = 10; gbc.weightx = 1; gbc.weighty = 0.0; gbc.gridwidth = 1; gbc.gridheight = 1;
 		panelScale.add(Box.createHorizontalGlue(), gbc);
 		gbc.gridx = 1; gbc.gridy = 10; gbc.weightx = 0.0; gbc.weighty = 0.0; gbc.gridwidth = 1;
 		panelScale.add(Box.createVerticalStrut(10), gbc);
 		gbc.gridx = 2; gbc.gridy = 10; gbc.weightx = 0.0; gbc.weighty = 0.0; gbc.gridwidth = 1;
-		panelScale.add(jrbPlotArea, gbc);
+		panelScale.add(panelScaleContext, gbc);
 		gbc.gridx = 3; gbc.gridy = 10; gbc.weightx = 1; gbc.weighty = 0.0; gbc.gridwidth = 2;
 		panelScale.add(Box.createHorizontalGlue(), gbc);
 
@@ -646,7 +802,7 @@ class Panel_PlotScale extends JPanel implements IChanged {
 		update();
 	}
 
-	public void update(int eSection){
+	public void update( int eSection ){
 		update(); // ignore section for now
 	}
 
@@ -669,67 +825,55 @@ class Panel_PlotScale extends JPanel implements IChanged {
 			jtfMarginBottom.setEnabled(zEnable);
 			jtfWidth.setEnabled(zEnable);
 			jtfHeight.setEnabled(zEnable);
+			jtfResolution.setEnabled(zEnable);
+			jbSetScreenDPI.setEnabled(zEnable);
 			jcheckAspectRatio.setEnabled(zEnable);
 			jcheckAspectRatio.setSelected(true);
 			if( mScale == null ) return;
-			jcbMarginUnits.setSelectedIndex(mScale.getMarginUnits()-1);
-			jcbScaleUnits.setSelectedIndex(mScale.getScaleUnits()-1);
+			jcbMarginUnits.setSelectedIndex( mScale.getMarginUnits().ordinal() );
+			jcbScaleUnits.setSelectedIndex( mScale.getScaleUnits().ordinal() );
 
-			int eScaleMode = mScale.getScaleMode();
+			PlotScale.SCALE_MODE eScaleMode = mScale.getScaleMode();
 
-			// set zoom
-			if( eScaleMode == PlotScale.SCALE_MODE_Output ){
-				jcbZoomFactor.setSelectedIndex(0);
-			} else if( eScaleMode == PlotScale.SCALE_MODE_Zoom ){
-				int iPPD = mScale.miPixelsPerData;
-				int iDPP = mScale.miDataPointsPerPixel;
-				float fScaleRatio = (float)iPPD / (float)iDPP;
-				if( fScaleRatio == 0.50f ){
-					jcbZoomFactor.setSelectedIndex(1);
-				} else if( fScaleRatio == 0.75f ){
-					jcbZoomFactor.setSelectedIndex(2);
-				} else if( fScaleRatio == 1.00f ){
-					jcbZoomFactor.setSelectedIndex(3);
-				} else if( fScaleRatio == 2.0f ){
-					jcbZoomFactor.setSelectedIndex(4);
-				} else if( fScaleRatio == 3.0f ){
-					jcbZoomFactor.setSelectedIndex(5);
-				} else if( fScaleRatio == 4.0f ){
-					jcbZoomFactor.setSelectedIndex(6);
-				}
-			} else { // custom
-				jcbZoomFactor.setSelectedIndex(7);
+			// set dpi
+			jtfResolution.setText( Integer.toString( mScale.getOutputResolution() ) );
+			int dpiScreen = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
+			if( mScale.getOutputResolution() == dpiScreen ){
+				jbSetScreenDPI.setVisible( false );
+			} else {
+				jbSetScreenDPI.setVisible( true );
 			}
+			
+			// set zoom
+			jcbZoomFactor.setSelectedIndex( eScaleMode.ordinal() );
 
 			// set mode radios
 			switch( eScaleMode ){
-				case PlotScale.SCALE_MODE_Canvas:
+				case Canvas:
 					jrbEntireCanvas.setSelected(true);
 					jrbPlotArea.setSelected(false);
 					break;
-				case PlotScale.SCALE_MODE_PlotArea:
+				case PlotArea:
 					jrbEntireCanvas.setSelected(false);
 					jrbPlotArea.setSelected(true);
 					break;
-				case PlotScale.SCALE_MODE_Output:
-				case PlotScale.SCALE_MODE_Zoom:
+				case Output:
+				case Zoom:
 					jrbEntireCanvas.setSelected(false);
 					jrbPlotArea.setSelected(true);
 					break;
 			}
 
 			// set absolute width/height
-			int eUNITS = mScale.getScaleUnits();
+			PlotScale.UNITS eUNITS = mScale.getScaleUnits();
 			int pxWidth, pxHeight;
 			if( jrbEntireCanvas.isSelected() ){
-				pxWidth = mScale.getCanvas_Width(false);
-				pxHeight = mScale.getCanvas_Height(false);
+				pxWidth = mScale.getCanvas_Width();
+				pxHeight = mScale.getCanvas_Height();
 			} else {
-				pxWidth = mScale.getPlot_Width(false);
-				pxHeight = mScale.getPlot_Height(false);
+				pxWidth = mScale.getPlot_Width();
+				pxHeight = mScale.getPlot_Height();
 			}
-			mScale.setPixelWidth(pxWidth);
-			mScale.setPixelHeight(pxHeight);
 			float fWidth = mScale.getUnits( pxWidth, eUNITS );
 			float fHeight = mScale.getUnits( pxHeight, eUNITS );
 			if( fWidth == (int)fWidth ){
@@ -738,16 +882,17 @@ class Panel_PlotScale extends JPanel implements IChanged {
 				jtfWidth.setText(Float.toString(fWidth));
 			}
 			if( fHeight == (int)fHeight ){
-				jtfHeight.setText(Integer.toString((int)fHeight));
+				jtfHeight.setText( Integer.toString((int)fHeight) );
 			} else {
-				jtfHeight.setText(Float.toString(fHeight));
+				jtfHeight.setText( Float.toString(fHeight) );
 			}
 
+			jcbScaleUnits.setEnabled( true );
+			
 			// enable width/height/aspect
-			boolean zAbsoluteEnabled = (eScaleMode == PlotScale.SCALE_MODE_Canvas) || (eScaleMode == PlotScale.SCALE_MODE_PlotArea);
+			boolean zAbsoluteEnabled = (eScaleMode == PlotScale.SCALE_MODE.Canvas) || (eScaleMode == PlotScale.SCALE_MODE.PlotArea);
 			jrbEntireCanvas.setEnabled(zAbsoluteEnabled);
 			jrbPlotArea.setEnabled(zAbsoluteEnabled);
-			jcbScaleUnits.setEnabled(zAbsoluteEnabled);
 			jtfWidth.setEnabled(zAbsoluteEnabled);
 			jtfHeight.setEnabled(zAbsoluteEnabled);
 			jcheckAspectRatio.setEnabled(zAbsoluteEnabled);
@@ -764,24 +909,32 @@ class Panel_PlotScale extends JPanel implements IChanged {
 		}
 	}
 
-	PlotScale getScale(){ return mScale; }
-	void setScale( PlotScale scale ){
+	PlotScale _getScale(){ return mScale; }
+	void _setScale( PlotScale scale ){
 		mScale = scale;
+		if( mScale != null ) mScale.setListener( this );
 		update();
 	}
 
-	void changeDataDimension( int iNewWidth, int iNewHeight ){
+	void _changeDataDimension( int iNewWidth, int iNewHeight ){
 		if( mScale != null ){
 			mScale.setDataDimension( iNewWidth, iNewHeight );
 		}
 	}
 
 	private void vSetupListeners(){
+		jbSetScreenDPI.addActionListener(
+			new ActionListener(){
+				public void actionPerformed(ActionEvent event) {
+					mScale.setOutputToScreenResolution();
+				}
+			}
+		);
 		jcbScaleUnits.addActionListener(
 			new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
 					int xSelected = jcbScaleUnits.getSelectedIndex();
-					mScale.setUnits(xSelected + 1);
+					mScale.setUnits( PlotScale.UNITS.values()[xSelected] );
 				}
 			}
 		);
@@ -789,7 +942,16 @@ class Panel_PlotScale extends JPanel implements IChanged {
 			new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
 					int xSelected = jcbMarginUnits.getSelectedIndex();
-					mScale.setMarginUnits(xSelected + 1);
+					mScale.setMarginUnits( PlotScale.UNITS.values()[xSelected] );
+				}
+			}
+		);
+		jtfResolution.addFocusListener(
+			new FocusAdapter(){
+				public void focusLost(FocusEvent evt) {
+					try {
+						vUpdateResolution();
+					} catch(Exception ex){} // ignore invalid entries
 				}
 			}
 		);
@@ -803,7 +965,7 @@ class Panel_PlotScale extends JPanel implements IChanged {
 		jrbEntireCanvas.addActionListener(
 			new ActionListener(){
 				public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
-					mScale.setScaleMode(PlotScale.SCALE_MODE_Canvas);
+					mScale.setScaleMode( PlotScale.SCALE_MODE.Canvas );
 					update();
 				}
 			}
@@ -811,7 +973,7 @@ class Panel_PlotScale extends JPanel implements IChanged {
 		jrbPlotArea.addActionListener(
 			new ActionListener(){
 				public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
-					mScale.setScaleMode(PlotScale.SCALE_MODE_PlotArea);
+					mScale.setScaleMode( PlotScale.SCALE_MODE.PlotArea );
 					update();
 				}
 			}
@@ -906,46 +1068,69 @@ class Panel_PlotScale extends JPanel implements IChanged {
 		);
 	}
 
+	private void vUpdateResolution(){
+		String sResolution = jtfResolution.getText();
+		int iResolutionDPI = 0;
+	    try {
+			iResolutionDPI = Integer.parseInt( sResolution );
+			if( iResolutionDPI <= 0 ){
+				ApplicationController.vShowError("Output resolution must be a positive number");
+				return;
+			}
+		} catch( NumberFormatException ex ) {
+			ApplicationController.vShowError("Unable to interpret " + sResolution + " as a positive integer");
+			jtfResolution.setText( Integer.toString( mScale.dpiOutput ) );
+			return;
+		}
+		int dpiScreen = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
+		if( iResolutionDPI == dpiScreen ){
+			jbSetScreenDPI.setVisible( false );
+		} else {
+			jbSetScreenDPI.setVisible( true );
+		}
+		mScale.setOutputResolution( iResolutionDPI );
+	}
+	
 	private void vZoomChanged(){
-		PlotScale scale = getScale();
+		PlotScale scale = _getScale();
 		if( scale == null ) return; // cannot do anything
 		int xSelected = jcbZoomFactor.getSelectedIndex();
 		int iPPD, iDPP;
 		switch( xSelected ){
 			case 0: // max
 				iPPD = 1; iDPP = 1; // will be ignored
-				scale.setScaleMode(PlotScale.SCALE_MODE_Output);
+				scale.setScaleMode( PlotScale.SCALE_MODE.Output );
 				break;
 			case 1: // 50%
 				iPPD = 1; iDPP = 2;
-				scale.setScaleMode(PlotScale.SCALE_MODE_Zoom);
+				scale.setScaleMode( PlotScale.SCALE_MODE.Zoom );
 				break;
 			case 2: // 75%
 				iPPD = 3; iDPP = 4;
-				scale.setScaleMode(PlotScale.SCALE_MODE_Zoom);
+				scale.setScaleMode(PlotScale.SCALE_MODE.Zoom);
 				break;
 			case 3: // 100%
 				iPPD = 1; iDPP = 1;
-				scale.setScaleMode(PlotScale.SCALE_MODE_Zoom);
+				scale.setScaleMode(PlotScale.SCALE_MODE.Zoom);
 				break;
 			case 4: // 200%
 				iPPD = 2; iDPP = 1;
-				scale.setScaleMode(PlotScale.SCALE_MODE_Zoom);
+				scale.setScaleMode(PlotScale.SCALE_MODE.Zoom);
 				break;
 			case 5: // 300%
 				iPPD = 3; iDPP = 1;
-				scale.setScaleMode(PlotScale.SCALE_MODE_Zoom);
+				scale.setScaleMode(PlotScale.SCALE_MODE.Zoom);
 				break;
 			case 6: // 400%
 				iPPD = 4; iDPP = 1;
-				scale.setScaleMode(PlotScale.SCALE_MODE_Zoom);
+				scale.setScaleMode(PlotScale.SCALE_MODE.Zoom);
 				break;
 			case 7: // custom
 				iPPD = 1; iDPP = 1; // will be ignored
 				if( jrbEntireCanvas.isSelected() ){
-					scale.setScaleMode(PlotScale.SCALE_MODE_Canvas);
+					scale.setScaleMode(PlotScale.SCALE_MODE.Canvas);
 				} else {
-					scale.setScaleMode(PlotScale.SCALE_MODE_PlotArea);
+					scale.setScaleMode(PlotScale.SCALE_MODE.PlotArea);
 				}
 				break;
 			default: return; // do nothing
@@ -954,7 +1139,7 @@ class Panel_PlotScale extends JPanel implements IChanged {
 		update();
 	}
 
-	void vUpdateWidth(){
+	private final void vUpdateWidth(){
 		float fWidth;
 		String sWidth = jtfWidth.getText();
 	    try {
@@ -967,14 +1152,22 @@ class Panel_PlotScale extends JPanel implements IChanged {
 			ApplicationController.vShowError("Unable to interpret " + sWidth + " as a positive floating point number");
 			return;
 		}
-		int eScaleUnits = mScale.getScaleUnits();
-		float fWidth_pixels = mScale.getPixels(fWidth, eScaleUnits);
-		mScale.setPixelWidth( (int)fWidth_pixels );
+		PlotScale.UNITS eScaleUnits = mScale.getScaleUnits();
+		int iWidth_pixels = mScale.getPixels( fWidth, eScaleUnits );
+		if( jrbEntireCanvas.isSelected() ){
+			mScale.setPixelWidth_Canvas( iWidth_pixels );
+		} else if( jrbPlotArea.isSelected() ){
+			mScale.setPixelWidth_PlotArea( iWidth_pixels );
+		}
 		if( jcheckAspectRatio.isSelected() ){  // scale to aspect ratio
 			float fRatio = (float)mScale.miDataHeight / (float)mScale.miDataWidth;
 			float fHeight = fWidth * fRatio;
-			float fHeight_pixels = mScale.getPixels(fHeight, eScaleUnits);
-			mScale.setPixelHeight((int)fHeight_pixels);
+			int iHeight_pixels = mScale.getPixels( fHeight, eScaleUnits );
+			if( jrbEntireCanvas.isSelected() ){
+				mScale.setPixelHeight_Canvas( iHeight_pixels);
+			} else if( jrbPlotArea.isSelected() ){
+				mScale.setPixelHeight_PlotArea( iWidth_pixels );
+			}
 			if( fHeight == (int)fHeight ){
 				jtfHeight.setText(Integer.toString((int)fHeight));
 			} else {
@@ -982,7 +1175,7 @@ class Panel_PlotScale extends JPanel implements IChanged {
 			}
 		}
 	}
-	void vUpdateHeight(){
+	private final void vUpdateHeight(){
 		float fHeight;
 		String sHeight = jtfHeight.getText();
 	    try {
@@ -995,14 +1188,22 @@ class Panel_PlotScale extends JPanel implements IChanged {
 			ApplicationController.vShowError("Unable to interpret " + sHeight + " as a positive floating point number");
 			return;
 		}
-		int eScaleUnits = mScale.getScaleUnits();
-		float fHeight_pixels = mScale.getPixels(fHeight, eScaleUnits);
-		mScale.setPixelHeight( (int)fHeight_pixels );
+		PlotScale.UNITS eScaleUnits = mScale.getScaleUnits();
+		int iHeight_pixels = mScale.getPixels(fHeight, eScaleUnits);
+		if( jrbEntireCanvas.isSelected() ){
+			mScale.setPixelHeight_Canvas( iHeight_pixels );
+		} else if( jrbPlotArea.isSelected() ){
+			mScale.setPixelHeight_PlotArea( iHeight_pixels );
+		}
 		if( jcheckAspectRatio.isSelected() ){  // scale to aspect ratio
 			float fRatio = (float)mScale.miDataWidth / (float)mScale.miDataHeight;
 			float fWidth = fHeight * fRatio;
-			float fWidth_pixels = mScale.getPixels(fWidth, eScaleUnits);
-			mScale.setPixelWidth((int)fWidth_pixels);
+			int iWidth_pixels = mScale.getPixels( fWidth, eScaleUnits );
+			if( jrbEntireCanvas.isSelected() ){
+				mScale.setPixelWidth_Canvas( iWidth_pixels );
+			} else if( jrbPlotArea.isSelected() ){
+				mScale.setPixelWidth_PlotArea( iWidth_pixels );
+			}
 			if( fWidth == (int)fWidth ){
 				jtfWidth.setText(Integer.toString((int)fWidth));
 			} else {

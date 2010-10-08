@@ -232,7 +232,7 @@ public class Panel_Select_Favorites extends SearchInterface implements IControlP
 						// do nothing
 					}
 				}
-				String sNumberNew = Utility.sFixedWidth(Integer.toString(iMaxFavoriteNumber+1), 7, '0', Utility.ALIGNMENT_RIGHT);
+				String sNumberNew = Utility_String.sFixedWidth(Integer.toString(iMaxFavoriteNumber+1), 7, '0', Utility_String.ALIGNMENT_RIGHT);
 				sFilename = "favorite-" + sNumberNew + ".ser";
 			}
 		}
@@ -244,7 +244,7 @@ public class Panel_Select_Favorites extends SearchInterface implements IControlP
 
 	static boolean zDeleteFavorite( int iID, StringBuffer sbError ){
 		try {
-			String sNumber = Utility.sFixedWidth(Integer.toString(iID), 7, '0', Utility.ALIGNMENT_RIGHT);
+			String sNumber = Utility_String.sFixedWidth(Integer.toString(iID), 7, '0', Utility_String.ALIGNMENT_RIGHT);
 			String sFilename = "favorite-" + sNumber + ".ser";
 			return ApplicationController.zDeletePreferenceObject(sFilename, sbError);
 		} catch(Exception ex) {

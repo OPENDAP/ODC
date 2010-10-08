@@ -55,8 +55,8 @@ public class Panel_DDSView extends JPanel {
 	
     public Panel_DDSView() {
 //		setBorder( new javax.swing.border.EmptyBorder(0, 0, 0, 0) );
-//		setBorder( new javax.swing.border.LineBorder(Color.BLUE) );
-		setBackground(Color.WHITE);
+		setBorder( new javax.swing.border.LineBorder(Color.BLUE) );
+		setBackground( Color.WHITE );
 		setLayout( new GridBagLayout() );
     }
 
@@ -70,6 +70,10 @@ public class Panel_DDSView extends JPanel {
 	boolean zSetDDS( DDS dds, DAS das, boolean zShowDescriptions, eMODE mode, StringBuffer sbError ){
 		try {
 			vClear();
+			if( dds == null ){
+				sbError.append( "no DDS supplied" );
+				return false;
+			}
 			int ctVariables = dds.numVariables();
 			for( int xVariable = 1; xVariable <= ctVariables; xVariable++ ){
 				BaseType bt = dds.getVar(xVariable - 1); // zero-based
@@ -100,8 +104,16 @@ public class Panel_DDSView extends JPanel {
 
     // edit mode is used by the data viewer for editing DataDDSs, value is false for regular CE display
 	boolean zSetExpressionDDS( Model_Dataset model, StringBuffer sbError ){
+		if( model == null ){
+			sbError.append( "no model supplied" );
+			return false;
+		}
 		eMODE mode = Panel_DDSView.eMODE.Expression;
 		DDS dds = model.getDDS_Full();
+		if( dds == null ){
+			sbError.append( "model has no DDS" );
+			return false;
+		}
 		DAS das = null;
 		boolean zShowDescriptions = false;
 		return zSetDDS( dds, das, zShowDescriptions, mode, sbError );
@@ -159,10 +171,6 @@ public class Panel_DDSView extends JPanel {
 
 	private boolean zBuildInterface( ArrayList<BaseType> listVariables, ArrayList<String> listQualifiedNames, DAS das, boolean zShowDescriptions, javax.swing.ButtonGroup bg, Model_Retrieve mr, StringBuffer sbError ){
 		int ctVariables = listVariables.size();
-		if( ctVariables == 0 ){
-			sbError.append("DDS has no variables");
-			return false;
-		}
 		removeAll();
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.anchor = GridBagConstraints.NORTHWEST;

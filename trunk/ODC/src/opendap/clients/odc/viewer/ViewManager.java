@@ -102,7 +102,7 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	}
 	
 	public final void command( String sCommand ){
-		String[] asCommand = Utility.splitCommaWhiteSpace( sCommand );
+		String[] asCommand = Utility_String.splitCommaWhiteSpace( sCommand );
 		for( CommandInterface layer : listCommandObjects ){
 			String[] asLayerCommands = layer.getCommands();
 			if( Utility_Array.arrayStartsWithMember( asLayerCommands, asCommand[0] ) ){

@@ -152,7 +152,7 @@ public class VSelector_DArray extends VariableSelector {
 		// basic label (name + dimensions + size)
 		msbLabel.setLength(0);
 		String sName = getQualifiedName(); // does not work: DAP.getQualifiedName( mDArray );
-		String sSize = Utility.getByteCountString( Panel_Retrieve_Dimension.getEstimatedSize( listDimPanels, miDataWidth ));
+		String sSize = Utility_String.getByteCountString( Panel_Retrieve_Dimension.getEstimatedSize( listDimPanels, miDataWidth ));
 		msbLabel.append( sName ).append(' ');
 		appendDimensionSizes( msbLabel );
 		msbLabel.append(' ').append('(').append(sSize).append(')');

@@ -58,9 +58,9 @@ public class Model_DataTree extends DefaultTreeModel {
 		return getPrintoutForNode( nodeRoot, 0 );
 	}
 	private String getPrintoutForNode(DataTreeNode node, int iIndent){
-		if( node == null ) return Utility.sRepeatChar('\t', iIndent) + "[null]\n";
+		if( node == null ) return Utility_String.sRepeatChar('\t', iIndent) + "[null]\n";
 		StringBuffer sbOut = new StringBuffer();
-		sbOut.append(Utility.sRepeatChar('\t', iIndent));
+		sbOut.append(Utility_String.sRepeatChar('\t', iIndent));
 		String sNodeTitle = node.getTitle();
 	    if( sNodeTitle == null ) sNodeTitle = "[unnamed node]";
 		sbOut.append(sNodeTitle + (node.isSelected() ? " *" : "") + '\n');

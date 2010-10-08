@@ -40,8 +40,8 @@ import java.awt.*;
 
 class Panel_Plot_Vector extends Panel_Plot {
 
-	Panel_Plot_Vector( PlotScale scale, String sID, String sCaption, Model_Dataset url ){
-		super(scale, sID, sCaption, url);
+	Panel_Plot_Vector( PlotScale scale, String sID, String sCaption ){
+		super( scale, sID, sCaption );
 	}
 
 	public String getDescriptor(){ return "V"; }

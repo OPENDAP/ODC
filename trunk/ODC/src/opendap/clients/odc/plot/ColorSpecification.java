@@ -35,6 +35,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.DAP;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.Utility;
+import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.Styles;
 import javax.swing.JPanel;
 
@@ -213,31 +214,31 @@ class ColorSpecification extends AbstractListModel {
 					// not supported
 			}
 			sbRangeString.append(' ');
-			sbRangeString.append(Utility.sToHex(ahsbColorFrom[x1], 8));
+			sbRangeString.append(Utility_String.sToHex(ahsbColorFrom[x1], 8));
 			sbRangeString.append(' ');
-			sbRangeString.append(Utility.sToHex(ahsbColorTo[x1], 8));
+			sbRangeString.append(Utility_String.sToHex(ahsbColorTo[x1], 8));
 			sbRangeString.append(' ');
 			sbRangeString.append(COLOR_STEP_codes[aeColorStep[x1]]);
 			sbRangeString.append(' ');
 			if( aiHue[x1] == -1 )
 			    sbRangeString.append("~");
 		    else
-				sbRangeString.append(Utility.sToHex(aiHue[x1], 2));
+				sbRangeString.append(Utility_String.sToHex(aiHue[x1], 2));
 			sbRangeString.append(' ');
 			if( aiSaturation[x1] == -1 )
 			    sbRangeString.append("~");
 		    else
-		    	sbRangeString.append(Utility.sToHex(aiSaturation[x1], 2));
+		    	sbRangeString.append(Utility_String.sToHex(aiSaturation[x1], 2));
 			sbRangeString.append(' ');
 			if( aiBrightness[x1] == -1 )
 			    sbRangeString.append("~");
 		    else
-	    		sbRangeString.append(Utility.sToHex(aiBrightness[x1], 2));
+	    		sbRangeString.append(Utility_String.sToHex(aiBrightness[x1], 2));
 			sbRangeString.append(' ');
 			if( aiAlpha[x1] == -1 )
 			    sbRangeString.append("~");
 		    else
-				sbRangeString.append(Utility.sToHex(aiAlpha[x1], 2));
+				sbRangeString.append(Utility_String.sToHex(aiAlpha[x1], 2));
 		}
 		return sbRangeString.toString();
 	}
@@ -349,7 +350,7 @@ class ColorSpecification extends AbstractListModel {
 				switch( eState ){
 					case 1: // loading name
 						if( sLine.toUpperCase().startsWith("NAME:") ){
-							String sName = Utility.getEnclosedSubstring(sLine, ":", null).trim();
+							String sName = Utility_String.getEnclosedSubstring(sLine, ":", null).trim();
 							if( sName.length() == 0 ){
 								sbError.append("name field is blank");
 								return false;
@@ -360,7 +361,7 @@ class ColorSpecification extends AbstractListModel {
 						break;
 					case 2: // loading type
 						if( sLine.toUpperCase().startsWith("TYPE:") ){
-							String sType = Utility.getEnclosedSubstring(sLine, ":", null).trim();
+							String sType = Utility_String.getEnclosedSubstring( sLine, ":", null ).trim();
 							if( sType == null || sType.length() == 0 ){
 								sbError.append("type field is blank");
 								return false;
@@ -376,7 +377,7 @@ class ColorSpecification extends AbstractListModel {
 						break;
 					case 3: // loading range header
 						if( sLine.toUpperCase().startsWith("RANGES") ){
-							String sRangeCount = Utility.getEnclosedSubstring(sLine, "(", ")");
+							String sRangeCount = Utility_String.getEnclosedSubstring( sLine, "(", ")" );
 							if( sRangeCount == null || sRangeCount.length() == 0 ){
 								sbError.append("range count was missing");
 								return false;
@@ -392,7 +393,7 @@ class ColorSpecification extends AbstractListModel {
 						break;
 					case 4: // loading a range
 						iRangeIndex1++;
-						String[] asLine = Utility.splitCommaWhiteSpace(sLine);
+						String[] asLine = Utility_String.splitCommaWhiteSpace( sLine );
 						if( asLine == null || asLine.length < 3 ){
 							sbError.append("invalid range line (" + sLine + ")");
 							return false;
@@ -575,7 +576,7 @@ class ColorSpecification extends AbstractListModel {
 	}
 	boolean setMissing( String sMissingValues, int hsbColor, StringBuffer sbError ){
 		if( sMissingValues == null ) sMissingValues = "";
-		String[] as = Utility.split(sMissingValues, ' ');
+		String[] as = Utility_String.split(sMissingValues, ' ');
 		if( as[0].length() == 0 ){
 			mctMissing = 0;
 		} else {
@@ -889,11 +890,11 @@ class ColorSpecification extends AbstractListModel {
 	}
 	String getColorFromS( int index1 ){
 		if( ahsbColorFrom[index1] == -1 ) return "[varies]";
-		return Utility.sFixedWidth(Integer.toHexString(ahsbColorFrom[index1]), 8, '0', Utility.ALIGNMENT_RIGHT);
+		return Utility_String.sFixedWidth(Integer.toHexString(ahsbColorFrom[index1]), 8, '0', Utility_String.ALIGNMENT_RIGHT);
 	}
 	String getColorToS( int index1 ){
 		if( ahsbColorTo[index1] == -1 ) return "[varies]";
-		return Utility.sFixedWidth(Integer.toHexString(ahsbColorTo[index1]), 8, '0', Utility.ALIGNMENT_RIGHT);
+		return Utility_String.sFixedWidth(Integer.toHexString(ahsbColorTo[index1]), 8, '0', Utility_String.ALIGNMENT_RIGHT);
 	}
 	int getHue( int index1 ){ return aiHue[index1]; }
 	int getSaturation( int index1 ){ return aiSaturation[index1]; }
@@ -974,25 +975,25 @@ class ColorSpecification extends AbstractListModel {
 		if( iHue >= -1 && iHue <= 0xFF ){
 			aiHue[x1] = iHue;
 		} else {
-			sbError.append("invalid hue (" + Utility.sToHex(iHue, 8) + "), must be between -1 and 0xFF");
+			sbError.append("invalid hue (" + Utility_String.sToHex(iHue, 8) + "), must be between -1 and 0xFF");
 			return false;
 		}
 		if( iSaturation >= -1 && iSaturation <= 0xFF ){
 			aiSaturation[x1] = iSaturation;
 		} else {
-			sbError.append("invalid saturation (" + Utility.sToHex(iSaturation, 8) + "), must be between -1 and 0xFF");
+			sbError.append("invalid saturation (" + Utility_String.sToHex(iSaturation, 8) + "), must be between -1 and 0xFF");
 			return false;
 		}
 		if( iBrightness >= -1 && iBrightness <= 0xFF ){
 			aiBrightness[x1] = iBrightness;
 		} else {
-			sbError.append("invalid brightness (" + Utility.sToHex(iBrightness, 8) + "), must be between -1 and 0xFF");
+			sbError.append("invalid brightness (" + Utility_String.sToHex(iBrightness, 8) + "), must be between -1 and 0xFF");
 			return false;
 		}
 		if( iAlpha >= -1 && iAlpha <= 0xFF ){
 			aiAlpha[x1] = iAlpha;
 		} else {
-			sbError.append("invalid alpha (" + Utility.sToHex(iAlpha, 8) + "), must be between -1 and 0xFF");
+			sbError.append("invalid alpha (" + Utility_String.sToHex(iAlpha, 8) + "), must be between -1 and 0xFF");
 			return false;
 		}
 		vMakeSwatch( x1 );
@@ -3195,7 +3196,7 @@ class Panel_RangeEditor extends JPanel implements IColorChanged {
 			int iHueFrom   = (int)(hsbColorFrom & 0x00FF0000) >> 16;
 			int iHueTo     = (int)(hsbColorTo & 0x00FF0000) >> 16;
 			StringBuffer sbRange = new StringBuffer();
-			sbRange.append(Utility.sToHex(iHueFrom, 2)).append("-").append(Utility.sToHex(iHueTo, 2));
+			sbRange.append(Utility_String.sToHex(iHueFrom, 2)).append("-").append(Utility_String.sToHex(iHueTo, 2));
 		} else {
 			labelHueRange.setText("");
 		}
@@ -3203,7 +3204,7 @@ class Panel_RangeEditor extends JPanel implements IColorChanged {
 			int iSatFrom   = ((int)hsbColorFrom & 0x0000FF00) >> 8;
 			int iSatTo     = ((int)hsbColorTo & 0x0000FF00) >> 8;
 			StringBuffer sbRange = new StringBuffer();
-			sbRange.append(Utility.sToHex(iSatFrom, 2)).append("-").append(Utility.sToHex(iSatTo, 2));
+			sbRange.append(Utility_String.sToHex(iSatFrom, 2)).append("-").append(Utility_String.sToHex(iSatTo, 2));
 		} else {
 			labelHueRange.setText("");
 		}
@@ -3211,7 +3212,7 @@ class Panel_RangeEditor extends JPanel implements IColorChanged {
 			int iBriFrom   = ((int)hsbColorFrom & 0x000000FF);
 			int iBriTo     = ((int)hsbColorTo & 0x000000FF);
 			StringBuffer sbRange = new StringBuffer();
-			sbRange.append(Utility.sToHex(iBriFrom, 2)).append("-").append(Utility.sToHex(iBriTo, 2));
+			sbRange.append(Utility_String.sToHex(iBriFrom, 2)).append("-").append(Utility_String.sToHex(iBriTo, 2));
 		} else {
 			labelHueRange.setText("");
 		}
@@ -3219,7 +3220,7 @@ class Panel_RangeEditor extends JPanel implements IColorChanged {
 			int iAlphaFrom = (int)((hsbColorFrom & 0xFF000000L) >> 24);
 			int iAlphaTo   = (int)((hsbColorTo & 0xFF000000L) >> 24);
 			StringBuffer sbRange = new StringBuffer();
-			sbRange.append(Utility.sToHex(iAlphaFrom, 2)).append("-").append(Utility.sToHex(iAlphaTo, 2));
+			sbRange.append(Utility_String.sToHex(iAlphaFrom, 2)).append("-").append(Utility_String.sToHex(iAlphaTo, 2));
 		} else {
 			labelHueRange.setText("");
 		}
@@ -3324,13 +3325,13 @@ class Panel_ColorPicker extends JPanel {
 		miHSB = iHSB;
 		buttonColor.setIcon(getColorIcon(miHSB));
 		sbColorText.setLength(0);
-		sbColorText.append(Utility.sToHex(getAlpha(), 2));
+		sbColorText.append(Utility_String.sToHex(getAlpha(), 2));
 		sbColorText.append(' ');
-		sbColorText.append(Utility.sToHex(getHue(), 2));
+		sbColorText.append(Utility_String.sToHex(getHue(), 2));
 		sbColorText.append(' ');
-		sbColorText.append(Utility.sToHex(getSat(), 2));
+		sbColorText.append(Utility_String.sToHex(getSat(), 2));
 		sbColorText.append(' ');
-		sbColorText.append(Utility.sToHex(getBri(), 2));
+		sbColorText.append(Utility_String.sToHex(getBri(), 2));
 		sbColorText.append(' ');
 		labelColor.setText( sbColorText.toString() );
 	}

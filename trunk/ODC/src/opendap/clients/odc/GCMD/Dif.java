@@ -23,7 +23,6 @@
 package opendap.clients.odc.GCMD;
 
 import opendap.clients.odc.*;
-import java.lang.*;
 import java.util.*;
 /**
  * A <code>Dif</code> represents an xml Dif element, which in turn holds
@@ -216,8 +215,8 @@ public class Dif {
      * @return the Dods URL of the dataset
      */
     public Model_Dataset getDodsURL( StringBuffer sbError ) {
-		String url = "";
-		Model_Dataset dodsURL;
+		String sURL = "";
+		Model_Dataset model;
 		int index = 1;
 
 //		for(int i=0;i<contentTypes.size();i++) {
@@ -230,27 +229,42 @@ public class Dif {
 //			dodsURL = new DodsURL(url, DodsURL.CATALOG_URL);
 //		} else
 	    if ( (index = contentTypes.indexOf("DODS_URL")) != -1) {
-			url = (String)urls.elementAt(index);
-			dodsURL = new Model_Dataset(url, Model_Dataset.TYPE_Data);
+			sURL = (String)urls.elementAt(index);
+			model = Model_Dataset.createDataFromURL( sURL, sbError );
+			if( model == null ){
+				sbError.insert( 0, "unable to create data model for DODS URL (" + sURL + "): " );
+			}
 		}
 
 		// DODS_INFO and DODS_HTML both point to the dods dataset, but
 		// with the .info and .html extensions added respectively.
 		// If we strip those of, we get the url we need.
-		else if( (index = contentTypes.indexOf("DODS_HTML")) != -1) {
-			url = (String)urls.elementAt(index);
-			url = url.substring(0,url.length() - 5);
-			dodsURL = new Model_Dataset(url, Model_Dataset.TYPE_Data);
+		else if( (index = contentTypes.indexOf( "DODS_HTML" )) != -1) {
+			sURL = (String)urls.elementAt(index);
+			sURL = sURL.substring( 0, sURL.length() - 5 );
+			model = Model_Dataset.createDataFromURL( sURL, sbError );
+			if( model == null ){
+				sbError.insert( 0, "unable to create data model for HTML URL (" + sURL + "): " );
+			}
 		} else if( (index = contentTypes.indexOf("DODS_INFO")) != -1) {
-			url = (String)urls.elementAt(index);
-			url = url.substring(0,url.length() - 5);
-			dodsURL = new Model_Dataset(url, Model_Dataset.TYPE_Data);
+			sURL = (String)urls.elementAt(index);
+			sURL = sURL.substring( 0, sURL.length() - 5 );
+			model = Model_Dataset.createDataFromURL( sURL, sbError );
+			if( model == null ){
+				sbError.insert( 0, "unable to create data model for INFO URL (" + sURL + "): " );
+			}
 		} else if( (index = contentTypes.indexOf("DODS_DIR")) != -1) {
-			url = (String)urls.elementAt(index);
-			dodsURL = new Model_Dataset(url, Model_Dataset.TYPE_Directory);
+			sURL = (String)urls.elementAt(index);
+			model = Model_Dataset.createDataFromURL( sURL, sbError );
+			if( model == null ){
+				sbError.insert( 0, "unable to create data model for DOSDIR URL (" + sURL + "): " );
+			}
 		} else if( (index = contentTypes.indexOf("GET DATA")) != -1) {
-			url = (String)urls.elementAt(index);
-			dodsURL = new Model_Dataset(url, Model_Dataset.TYPE_Directory);
+			sURL = (String)urls.elementAt(index);
+			model = Model_Dataset.createDataFromURL( sURL, sbError );
+			if( model == null ){
+				sbError.insert( 0, "unable to create data model for GET DATA/DIR URL (" + sURL + "): " );
+			}
 		}
 
 		// Often, the DODS_SITEINFO url can become the dods url by adding
@@ -259,16 +273,19 @@ public class Dif {
 		else if( (index = contentTypes.indexOf("DODS_SITEINFO")) != -1
 				&& ((String)urls.elementAt(index)).endsWith("/"))
 		{
-			url = (String)urls.elementAt(index);
-			url += "dods";
-			dodsURL = new Model_Dataset(url, Model_Dataset.TYPE_Data);
+			sURL = (String)urls.elementAt(index);
+			sURL += "dods";
+			model = Model_Dataset.createDataFromURL( sURL, sbError );
+			if( model == null ){
+				sbError.insert( 0, "unable to create data model for SITEINFO URL (" + sURL + "): " );
+			}
 		} else {
 			sbError.append("Unable to form URL; no recognized content type for entry id " + this.getID() + " " + this.getTitle());
 			return null;
 		}
 
-		dodsURL.setTitle(entryTitle);
-		return dodsURL;
+		model.setTitle( entryTitle );
+		return model;
     }
 
     /**

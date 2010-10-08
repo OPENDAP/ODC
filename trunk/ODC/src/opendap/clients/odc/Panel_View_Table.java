@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-8
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.00
+ * @version      3.05
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -249,7 +249,6 @@ ApplicationController.getInstance().vShowStartupMessage("table constructor end")
 	public boolean zInitialize(StringBuffer sbError){
 
         try {
-ApplicationController.getInstance().vShowStartupMessage("1");
 
 			javax.swing.border.Border borderStandard = BorderFactory.createEtchedBorder();
 			this.setBorder(borderStandard);
@@ -322,7 +321,7 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 			KeyListener listenEnter_Dimensions =
 				new java.awt.event.KeyListener(){
 					public void keyPressed(java.awt.event.KeyEvent ke){
-						if( ke.getKeyCode() == ke.VK_ENTER ){
+						if( ke.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER ){
 							vUpdateDataFromDimensions();
 						}
 					}
@@ -544,9 +543,12 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 		// send to plotter
 		DataDDS ddds = new DataDDS(null, null);
 		ddds.addVariable(darray);
-		final Model_Dataset url = new Model_Dataset( Model_Dataset.TYPE_Data );
+		final Model_Dataset url = Model_Dataset.createData( ddds, sbError );
+		if( url == null ){
+			sbError.insert( 0, "internal error creating model for data: " );
+			return false;
+		}
 		url.setTitle("[table data]");
-		url.setData(ddds);
 		javax.swing.SwingUtilities.invokeLater(
 			new Runnable(){
 				public void run(){
@@ -625,7 +627,7 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 						} else if(c == '{'){
 							eState = 2; // in header
 						} else {
-							vTerminateWithError("Invalid character (" + c + " [" + (int)c + "]) encountered while looking for header. Expected '{'. " + Utility.sSafeSubstring(msbBuffer, posBuffer-12, 24));
+							vTerminateWithError("Invalid character (" + c + " [" + (int)c + "]) encountered while looking for header. Expected '{'. " + Utility_String.sSafeSubstring(msbBuffer, posBuffer-12, 24));
 						}
 						posBuffer++;
 						break;
@@ -673,7 +675,7 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 							vAddValue();
 							eState = 6;
 						} else {
-							vTerminateWithError("Unexpected character after quote in header (" + c + " [" + (int)c + "]). Must be whitespace, quote or closing brace. " + Utility.sSafeSubstring(msbBuffer, posBuffer-12, 24));
+							vTerminateWithError("Unexpected character after quote in header (" + c + " [" + (int)c + "]). Must be whitespace, quote or closing brace. " + Utility_String.sSafeSubstring(msbBuffer, posBuffer-12, 24));
 						}
 						posBuffer++;
 						break;
@@ -749,7 +751,7 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 							vAddValue();
 							eState = 13;
 						} else {
-							vTerminateWithError("Unexpected character after quote in record (" + c + " [" + (int)c + "]). Must be quote, comma, space or closing brace. " + Utility.sSafeSubstring(msbBuffer, posBuffer-12, 24));
+							vTerminateWithError("Unexpected character after quote in record (" + c + " [" + (int)c + "]). Must be quote, comma, space or closing brace. " + Utility_String.sSafeSubstring(msbBuffer, posBuffer-12, 24));
 						}
 						posBuffer++;
 						break;
@@ -782,15 +784,14 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 		//   ValColumns: "val" 1 3 5 7 ... n
 		//   ColumnTypes: String Int32 ...}
 		private void vProcessHeader() throws TableFormatException {
-			Iterator iterator = listValues.iterator();
+			Iterator<String> iterator = listValues.iterator();
 			if( !iterator.hasNext() ){ vTerminateWithError("incomplete header, no table name"); }
-			String sTableName = (String)iterator.next();
 			if( !iterator.hasNext() ){ vTerminateWithError("incomplete header, no row count label"); }
 			String sRowCountLabel = (String)iterator.next();
-			if( !sRowCountLabel.equals("RowCount:") ){ vTerminateWithError("incomplete header, invalid row count label (" + sRowCountLabel + ")"); }
+			if( !sRowCountLabel.equals( "RowCount:" ) ){ vTerminateWithError("incomplete header, invalid row count label (" + sRowCountLabel + ")"); }
 			if( !iterator.hasNext() ){ vTerminateWithError("incomplete header, no row count"); }
 			String sRowCount = (String)iterator.next();
-			if( !Utility.isInteger(sRowCount) ){ vTerminateWithError("invalid header, row count is not an integer (" + sRowCount + ")"); }
+			if( !Utility_String.isInteger( sRowCount ) ){ vTerminateWithError("invalid header, row count is not an integer (" + sRowCount + ")"); }
 			int iDataRowCount = Integer.parseInt(sRowCount);
 			int iRowCount = iDataRowCount + 1; // need extra row for header
 			if( !iterator.hasNext() ){ vTerminateWithError("incomplete header, no column count label"); }
@@ -798,7 +799,7 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 			if( !sColumnCountLabel.equals("ColumnCount:") ){ vTerminateWithError("incomplete header, invalid column count label (" + sColumnCountLabel + ")"); }
 			if( !iterator.hasNext() ){ vTerminateWithError("incomplete header, no column count"); }
 			String sColumnCount = (String)iterator.next();
-			if( !Utility.isInteger(sColumnCount) ){ vTerminateWithError("invalid header, column count is not an integer (" + sColumnCount + ")"); }
+			if( !Utility_String.isInteger( sColumnCount ) ){ vTerminateWithError("invalid header, column count is not an integer (" + sColumnCount + ")"); }
 			int iColumnCount = Integer.parseInt(sColumnCount);
 			int iPreviousRowCount = maData0.length;
 			int iPreviousColumnCount = maData0[0].length;
@@ -852,9 +853,9 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 			}
 			int xCurrentColumn = 0;
 			int iMaxColumns = maData0[mCurrentRow].length;
-			Iterator iterator = listValues.iterator();
+			Iterator<String> iterator = listValues.iterator();
 			while(iterator.hasNext() && xCurrentColumn < iMaxColumns){
-				maData0[mCurrentRow][xCurrentColumn] = (String)iterator.next();
+				maData0[mCurrentRow][xCurrentColumn] = iterator.next();
 				xCurrentColumn++;
 			}
 			mCurrentRow++;
@@ -871,7 +872,7 @@ ApplicationController.getInstance().vShowStartupMessage("1");
 //			while(iter.hasNext()){
 //				System.out.println(iter.next());
 //			}
-			ApplicationController.getInstance().vShowError(sError);
+			ApplicationController.vShowError(sError);
 			throw new TableFormatException(sError);
 		}
 		public void close(){

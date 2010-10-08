@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-2009
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.04
+ * @version      3.06
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -44,8 +44,8 @@ public class ApplicationController {
 	private static final ApplicationController thisSingleton = new ApplicationController();
 
 	private static final String msAppName = "OPeNDAP Data Connector";
-	private static final String msAppVersion = "3.05";
-	private static final String msAppReleaseDate = "9 July 2009"; // todo create ANT substitution
+	private static final String msAppVersion = "3.06";
+	private static final String msAppReleaseDate = "9 October 2009"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	public final String getAppName(){ return msAppName; }
@@ -115,6 +115,8 @@ public class ApplicationController {
 				System.exit(1); // todo not really a good idea but don't want to leave process hanging and not easily endable by user
 			}
 
+			vSetLookAndFeel();
+			
 			if( !Resources.zLoadIcons( sbError ) ){
 				System.out.println("Failed to start: " + sbError);
 				ApplicationController.vShowStartupDialog("Failed to start: " + sbError);
@@ -131,12 +133,11 @@ public class ApplicationController {
 			thisInstance.appframe = new ApplicationFrame();
 			if( ConfigurationManager.getInstance().getProperty_InterprocessServerOn() )
 				thisInstance.vInterprocessServer_Start();
-			vSetLookAndFeel();
 			vSetSounds();
 			thisInstance.vShowStartupMessage("creating models");
 			thisInstance.mOutputEngine = new OutputEngine();
 			thisInstance.mRetrieve     = new Model_Retrieve();
-			thisInstance.mDatasets     = new Model_LoadedDatasets();
+			thisInstance.mDatasets     = Model_LoadedDatasets.create();
 
 // exclude geodesy for this build
 //			thisInstance.vShowStartupMessage("initializing geodesy");
@@ -208,11 +209,65 @@ public class ApplicationController {
 
 	static void vSetLookAndFeel(){
 		try {
-			String sLF = javax.swing.UIManager.getSystemLookAndFeelClassName();
-			javax.swing.UIManager.setLookAndFeel(sLF);
-			vShowStatus("Set look and feel to platform: " + sLF);
+			javax.swing.UIManager.LookAndFeelInfo[] alafInfo = UIManager.getInstalledLookAndFeels();
+			int ctLAF = alafInfo.length + 1;
+			int xLAF = 0;
+			String sLF = javax.swing.UIManager.getSystemLookAndFeelClassName(); // default is system LAF
+			while( true ){
+				if( xLAF >= ctLAF ){
+					javax.swing.UIManager.setLookAndFeel(sLF);
+					vShowStatus("Set look and feel to platform: " + sLF);
+					break;
+				}
+				// System.out.println( ": " + alafInfo[xLAF] );
+		        if( "Nimbus".equals( alafInfo[xLAF].getName() ) ){
+		            sLF = alafInfo[xLAF].getClassName();
+					javax.swing.UIManager.setLookAndFeel(sLF);
+					vShowStatus("Set look and feel: " + sLF);
+		            break;
+		        }
+		        xLAF++;
+		    }
 		} catch(Exception ex) {
 			vShowWarning("Failed to set look and feel: " + ex);
+		}
+		
+		try {
+		/* font alterations
+		UIManager.put("Button.font",  );
+		UIManager.put("ToggleButton.font",  );
+		UIManager.put("RadioButton.font",  );
+		UIManager.put("CheckBox.font",  );
+		UIManager.put("ColorChooser.font",  );
+		UIManager.put("ComboBox.font",  );
+		UIManager.put("Label.font",  );
+		UIManager.put("List.font",  );
+		UIManager.put("MenuBar.font",  );
+		UIManager.put("MenuItem.font",  );
+		UIManager.put("RadioButtonMenuItem.font",  );
+		UIManager.put("CheckBoxMenuItem.font",  );
+		UIManager.put("Menu.font",  );
+		UIManager.put("PopupMenu.font",  );
+		UIManager.put("OptionPane.font",  );
+		UIManager.put("Panel.font",  );
+		UIManager.put("ProgressBar.font",  );
+		UIManager.put("ScrollPane.font",  );
+		UIManager.put("Viewport.font",  );
+		UIManager.put("TabbedPane.font",  );
+		UIManager.put("Table.font",  );
+		UIManager.put("TableHeader.font",  );
+		UIManager.put("TextField.font",  );
+		UIManager.put("PasswordField.font",  );
+		UIManager.put("TextArea.font",  );
+		UIManager.put("TextPane.font",  );
+		UIManager.put("EditorPane.font",  );
+		UIManager.put("TitledBorder.font",  );
+		UIManager.put("ToolBar.font",  );
+		UIManager.put("ToolTip.font",  );
+		UIManager.put("Tree.font",  );
+		*/
+		} catch( Throwable t ) {
+			vShowWarning("Failed to set special screen fonts: " + t );
 		}
 	}
 
@@ -521,14 +576,14 @@ public class ApplicationController {
 	}
 
 	public static void vShowStartupDialog( String sErrorMessage ){
-		String sWrappedMessage = Utility.sWrap(sErrorMessage, 60, false, "\n");
+		String sWrappedMessage = Utility_String.sWrap(sErrorMessage, 60, false, "\n");
 		javax.swing.JOptionPane.showMessageDialog(ApplicationController.windowSplash, sWrappedMessage);
 	}
 
 	public static void vShowErrorDialog( String sErrorMessage ){
 		ApplicationFrame frame = ApplicationController.getInstance().getAppFrame();
 		if( frame == null ){
-			javax.swing.JOptionPane.showMessageDialog(null, sErrorMessage);
+			javax.swing.JOptionPane.showMessageDialog( null, sErrorMessage );
 		} else {
 			frame.vShowAlert_Error(sErrorMessage);
 		}
@@ -782,10 +837,10 @@ public class ApplicationController {
 		long nTotal = Utility.getMemory_Total();
 		long nFree = Utility.getMemory_Free();
 		sb.append("--- Memory Status ------------------------------------------------\n");
-		sb.append("       max: " + Utility.sFormatFixedRight(nMax, 12, '.') + "  max available to the ODC\n");
-		sb.append("     total: " + Utility.sFormatFixedRight(nTotal, 12, '.') + "  total amount currently allocated\n");
-		sb.append("      free: " + Utility.sFormatFixedRight(nFree, 12, '.') + "  unused memory in the allocation\n");
-		sb.append("      used: " + Utility.sFormatFixedRight((nTotal - nFree) , 12, '.') + "  " + (int)((nTotal - nFree)/nMax) + "%  used memory (total-free)\n");
+		sb.append("       max: " + Utility_String.sFormatFixedRight(nMax, 12, '.') + "  max available to the ODC\n");
+		sb.append("     total: " + Utility_String.sFormatFixedRight(nTotal, 12, '.') + "  total amount currently allocated\n");
+		sb.append("      free: " + Utility_String.sFormatFixedRight(nFree, 12, '.') + "  unused memory in the allocation\n");
+		sb.append("      used: " + Utility_String.sFormatFixedRight((nTotal - nFree) , 12, '.') + "  " + (int)((nTotal - nFree)/nMax) + "%  used memory (total-free)\n");
 		sb.append(" available: " + (int)((nMax - nTotal + nFree)/1048576) + " M  amount left (max - total + free)\n");
 		return sb.toString();
 	}
@@ -875,6 +930,7 @@ class Message extends JPanel {
 	private static JDialog jd;
 	private static JTextArea jtaMessage;
 	private static JOptionPane jop;
+	private static JLabel labelSuppressionInfo;
 	public static void show( String sMessage ){
 
 		if( zActive ) return; // do not show two messages simultaneously
@@ -889,8 +945,10 @@ class Message extends JPanel {
 				instance.setLayout(new BorderLayout());
 				jtaMessage = new JTextArea();
 				jtaMessage.setLineWrap(true);
+				labelSuppressionInfo = new JLabel( "To suppress error dialogs use config setting 'ShowErrorPopups'" ); 
 				JScrollPane jsp = new JScrollPane(jtaMessage);
-				instance.add(jsp, BorderLayout.CENTER);
+				instance.add( jsp, BorderLayout.CENTER );
+				instance.add( labelSuppressionInfo, BorderLayout.SOUTH ); 
 			}
 
 			// activate message box

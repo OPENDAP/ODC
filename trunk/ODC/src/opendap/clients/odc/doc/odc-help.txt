@@ -1,5 +1,5 @@
 #Introduction
-(help file revised 18 December 2008)
+(help file revised 2 June 2010)
 
 This is the OPeNDAP Data Connector (ODC). Using the ODC you can search for and retrieve datasets published by OPeNDAP data servers. OPeNDAP servers (also known as DODS servers) located at major institutions around the world serve a wide variety of data including: climatic data, satellite imagery, and ocean sensor results. The ODC allows you to find these datasets, download them to your machine, save them, and import them into client applications like IDL, Matlab, SPSS, Excel, or into databases such as Access and Oracle. The ODC is your gateway to terabytes of scientific data and imagery.
 
@@ -9,8 +9,8 @@ To report bugs or make comments use the feedback tab.
 
 You may also directly contact either:
 
-Dan Holloway <d.holloway at gso.uri.edu>
-John Chamberlain <odc-help at opendap.org>
+Dan Holloway <d.holloway followed by gso.uri.edu>
+John Chamberlain <odc_help followed by opendap.org>
 
 The development of this software was funded by the National Oceanographic Partnership Program (http://www.nopp.org/).
 
@@ -462,7 +462,7 @@ Thumbnails  - the plot(s) will be sent to the thumbnail pane; the thumbnails are
 Image       - you will be prompted for a file name and location and the plot will be stored as
               a PNG image file
 
-#Plotting - Scale
+#Plotting - Scaling
 
 The scale tab has controls that allow you to define margins and scale for your plot. The scale is the relationship between data points and screen pixels. For example in a 1 to 1 scale there would be one data point for each pixel. In other words if you were plotting a 200 x 300 array in a pseudocolor plot the plot area would be 200 x 300 pixels in size on both and the printer. You can change the scale by setting the zoom factor which has the following meaning:
 
@@ -470,11 +470,11 @@ The scale tab has controls that allow you to define margins and scale for your p
   %    - make proportional, for example 50% means 2 data points per pixel
 Custom - set the size to the exact dimensions shown
 
-When you are using Max or % zoom factors the custom area will show current size of the output.
+Note that for a 2D plot the axes are drawn in the margins so your margins must accomodate any axes or other annotations you want to include.
 
-The nominal resolution of most computer screens is 72 pixels per inch.
+When you are using Max or % zoom factors the custom area will show current size of the output. You can specify either "Canvas" mode to set a width for the entire image including the margins, or for just the plot area.
 
-Note that printer output is scaled like a screen even though it is higher resolution.
+The nominal resolution of most computer screens is 72 pixels per inch. Whatever your screen resolution is will appear by default in the Resolution text box. You can specify a higher resolution using the "Resolution" text box. This is useful if you are generating output for a printer or for printing. For example, for raster line art "Science" magazine prefers a resolution of 1200 dpi, so you would enter that as your output resolution if you were preparing a pseudocolor for that journal. Note that if you display a high-res image on the screen it will be gigantic.
 
 #Plotting - Histograms
 
@@ -780,22 +780,23 @@ If you choose the plot view you will see a plot of the data instead of a tabular
 
 Data Viewer expressions allow you to generate data using mathematical expressions and functions in the Python language. This can be useful in wide variety of ways. For example, using the expression generator you can calculate a linear regression of a data set and then, using the layer capability of the plotter, overlay the regression line on a plot of the data. Expressions can be used for more mundane uses. For example, you might want to add a dimensional index numbers to a dataset that lacks them. You can also use expressions to modify existing data sets. For example, you can use the geodesic functions that are built into the ODC to perform transformations such as orthorectification on satellite data sets.
 
-Expressions are stored as text files which are intended for use by the ODC's Python engine. The file is pre-processed, however, so it's format is more restricted than a normal Python script file. At a minimum the file must define at least one output. This is done using dollar-sign identifiers. For example, the expression
+Expressions are stored as text files which are intended for use by the ODC's Python engine. The file is pre-processed, however, so its format is more restricted than a normal Python script file. At a minimum the file must define at least one output. For example, the expression
 
 	value = 5
 	
-would create a 1-dimensional vector in which every single value is 5. Note that no type is defined and no dimensional ranges are defined. The default type is double and the default dimensional range is 1-100 with a step of 1, so in this case the end result would be a 100-member array in which each member is the double 5.00000d. The identifier "$value" is repetitively evaluated by the ODC using the Python engine. Whatever value that identifier has will be used as the variable value. Suppose we wanted a vector with the integer numbers 1 to 50 in it:
+would create a 1-dimensional vector in which every single value is 5. Note that no type is defined and no dimensional ranges are defined. The default type is double and the default dimensional range is 1-100 with a step of 1, so in this case the end result would be a 100-member array in which each member is the double 5.00000. The identifier "value" is repetitively evaluated by the ODC using the Python engine. Whatever value that identifier has will be used as the variable value. Suppose we wanted a vector with the integer numbers 1 to 50 in it:
 
-	type = "int32"
+	type = "Int32"
 	size = 50
 	value = 1 + $1
 
 The order of the parameters does not matter. The term $1 is a macro substitution referring to the current value of the index in the first dimension which begins at 0. You can use up to 4 dimensions. You can also create recursive functions. For example, if we wanted a vector with the first 20 values of the fibonacci sequence the expression would be:
 
+	type = "Int32"
 	size = 20
 	value = if( $1 == 0 ) then 0, else if( $1 == 1 ) then 1, else value[$1 - 1] + value[$1 - 2]
 	
-From the above you can see that you can have the array refer to members of itself using the syntax value[x] where x is index number desired. Note that if the array member has not been defined yet its value will be null. So, for example, the expressions like value[$1 + 1] will always be null. You cannot use array references as L-values. In other words, you can read from the array but you cannot write into it. For example, a line beginning value[1] = ... would be ignored by the preprocessor as invalid.
+From the above you can see that you can have the array refer to members of itself using the syntax value[x] where x is index number desired. Note that if the array member has not been defined yet its value will be null. So, for example, expressions like value[$1 + 1] will always be null. You cannot use array references as L-values. In other words, you can read from the array but you cannot write into it. For example, a line beginning value[1] = ... would be ignored by the preprocessor as invalid.
 
 Value calculations can easily become unwieldy so you may wonder if it is possible to use intermediate values to calculate parts of the value separately and thereby break the calculation into several easier-to-understand sub-calculations. Yes, you can define and use other variables as you wish in your expression file. Just be aware that there is a specific order of evaluation for the different expressions. See the help topic "Data Viewer - Intermediate Values" for more information.
 
@@ -904,8 +905,10 @@ The "allow_errors" parameter allows you to control how errors are handled when y
 	Float64	NaN
 	String	#ERROR#
 
-Note that some errors are fatal and will result in process termination regardless of the allow_errors setting. For example, if there is an error evaluating the expression for a dimensional size then nothing further can be done and an error will be returned.	
-	
+Note that some errors are fatal and will result in process termination regardless of the allow_errors setting. For example, if there is an error evaluating the expression for a dimensional size then nothing further can be done and an error will be returned.
+
+Python errors are different than ODC-related errors. If a Python error occurs it will say Python syntax error or Python error. In this case you need to check the syntax or content of your expression to make sure it is correct Python. Other errors indicate a problem with ODC-specific processing and there will usually be a detailed error message describing the problem.
+
 #Data Viewer - Debugging Expressions
 
 The "trace" parameter enables you to debug the operation of your expression. With no parameters supplied every loop through the data will be traced. Beware that the trace will generate up to a page of text for every loop through the data. So if you are generating a million-member array with tracing on for all points the ODC will attempt to send a million pages of text to your text viewer and probably bring your system to its knees. To control which loops are traced use the following syntax:
@@ -944,7 +947,7 @@ If your expression formulas are complicated you may want to break them into easi
 
 (10) The process loops to step (5) and continues until the value matrix is full.
 
-Steps (6) and (8) are your chance to define intermediate values that are used to calculate (7) and (9). You can also designate variables to be evaluated once at the beginning of the variable creation by prefixing them with "__".
+Steps (6) and (8) are your chance to define intermediate values that are used to calculate (7) and (9). You can also designate variables to be evaluated once at the beginning of the variable creation by prefixing them with "__". See the section "Data Viewer - Grid Expressions" for examples of using intermediate expressions.
 	
 #Data Viewer - Grid Expressions
 
@@ -963,7 +966,7 @@ This will produce the following grid where every single value is the number 5:
 
 	....
 	
-A key thing to note about grids is that the index arrays must be the same size as the dimensions they index. This is why you only need one set of "size" expressions.
+A key thing to note about grids is that the index arrays will always be the same size as the dimensions they index. This is why you only need one set of "size" expressions.
 
 The $index_dimensions variable is used to create multi-dimensional grid indices. This is useful when the coordinates of an array vary continuously. One application is to do map projections. Another use is storing satellite datasets and other raw earth imagery. Multi-dimensional indices vary continously over each cell in the value matrix. For example, if you are creating a matrix with a multi-dimensional index then the grid will have two or three vectors for the indices. If your coordinate matrices need only 2 dimensions (e.g., latitude and longitude) then there will three arrays: the value array, the index_1 array (longitude), and the index_2 array (latitude). If your coordinate matrices need 3 dimensions (e.g., ECEF coordinates have x, y and z) then there will four arrays: the value array, the index_1 array (x), the index_2 array (y) and the index_3 array (z). In the last example, the index arrays will tell the exact ECEF coordinates of each pixel in the image.
 

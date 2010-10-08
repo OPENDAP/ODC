@@ -171,9 +171,9 @@ public class Panel_Definition extends JPanel {
 		try {
 			if( urlEntry == null ){
 				mParent.setPlottingEnabled( false );
-				mpanelScale.setScale(null);
-				mpanelText.setPlotText(null);
-				mpanelOptions.setPlotOptions(null);
+				mpanelScale._setScale( null );
+				mpanelText.setPlotText( null );
+				mpanelOptions.setPlotOptions( null );
 				mpanelVariables.vClear();
 			} else {
 				if( eMODE == VARIABLE_MODE_Table ){
@@ -182,7 +182,7 @@ public class Panel_Definition extends JPanel {
 				} else {
 					mPlottingDefinition = mDefinition_DDDS;
 					mpanelOptions.setPlotOptions(mPlottingDefinition.getOptions()); // must be done before cs is set
-					mpanelScale.setScale(mPlottingDefinition.getScale());
+					mpanelScale._setScale(mPlottingDefinition.getScale());
 					mpanelText.setPlotText(mPlottingDefinition.getText());
 					mParent.setPlottingEnabled( true );
 					mPlottingDefinition.setPlotType( ePlotType );

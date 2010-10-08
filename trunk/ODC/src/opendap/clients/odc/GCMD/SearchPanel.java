@@ -162,7 +162,7 @@ public class SearchPanel extends JPanel implements ActionListener
 		String wildcard = ( ((String)matchType.getSelectedItem()).equals("Contains") ? "*" : "");
 
 		try {
-			Utility.sReplaceString(value, " ", "%20");
+			Utility_String.sReplaceString(value, " ", "%20");
 		} catch(Exception e) {}
 
 		if(categoryName.equals("Keywords")) {

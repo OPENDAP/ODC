@@ -1359,7 +1359,7 @@ class VSelector_Plot_Values extends JPanel {
 			if( dim.com_jrbY.isSelected() ) lenY = dim.getModel().getSize();
 		}
 		Panel_PlotScale panel_scale = Panel_View_Plot.getPanel_PlotScale();
-		PlotScale scale = panel_scale.getScale();
+		PlotScale scale = panel_scale._getScale();
 		scale.setDataDimension(lenX, lenY);
 	}
 
@@ -1658,11 +1658,11 @@ class VSelector_Plot_Values extends JPanel {
 				axes.getAxisParameters_Y().vSetDimSize(iDimYsize);
 
 				// update scale settings
-				PlotScale scale = Panel_View_Plot.getPanel_PlotScale().getScale();
+				PlotScale scale = Panel_View_Plot.getPanel_PlotScale()._getScale();
 				if( scale == null ){
 					// ApplicationController.vShowWarning("no plot scale exists during parameters update");
 				} else {
-					scale.setDataDimension(iDimXsize, iDimYsize);
+					scale.setDataDimension( iDimXsize, iDimYsize );
 				}
 				if( panelMissingValues.getUseMissing() ){
 					// the hand-entered values will be used
@@ -2186,7 +2186,7 @@ class Panel_MissingValues extends JPanel {
 			String[] asMissing = null;
 			int ctMissing = 0;
 			if( sMissing != null ) if( sMissing.length() > 0 ){
-				asMissing = Utility.splitCommaWhiteSpace(sMissing);
+				asMissing = Utility_String.splitCommaWhiteSpace(sMissing);
 				ctMissing = asMissing.length;
 			}
 			double[] adMissing1 = new double[ctMissing + 1];

@@ -21,8 +21,6 @@ import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.io.RandomAccessFile;
 
-import opendap.clients.odc.*;
-
 /**
  * This class provides the base structure for the DatasetList application.
  *
@@ -36,6 +34,7 @@ import opendap.clients.odc.*;
  * 2.30 December 2003
  * 2.49 June 2004
  * 2.53 July 2004
+ * 3.05 October 2009
  *
  */
 public class DatasetList extends SearchInterface {
@@ -138,7 +137,6 @@ public class DatasetList extends SearchInterface {
         mjbuttonRefresh = new JButton("Refresh Dataset List");
 		mjbuttonRefresh.setMinimumSize(new Dimension(40, 30));
 		if( isURLRemote() ){
-			StringBuffer sbError = new StringBuffer();
 			if( Resources.imageiconInternet != null ) mjbuttonRefresh.setIcon(Resources.imageiconInternet);
 		}
         mjbuttonRefresh.addActionListener(new ActionRefresh());
@@ -212,10 +210,10 @@ public class DatasetList extends SearchInterface {
 					if (thisnode.isLeaf()) {
 						if (xmlDOMTree.numDesiredURLAttributes(thisnode) > 0) {
 							text = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_NAME).getNodeValue();
-							for (int u=0; u < xmlDOMTree.desiredURLAttributes.length; u++) {
+							for (int u=0; u < DOMTree.desiredURLAttributes.length; u++) {
 								if (thisnode.getAttributes().getNamedItem(DOMTree.desiredURLAttributes[u]) != null) {
 									text += "\n  ";
-									text += xmlDOMTree.desiredURLAttributes[u] + ": ";
+									text += DOMTree.desiredURLAttributes[u] + ": ";
 									text += thisnode.getAttributes().getNamedItem(DOMTree.desiredURLAttributes[u]).getNodeValue();
 								}
 							}
@@ -264,9 +262,8 @@ public class DatasetList extends SearchInterface {
 	String getDatasetXML_URL(){
 		String sURL = ConfigurationManager.getInstance().getProperty_URL_XML();
 		if( sURL == null ) return null;
-		java.net.URL urlDatasetListXML = null;
 		try {
-			urlDatasetListXML = new java.net.URL(sURL);
+			new java.net.URL( sURL ); // see if we can make a valid URL
 		} catch(Exception ex) {
 			ApplicationController.vShowError("unable to interpret dataset URL [" + sURL + "]: " + ex);
 		}
@@ -356,7 +353,7 @@ public class DatasetList extends SearchInterface {
 				return false;
 			} else if( sScheme.equalsIgnoreCase("file") ){
 				String sProtocol = Utility.url_getPROTOCOL( surlDatasetXML );
-				java.io.File fileSource = new java.io.File(surlDatasetXML);
+				java.io.File fileSource = new java.io.File( surlDatasetXML );
 				if( fileSource == null ){
 					sbError.append("dataset source path is invalid [" + surlDatasetXML + "]");
 					return false;
@@ -413,10 +410,10 @@ public class DatasetList extends SearchInterface {
 		// download the XML page to a string
 		ByteCounter byte_counter = new ByteCounter(){
 			public void vReportByteCount_EverySecond( long nByteCount ){
-				ApplicationController.getInstance().vShowStatus_NoCache("Received " + Utility.getByteCountString(nByteCount) + " (" + nByteCount + ")");
+				ApplicationController.vShowStatus_NoCache("Received " + Utility_String.getByteCountString(nByteCount) + " (" + nByteCount + ")");
 			}
 			public void vReportByteCount_Total( long nByteCount ){
-				ApplicationController.getInstance().vShowStatus("Received " + Utility.getByteCountString(nByteCount) + " (" + nByteCount + ") for " + sURI);
+				ApplicationController.vShowStatus("Received " + Utility_String.getByteCountString(nByteCount) + " (" + nByteCount + ") for " + sURI);
 			}
 		};
 		String sDatasetsXML = IO.getStaticContent(sURI, byte_counter, null, sbError );
@@ -566,13 +563,22 @@ public class DatasetList extends SearchInterface {
             Model_Dataset[] urls = new Model_Dataset[urlsvect.size()];
             for (int i=0; i < urlsvect.size(); i++) {
                 DOMTree.AdapterNode thisnode = (DOMTree.AdapterNode) urlsvect.elementAt(i);
+                String sURL = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR).getNodeValue();
                 if( thisnode.getAttributes().getNamedItem(DOMTree.ATTR_CATALOG) != null ||
 					thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null) {
-                	urls[i] = new Model_Dataset( Model_Dataset.TYPE_Directory );
-					urls[i].setURL(thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR).getNodeValue());
+                	Model_Dataset model = Model_Dataset.createDirectoryFromURL( sURL, sbError );
+                	if( model == null ){
+                		sbError.insert( 0, "unable to create internal model for directory: " );
+                		return null;
+                	}
+                	urls[i] = model;
                 } else {
-                	urls[i] = new Model_Dataset( Model_Dataset.TYPE_Data );
-					urls[i].setURL(thisnode.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL).getNodeValue());
+                	Model_Dataset model = Model_Dataset.createDirectoryFromURL( sURL, sbError );
+                	if( model == null ){
+                		sbError.insert( 0, "unable to create internal model for directory: " );
+                		return null;
+                	}
+                	urls[i] = model;
                 }
                 urls[i].setTitle(thisnode.getAttributes().getNamedItem(DOMTree.ATTR_NAME).getNodeValue());
             }
@@ -638,7 +644,7 @@ public class DatasetList extends SearchInterface {
 			} else {
 				jbuttonShowAll.setEnabled(true);
 			}
-			String[] as = Utility.split(sSearchText, ' ');
+			String[] as = Utility_String.split( sSearchText, ' ' );
 			int ctAnd = 0, ctOr = 0;
 			for( int xSearchTerm = 0; xSearchTerm < as.length; xSearchTerm++ ){
 				if( as[xSearchTerm].startsWith("+") ) ctAnd++; else ctOr++;

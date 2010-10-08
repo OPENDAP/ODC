@@ -50,8 +50,8 @@ class Panel_Plot_Line extends Panel_Plot {
 	public final static int TYPE_Scatter = 2;
 	public final static int TYPE_HiLo = 3;
 
-	Panel_Plot_Line( PlotScale scale, String sID, String sCaption, Model_Dataset url ){
-		super(scale, sID, sCaption, url);
+	Panel_Plot_Line( PlotScale scale, String sID, String sCaption ){
+		super( scale, sID, sCaption );
 	}
 
 	public String getDescriptor(){ return "L"; }
@@ -68,7 +68,7 @@ class Panel_Plot_Line extends Panel_Plot {
 	// axes
 	private PlotAxis maxisY = null;
 	private PlotAxis maxisX = null;
-	private Object[] meggMappingY = null; // contains one or more eggs containing linear data seriew
+	private Object[] meggMappingY = null; // contains one or more eggs containing linear data series
 	private int meDataType_MappingY = 0;
 	private Object[] meggMappingX = null;
 	private int meDataType_MappingX = 0;
@@ -287,8 +287,8 @@ class Panel_Plot_Line extends Panel_Plot {
 		setAxisHorizontal(maxisX);
 
 		// the plot dimensions are only known after they have been set above
-		int pxPlotWidth = scale.getPlot_Width(false);
-		int pxPlotHeight = scale.getPlot_Height(false);
+		int pxPlotWidth = scale.getPlot_Width();
+		int pxPlotHeight = scale.getPlot_Height();
 
 		// make lines
 		double dX_lower = maxisX.getValueFrom();

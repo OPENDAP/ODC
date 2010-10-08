@@ -314,13 +314,13 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 					public void valueChanged(ListSelectionEvent e) {
 						int xTopic_0 = jlistTopic.getSelectedIndex();
 						if (xTopic_0 < 0) {
-							jlistEntries.setListData(new Vector());
+							jlistEntries.setListData( new Vector<String[]>() );
 						} else {
 							Object[] aoEntries = mGazetteer.getEntriesForTopic(xTopic_0);
 							if( aoEntries == null ){
-								jlistEntries.setListData(new Vector());
+								jlistEntries.setListData( new Vector<String[]>() );
 						    } else {
-								jlistEntries.setListData(aoEntries);
+								jlistEntries.setListData( aoEntries );
 							}
 							jlistEntries.revalidate();
 							Panel_SpatialTemporal.this.validate();
@@ -1173,7 +1173,6 @@ public class Panel_SpatialTemporal extends JPanel implements MouseListener, Mous
 
 	public void setImage(String sResourcePath, double x_lo, double x_hi, double y_lo, double y_hi) throws Exception {
 
-		Image img=null;
 //		System.out.println("setImage(" + img_name + ", " + x_lo + ", " + x_hi +
 //						   ", " + y_lo + ", " + y_hi + ")");
 
@@ -1459,7 +1458,7 @@ class Gazetteer {
 			sbError.insert(0, "failed to load gazetteer to delete custom entry: ");
 			return false;
 		}
-		int posCustomTopic = Utility.find( sbGazetteer, "*custom", true );
+		int posCustomTopic = Utility_String.find( sbGazetteer, "*custom", true );
 		if( posCustomTopic < 0 ){ // need to add custom topic
 			sbError.append("no custom topic in gazetteer");
 			return false;
@@ -1483,11 +1482,11 @@ class Gazetteer {
 			}
 			asCustom = asCustom_Buffer;
 			asCustom_Coordinates = asCustom_Coordinates_Buffer;
-			int posDeleteLocation_begin = Utility.find( sbGazetteer, sLabel, true, posCustomTopic );
+			int posDeleteLocation_begin = Utility_String.find( sbGazetteer, sLabel, true, posCustomTopic );
 			if( posDeleteLocation_begin < 0 ){
 				sbError.append("Unable to find custom entry '" + sLabel + "' in gazetteer file to delete it.");
 			} else {
-				int posDeleteLocation_end = Utility.find( sbGazetteer, "\n", true, posDeleteLocation_begin ) + 1;
+				int posDeleteLocation_end = Utility_String.find( sbGazetteer, "\n", true, posDeleteLocation_begin ) + 1;
 				if( posDeleteLocation_end < 1 ) posDeleteLocation_end = sbGazetteer.length();
 				sbGazetteer.delete(posDeleteLocation_begin, posDeleteLocation_end);
 			}
@@ -1511,13 +1510,13 @@ class Gazetteer {
 			sbError.insert(0, "failed to load gazetteer to add custom entry: ");
 			return false;
 		}
-		int posCustomTopic = Utility.find( sbGazetteer, "*custom", true );
+		int posCustomTopic = Utility_String.find( sbGazetteer, "*custom", true );
 		if( posCustomTopic < 0 ){ // need to add custom topic
 			int lenGazetteer = sbGazetteer.length();
 			if( lenGazetteer > 0 ) if( sbGazetteer.charAt(lenGazetteer - 1) != '\n' ) sbGazetteer.append("\n");
 			sbGazetteer.append("*Custom\n");
 		}
-		posCustomTopic = Utility.find( sbGazetteer, "*custom", true ); // try to find it again
+		posCustomTopic = Utility_String.find( sbGazetteer, "*custom", true ); // try to find it again
 		if( posCustomTopic < 0 ){
 			sbError.append("internal error, unable to add custom topic to buffer");
 			return false;
@@ -1550,7 +1549,7 @@ class Gazetteer {
 			if( xInsertLocation == ctCustom ){ // add to end
 				posInsertLocation = -1;
 			} else {
-				posInsertLocation = Utility.find( sbGazetteer, asCustom[xInsertLocation + 1], true, posCustomTopic );
+				posInsertLocation = Utility_String.find( sbGazetteer, asCustom[xInsertLocation + 1], true, posCustomTopic );
 			}
 			int lenGazetteer = sbGazetteer.length();
 			if( posInsertLocation < 0 ){
