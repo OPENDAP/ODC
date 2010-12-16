@@ -34,6 +34,8 @@ import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
 
+import opendap.clients.odc.gui.Styles;
+
 import java.io.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;

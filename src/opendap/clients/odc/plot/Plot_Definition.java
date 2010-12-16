@@ -24,6 +24,9 @@ package opendap.clients.odc.plot;
 
 import opendap.dap.*;
 import opendap.clients.odc.*;
+import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.gui.Styles;
+
 import java.util.*;
 
 // used by table definition todo

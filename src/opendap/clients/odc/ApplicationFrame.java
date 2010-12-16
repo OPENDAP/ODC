@@ -31,6 +31,11 @@ package opendap.clients.odc;
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 /////////////////////////////////////////////////////////////////////////////
 
+import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.data.Panel_Retrieve;
+import opendap.clients.odc.data.Panel_View_Data;
+import opendap.clients.odc.gui.Resources;
+import opendap.clients.odc.gui.Styles;
 import opendap.clients.odc.plot.*;
 
 import java.awt.*;
@@ -472,11 +477,11 @@ public class ApplicationFrame extends JFrame {
 
 	public Panel_Retrieve getPanel_Retrieve(){ return jpanelRetrieve; }
 
-	void vUpdateFavorites(){
+	public void vUpdateFavorites(){
 		panelFavorites.vRefreshFavoritesList();
 	}
 
-	void vUpdateRecent(){
+	public void vUpdateRecent(){
 		if( panelRecent != null ) panelRecent.vRefreshRecentList();
 	}
 

@@ -25,6 +25,7 @@ package opendap.clients.odc;
 
 import opendap.clients.odc.TMAP.convert.*;
 import opendap.clients.odc.TMAP.map.*;
+import opendap.clients.odc.gui.Resources;
 
 import javax.swing.*;
 import javax.swing.border.*;

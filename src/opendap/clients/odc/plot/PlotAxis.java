@@ -375,7 +375,7 @@ class Panel_PlotAxes extends JPanel {
 
 		// x-axis
 		JLabel labelX = new JLabel("X-Axis");
-		labelX.setFont(opendap.clients.odc.Styles.fontSansSerif14);
+		labelX.setFont(opendap.clients.odc.gui.Styles.fontSansSerif14);
 		gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 1; gbc.weighty = 1; gbc.gridwidth = 1; gbc.gridheight = 1;
 		this.add(new JLabel(), gbc);
 		gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 1; gbc.weighty = 1; gbc.gridwidth = 1; gbc.gridheight = 1;
@@ -389,7 +389,7 @@ class Panel_PlotAxes extends JPanel {
 
 		// y-axis
 		JLabel labelY = new JLabel("Y-Axis");
-		labelY.setFont(opendap.clients.odc.Styles.fontSansSerif14);
+		labelY.setFont(opendap.clients.odc.gui.Styles.fontSansSerif14);
 		gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 1; gbc.weighty = 1; gbc.gridwidth = 1; gbc.gridheight = 1;
 		this.add(new JLabel(), gbc);
 		gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 1; gbc.weighty = 1; gbc.gridwidth = 1; gbc.gridheight = 1;

@@ -1,6 +1,9 @@
 package opendap.clients.odc;
 
 import javax.swing.*;
+
+import opendap.clients.odc.data.Model_Dataset;
+
 import java.awt.*;
 import java.awt.event.*;
 

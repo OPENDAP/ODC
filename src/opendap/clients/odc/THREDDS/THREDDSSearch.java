@@ -23,6 +23,8 @@
 package opendap.clients.odc.THREDDS;
 
 import opendap.clients.odc.*;
+import opendap.clients.odc.data.Model_Dataset;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;

@@ -35,7 +35,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.Utility_String;
-import opendap.clients.odc.Styles;
+import opendap.clients.odc.gui.Styles;
 
 import java.awt.event.*;
 import java.awt.*;

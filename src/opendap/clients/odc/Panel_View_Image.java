@@ -38,6 +38,9 @@ import java.awt.*;
 import java.awt.image.*;
 import javax.swing.*;
 import javax.swing.border.*;
+
+import opendap.clients.odc.gui.Styles;
+
 import java.io.*;
 
 public class Panel_View_Image extends JPanel implements IControlPanel {

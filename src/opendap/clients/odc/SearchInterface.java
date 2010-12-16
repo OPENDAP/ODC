@@ -36,6 +36,10 @@ package opendap.clients.odc;
 import javax.swing.JPanel;
 import javax.swing.event.ListSelectionListener;
 
+import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.data.Model_Retrieve;
+import opendap.clients.odc.data.Model_URLList;
+
 public abstract class SearchInterface extends JPanel {
 	public abstract Model_Dataset[] getURLs( StringBuffer sbError );
 	public abstract void addListSelectionListener( ListSelectionListener listener );

@@ -94,7 +94,7 @@ public class Utility {
 	public final static int SORT_ascending = 1;
 	public final static int SORT_descending = 2;
 
-	static void sortFiles( File[] afiles, int eSORT ){
+	public static void sortFiles( File[] afiles, int eSORT ){
 		vQuickSortInternal_files( 0, afiles.length - 1, afiles, eSORT );
 	}
 
@@ -551,7 +551,7 @@ public class Utility {
 		}
 	}
 
-	static String getFilenameFromURL( String sFullURL ){
+	public static String getFilenameFromURL( String sFullURL ){
 	    if( sFullURL == null || sFullURL.length() == 0 ) return null;
 		String sReverseURL = Utility_String.sReverse(sFullURL);
 		int pos = 0;
@@ -569,7 +569,7 @@ public class Utility {
 		return sFileName;
 	}
 
-	static String sFetchHttpString( String sURL, StringBuffer sbError ){
+	public static String sFetchHttpString( String sURL, StringBuffer sbError ){
 		try {
 			ApplicationController.vShowStatus("resolving url... " + sURL);
 			java.net.URL url = null;
@@ -626,7 +626,7 @@ public class Utility {
 		}
 	}
 
-	final static String[] aExtensionToMIME = {
+	public final static String[] aExtensionToMIME = {
 		"gif", "IMAGE/GIF",
 		"jpeg", "IMAGE/JPEG",
 		"jpe", "IMAGE/JPEG",
@@ -636,7 +636,7 @@ public class Utility {
 		"tif", "IMAGE/TIFF"
 	};
 
-	static boolean isImage( String sURL ){
+	public static boolean isImage( String sURL ){
 		String sExtension = Utility.getExtension(sURL);
 		if( sExtension == null ) return false;
 		for( int xExtension = 0; xExtension < aExtensionToMIME.length/2; xExtension++ ){
@@ -646,13 +646,13 @@ public class Utility {
 		return false;
 	}
 
-	static boolean isDodsURL( String sURL ){
+	public static boolean isDodsURL( String sURL ){
 		if( sURL == null ) return false;
 		if( sURL.toUpperCase().indexOf("NPH-") < 0 ) return false;
 		return true;
 	}
 
-	static String getMIMEtype( String sURL ){
+	public static String getMIMEtype( String sURL ){
 		String sExtension = Utility.getExtension(sURL);
 		if( sExtension == null ) return null;
 		for( int xExtension = 0; xExtension < aExtensionToMIME.length/2; xExtension++ ){
@@ -662,7 +662,7 @@ public class Utility {
 		return null;
 	}
 
-	static String getExtension( String sFileName ){
+	public static String getExtension( String sFileName ){
 		if( sFileName == null ) return null;
 		String sReverseFileName = Utility_String.sReverse(sFileName);
 		int posDot = sReverseFileName.indexOf('.');
@@ -1195,17 +1195,6 @@ class Java2Clipboard implements java.awt.datatransfer.ClipboardOwner {
     }
 }
 
-class FavoritesFilter implements FilenameFilter {
-	public boolean accept( File fileDirectory, String sName ){
-		return sName.startsWith("favorite-");
-	}
-}
-
-class RecentFilter implements FilenameFilter {
-	public boolean accept( File fileDirectory, String sName ){
-		return sName.startsWith("recent-");
-	}
-}
 
 
 

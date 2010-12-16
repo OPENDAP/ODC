@@ -33,6 +33,9 @@ package opendap.clients.odc;
 import java.awt.event.*;
 import javax.swing.*;
 
+import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.gui.Styles;
+
 public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 
 	SavableImplementation savableString;
@@ -45,7 +48,7 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 	private JScrollPane jspDisplay;
 	private final JTextArea jtaDisplay = new JTextArea("");
 
-	boolean _zInitialize( Panel_View_Text parent, String sDirectory, String sName, String sContent, StringBuffer sbError ){
+	public boolean _zInitialize( Panel_View_Text parent, String sDirectory, String sName, String sContent, StringBuffer sbError ){
 
 		try {
 			this.parent = parent;

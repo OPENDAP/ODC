@@ -32,7 +32,8 @@ package opendap.clients.odc.plot;
  */
 
 import opendap.clients.odc.*;
-import opendap.clients.odc.Model_Dataset;
+import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.gui.Styles;
 
 import java.awt.event.*;
 import java.awt.*;

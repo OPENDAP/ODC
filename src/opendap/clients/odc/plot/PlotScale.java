@@ -32,8 +32,8 @@ package opendap.clients.odc.plot;
  */
 
 import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.Resources;
 import opendap.clients.odc.Utility;
+import opendap.clients.odc.gui.Resources;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
