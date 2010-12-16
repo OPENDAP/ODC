@@ -36,6 +36,8 @@ import java.util.Properties;
 import java.util.ArrayList;
 import java.io.FilenameFilter;
 
+import opendap.clients.odc.data.OutputProfile;
+
 public class ConfigurationManager {
 
 	final static int DEFAULT_timeout_InternetConnect = 20;
@@ -847,7 +849,7 @@ public class ConfigurationManager {
 		return sCacheDirectory;
 	}
 
-	String getDefault_DIR_Plots(){
+	public String getDefault_DIR_Plots(){
 		String sWorkingDirectory = this.getBaseDirectory();
 		if( sWorkingDirectory == null ) sWorkingDirectory = "";
 		String sSeparator = System.getProperty(SYSTEM_PROPERTY_FileSeparator);
@@ -855,7 +857,7 @@ public class ConfigurationManager {
 		return sPlotsDirectory;
 	}
 
-	String getDefault_DIR_Scripts(){
+	public String getDefault_DIR_Scripts(){
 		String sWorkingDirectory = this.getBaseDirectory();
 		if( sWorkingDirectory == null ) sWorkingDirectory = "";
 		String sSeparator = System.getProperty(SYSTEM_PROPERTY_FileSeparator);
@@ -863,7 +865,7 @@ public class ConfigurationManager {
 		return sScriptsDirectory;
 	}
 
-	String getDefault_DIR_Expressions(){
+	public String getDefault_DIR_Expressions(){
 		String sWorkingDirectory = this.getBaseDirectory();
 		if( sWorkingDirectory == null ) sWorkingDirectory = "";
 		String sSeparator = System.getProperty( SYSTEM_PROPERTY_FileSeparator );
@@ -871,17 +873,17 @@ public class ConfigurationManager {
 		return sExpressionsDirectory;
 	}
 	
-	String getDefault_URL_GCMD(){ return URL_Default_GCMD; }
+	public String getDefault_URL_GCMD(){ return URL_Default_GCMD; }
 
-	String getDefault_URL_ECHO(){ return "http://fosters.gsfc.nasa.gov:4500/"; }
+	public String getDefault_URL_ECHO(){ return "http://fosters.gsfc.nasa.gov:4500/"; }
 
-	String getDefault_URL_DatasetList(){ return URL_Default_DatasetList; }
+	public String getDefault_URL_DatasetList(){ return URL_Default_DatasetList; }
 
-	String getDefault_PATH_XML(){
+	public String getDefault_PATH_XML(){
 		return Utility.sConnectPaths(getBaseDirectory(), FILE_NAME_XML);
 	}
 
-	String getDefault_PATH_ECHO_Valids(){
+	public String getDefault_PATH_ECHO_Valids(){
 		return Utility.sConnectPaths(getBaseDirectory(), FILE_NAME_ECHO_Valids);
 	}
 
@@ -1080,7 +1082,7 @@ public class ConfigurationManager {
 		try { if( fos != null ) fos.close(); } catch( Exception ex ){}
 	}
 
-	static File[] getPreferencesFiles(FilenameFilter filter){
+	public static File[] getPreferencesFiles( FilenameFilter filter ){
 		String sPreferencesDirectory = ConfigurationManager.getInstance().getProperty_PreferencesDirectory();
 		File filePreferencesDirectory = new File( sPreferencesDirectory );
 		if( filePreferencesDirectory == null ){

@@ -28,6 +28,11 @@ import java.net.*;
 import java.io.*;
 import java.util.regex.*;
 
+import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.data.Model_Retrieve;
+import opendap.clients.odc.data.Model_URLList;
+import opendap.clients.odc.data.OutputProfile;
+
 public class InterprocessServer extends Thread {
 
     public InterprocessServer() {

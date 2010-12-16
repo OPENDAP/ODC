@@ -7,6 +7,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import opendap.clients.odc.*;
+import opendap.clients.odc.gui.Resources;
 
 public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	final HUD hud = new HUD();

@@ -320,7 +320,7 @@ ScanForStartOfMatch:
 		return s.substring(posLeft + sLeft.length(), posRight);
 	}
 
-	static int parseInteger_positive(String s){
+	public static int parseInteger_positive(String s){
 		try {
 			int i = Integer.parseInt(s);
 			if( i < 1 ) return -1;
@@ -330,7 +330,7 @@ ScanForStartOfMatch:
 		}
 	}
 
-	static int parseInteger_nonnegative(String s){
+	public static int parseInteger_nonnegative(String s){
 		try {
 			int i = Integer.parseInt(s);
 			if( i < 0 ) return -1;
@@ -340,7 +340,7 @@ ScanForStartOfMatch:
 		}
 	}
 
-	static boolean isNumeric(String s){
+	public static boolean isNumeric(String s){
 		try {
 			Long.parseLong(s);
 			return true; // its a long or an int of some kind
@@ -352,7 +352,7 @@ ScanForStartOfMatch:
 		return false; // not a number
 	}
 
-	static boolean isInteger(String s){
+	public static boolean isInteger(String s){
 		try {
 			Integer.parseInt(s);
 			return true;
@@ -361,7 +361,7 @@ ScanForStartOfMatch:
 		}
 	}
 
-	static boolean isDouble(String s){
+	public static boolean isDouble(String s){
 		try {
 			Double.parseDouble(s);
 			return true;

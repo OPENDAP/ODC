@@ -39,6 +39,8 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import javax.activation.*;
 
+import opendap.clients.odc.gui.Styles;
+
 public class Panel_Feedback_Email extends JPanel implements IControlPanel {
 
     public Panel_Feedback_Email() {}

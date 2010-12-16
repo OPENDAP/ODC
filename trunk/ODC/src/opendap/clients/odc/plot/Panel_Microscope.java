@@ -32,7 +32,8 @@ package opendap.clients.odc.plot;
  */
 
 import opendap.clients.odc.Utility_String;
-import opendap.clients.odc.Styles;
+import opendap.clients.odc.gui.Styles;
+
 import javax.swing.JPanel;
 
 import java.awt.*;

@@ -33,6 +33,9 @@ package opendap.clients.odc.plot;
 
 import opendap.dap.*;
 import opendap.clients.odc.*;
+import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.gui.Resources;
+import opendap.clients.odc.gui.Styles;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;

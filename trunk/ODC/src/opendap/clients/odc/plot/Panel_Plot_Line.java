@@ -34,7 +34,7 @@ package opendap.clients.odc.plot;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.DAP;
-import opendap.clients.odc.Model_Dataset;
+import opendap.clients.odc.data.Model_Dataset;
 
 import java.util.ArrayList;
 import java.awt.event.*;

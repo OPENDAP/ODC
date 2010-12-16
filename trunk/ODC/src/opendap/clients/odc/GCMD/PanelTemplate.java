@@ -23,6 +23,9 @@
 package opendap.clients.odc.GCMD;
 
 import opendap.clients.odc.*;
+import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.gui.Styles;
+
 import java.lang.*;
 import javax.swing.*;
 import java.awt.*;

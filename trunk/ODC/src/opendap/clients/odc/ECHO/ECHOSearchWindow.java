@@ -24,6 +24,8 @@ package opendap.clients.odc.ECHO;
 
 //import opendap.clients.odc.SearchInterface;
 import opendap.clients.odc.*;
+import opendap.clients.odc.data.Model_Dataset;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;

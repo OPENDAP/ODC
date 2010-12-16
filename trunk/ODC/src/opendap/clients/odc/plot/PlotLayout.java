@@ -530,7 +530,7 @@ class PlotLayout_TestCanvas extends JPanel {
 				g2.drawString("Y-Axis", iObjectX - 20, iObjectY + iObjectHeight + 40);
 				break;
 		}
-		Panel_Plot.vDrawText( g2, "Layout Location", opendap.clients.odc.Styles.fontSansSerifBold12, Color.RED, mPlotLayout, iObjectX, iObjectY, iObjectWidth, iObjectHeight, true );
+		Panel_Plot.vDrawText( g2, "Layout Location", opendap.clients.odc.gui.Styles.fontSansSerifBold12, Color.RED, mPlotLayout, iObjectX, iObjectY, iObjectWidth, iObjectHeight, true );
 	}
 
 }

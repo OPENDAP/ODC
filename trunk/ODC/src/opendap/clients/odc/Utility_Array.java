@@ -143,5 +143,28 @@ public class Utility_Array {
 		}
 		return sb.toString();
 	}
+	public static String dumpArray( String[][] as ){
+		return dumpArray( as, 0, as.length - 1 );
+	}
+	public static String dumpArray( String[][] as, int from, int to ){
+		if( as == null ) return "[null]";
+		if( to == 0 ) to = as.length - 1;
+		StringBuffer sb = new StringBuffer(80);
+		for( int x = from; x <= to; x++ ){
+			sb.append("[" + x + "] = \n" + dumpArray( as[x], 0, 0, 1 ) + "\n");
+		}
+		return sb.toString();
+	}
+	public static String dumpArray( String[] as, int from, int to, int indent ){
+		String sIndent = Utility_String.sRepeatChar( '\t', indent );
+		if( as == null ) return sIndent + "[null]";
+		if( to == 0 ) to = as.length - 1;
+		StringBuffer sb = new StringBuffer(80);
+		for( int x = from; x <= to; x++ ){
+			sb.append( sIndent ).append("[" + x + "] = " + as[x] + "\n");
+		}
+		return sb.toString();
+	}
+	
 
 }

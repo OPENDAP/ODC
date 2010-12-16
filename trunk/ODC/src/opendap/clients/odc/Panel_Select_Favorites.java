@@ -33,6 +33,11 @@ package opendap.clients.odc;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
+
+import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.data.Model_URLList;
+import opendap.clients.odc.data.Panel_URLList_JList;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -211,8 +216,8 @@ public class Panel_Select_Favorites extends SearchInterface implements IControlP
 		mjscrollInfo.scrollRectToVisible(new Rectangle(0,0, 1,1));
 	}
 
-	static void vAddFavorite( Model_Dataset url ){
-		FavoritesFilter filter = new FavoritesFilter();
+	public static void vAddFavorite( Model_Dataset url ){
+		opendap.clients.odc.gui.Filter_Favorites filter = new opendap.clients.odc.gui.Filter_Favorites();
 		File[] afile = ConfigurationManager.getPreferencesFiles(filter);
 		String sFilename;
 		if( afile == null ){
@@ -242,7 +247,7 @@ public class Panel_Select_Favorites extends SearchInterface implements IControlP
 		}
 	}
 
-	static boolean zDeleteFavorite( int iID, StringBuffer sbError ){
+	public static boolean zDeleteFavorite( int iID, StringBuffer sbError ){
 		try {
 			String sNumber = Utility_String.sFixedWidth(Integer.toString(iID), 7, '0', Utility_String.ALIGNMENT_RIGHT);
 			String sFilename = "favorite-" + sNumber + ".ser";

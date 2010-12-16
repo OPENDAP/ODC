@@ -33,7 +33,7 @@ package opendap.clients.odc;
 
 import java.io.*;
 
-class StreamForwarder extends FilterOutputStream {
+public class StreamForwarder extends FilterOutputStream {
 
 	private int DEFAULT_CAPACITY = 10;
 	private OutputStream[] maOutputStreams;

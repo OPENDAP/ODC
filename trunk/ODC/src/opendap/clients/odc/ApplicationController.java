@@ -35,6 +35,13 @@ import java.io.*;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
+
+import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.data.Model_LoadedDatasets;
+import opendap.clients.odc.data.Model_Retrieve;
+import opendap.clients.odc.data.OutputEngine;
+import opendap.clients.odc.gui.Resources;
+
 import java.awt.event.*;
 
 public class ApplicationController {
@@ -805,8 +812,8 @@ public class ApplicationController {
 	}
 
 	boolean mzConstraintChanging = false;
-	boolean isConstraintChanging(){ return mzConstraintChanging; }
-	void setConstraintChanging( boolean z ){ mzConstraintChanging = z; }
+	public boolean isConstraintChanging(){ return mzConstraintChanging; }
+	public void setConstraintChanging( boolean z ){ mzConstraintChanging = z; }
 
 	public void vActivity_Add( Activity activity ){
 		mlistActivities.add(activity);

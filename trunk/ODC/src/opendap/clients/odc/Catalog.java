@@ -34,6 +34,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
+
+import opendap.clients.odc.data.Model_Dataset;
 import opendap.dap.*;
 
 /**
@@ -76,7 +78,7 @@ public class Catalog extends JPanel implements ActionListener {
 
     public Catalog() {}
 
-	String getExampleFileFullURL(){
+	public String getExampleFileFullURL(){
 		return msExampleURL;
 	}
 

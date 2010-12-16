@@ -33,6 +33,11 @@ package opendap.clients.odc;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
+
+import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.data.Model_URLList;
+import opendap.clients.odc.data.Panel_URLList_JList;
+
 import java.awt.*;
 import java.io.File;
 
@@ -165,11 +170,11 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 		return -1;
 	}
 
-	static void vAddRecent( Model_Dataset url ){
+	public static void vAddRecent( Model_Dataset url ){
 		StringBuffer sbError = new StringBuffer();
 		int iRecentCount = ConfigurationManager.getInstance().getProperty_RecentCount();
 		if( iRecentCount < 1 ) return; // no recents at all
-		RecentFilter filter = new RecentFilter();
+		opendap.clients.odc.gui.Filter_Recent filter = new opendap.clients.odc.gui.Filter_Recent();
 		File[] afile = ConfigurationManager.getPreferencesFiles(filter);
 		if( afile == null ){
 			ApplicationController.vShowError("error adding recent: directory list unexpectedly null");

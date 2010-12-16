@@ -23,6 +23,8 @@
 package opendap.clients.odc.GCMD;
 
 import opendap.clients.odc.*;
+import opendap.clients.odc.data.Model_Dataset;
+
 import java.util.*;
 /**
  * A <code>Dif</code> represents an xml Dif element, which in turn holds

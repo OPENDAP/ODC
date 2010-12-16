@@ -38,6 +38,8 @@ import javax.swing.*;
 import java.awt.datatransfer.*;
 import java.io.*;
 import java.util.*;
+
+import opendap.clients.odc.data.Model_Dataset;
 import opendap.dap.*;
 
 public class Panel_View_Table extends JPanel implements IControlPanel {

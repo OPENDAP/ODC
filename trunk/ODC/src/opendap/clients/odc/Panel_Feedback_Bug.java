@@ -35,6 +35,8 @@ import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
 
+import opendap.clients.odc.gui.Styles;
+
 import java.util.ArrayList;
 
 public class Panel_Feedback_Bug extends JPanel implements IControlPanel {

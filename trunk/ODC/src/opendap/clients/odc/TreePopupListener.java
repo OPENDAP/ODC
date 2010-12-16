@@ -24,6 +24,9 @@ package opendap.clients.odc;
 
 import javax.swing.*;
 import javax.swing.tree.*;
+
+import opendap.clients.odc.data.Model_Dataset;
+
 import java.awt.event.*;
 
 class TreePopupListener extends MouseAdapter {

@@ -28,6 +28,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
+import opendap.clients.odc.gui.Styles;
+
 public class Button_Select extends JButton implements ListSelectionListener {
 	public Button_Select(final SearchInterface searchable){
 		super();
