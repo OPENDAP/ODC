@@ -70,6 +70,9 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 	private JSplitPane msplitViewData;
 	private HashMap<Model_Dataset,Integer> hashmapVerticalSplit; // used to store divider location
     public Panel_View_Data() {}
+    
+    
+    
 	public boolean _zInitialize( Model_LoadedDatasets data_list, StringBuffer sbError ){
 		try {
 			panelLoadedDatasets = new Panel_LoadedDatasets();
