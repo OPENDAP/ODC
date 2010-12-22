@@ -373,6 +373,8 @@ public class Model_Dataset implements java.io.Serializable {
 		msDDS_Text = ddx_text;
 	}
 	
+	public String getDDS_Name(){ if( mDataDDS == null ) return "[no DataDDS]"; else return mDataDDS.getName(); } 
+	
 	public String getDAS_Text(){ return msDAS_Text; }
 
 	public void setDAS_Text(String das_text){ msDAS_Text = das_text; }
@@ -733,7 +735,7 @@ public class Model_Dataset implements java.io.Serializable {
 				}
 				Object oURL = Utility.oLoadObject(sPath, sbError);
 				if( oURL == null ){
-					ApplicationController.vShowError("Failed to load preference " + iNumber + " [" + sPath + "]: " + sbError);
+					ApplicationController.vShowWarning( "Failed to load preference " + iNumber + " [" + sPath + "]: " + sbError + "/n Delete this file to eliminate this warning." );
 				} else {
 					xDodsURL++;
 					aURLs[xDodsURL-1] = (Model_Dataset)oURL;

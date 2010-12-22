@@ -39,6 +39,7 @@ import java.beans.PropertyChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
@@ -61,6 +62,10 @@ import javax.swing.tree.TreePath;
 
 import java.util.ArrayList;
 
+/** Panel_LoadedDatasets    dataset combo box and action buttons
+ *  Model_DataView          key actions (new dataset, delete dataset, etc)
+ */
+
 public class Panel_View_Data extends JPanel implements IControlPanel {
 	Model_DataView modelDataView = null;
 	Panel_LoadedDatasets panelLoadedDatasets;
@@ -70,8 +75,6 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 	private JSplitPane msplitViewData;
 	private HashMap<Model_Dataset,Integer> hashmapVerticalSplit; // used to store divider location
     public Panel_View_Data() {}
-    
-    
     
 	public boolean _zInitialize( Model_LoadedDatasets data_list, StringBuffer sbError ){
 		try {
@@ -238,7 +241,6 @@ class Model_DataView {
 			ApplicationController.vShowError( "internal error, duplicate model" );
 		}
 		mDatasetList.addDataset( model );
-		mParent._vActivate( model );
 	}
 	void action_New_Expression(){
 		try {
@@ -432,102 +434,6 @@ class Panel_LoadedDatasets extends JPanel {
 	}
 }
 
-// contains the editing panels:
-// Data -        left: Panel_Edit_StructureView      right: Panel_Define_Dataset
-// Expression -  left: Panel_Edit_Expression         right: Panel_Define_Expression
-// Stream -      left: Panel_Edit_Stream             right: Panel_Define_Stream 
-class Panel_EditContainer extends JPanel {
-	Panel_View_Data mParent;
-	Panel_Edit_blank mEditBlank;
-	Panel_Edit_StructureView mEditStructure;
-	Panel_Edit_Expression mEditExpression;
-	Panel_Edit_Stream mEditStream;
-	Panel_Define_Dataset mDefineData;
-	Panel_Define_Expression mDefineExpression;
-	Panel_Define_Stream mDefineStream;
-	private Panel_EditContainer(){}
-	static Panel_EditContainer _zCreate( Panel_View_Data parent, StringBuffer sbError ){
-		if( parent == null ){
-			sbError.append( "no parent supplied" );
-			return null;
-		}
-		Panel_EditContainer panelEditContainer = new Panel_EditContainer();
-		panelEditContainer.mParent = parent; 
-		panelEditContainer.mDefineExpression = Panel_Define_Expression._zCreate( parent, sbError );
-		panelEditContainer.mEditBlank = new Panel_Edit_blank();
-		panelEditContainer.mEditStructure = new Panel_Edit_StructureView();
-		panelEditContainer.mEditExpression = new Panel_Edit_Expression();
-		panelEditContainer.mEditStream = new Panel_Edit_Stream();
-		panelEditContainer.mDefineData = new Panel_Define_Dataset();
-		panelEditContainer.mDefineStream = new Panel_Define_Stream();
-		if( ! panelEditContainer.mDefineData._zInitialize( parent, sbError ) ){
-			sbError.insert( 0, "initializing data define panel: " );
-			return null;
-		}
-		if( ! panelEditContainer.mEditStructure._zInitialize( panelEditContainer.mDefineData, sbError ) ){
-			sbError.insert( 0, "initializing structure panel: " );
-			return null;
-		}
-		if( ! panelEditContainer.mEditExpression._zInitialize( panelEditContainer.mDefineExpression, null, null, null, sbError ) ){
-			sbError.insert( 0, "initializing expression editor: " );
-			return null;
-		}
-		
-		panelEditContainer.setLayout( new BorderLayout() );
-		Border borderEtched = BorderFactory.createEtchedBorder();
-		panelEditContainer.setBorder( BorderFactory.createTitledBorder( borderEtched, "Structure Editing", TitledBorder.RIGHT, TitledBorder.TOP ) );
-		panelEditContainer._vClear();
-		return panelEditContainer;
-	}
-	void _vClear(){
-		removeAll();
-		add( mEditBlank, BorderLayout.CENTER );
-	}
-	boolean _zSetModel( Model_Dataset model, StringBuffer sbError ){
-		if( model == null ){
-			sbError.insert( 0, "supplied model was null" );
-			return false;
-		}
-		switch( model.getType() ){
-			case Model_Dataset.TYPE_Data:
-				Model_DataTree tree = model.getDataTree( sbError );
-				if( tree == null ){
-					sbError.insert( 0, "failed to get data tree for model" );
-					return false;
-				}
-				removeAll();
-				add( mEditStructure, BorderLayout.CENTER );
-				add( mDefineData, BorderLayout.EAST );
-System.out.println( "added: " + this.getComponents().length );
-				break;
-			case Model_Dataset.TYPE_Expression:
-				if( mEditExpression._setModel( model, sbError ) ){
-					removeAll();
-					add( mEditExpression, BorderLayout.CENTER );
-					add( mDefineExpression, BorderLayout.EAST );
-				} else {
-					sbError.insert( 0, "failed to initialize expression editing panel: " );
-					return false;
-				}
-				break;
-			case Model_Dataset.TYPE_Stream:
-				if( mEditStream._zInitialize(  mDefineStream, sbError ) ){
-					removeAll();
-					add( mEditStream, BorderLayout.CENTER );
-					add( mDefineStream, BorderLayout.EAST );
-				} else {
-					sbError.insert( 0, "failed to initialize stream editing panel: " );
-					return false;
-				}
-				break;
-			default:
-				sbError.append( "unsupported model type (" + model.getTypeString() + ")" );
-				return false;
-		}
-		return true;
-	}
-}
-
 class Panel_Define_Stream extends JPanel {
 	private Panel_View_Data mParent;
 	private Dimension dimMinimum = new Dimension(100, 80);
@@ -585,105 +491,6 @@ class Panel_Define_Expression extends JPanel {
 		}
 	}
 	Panel_View_Data _getParent(){ return mParent; }
-}
-
-class Panel_Define_Dataset extends JPanel {
-	private Panel_View_Data mParent;
-	private Dimension dimMinimum = new Dimension( 100, 80);
-	private Dimension dimPreferred = new Dimension( 200, 300 );
-	public Dimension getMinimumSize(){
-		return dimMinimum;
-	}
-	boolean _zInitialize( Panel_View_Data parent, StringBuffer sbError ){
-		try {
-			mParent = parent;
-
-			Border borderEtched = BorderFactory.createEtchedBorder();
-
-			// set up panel
-			setMinimumSize( dimMinimum );
-			setPreferredSize( dimPreferred );
-			setBorder( BorderFactory.createTitledBorder(borderEtched, "Define Dataset", TitledBorder.RIGHT, TitledBorder.TOP) );
-			setLayout( null );
-			JLabel jlabelVariableName = new JLabel( "Name:" );
-			jlabelVariableName.setAlignmentX( JLabel.RIGHT_ALIGNMENT );
-			jlabelVariableName.setBounds( 10, 10, 40, 15 );
-			JLabel jlabelVariableType = new JLabel( "Type:" );
-			jlabelVariableName.setAlignmentX( JLabel.RIGHT_ALIGNMENT );
-			jlabelVariableType.setBounds( 10, 25, 40, 15 );
-
-			add( jlabelVariableName );
-			add( jlabelVariableType );
-			
-			return true;
-
-		} catch( Exception ex ) {
-			ApplicationController.vUnexpectedError(ex, sbError);
-			return false;
-		}
-	}
-	public void _showVariable( BaseType bt ){
-		// TODO
-	}	
-	Panel_View_Data _getParent(){ return mParent; }
-}
-
-class Panel_Edit_StructureView extends JPanel {
-	private Model_DataTree mTreeModel = null;
-	private JScrollPane mscrollpane_DataTree;
-	private Panel_Define_Dataset mParent;
-	private Dimension dimMinimum = new Dimension(100, 80);
-	private JTree mtreeData = null;
-	public Dimension getMinimumSize(){
-		return dimMinimum;
-	}
-	void _setModel( Model_DataTree model ){
-		mTreeModel = model;
-		if( mtreeData != null ) mtreeData.setModel( mTreeModel );
-	}
-	boolean _zInitialize( Panel_Define_Dataset parent, StringBuffer sbError ){
-		try {
-			mParent = parent;
-
-			Border borderEtched = BorderFactory.createEtchedBorder();
-
-			// tree
-			mtreeData = new JTree();
-			TreeCellRenderer rendererLeaflessTreeCell = new LeaflessTreeCellRenderer();
-			mtreeData.setCellRenderer( rendererLeaflessTreeCell );
-			mtreeData.setMinimumSize( new Dimension(60, 60) );
-
-			// scroll panes
-			mscrollpane_DataTree = new JScrollPane();
-			mscrollpane_DataTree.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-			mscrollpane_DataTree.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
-			// set up panel
-			setLayout( new BorderLayout() );
-			setBorder( BorderFactory.createTitledBorder(borderEtched, "Dataset Structure", TitledBorder.RIGHT, TitledBorder.TOP) );
-			removeAll();
-    		add( mscrollpane_DataTree, BorderLayout.CENTER );
-
-			// selection listener for directory tree
-			mtreeData.addTreeSelectionListener(
-				new TreeSelectionListener(){
-				    public void valueChanged(TreeSelectionEvent e){
-						TreePath tp = mtreeData.getSelectionPath();
-						if( tp == null ) return;
-						Object oSelectedNode = tp.getLastPathComponent();
-						DataTreeNode node = (DataTreeNode)oSelectedNode;
-						mParent._showVariable( node.getBaseType() );
-					}
-				}
-			);
-
-			return true;
-
-		} catch( Exception ex ) {
-			ApplicationController.vUnexpectedError(ex, sbError);
-			return false;
-		}
-	}
 }
 
 class Panel_Edit_Expression extends JPanel {

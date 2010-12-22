@@ -21,6 +21,9 @@ import opendap.clients.odc.DAP;
 import opendap.clients.odc.DAP.DAP_VARIABLE;
 import opendap.clients.odc.gui.Resources;
 
+// see Panel_EditContainer for UI guide
+// this panel is used by Panel_Define_Dataset
+
 public class Panel_EditDataset extends JPanel {
 	ButtonGroup buttongroupSelection = new ButtonGroup(); // this is used to select the active variable for viewing
 	
