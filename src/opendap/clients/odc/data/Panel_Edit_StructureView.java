@@ -1,0 +1,81 @@
+package opendap.clients.odc.data;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreePath;
+
+import opendap.clients.odc.ApplicationController;
+import opendap.clients.odc.gui.LeaflessTreeCellRenderer;
+
+// see Panel_EditContainer for guide
+// this class is used directly by the container to show the dataset structure tree
+public class Panel_Edit_StructureView extends JPanel {
+	private Model_DataTree mTreeModel = null;
+	private JScrollPane mscrollpane_DataTree;
+	private Panel_Define_Dataset mParent;
+	private Dimension dimMinimum = new Dimension(100, 80);
+	private JTree mtreeData = null;
+	public Dimension getMinimumSize(){
+		return dimMinimum;
+	}
+	void _setModel( Model_DataTree model ){
+		mTreeModel = model;
+		if( mtreeData != null ) mtreeData.setModel( mTreeModel );
+	}
+	boolean _zInitialize( Panel_Define_Dataset parent, StringBuffer sbError ){
+		try {
+			mParent = parent;
+
+			Border borderEtched = BorderFactory.createEtchedBorder();
+
+			// tree
+			mtreeData = new JTree();
+			TreeCellRenderer rendererLeaflessTreeCell = new LeaflessTreeCellRenderer();
+			mtreeData.setCellRenderer( rendererLeaflessTreeCell );
+			mtreeData.setMinimumSize( new Dimension(60, 60) );
+    		mtreeData.setBorder( BorderFactory.createLineBorder( Color.GREEN ) );
+
+			// scroll panes
+			mscrollpane_DataTree = new JScrollPane();
+			mscrollpane_DataTree.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			mscrollpane_DataTree.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			mscrollpane_DataTree.getViewport().add( mtreeData );
+
+			// set up panel
+			setLayout( new BorderLayout() );
+			setBorder( BorderFactory.createTitledBorder(borderEtched, "Dataset Structure", TitledBorder.RIGHT, TitledBorder.TOP) );
+			removeAll();
+    		add( mscrollpane_DataTree, BorderLayout.CENTER );
+    		
+			// selection listener for directory tree
+			mtreeData.addTreeSelectionListener(
+				new TreeSelectionListener(){
+				    public void valueChanged( TreeSelectionEvent e ){
+						TreePath tp = mtreeData.getSelectionPath();
+						if( tp == null ) return;
+						Object oSelectedNode = tp.getLastPathComponent();
+						DataTreeNode node = (DataTreeNode)oSelectedNode;
+						mParent._showVariable( node.getBaseType() );
+					}
+				}
+			);
+
+			return true;
+
+		} catch( Exception ex ) {
+			ApplicationController.vUnexpectedError(ex, sbError);
+			return false;
+		}
+	}
+}
