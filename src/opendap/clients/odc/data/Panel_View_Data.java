@@ -69,7 +69,7 @@ import java.util.ArrayList;
 public class Panel_View_Data extends JPanel implements IControlPanel {
 	Model_DataView modelDataView = null;
 	Panel_LoadedDatasets panelLoadedDatasets;
-	Panel_EditContainer panelEditContainer;
+	Panel_Edit_Container panelEditContainer;
 	Panel_VarView panelVarView;
 	boolean mzAddingItemToList = false; // this is flag used to prevent the add from triggering an item activation
 	private JSplitPane msplitViewData;
@@ -89,7 +89,7 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 				sbError.insert(0, "failed to initialize loaded datasets panel: ");
 				return false;
 			}
-			panelEditContainer = Panel_EditContainer._zCreate( this, sbError );
+			panelEditContainer = Panel_Edit_Container._zCreate( this, sbError );
 			if( panelEditContainer == null ){
 				sbError.insert( 0, "failed to initialize structure view: " );
 				return false;
