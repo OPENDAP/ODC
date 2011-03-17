@@ -206,7 +206,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 			mURL = url;
 			final DDS dds = url.getDDS_Full();
 			final DAS das = url.getDAS();
-			ApplicationController.getInstance().setConstraintChanging(true);
+			ApplicationController.getInstance().setConstraintChanging( true );
 			if( dds == null ){
 				vClear();
 				return true;

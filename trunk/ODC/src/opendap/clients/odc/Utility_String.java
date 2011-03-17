@@ -1,7 +1,7 @@
 /**
  * Title:        Utility_String
  * Description:  Contains shared string utility routines for all the classes in this package
- * Copyright:    Copyright (c) 2002-2009
+ * Copyright:    Copyright (c) 2002-2009 LGPL
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
  * @version      3.06

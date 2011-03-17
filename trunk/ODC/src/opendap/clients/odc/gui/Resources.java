@@ -148,7 +148,6 @@ public class Resources {
 		}
 		return imageiconScreen;
 	}
-
 	
 	public static java.awt.Image imageLoadResource( String sResourcePath, StringBuffer sbError ){
 		try {
