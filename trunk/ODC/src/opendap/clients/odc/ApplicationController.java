@@ -3,7 +3,7 @@ package opendap.clients.odc;
 /**
  * Title:        Application Controller
  * Description:  Top-level controller for starting and managing the application
- * Copyright:    Copyright (c) 2002-2009
+ * Copyright:    Copyright (c) 2002-2011
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
  * @version      3.06
