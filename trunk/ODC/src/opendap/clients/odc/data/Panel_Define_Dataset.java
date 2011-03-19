@@ -11,11 +11,13 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import opendap.clients.odc.ApplicationController;
+import opendap.clients.odc.DAP;
 import opendap.clients.odc.FormLayout;
 import opendap.dap.BaseType;
 
-// TODO use Panel_EditDataset to add controls
-// see Panel_Edit_Container for developer UI guide
+// see Panel_Edit_Container for parent
+// TOP:    Panel_Edit_Dataset   (editing controls, like move up/down)
+// MIDDLE: Panel_Edit_Variable  (editing of an individual variable)
 
 public class Panel_Define_Dataset extends JPanel {
 	private Panel_View_Data mParent;
@@ -70,25 +72,4 @@ public class Panel_Define_Dataset extends JPanel {
 	}	
 }
 
-class Panel_Edit_Variable extends JPanel {
-	private Panel_Define_Dataset mParent;
-	private FormLayout layout = null;
-	private JTextField jtfName = new JTextField();
-	private JTextField jtfType = new JTextField();
-	boolean _zInitialize( Panel_Define_Dataset parent, StringBuffer sbError ){
-		try {
-			mParent = parent;
-			FormLayout layout = new FormLayout( this );
-			setLayout( layout );
-			layout.setMargin( 4, 4 );
-			return true;
-		} catch( Exception ex ) {
-			ApplicationController.vUnexpectedError(ex, sbError);
-			return false;
-		}
-	}
-	public void _showVariable( BaseType bt ){
-		System.out.println( "variable " + bt + " picked" );
-	}	
-}
 
