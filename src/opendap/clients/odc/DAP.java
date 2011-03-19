@@ -191,6 +191,7 @@ public class DAP {
 			default: return "?";
 		}
 	}
+	
 	public static int getType_Plot( BaseType bt ){
 		if( bt instanceof DByte ) return DATA_TYPE_Byte;
 		else if( bt instanceof DInt16 ) return DATA_TYPE_Int16;
@@ -216,6 +217,22 @@ public class DAP {
 		return 0;
 	}
 
+	public static DAP_VARIABLE getType( BaseType bt ){
+		if( bt instanceof opendap.dap.DArray ) return DAP_VARIABLE.Array;
+		if( bt instanceof opendap.dap.DGrid ) return DAP_VARIABLE.Grid;
+		if( bt instanceof opendap.dap.DSequence ) return DAP_VARIABLE.Sequence;
+		if( bt instanceof opendap.dap.DStructure ) return DAP_VARIABLE.Structure;
+		if( bt instanceof opendap.dap.DByte ) return DAP_VARIABLE.Byte;
+		if( bt instanceof opendap.dap.DInt16 ) return DAP_VARIABLE.Int16;
+		if( bt instanceof opendap.dap.DUInt16 ) return DAP_VARIABLE.UInt16;
+		if( bt instanceof opendap.dap.DInt32 ) return DAP_VARIABLE.Int32;
+		if( bt instanceof opendap.dap.DUInt32 ) return DAP_VARIABLE.UInt32;
+		if( bt instanceof opendap.dap.DFloat32 ) return DAP_VARIABLE.Float32;
+		if( bt instanceof opendap.dap.DFloat64 ) return DAP_VARIABLE.Float64;
+		if( bt instanceof opendap.dap.DString ) return DAP_VARIABLE.String;
+		return null;
+	}
+	
 	public static DAP_TYPE getTypeEnumByName( String sTypeName ){
 		switch( getTypeByName( sTypeName ) ){
 			case 0:
@@ -231,7 +248,7 @@ public class DAP {
 			default: return null;
 		}
 	}
-	
+
 	public static String getType_String( BaseType bt ){
 		if( bt == null ) return "[null error]";
 		if( bt instanceof DByte ) return "Byte";
@@ -1054,6 +1071,122 @@ public class DAP {
 		return sb.toString();
 	}
 
+	public static String dump( BaseType bt ){
+		if( bt == null ) return "[null]";
+		StringBuffer sb = new StringBuffer(400);
+		try {
+			dump( bt, 0, sb );
+			return sb.toString();
+		} catch(Exception ex) {
+			return "error calling DAP basetype dump: " + ex;
+		}
+	}
+
+	private static void dump( BaseType bt, int iIndentLevel, StringBuffer sb ){
+		try {
+			if( bt == null ){
+				sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("[null]\n");
+				return;
+			}
+			switch( getType( bt ) ){
+				case Array:
+					DArray array = (DArray)bt;
+					int ctDimension = array.numDimensions();
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append( getDArrayType_String( array ) ).append(' ');
+					for( int xDimension = 1; xDimension <= ctDimension; xDimension++ ){
+						DArrayDimension dimension = array.getDimension( xDimension - 1 );
+						sb.append('[');
+						sb.append( dimension.getName() );
+						sb.append(" = ");
+						sb.append( dimension.getSize() );
+						sb.append(']');
+						sb.append(';');
+					}
+					break;
+				case Grid:
+					DGrid grid = (DGrid)bt;
+					DArray arrayGrid = (DArray)grid.getVar( DGrid.ARRAY );
+					ctDimension = arrayGrid.numDimensions();
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("Grid {\n");
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel + 1)).append("Array:\n");
+					dump( arrayGrid, iIndentLevel + 2, sb );
+					sb.append("\n");
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel + 1)).append("Maps:\n");
+					for( int xDimension = 1; xDimension <= ctDimension; xDimension++ ){
+						DArrayDimension dimension = arrayGrid.getDimension( xDimension - 1 ); // zero-based array
+						DArray darrayMapping = (DArray)grid.getVar( xDimension ); // 0 - value array, 1,2,3 - mapping arrays
+						dump( darrayMapping, iIndentLevel + 2, sb );
+					}
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("}");
+					sb.append(' ').append( bt.getLongName() ).append(';');
+					break;
+				case Sequence:
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("Structure {\n");
+					DSequence sequence = (DSequence)bt;
+					Enumeration enumerationSequence = sequence.getVariables();
+					while( enumerationSequence.hasMoreElements() ){
+						BaseType bt_subnode = (BaseType)enumerationSequence.nextElement();
+						dump( bt, iIndentLevel + 1, sb );
+						sb.append("\n");
+					}
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("}");
+					sb.append(' ').append( bt.getLongName() ).append(';');
+					break;
+				case Structure:
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("Structure {\n");
+					DStructure structure = (DStructure)bt;
+					Enumeration enumerationStructure = structure.getVariables();
+					while( enumerationStructure.hasMoreElements() ){
+						BaseType bt_subnode = (BaseType)enumerationStructure.nextElement();
+						dump( bt, iIndentLevel + 1, sb );
+						sb.append("\n");
+					}
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("}");
+					sb.append(' ').append( bt.getLongName() ).append(';');
+					break;
+				case Byte:
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("Byte");
+					sb.append(' ').append( bt.getLongName() ).append(';');
+					break;
+				case Int16:
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("Int16");
+					sb.append(' ').append( bt.getLongName() ).append(';');
+					break;
+				case UInt16:
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("UInt16");
+					sb.append(' ').append( bt.getLongName() ).append(';');
+					break;
+				case Int32:
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("Int32");
+					sb.append(' ').append( bt.getLongName() ).append(';');
+					break;
+				case UInt32:
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("UInt32");
+					sb.append(' ').append( bt.getLongName() ).append(';');
+					break;
+				case Float32:
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("Float32");
+					sb.append(' ').append( bt.getLongName() ).append(';');
+					break;
+				case Float64:
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("Float64");
+					sb.append(' ').append( bt.getLongName() ).append(';');
+					break;
+				case String:
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("String");
+					sb.append(' ').append( bt.getLongName() ).append(';');
+					break;
+				default:
+					sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append( bt.getTypeName() );
+					sb.append(' ').append( bt.getLongName() ).append(';');
+					break;
+			}
+		} catch(Exception ex) {
+			sb.append( "[error: " + Utility.errorExtractStackTrace( ex ) + "]" );
+		}
+		return;
+	}
+	
 	public static String dumpDAS( AttributeTable dasAT ){
 		if( dasAT == null ) return "[null]";
 		StringBuffer sb = new StringBuffer(400);
@@ -1065,7 +1198,7 @@ public class DAP {
 		}
 	}
 
-	public static void dumpAttributeTable( AttributeTable at, int iIndentLevel, StringBuffer sb ){
+	private static void dumpAttributeTable( AttributeTable at, int iIndentLevel, StringBuffer sb ){
 		if( at == null ){
 			sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append("[null]\n");
 			return;
