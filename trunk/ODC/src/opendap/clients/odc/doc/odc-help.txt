@@ -996,7 +996,9 @@ To create an earth-centered, earth-fixed (ECEF) grid we could use the following 
 
 This will create the grid as the previous example except that the index will be a three arrays containing the ECF coordinates of the values instead of two vectors containing the latitude and longitude coordinates. Note that the "__" variables are evaluated only once at the beginning of the run and the "_" variables are evaluated before the index values (index_1_1, index_1_2, index_1_3) are evaluated.
 
-	
+#Desired Features
+circular/coverage plots
+track plots	
 
 
 

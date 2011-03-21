@@ -33,9 +33,29 @@ public class Panel_Edit_Variable extends JPanel {
 		try {
 			mParent = parent;
 			setLayout( new java.awt.BorderLayout() );
+			editArray = new Panel_Edit_Variable_Array();
+			if( ! editArray._zInitialize( sbError ) ){
+				sbError.insert( 0, "error initializing array editor: " );
+				return false;
+			}
+			editGrid = new Panel_Edit_Variable_Grid();
+			if( ! editGrid._zInitialize( sbError ) ){
+				sbError.insert( 0, "error initializing grid editor: " );
+				return false;
+			}
+			editSequence = new Panel_Edit_Variable_Sequence();
+			if( ! editSequence._zInitialize( sbError ) ){
+				sbError.insert( 0, "error initializing structure editor: " );
+				return false;
+			}
 			editStructure = new Panel_Edit_Variable_Structure();
 			if( ! editStructure._zInitialize( sbError ) ){
 				sbError.insert( 0, "error initializing structure editor: " );
+				return false;
+			}
+			editPrimitive = new Panel_Edit_Variable_Primitive();
+			if( ! editStructure._zInitialize( sbError ) ){
+				sbError.insert( 0, "error initializing primitive editor: " );
 				return false;
 			}
 			return true;
@@ -83,7 +103,7 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 	protected JLabel labelName = new JLabel( "Name:" );
 	protected JTextField jtfName = new JTextField();
 	protected JLabel labelName_Long = new JLabel( "Long Name:" );
-	protected JTextField jtfName_Long = new JTextField();
+	protected JLabel displayName_Long = new JLabel();  // long name is not editable (automatically determined by dataset structure)
 	protected JLabel labelName_Clear = new JLabel( "Clear Name:" );
 	protected JTextField jtfName_Clear = new JTextField();
 	boolean _zInitialize( StringBuffer sbError ){
@@ -94,7 +114,7 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 			add( labelName );
 			add( jtfName );
 			add( labelName_Long );
-			add( jtfName_Long );
+			add( displayName_Long );
 			add( labelName_Clear );
 			add( jtfName_Clear );
 			return true;
@@ -108,14 +128,29 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 	}
 	void _show( BaseType bt ){ // activate the base type for editing
 		jtfName.setText( bt.getName() );
-		jtfName_Long.setText( bt.getLongName() );
+		displayName_Long.setText( bt.getLongName() );
 		jtfName_Clear.setText( bt.getClearName() );
 		bt_active = bt;
 	}
 }
 
 class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
+	private JLabel labelType = new JLabel( "Value Type:" );
+	private JComboBox jcbType;
 	void _show( BaseType bt ){
+		DArray array = (DArray)bt;
+		jcbType.setSelectedItem( DAP.getTypeEnumByName( bt.getTypeName() ) );
+		
+		sb.append(Utility_String.sRepeatChar('\t', iIndentLevel)).append( getDArrayType_String( array ) ).append(' ');
+		for( int xDimension = 1; xDimension <= ctDimension; xDimension++ ){
+			DArrayDimension dimension = array.getDimension( xDimension - 1 );
+			sb.append('[');
+			sb.append( dimension.getName() );
+			sb.append(" = ");
+			sb.append( dimension.getSize() );
+			sb.append(']');
+			sb.append(';');
+		}
 		super._show( bt );
 	}
 	boolean _zInitialize( StringBuffer sbError ){
@@ -151,8 +186,8 @@ class Panel_Edit_Variable_Structure extends Panel_Edit_VariableEditor {
 	}
 }
 class Panel_Edit_Variable_Primitive extends Panel_Edit_VariableEditor {
-	protected JLabel labelType = new JLabel( "Type:" );
-	protected JComboBox jcbType;
+	private JLabel labelType = new JLabel( "Type:" );
+	private JComboBox jcbType;
 	void _show( BaseType bt ){
 		super._show( bt );
 		jcbType.setSelectedItem( DAP.getTypeEnumByName( bt.getTypeName() ) );
