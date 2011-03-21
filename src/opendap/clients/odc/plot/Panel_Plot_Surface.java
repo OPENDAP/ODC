@@ -20,7 +20,7 @@ import java.awt.event.*;
 import java.awt.*;
 import java.awt.image.*;
 
-import javax.media.opengl.GL2;
+//import javax.media.opengl.GL2;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
