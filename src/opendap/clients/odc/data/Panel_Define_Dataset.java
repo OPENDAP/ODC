@@ -28,16 +28,15 @@ public class Panel_Define_Dataset extends JPanel {
 	public Dimension getMinimumSize(){
 		return dimMinimum;
 	}
-	boolean _zInitialize( Panel_View_Data parent, StringBuffer sbError ){
+	boolean _zInitialize( Panel_View_Data parent, Panel_Edit_StructureView structure_view, StringBuffer sbError ){
 		try {
 			mParent = parent;
 			mEditingControls = new Panel_Edit_Dataset();
-			mVariableEditingPanel = new Panel_Edit_Variable();
-			if( ! mVariableEditingPanel._zInitialize( this, sbError ) ){
-				sbError.insert( 0, "failed to initialize variable editing panel: " );
+			mVariableEditingPanel = Panel_Edit_Variable._create( this, structure_view, sbError );
+			if( mVariableEditingPanel == null  ){
+				sbError.insert( 0, "failed to create variable editing panel: " );
 				return false;
-			};
-					
+			};					
 
 			Border borderEtched = BorderFactory.createEtchedBorder();
 

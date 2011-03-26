@@ -167,7 +167,7 @@ public class FormLayout implements LayoutManager2 {
 	public int MARGIN_right = 0;
 	public int MARGIN_top = 0;
 	public int MARGIN_bottom = 0;
-	ArrayList<FormElement> listDefinedElements = new ArrayList<FormElement>();
+	public ArrayList<FormElement> listDefinedElements = new ArrayList<FormElement>();
 	int[] maiColumnAlignment = new int[1000]; // each index is a column
 	boolean mzGlobalFill = false;
 	FormElement mVerticalFill = null;
@@ -195,7 +195,7 @@ System.out.println("\n---------------layoutContainer begins----------------\n");
 
 		int ctElement = listDefinedElements.size();
 
-System.out.println("form has " + ctElement + " elements");
+System.out.println("form " + this + " has " + ctElement + " elements");
 
 // TODO the mappings must be improved to take into account alignments
 
@@ -750,9 +750,7 @@ System.out.println("setting component bounds for " + ctElement + " elements");
 		for( int xElement = 1; xElement <= ctElement; xElement++ ){
 			FormElement element = (FormElement)listDefinedElements.get( xElement - 1 );
 System.out.println("element: " + xElement + " label x: " + element.iBounds_label_x + " label y: " + element.iBounds_label_y + " label width: " + element.iBounds_label_width + " label height: " + element.iBounds_label_height );
-			element.componentLabel.setBounds( element.iBounds_label_x, element.iBounds_label_y, element.iBounds_label_width, element.iBounds_label_height );
 System.out.println("control: " + xElement + " control x: " + element.iBounds_control_x + " control y: " + element.iBounds_control_y + " control width: " + element.iBounds_control_width + " control height: " + element.iBounds_control_height );
-			element.componentControl.setBounds( element.iBounds_control_x, element.iBounds_control_y, element.iBounds_control_width, element.iBounds_control_height );
 			if( element.componentLabel != null ) element.componentLabel.setBounds( element.iBounds_label_x, element.iBounds_label_y, element.iBounds_label_width, element.iBounds_label_height );
 			if( element.componentControl != null ) element.componentControl.setBounds( element.iBounds_control_x, element.iBounds_control_y, element.iBounds_control_width, element.iBounds_control_height );
 		}
@@ -909,6 +907,14 @@ System.out.println("returning preferred size: " + dimPreferred );
 		element.miSpacing_line_below = ( below == USE_DEFAULT ) ? 6 : below;
 	}
 
+	public boolean contains( Component component ){
+		int ctComponents = mContainer.getComponentCount();
+		for( int xComponent = 0; xComponent < ctComponents; xComponent++ ){
+			if( mContainer.getComponent( xComponent ).equals( component ) ) return true;
+		}
+		return false;
+	}
+	
 	/** element will be added at the last row of column 1 */
 	public void add( Component label, Component control ){
 		add( label, control, true );
@@ -929,6 +935,8 @@ System.out.println("returning preferred size: " + dimPreferred );
 				listDefinedElements.add( element ); // add element at end
 			}
 		}
+		if( label != null ) if( ! contains( label ) ) mContainer.add( label ); 
+		if( control != null ) if( ! contains( control ) ) mContainer.add( control ); 
 	}
 
 	/** one-based row number
@@ -945,6 +953,8 @@ System.out.println("returning preferred size: " + dimPreferred );
 		}
 		listDefinedElements.add( element ); // add element at end
 		if( row > 0 ) element.miRow = row;
+		if( label != null ) if( ! contains( label ) ) mContainer.add( label ); 
+		if( control != null ) if( ! contains( control ) ) mContainer.add( control ); 
 	}
 
 	/** one-based row/column number
@@ -963,7 +973,10 @@ System.out.println("returning preferred size: " + dimPreferred );
 		listDefinedElements.add( element ); // add element at end
 		if( row > 0 ) element.miRow = row;
 		if( column > 0 ) element.miColumn = column;
+		if( label != null ) if( ! contains( label ) ) mContainer.add( label ); 
+		if( control != null ) if( ! contains( control ) ) mContainer.add( control ); 
 	}
+	
 	public void setFill_Vertical( Component item ){
 		if( item == null ){
 			mVerticalFill = null;
@@ -1001,10 +1014,6 @@ System.out.println("returning preferred size: " + dimPreferred );
 	public void addLayoutComponent( String sName, Component component ){}
 	public void addLayoutComponent( Component component, Object constraints ){}
 	public void removeLayoutComponent( Component component ){}
-
-	public String toString(){
-		return this.toString();
-	}
 
 	void vDumpMapping( FormElement[][] aMapping, int ctColumns, int ctRows ){
 		for( int xRow = 1; xRow <= ctRows; xRow++ ){

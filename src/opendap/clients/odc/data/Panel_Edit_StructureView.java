@@ -17,6 +17,7 @@ import javax.swing.tree.TreePath;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.gui.LeaflessTreeCellRenderer;
+import opendap.dap.BaseType;
 
 // see Panel_EditContainer for guide
 // this class is used directly by the container to show the dataset structure tree
@@ -28,6 +29,9 @@ public class Panel_Edit_StructureView extends JPanel {
 	private JTree mtreeData = null;
 	public Dimension getMinimumSize(){
 		return dimMinimum;
+	}
+	void _update( BaseType bt ){   // if this base type has changed, update the tree appropriately
+		mTreeModel._update( bt );
 	}
 	void _setModel( Model_DataTree model ){
 		mTreeModel = model;

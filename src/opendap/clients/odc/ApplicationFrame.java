@@ -3,16 +3,16 @@ package opendap.clients.odc;
 /**
  * Title:        Application Frame
  * Description:  This is the outer container of the GUI
- * Copyright:    Copyright (c) 2002-8
+ * Copyright:    Copyright (c) 2002-2011
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.00
+ * @version      3.01
  */
 
 /////////////////////////////////////////////////////////////////////////////
 // This file is part of the OPeNDAP Data Connector project.
 //
-// Copyright (c) 2007 OPeNDAP, Inc.
+// Copyright (c) 2007-2011 OPeNDAP, Inc.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public

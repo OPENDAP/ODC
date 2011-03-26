@@ -36,7 +36,7 @@ public class Panel_Edit_Container extends JPanel {
 		panelEditContainer.mEditStream = new Panel_Edit_Stream();
 		panelEditContainer.mDefineData = new Panel_Define_Dataset();
 		panelEditContainer.mDefineStream = new Panel_Define_Stream();
-		if( ! panelEditContainer.mDefineData._zInitialize( parent, sbError ) ){
+		if( ! panelEditContainer.mDefineData._zInitialize( parent, panelEditContainer.mEditStructure, sbError ) ){
 			sbError.insert( 0, "initializing data define panel: " );
 			return null;
 		}
