@@ -32,6 +32,7 @@ package opendap.clients.odc.data;
 import javax.swing.tree.*;
 
 import opendap.clients.odc.Utility_String;
+import opendap.dap.BaseType;
 
 public class Model_DataTree extends DefaultTreeModel {
 	public static final char SEPARATOR = '.';
@@ -42,6 +43,19 @@ public class Model_DataTree extends DefaultTreeModel {
 	DataTreeNode getRootNode(){ return (DataTreeNode)this.getRoot(); }
 	void setSelectedNode( DataTreeNode nodeSelected ){
 		mnodeSelected = nodeSelected;
+	}
+	void _update( BaseType bt ){
+		_update( (DataTreeNode)getRoot(), bt ); 
+	}
+	void _update( DataTreeNode node, BaseType bt ){
+		if( node.getBaseType().equals( bt ) ){
+			nodeChanged( node );
+			return;
+		}
+		java.util.Enumeration<DataTreeNode> children = (java.util.Enumeration<DataTreeNode>)node.children();
+		while( children.hasMoreElements() ){
+			_update( children.nextElement(), bt );
+		}
 	}
 	DataTreeNode getSelectedNode(){ return mnodeSelected; }
 	String getPathForNode( DataTreeNode node ){
@@ -92,7 +106,6 @@ class DataTreeNode extends DefaultMutableTreeNode {
 		super();
 		setBaseType( bt );
 	}
-	private String msStructureName;
 	private opendap.dap.BaseType mBaseType;
 	private boolean mzSelected = false;
 	private boolean mzTerminal = false; // == terminal node / used instead of isLeaf because isLeaf controls default icon
@@ -110,11 +123,9 @@ class DataTreeNode extends DefaultMutableTreeNode {
 	opendap.dap.BaseType getBaseType(){ return mBaseType; }
 	void setBaseType( opendap.dap.BaseType bt ){
 		mBaseType = bt;
-		msStructureName = bt.getName();
 	}
-	void setName( String sName ){ msStructureName = sName; }
-	String getName(){ return msStructureName; }
-	String getTitle(){ return msStructureName; }
+	String getName(){ return mBaseType.getName(); }
+	String getTitle(){ return getName(); }
 	public boolean isSelected(){ return mzSelected; }
 	public boolean isTerminal(){ return mzTerminal; }
 	public void setTerminal( boolean zTerminal ){ mzTerminal = zTerminal; }
@@ -144,6 +155,6 @@ class DataTreeNode extends DefaultMutableTreeNode {
 		return anodeSelected;
 	}
 	public void setSelected( boolean zIsSelected ){ mzSelected = zIsSelected; }
-	public String toString(){ return this.getTitle(); }
+	public String toString(){ return getTitle(); }
 }
 

@@ -29,6 +29,8 @@ public class Panel_Edit_Dataset extends JPanel {
 	
 	public Panel_Edit_Dataset(){
 		mControls = new Panel_EditVariable_Controls( this );
+		setLayout( new java.awt.BorderLayout() );
+		add( mControls, java.awt.BorderLayout.CENTER );
 	}
 	
 	void actionAddVariable( Node nodeNext ){
