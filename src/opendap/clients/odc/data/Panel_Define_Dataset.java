@@ -24,7 +24,7 @@ public class Panel_Define_Dataset extends JPanel {
 	private Panel_Edit_Dataset mEditingControls;
 	private Panel_Edit_Variable mVariableEditingPanel;
 	private Dimension dimMinimum = new Dimension( 100, 80);
-	private Dimension dimPreferred = new Dimension( 200, 300 );
+//	private Dimension dimPreferred = new Dimension( 200, 300 );
 	public Dimension getMinimumSize(){
 		return dimMinimum;
 	}
@@ -42,7 +42,7 @@ public class Panel_Define_Dataset extends JPanel {
 
 			// set up panel
 			setMinimumSize( dimMinimum );
-			setPreferredSize( dimPreferred );
+//			setPreferredSize( dimPreferred );
 			setBorder( BorderFactory.createTitledBorder(borderEtched, "Define Dataset", TitledBorder.RIGHT, TitledBorder.TOP) );
 			setLayout( new BorderLayout() );
 			add( mEditingControls, BorderLayout.NORTH );

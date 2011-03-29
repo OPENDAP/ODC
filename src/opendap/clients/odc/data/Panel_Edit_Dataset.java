@@ -20,7 +20,7 @@ import javax.swing.DefaultComboBoxModel;
 import opendap.clients.odc.DAP;
 import opendap.clients.odc.gui.Resources;
 
-// see Panel_EditContainer for UI guide
+// see Panel_Edit_Container for UI guide
 // this panel is used by Panel_Define_Dataset
 
 public class Panel_Edit_Dataset extends JPanel {
@@ -31,9 +31,13 @@ public class Panel_Edit_Dataset extends JPanel {
 		mControls = new Panel_EditVariable_Controls( this );
 		setLayout( new java.awt.BorderLayout() );
 		add( mControls, java.awt.BorderLayout.CENTER );
+//		add( mControls );
+		setPreferredSize( new java.awt.Dimension( 400, 25 ) );
 	}
 	
 	void actionAddVariable( Node nodeNext ){
+	}
+	void actionAddMemberVariable( Node nodeNext ){
 	}
 	void actionDeleteVariable( Node node ){
 	}
@@ -49,6 +53,7 @@ class Panel_EditVariable_Controls extends JPanel {
 	
 	JRadioButton jrbSelectVariable;
 	JButton button_Add;
+	JButton button_AddMember; // add variable member of this structure
 	JButton button_Delete;
 	JButton button_Up;
 	JButton button_Down;
@@ -68,7 +73,7 @@ class Panel_EditVariable_Controls extends JPanel {
 
 		button_Add = new JButton();
 		button_Add.setIcon( new ImageIcon( Resources.imageNavigatePlus ) );
-		button_Add.setToolTipText( "add new variable above" );
+		button_Add.setToolTipText( "add new variable below" );
 		button_Add.addActionListener(new java.awt.event.ActionListener( ){
 			public void actionPerformed( java.awt.event.ActionEvent e ){
 				Node node = Panel_EditVariable_Controls.this.node; 
@@ -76,6 +81,17 @@ class Panel_EditVariable_Controls extends JPanel {
 			}
 		});
 
+		button_AddMember = new JButton();
+		button_AddMember.setIcon( new ImageIcon( Resources.imageNavigatePlus ) );
+		button_AddMember.setText("{}");
+		button_AddMember.setToolTipText( "add member variable inside this one" );
+		button_AddMember.addActionListener(new java.awt.event.ActionListener( ){
+			public void actionPerformed( java.awt.event.ActionEvent e ){
+				Node node = Panel_EditVariable_Controls.this.node; 
+				Panel_EditVariable_Controls.this.parent.actionAddMemberVariable( node );
+			}
+		});
+		
 		button_Delete = new JButton();
 		button_Delete.setIcon( new ImageIcon( Resources.imageNavigateMinus ) );
 		button_Delete.setToolTipText( "delete variable" );
@@ -122,12 +138,23 @@ class Panel_EditVariable_Controls extends JPanel {
 
 		labelSummary = new JLabel();
 		
+		JPanel panelAddSubgroup = new JPanel();
+		panelAddSubgroup.setLayout( new BoxLayout( panelAddSubgroup, BoxLayout.X_AXIS ));
+		panelAddSubgroup.add( button_Add );
+		panelAddSubgroup.add( Box.createRigidArea( new Dimension( 2, 0)) );
+		panelAddSubgroup.add( button_AddMember );
+		panelAddSubgroup.add( Box.createRigidArea( new Dimension( 2, 0)) );
+		panelAddSubgroup.add( new JLabel(":") );
+		panelAddSubgroup.add( Box.createRigidArea( new Dimension( 2, 0)) );
+		panelAddSubgroup.add( jcbVariableType );
+		javax.swing.border.Border border = javax.swing.border.LineBorder.createBlackLineBorder();
+		border.getBorderInsets( panelAddSubgroup ).set( 2, 2, 2, 2 );
+		panelAddSubgroup.setBorder( border );
+		
 		setLayout( new BoxLayout( this, BoxLayout.X_AXIS ));
 		setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 0) );  // top left bottom right
 		setAlignmentX( LEFT_ALIGNMENT );
-		add( jrbSelectVariable );
-		add( Box.createRigidArea( new Dimension( 4, 0)) );
-		add( button_Add );
+		add( panelAddSubgroup );
 		add( Box.createRigidArea( new Dimension( 4, 0)) );
 		add( button_Delete );
 		add( Box.createRigidArea( new Dimension( 4, 0)) );
@@ -135,9 +162,6 @@ class Panel_EditVariable_Controls extends JPanel {
 		add( Box.createRigidArea( new Dimension( 4, 0)) );
 		add( button_Down );
 		add( Box.createRigidArea( new Dimension( 4, 0)) );
-		add( jcbVariableType );
-		add( Box.createRigidArea( new Dimension( 4, 0)) );
-		add( labelSummary );
 	}
 	
 	void setNode( Node node ){
