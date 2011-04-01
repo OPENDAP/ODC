@@ -26,6 +26,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.IControlPanel;
 import opendap.clients.odc.Interpreter;
+import opendap.clients.odc.geo.Utility;
 import opendap.clients.odc.gui.LeaflessTreeCellRenderer;
 import opendap.clients.odc.gui.Styles;
 import opendap.clients.odc.Panel_View_Text_Editor;
@@ -44,6 +45,7 @@ import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.BoxLayout;
@@ -299,6 +301,41 @@ class Model_DataView {
 			modelActive.getSavable()._saveAs( modelActive );
 		}
 	}
+	void action_Rename(){
+		if( modelActive == null ){
+			ApplicationController.vShowStatus_NoCache( "no dataset selected for renaming operation" );
+		} else {
+			StringBuffer sbError = new StringBuffer();
+			try {
+				String sPromptStandard = "Enter new name for " + modelActive.getTitle() + ":";
+				String sPromptVerbose = "Enter new name for " + modelActive.getTitle() + " (cannot be blank or over 255 characters):";
+				String sPrompt = sPromptStandard;
+				String sOldName = modelActive.getTitle();
+				while( true ){
+					String sNewName = JOptionPane.showInputDialog( sPrompt );
+					if( sNewName == null ) return; // cancel
+					if( sNewName.length()  == 0 ){
+						ApplicationController.vShowStatus_NoCache( "new name for dataset cannot be blank" );
+						sPrompt = sPromptVerbose;
+						continue;
+					}
+					if( sNewName.length() > 255 ){
+						ApplicationController.vShowStatus_NoCache( "new name for dataset cannot be longer than 255 characters" );
+						sPrompt = sPromptVerbose;
+						continue;
+					}
+					if( mDatasetList._setName( sNewName, sbError ) ){
+						ApplicationController.vShowStatus( "Dataset renamed from " + sOldName + " to " + sNewName );
+					} else {
+						ApplicationController.vShowError( "Error attempting to rename dataset to [" + sNewName + "]: " );
+					}
+					return;
+				}
+			} catch( Throwable t ) {
+				Utility.vUnexpectedError( t, sbError );
+			}
+		}
+	}
 	void action_GenerateDatasetFromExpression(){
 		if( modelActive == null ){
 			ApplicationController.vShowStatus_NoCache( "no expression selected for generation" );
@@ -338,6 +375,7 @@ class Panel_LoadedDatasets extends JPanel {
 		JButton buttonUnload = new JButton( "Unload" );
 		JButton buttonSave = new JButton( "Save" );
 		JButton buttonSaveAs = new JButton( "Save as..." );
+		JButton buttonRename = new JButton( "Rename" );
 
 		modelDataView.mDatasetList.addListDataListener( jcbLoadedVariables );
 
@@ -350,6 +388,7 @@ class Panel_LoadedDatasets extends JPanel {
 		this.add( buttonUnload );
 		this.add( buttonSave );
 		this.add( buttonSaveAs );
+		this.add( buttonRename );
 
 		jcbLoadedVariables.addItemListener(
 			new java.awt.event.ItemListener(){
@@ -426,6 +465,13 @@ class Panel_LoadedDatasets extends JPanel {
 			new java.awt.event.ActionListener(){
 				public void actionPerformed(ActionEvent event) {
 					modelDataView.action_SaveAs();
+				}
+			}
+		);
+		buttonRename.addActionListener(
+			new java.awt.event.ActionListener(){
+				public void actionPerformed(ActionEvent event) {
+					modelDataView.action_Rename();
 				}
 			}
 		);

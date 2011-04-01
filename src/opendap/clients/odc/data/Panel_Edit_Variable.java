@@ -122,22 +122,22 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 	protected JLabel labelName = new JLabel( "Name:" );
 	protected JLabel labelName_Long = new JLabel( "Long Name:" );
 	protected JLabel displayName_Long = new JLabel();  // long name is not editable (automatically determined by dataset structure)
-	protected JLabel labelName_Clear = new JLabel( "Clear Name:" );
+	protected JLabel labelName_Clear = new JLabel( "Encoded Name:" );
 	protected JTextField jtfName = new JTextField();
-	protected JTextField jtfName_Clear = new JTextField();
+	protected JLabel labelName_Encoded = new JLabel();
 	protected FormLayout layout;
 	boolean _zInitialize( Panel_Edit_StructureView structure_view, StringBuffer sbError ){
 		try {
 			this.view = structure_view;
-			jtfName.setPreferredSize( new Dimension( 200, 20 ) );
-			jtfName_Clear.setPreferredSize( new Dimension( 200, 20 ) );
+			jtfName.setPreferredSize( new Dimension( 200, 28 ) );
+			labelName_Encoded.setPreferredSize( new Dimension( 200, 20 ) );
 			
 			layout = new FormLayout( this );
 			setLayout( layout );
 			layout.setMargin( 4, 4 );
 			layout.add( labelName, jtfName );
 			layout.add( labelName_Long, displayName_Long );
-			layout.add( labelName_Clear, jtfName_Clear );
+			layout.add( labelName_Clear, labelName_Encoded );
 			
 			jtfName.addFocusListener(
 				new java.awt.event.FocusAdapter(){
@@ -166,15 +166,16 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 		bt_active = null;
 	}
 	void _show( BaseType bt ){ // activate the base type for editing
-		jtfName.setText( bt.getName() );
+		jtfName.setText( bt.getClearName() );
 		displayName_Long.setText( bt.getLongName() );
-		jtfName_Clear.setText( bt.getClearName() );
+		labelName_Encoded.setText( bt.getName() );
 		bt_active = bt;
 	}
 	void _setName( String sNewName, Panel_Edit_StructureView view ){
 		try {
-			bt_active.setName( sNewName );
+			bt_active.setClearName( sNewName );
 			view._update( bt_active );
+			_show( bt_active );
 		} catch( Throwable t ) {
 			ApplicationController.vShowError( "Error changing dimension name: " + t );
 		}

@@ -17,6 +17,7 @@ import javax.swing.SwingConstants;
 import javax.swing.ImageIcon;
 import javax.swing.DefaultComboBoxModel;
 
+import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.DAP;
 import opendap.clients.odc.gui.Resources;
 
@@ -31,21 +32,24 @@ public class Panel_Edit_Dataset extends JPanel {
 		mControls = new Panel_EditVariable_Controls( this );
 		setLayout( new java.awt.BorderLayout() );
 		add( mControls, java.awt.BorderLayout.CENTER );
-//		add( mControls );
 		setPreferredSize( new java.awt.Dimension( 400, 25 ) );
 	}
 	
-	void actionAddVariable( Node nodeNext ){
+	void actionAddVariable( Node node ){
 	}
-	void actionAddMemberVariable( Node nodeNext ){
+	void actionAddMemberVariable( Node node ){
+		if( node.eVariableType != DAP.DAP_VARIABLE.Structure ){
+			ApplicationController.vShowError( "Attempt to add variable to a " + node.eVariableType + ". Variables may only be added to a structure." );
+			return;
+		}
+		DAP.DAP_VARIABLE eVariableType = mControls.getSelectedType();
+		
 	}
 	void actionDeleteVariable( Node node ){
 	}
 	void actionMoveVariableUp( Node node ){
 	}
 	void actionMoveVariableDown( Node node ){
-	}
-	void actionChangeVariableType( Node node, DAP.DAP_VARIABLE new_type ){
 	}
 }
 
@@ -127,12 +131,7 @@ class Panel_EditVariable_Controls extends JPanel {
 		jcbVariableType.setModel( new DefaultComboBoxModel( DAP.DAP_VARIABLE.values() ) );
 		jcbVariableType.addActionListener(new java.awt.event.ActionListener( ){
 			public void actionPerformed( java.awt.event.ActionEvent e ){
-				JComboBox jcb = (JComboBox)e.getSource();
-				Object oSelectedItem = jcb.getSelectedItem();
-				DAP.DAP_VARIABLE new_type = DAP.DAP_VARIABLE.valueOf( oSelectedItem.toString() );
-				Node node = Panel_EditVariable_Controls.this.node;
-				if( new_type == node.eVariableType ) return; // no change has been made
-				Panel_EditVariable_Controls.this.parent.actionChangeVariableType( node, new_type );
+				// this list box currently causes no side effect
 			}
 		});
 
@@ -168,6 +167,12 @@ class Panel_EditVariable_Controls extends JPanel {
 		this.node = node;
 		jcbVariableType.setSelectedItem( node.eVariableType.toString() );
 		labelSummary.setText( node.sGetSummaryText() );
+	}
+	
+	DAP.DAP_VARIABLE getSelectedType(){
+		Object oSelectedItem = jcbVariableType.getSelectedItem();
+		DAP.DAP_VARIABLE new_type = DAP.DAP_VARIABLE.valueOf( oSelectedItem.toString() );
+		return new_type;
 	}
 	
 }
