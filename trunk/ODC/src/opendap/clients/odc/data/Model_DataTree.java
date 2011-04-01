@@ -124,7 +124,7 @@ class DataTreeNode extends DefaultMutableTreeNode {
 	void setBaseType( opendap.dap.BaseType bt ){
 		mBaseType = bt;
 	}
-	String getName(){ return mBaseType.getName(); }
+	String getName(){ return mBaseType.getClearName(); }
 	String getTitle(){ return getName(); }
 	public boolean isSelected(){ return mzSelected; }
 	public boolean isTerminal(){ return mzTerminal; }

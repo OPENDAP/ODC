@@ -7,8 +7,11 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
+// parent: Panel_View_Data
 // contains the editing panels:
 // Data -        left: Panel_Edit_StructureView      right: Panel_Define_Dataset
+//                                                              Panel_Edit_Dataset
+//                                                              Panel_Edit_Variable
 // Expression -  left: Panel_Edit_Expression         right: Panel_Define_Expression
 // Stream -      left: Panel_Edit_Stream             right: Panel_Define_Stream
 
