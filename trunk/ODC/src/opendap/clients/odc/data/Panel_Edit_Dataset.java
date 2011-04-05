@@ -43,7 +43,15 @@ public class Panel_Edit_Dataset extends JPanel {
 			return;
 		}
 		DAP.DAP_VARIABLE eVariableType = mControls.getSelectedType();
-		
+		if( eVariableType == null ){
+			ApplicationController.vShowError( "No variable type selected for adding as member of structure " + node.sName );
+			return;
+		}
+		StringBuffer sbError = new StringBuffer();
+		if( !node.createDefaultMember( eVariableType, sbError ) ){
+			ApplicationController.vShowError( "Failed to create new " +  node.eVariableType + ": " + sbError.toString() );
+			return;
+		}
 	}
 	void actionDeleteVariable( Node node ){
 	}
