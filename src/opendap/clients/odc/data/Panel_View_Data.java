@@ -188,6 +188,10 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 		return true; 
 	}
 
+	public void _select( Node node ){
+		panelEditContainer._select( node );
+	}
+	
 	public Model_DataView _getModelDataView(){ return modelDataView; }
 	
 }
@@ -212,8 +216,7 @@ class Model_DataView {
 			int iHeaderType = opendap.dap.ServerVersion.XDAP; // this is the simple version (eg "2.1.5"), server version strings are like "XDODS/2.1.5", these are only used in HTTP, not in files
 			opendap.dap.ServerVersion server_version = new opendap.dap.ServerVersion( sServerVersion, iHeaderType );
 			opendap.dap.DataDDS datadds = new opendap.dap.DataDDS( server_version );
-			int ctSessionDatasets = Model_LoadedDatasets.getSessionDatasetCount();
-			datadds.setName( "Dataset " + (ctSessionDatasets + 1) );
+			datadds.setName( "dataset" );
 			StringBuffer sbError = new StringBuffer(256);
 			Model_Dataset model = Model_Dataset.createData( datadds, sbError );
 			if( model == null ){
@@ -222,26 +225,25 @@ class Model_DataView {
 			}
 			addDataset_DataDDS( model, "data" );
 		} catch( Throwable t ) {
-			ApplicationController.vUnexpectedError( t, "while trying to create new dataset: " );
+			ApplicationController.vUnexpectedError( t, "(Panel_View_Data) while trying to create new dataset: " );
 		}
 	}
-	void addDataset_DataDDS( Model_Dataset model, String sBaseName ){
+	void addDataset_DataDDS( Model_Dataset model, String sTitle ){
 		if( model == null ){
 			ApplicationController.vShowError( "(Panel_View_Data) internal error, attempted to add non-existent model" );
 			return;
 		}
-		ctNewDatasets++;
-		String sName = sBaseName + ctNewDatasets;
-		DataDDS data = model.getData();
-		if( data == null ){
-			ApplicationController.vShowError( "internal error, attempted to add model with no data" );
+		if( mDatasetList._contains( model ) ){
+			ApplicationController.vShowError( "(Panel_View_Data) internal error, duplicate model" );
 			return;
 		}
-		data.setName( sName );
-		model.setTitle( sName );
-		if( mDatasetList._contains( model ) ){
-			ApplicationController.vShowError( "internal error, duplicate model" );
+		DataDDS data = model.getData();
+		if( data == null ){
+			ApplicationController.vShowError( "(Panel_View_Data) internal error, attempted to add model with no data" );
+			return;
 		}
+		model.setTitle( sTitle );
+		ctNewDatasets++;
 		mDatasetList.addDataset( model );
 	}
 	void action_New_Expression(){
@@ -377,6 +379,7 @@ class Panel_LoadedDatasets extends JPanel {
 		JButton buttonSaveAs = new JButton( "Save as..." );
 		JButton buttonRename = new JButton( "Rename" );
 
+		jcbLoadedVariables.setRenderer( new CellRenderer_UniqueLabel() );
 		modelDataView.mDatasetList.addListDataListener( jcbLoadedVariables );
 
 		// layout controls
@@ -477,6 +480,38 @@ class Panel_LoadedDatasets extends JPanel {
 		);
 
 		return true;
+	}
+}
+
+// this changes the label to append a duplicate count after the string
+// for example if there are 5 items in the list named "apple" and
+// this is the 3rd such item then its label will be rendered as "apple (3)"
+class CellRenderer_UniqueLabel extends javax.swing.DefaultListCellRenderer {
+	public java.awt.Component getListCellRendererComponent(
+			javax.swing.JList list,
+			Object value,   // value to display
+			int index,      // cell index
+			boolean iss,    // is the cell selected
+			boolean chf)    // the list and the cell have the focus
+	{
+		super.getListCellRendererComponent(list, value, index, iss, chf);
+		String sValue = value.toString();
+		int ctListItems = list.getModel().getSize();
+		int ctDuplicateItems = 0;
+		int xDuplicateItem = 0;
+		for( int xItem = 0; xItem < ctListItems; xItem++ ){
+			if( index == xItem ){
+				xDuplicateItem = ctDuplicateItems + 1; 
+				continue;
+			}
+			Object o = list.getModel().getElementAt( xItem );
+			if( o.toString().equals( sValue ) ) ctDuplicateItems++;
+		}
+		if( ctDuplicateItems > 0 ){
+			setText( sValue + ' ' + '(' + xDuplicateItem + ')' );
+		}
+		// setIcon(...); TODO
+		return this;
 	}
 }
 

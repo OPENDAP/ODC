@@ -96,8 +96,9 @@ public class Model_Dataset implements java.io.Serializable {
     /**
      * Create a new <code>Model_Dataset</code> of the data type.
      */
-    public final static Model_Dataset createData( final DataDDS data, final StringBuffer sbError ){
-    	String sTextDDS = data.getDDSText();
+	public final static Model_Dataset createData( final DataDDS data, final StringBuffer sbError ){
+		String sTextDDS = data.getDDSText();
+System.out.println( "dds: " + sTextDDS );  
     	DDS dds = DAP.getDDSforText( sTextDDS, sbError );
     	if( dds == null ){
     		sbError.insert( 0, "unable to generate DDS from text: " );
@@ -755,7 +756,7 @@ public class Model_Dataset implements java.io.Serializable {
 		}
 	}
 	
-	Model_DataTree getDataTree( StringBuffer sbError ){
+	Model_Dataset_Local getDataTree( StringBuffer sbError ){
 		BaseType bt_root;
 		if( this.getType() == TYPE_Data ){
 			DataDDS data = this.getData();
@@ -774,9 +775,11 @@ public class Model_Dataset implements java.io.Serializable {
 			sbError.append( "dataset type is " + this.getTypeString() + " which cannot be interpreted as a tree" );
 			return null;
 		}
-		DataTreeNode root = new DataTreeNode( bt_root );
-		Model_DataTree tree = new Model_DataTree( root );
-		return tree;
+		Model_Dataset_Local model = Model_Dataset_Local.create( this, sbError );
+		if( model == null ){
+			sbError.insert( 0, "failed to create tree model: " );
+		}
+		return model;
 	}
 	
 }

@@ -1,5 +1,5 @@
 #Introduction
-(help file revised 2 June 2010)
+(help file revised 6 April 2011)
 
 This is the OPeNDAP Data Connector (ODC). Using the ODC you can search for and retrieve datasets published by OPeNDAP data servers. OPeNDAP servers (also known as DODS servers) located at major institutions around the world serve a wide variety of data including: climatic data, satellite imagery, and ocean sensor results. The ODC allows you to find these datasets, download them to your machine, save them, and import them into client applications like IDL, Matlab, SPSS, Excel, or into databases such as Access and Oracle. The ODC is your gateway to terabytes of scientific data and imagery.
 
@@ -228,19 +228,24 @@ There are several configuration settings that control line wrapping and column c
 
 #Third-Party and Command Line Support (Console)
 
-* The ODC has a command server called the "interprocess server" which listens by default on port 31870. You can issue commands to the IPS by entering them command console prefixed by a "!". The exclamation point indicates that the command is to be sent directly to the ODC, and is not for the Python intrepreter. You can can 
+* The ODC has a command server called the "interprocess server" which listens by default on port 31870. You can issue commands to the IPS by entering them command console prefixed by a "!". The exclamation point indicates that the command is to be sent directly to the ODC, and is not for the Python intrepreter.
 
-       STEP-BY-STEP Dummies Guide to executing a command
+       STEP-BY-STEP Guide to Executing a Command
+	   
      - find the "View" tab at the top of the screen, click on it once
      - find the "Command" tab below this, click on it once
           The cursor should be a vertical line blinking in white text area
           The cursor should be preceded by a prompt string (by default ">>>")
      - type an exclamation point "!", this means the command is for the ODC, not for the Python interpreter
-     - type the command desired, it should appear in the box
-          you can also copy and paste into the box
+     - type the command desired, it should appear after the prompt (>>>)
+          you can also copy and paste a command from somewhere else
      - press the enter key to execute the command
-          the results will appear in the text area above
+          the results will appear starting on the line below the prompt
 
+* Any valid Python command can be entered. See the topic "Interpreter - Commands" for more information. For example,
+	>>> print 2+3
+	7
+		  
 * The command "!help" will show you all the ODC-specific commands
 
 * The command "!show config" will show you the current preference and configuration settings for the program
