@@ -15,6 +15,7 @@ import opendap.clients.odc.DAP;
 import opendap.clients.odc.FormLayout;
 import opendap.dap.BaseType;
 
+// Panel_View_Data
 // see Panel_Edit_Container for parent
 // TOP:    Panel_Edit_Dataset   (editing controls, like move up/down)
 // MIDDLE: Panel_Edit_Variable  (editing of an individual variable)
@@ -31,7 +32,7 @@ public class Panel_Define_Dataset extends JPanel {
 	boolean _zInitialize( Panel_View_Data parent, Panel_Edit_StructureView structure_view, StringBuffer sbError ){
 		try {
 			mParent = parent;
-			mEditingControls = new Panel_Edit_Dataset();
+			mEditingControls = new Panel_Edit_Dataset( mParent );
 			mVariableEditingPanel = Panel_Edit_Variable._create( this, structure_view, sbError );
 			if( mVariableEditingPanel == null  ){
 				sbError.insert( 0, "failed to create variable editing panel: " );
@@ -66,8 +67,8 @@ public class Panel_Define_Dataset extends JPanel {
 		}
 	}
 	Panel_View_Data _getParent(){ return mParent; }
-	public void _showVariable( BaseType bt ){
-		mVariableEditingPanel._showVariable( bt );
+	public void _showVariable( Node node ){
+		mVariableEditingPanel._showVariable( node );
 	}	
 }
 

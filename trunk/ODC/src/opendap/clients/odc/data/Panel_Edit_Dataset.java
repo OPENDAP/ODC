@@ -25,33 +25,35 @@ import opendap.clients.odc.gui.Resources;
 // this panel is used by Panel_Define_Dataset
 
 public class Panel_Edit_Dataset extends JPanel {
+	Panel_View_Data view; 
 	ButtonGroup buttongroupSelection = new ButtonGroup(); // this is used to select the active variable for viewing
 	Panel_EditVariable_Controls mControls;
-	
-	public Panel_Edit_Dataset(){
+	private Panel_Edit_Dataset(){}
+	public Panel_Edit_Dataset( Panel_View_Data parent ){
+		view = parent;
 		mControls = new Panel_EditVariable_Controls( this );
 		setLayout( new java.awt.BorderLayout() );
 		add( mControls, java.awt.BorderLayout.CENTER );
 		setPreferredSize( new java.awt.Dimension( 400, 25 ) );
-	}
-	
+	}	
 	void actionAddVariable( Node node ){
-	}
-	void actionAddMemberVariable( Node node ){
 		if( node.eVariableType != DAP.DAP_VARIABLE.Structure ){
 			ApplicationController.vShowError( "Attempt to add variable to a " + node.eVariableType + ". Variables may only be added to a structure." );
 			return;
 		}
 		DAP.DAP_VARIABLE eVariableType = mControls.getSelectedType();
 		if( eVariableType == null ){
-			ApplicationController.vShowError( "No variable type selected for adding as member of structure " + node.sName );
+			ApplicationController.vShowError( "No variable type selected for adding as member of structure " + node.getName() );
 			return;
 		}
 		StringBuffer sbError = new StringBuffer();
-		if( !node.createDefaultMember( eVariableType, sbError ) ){
+		Node new_node = node.createDefaultMember( eVariableType, sbError ); 
+		if( new_node == null ){
 			ApplicationController.vShowError( "Failed to create new " +  node.eVariableType + ": " + sbError.toString() );
 			return;
 		}
+		node.setSelected( true );
+		actionSelect( node );
 	}
 	void actionDeleteVariable( Node node ){
 	}
@@ -59,13 +61,15 @@ public class Panel_Edit_Dataset extends JPanel {
 	}
 	void actionMoveVariableDown( Node node ){
 	}
+	void actionSelect( Node node ){
+		view._select( node );
+	}
 }
 
 class Panel_EditVariable_Controls extends JPanel {
 	
 	JRadioButton jrbSelectVariable;
-	JButton button_Add;
-	JButton button_AddMember; // add variable member of this structure
+	JButton button_Add; // add variable member of this structure
 	JButton button_Delete;
 	JButton button_Up;
 	JButton button_Down;
@@ -93,17 +97,6 @@ class Panel_EditVariable_Controls extends JPanel {
 			}
 		});
 
-		button_AddMember = new JButton();
-		button_AddMember.setIcon( new ImageIcon( Resources.imageNavigatePlus ) );
-		button_AddMember.setText("{}");
-		button_AddMember.setToolTipText( "add member variable inside this one" );
-		button_AddMember.addActionListener(new java.awt.event.ActionListener( ){
-			public void actionPerformed( java.awt.event.ActionEvent e ){
-				Node node = Panel_EditVariable_Controls.this.node; 
-				Panel_EditVariable_Controls.this.parent.actionAddMemberVariable( node );
-			}
-		});
-		
 		button_Delete = new JButton();
 		button_Delete.setIcon( new ImageIcon( Resources.imageNavigateMinus ) );
 		button_Delete.setToolTipText( "delete variable" );
@@ -148,8 +141,6 @@ class Panel_EditVariable_Controls extends JPanel {
 		JPanel panelAddSubgroup = new JPanel();
 		panelAddSubgroup.setLayout( new BoxLayout( panelAddSubgroup, BoxLayout.X_AXIS ));
 		panelAddSubgroup.add( button_Add );
-		panelAddSubgroup.add( Box.createRigidArea( new Dimension( 2, 0)) );
-		panelAddSubgroup.add( button_AddMember );
 		panelAddSubgroup.add( Box.createRigidArea( new Dimension( 2, 0)) );
 		panelAddSubgroup.add( new JLabel(":") );
 		panelAddSubgroup.add( Box.createRigidArea( new Dimension( 2, 0)) );

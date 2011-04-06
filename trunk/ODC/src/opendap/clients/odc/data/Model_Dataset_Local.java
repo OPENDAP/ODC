@@ -4,9 +4,14 @@ import opendap.dap.*;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.DAP;
 import opendap.clients.odc.SavableImplementation;
+import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.DAP.*;
 
 import java.util.ArrayList;
+
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 
 // local ODC copy of a dataset
 // used for modifying and creating datasets
@@ -15,15 +20,18 @@ import java.util.ArrayList;
 // place in the structure, and the design of the DAP is clumsy so it is awkward to use it
 // Every time the user makes a change to the local copy of the structure the DAP model is
 // completely regenerated.
-public class Model_Dataset_Local implements java.io.Serializable {
+public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Serializable {
 	
-	private static final long serialVersionUID = 1L;
+	public static final long serialVersionUID = 1L;
+	public static final char SEPARATOR = '.';
+	Model_Dataset mSourceModel = null;
 	transient private SavableImplementation mSavable;
 	boolean zHasData;
 	String sDatasetName;
-	Node dataset_root;
-	
-	private Model_Dataset_Local(){}
+	private Node mnodeSelected = null;
+	private Model_Dataset_Local( Node nodeRoot ){
+		super( nodeRoot );
+	}
 	
 	public SavableImplementation getSavable(){ return mSavable; }	
 
@@ -54,7 +62,14 @@ public class Model_Dataset_Local implements java.io.Serializable {
 			sbError.append( "no data or dds supplied, invalid mode" );
 			return null;
 		}
-		Model_Dataset_Local local = new Model_Dataset_Local();
+		Node nodeRoot = Node.createRoot( dds, sbError);
+		if( nodeRoot == null ){
+			sbError.insert( 0, "failed to create root node: " );
+			return null;
+		}
+		Model_Dataset_Local local = new Model_Dataset_Local( nodeRoot );
+		nodeRoot.setModel( local );
+		local.mSourceModel = model;
 		if( data_dds == null ){
 			local.zHasData = false;
 		} else {
@@ -62,22 +77,79 @@ public class Model_Dataset_Local implements java.io.Serializable {
 			local.zHasData = true;
 		}
 		local.sDatasetName = dds.getName();
-		local.dataset_root = Node.createRoot( dds, sbError);
 		local.mSavable = new SavableImplementation( Model_Dataset_Local.class, null, null );
 		return local;
 	}
 	
 	// creates an empty DDS
 	public static Model_Dataset_Local create( String sName, StringBuffer sbError ){
-		Model_Dataset_Local local = new Model_Dataset_Local();
+		opendap.dap.DDS dds = new opendap.dap.DDS();
+		Node nodeRoot = Node.createRoot( dds, sbError );
+		Model_Dataset_Local local = new Model_Dataset_Local( nodeRoot );
+		nodeRoot.setModel( local );
 		if( ! DAP.isValidIdentifier( sName, sbError ) ){
 			sbError.insert( 0, "invalid identifier (" + sName + "): " );
 			return null;
 		}
-		opendap.dap.DDS dds = new opendap.dap.DDS();
 		local.sDatasetName = sName;
-		local.dataset_root = Node.createRoot( dds, sbError );
 		return local;
+	}
+
+	Node getRootNode(){ return (Node)this.getRoot(); }
+	void setSelectedNode( Node nodeSelected ){
+		mnodeSelected = nodeSelected;
+	}
+	void _update( BaseType bt ){
+		_update( (Node)getRoot(), bt ); 
+	}
+	void _update( Node node, BaseType bt ){
+		if( node.getBaseType().equals( bt ) ){
+			nodeChanged( node );
+			return;
+		}
+		java.util.Enumeration<Node> children = (java.util.Enumeration<Node>)node.children();
+		while( children.hasMoreElements() ){
+			_update( children.nextElement(), bt );
+		}
+	}
+	Node getSelectedNode(){ return mnodeSelected; }
+	String getPathForNode( Node node ){
+		if( node == null ) return "";
+		TreeNode[] aNodes = node.getPath();
+		StringBuffer sbPath = new StringBuffer(80);
+		for( int xNode = 1; xNode < aNodes.length; xNode++ ){ // skip the root
+			Node nodeCurrent = (Node)aNodes[xNode];
+			sbPath.append(nodeCurrent.getName());
+			sbPath.append( SEPARATOR );
+		}
+		return sbPath.toString();
+	}
+	String getPrintout(){
+		Node nodeRoot = (Node)this.getRoot();
+		return getPrintoutForNode( nodeRoot, 0 );
+	}
+	private String getPrintoutForNode(Node node, int iIndent){
+		if( node == null ) return Utility_String.sRepeatChar('\t', iIndent) + "[null]\n";
+		StringBuffer sbOut = new StringBuffer();
+		sbOut.append(Utility_String.sRepeatChar('\t', iIndent));
+		String sNodeTitle = node.getTitle();
+	    if( sNodeTitle == null ) sNodeTitle = "[unnamed node]";
+		sbOut.append(sNodeTitle + (node.isSelected() ? " *" : "") + '\n');
+		for( int xChild = 0; xChild < node.getChildCount(); xChild++ ){
+			Node nodeChild = (Node)node.getChildAt(xChild);
+			sbOut.append(getPrintoutForNode(nodeChild, iIndent+1));
+		}
+		return sbOut.toString();
+	}
+	void vClearNodeSelection(){
+		Node nodeRoot = (Node)this.getRoot();
+		vClearNodeSelection_ForNode( nodeRoot );
+	}
+	private void vClearNodeSelection_ForNode( Node node ){
+		for( int xChild = 0; xChild < node.getChildCount(); xChild++ ){
+			Node nodeChild = (Node)node.getChildAt(xChild);
+			nodeChild.setSelected(false);
+		}
 	}
 	
 	// generates DataDDS if there is data in the model
@@ -97,7 +169,7 @@ public class Model_Dataset_Local implements java.io.Serializable {
 			dds = new opendap.dap.DDS();
 		}
 		dds.setName( this.sDatasetName );
-		if( ! zAddNodeToStructure( dataset_root, dds, sbError ) ){ // this call recursively adds the whole structure
+		if( ! zAddNodeToStructure( this.getRootNode(), dds, sbError ) ){ // this call recursively adds the whole structure
 			sbError.insert( 0, "error adding root to DDS: " );
 			return null;
 		}
@@ -151,7 +223,7 @@ public class Model_Dataset_Local implements java.io.Serializable {
 				case String:
 					new_bt = new DString(); break;
 			}
-			new_bt.setClearName( nodeCurrent.sName );
+			new_bt.setClearName( nodeCurrent.getName() );
 			new_bt.setParent( structure );
 			if( ! zCopyAttributeTable( nodeCurrent, new_bt, sbError ) ){
 				sbError.insert( 0, "error copying attribute table: " );
@@ -165,7 +237,7 @@ public class Model_Dataset_Local implements java.io.Serializable {
 						xMember++;
 						Node nodeMember = nodeCurrent.subnodes.get( xMember - 1 );
 						if( ! zAddNodeToStructure( nodeMember, new_structure, sbError ) ){
-							sbError.insert( 0, "error adding member " + nodeMember.sName + " to structure: " );
+							sbError.insert( 0, "error adding member " + nodeMember.getName() + " to structure: " );
 							return false;
 						}
 					}
@@ -182,7 +254,7 @@ public class Model_Dataset_Local implements java.io.Serializable {
 						try {
 							btValueArray.getDimension( xDimension - 1 ).setProjection( dimension.getStart(), dimension.getStride(), dimension.getStop() );
 						} catch( Throwable t ){
-							sbError.append( "error setting projection for DArray " + nodeCurrent.sName + ": " + t );
+							sbError.append( "error setting projection for DArray " + nodeCurrent.getName() + ": " + t );
 							return false;
 						}
 					}
@@ -204,7 +276,7 @@ public class Model_Dataset_Local implements java.io.Serializable {
 						try {
 							btArray.getDimension( xDimension - 1 ).setProjection( dimension.getStart(), dimension.getStride(), dimension.getStop() );
 						} catch( Throwable t ){
-							sbError.append( "error setting projection for DArray " + nodeCurrent.sName + ": " + t );
+							sbError.append( "error setting projection for DArray " + nodeCurrent.getName() + ": " + t );
 							return false;
 						}
 					}
@@ -271,18 +343,95 @@ public class Model_Dataset_Local implements java.io.Serializable {
 
 }
 
-class Node {   // functions as both the root node and a structure node
-	BaseType bt; // null only in the case of the root node
+class Node extends DefaultMutableTreeNode {   // functions as both the root node and a structure node
+	private Model_Dataset_Local modelParent;
+	private opendap.dap.BaseType mBaseType; // null only in the case of the root node
+	private boolean mzSelected = false;
+	private boolean mzTerminal = false; // == terminal node / used instead of isLeaf because isLeaf controls default icon
 	DAP_VARIABLE eVariableType;
-	String sName;
+	private String msName = "[undefined]";
 	AttributeTable attributes;
 	Node nodeParent;
 	ArrayList<Node> subnodes;
-	private void Node(){} // not a valid constructor
-	protected Node( BaseType bt ){
-		this.bt = bt;
+	private Node(){ // not a valid constructor
+		super();
+	}
+	protected Node( opendap.dap.BaseType bt ){
+		super();
+		setBaseType( bt );
 		subnodes = new ArrayList<Node>();
 	}
+	void setModel( Model_Dataset_Local parent ){
+		modelParent = parent;
+	}
+	
+	opendap.dap.BaseType getBaseType(){ return mBaseType; }
+	void setBaseType( opendap.dap.BaseType bt ){
+		mBaseType = bt;
+		if( bt != null ) msName = bt.getClearName();
+	}
+	public String getName(){ return msName; }
+	public String getTitle(){ return getName(); }
+	public boolean isSelected(){ return mzSelected; }
+	public boolean isTerminal(){ return mzTerminal; }
+	public void setTerminal( boolean zTerminal ){ mzTerminal = zTerminal; }
+	String getPathString(){
+		TreeNode[] aNodes = this.getPath();
+		StringBuffer sbPath = new StringBuffer(80);
+		for( int xNode = 1; xNode < aNodes.length; xNode++ ){ // skip the root
+			Node nodeCurrent = (Node)aNodes[xNode];
+			sbPath.append(nodeCurrent.getName());
+			sbPath.append("/");
+		}
+		return sbPath.toString();
+	}
+
+	public Node getChild( int iIndex ){
+		return (Node)super.getChildAt(iIndex);
+	}
+
+	public boolean _setName( String sNewName, StringBuffer sbError ){ // sets name normally (will be encoded)
+		// TODO validation
+		mBaseType.setName( sNewName );
+		modelParent.nodeChanged( this );
+		return true;
+	}
+
+	public boolean _setNameEncoded( String sNewName, StringBuffer sbError ){ // sets name with no encoding (should be encoded)
+		// TODO validation
+		mBaseType.setClearName( sNewName );
+		return true;
+	}
+	
+	public void _select(){
+		setSelected( true );
+		modelParent.setSelectedNode( this );
+	}
+	
+	// returns an array of selected children, zero-based
+	// if no children are selected returns null
+	public Node[] getSelectedChildren(){
+		int ctSelectedChildren = 0;
+		for( int xChild = 0; xChild < this.getChildCount(); xChild++ ){
+			Node nodeChild = (Node)this.getChildAt(xChild);
+			if( nodeChild.isSelected() ) ctSelectedChildren++;
+		}
+		if( ctSelectedChildren == 0 ) return null;
+		Node[] anodeSelected = new Node[ctSelectedChildren];
+		int xSelectedChild = -1;
+		for( int xChild = 0; xChild < this.getChildCount(); xChild++ ){
+			Node nodeChild = (Node)this.getChildAt(xChild);
+			if( nodeChild.isSelected() ){
+				xSelectedChild++;
+				anodeSelected[xSelectedChild] = nodeChild;
+			}
+		}
+		return anodeSelected;
+	}
+	public void setSelected( boolean zIsSelected ){ mzSelected = zIsSelected; }
+	public String toString(){ return getTitle(); }
+	
+	
 	public static Node createRoot( DDS dds, StringBuffer sbError ){
 		Node nodeRoot = new Node( null ); // only the root node has a null basetype
 		java.util.Enumeration variable_list = dds.getVariables();
@@ -302,9 +451,14 @@ class Node {   // functions as both the root node and a structure node
 			}
 			nodeRoot.subnodes.add( node );
 		}
+		nodeRoot.msName = dds.getClearName();
 		return nodeRoot;
 	}
 	public static Node create( Node parent_node, BaseType bt, StringBuffer sbError ){
+		if( parent_node.modelParent == null ){
+			sbError.append( "model is missing from parent" );
+			return null;
+		}	
 		if( bt == null ){
 			sbError.append( "no base type supplied (root nodes can only be created by the _createRoot method)" );
 			return null;
@@ -338,8 +492,9 @@ class Node {   // functions as both the root node and a structure node
 			case String:
 				new_node = new Node_String( (DString)bt ); break;
 		}
+		new_node.modelParent = parent_node.modelParent;
+		new_node.setBaseType( bt );
 		new_node.eVariableType = variable_type;
-		new_node.sName = bt.getName();
 		new_node.nodeParent = parent_node;
 		new_node.attributes = bt.getAttributeTable();
 		switch( variable_type ){
@@ -357,7 +512,7 @@ class Node {   // functions as both the root node and a structure node
 					BaseType btMember = (BaseType)oMember;
 					Node nodeMember = Node.create( new_node, btMember, sbError );
 					if( nodeMember == null  ){
-						sbError.insert( 0, "error loading DStructure " + new_node.sName + ": " );
+						sbError.insert( 0, "error loading DStructure " + new_node.getName() + ": " );
 						return null;
 					}
 					new_node.subnodes.add( nodeMember );
@@ -370,7 +525,7 @@ class Node {   // functions as both the root node and a structure node
 					DArray darrayValues = (DArray)grid.getVar( 0 );
 					Node_Array nodeArray = (Node_Array)Node.create( nodeGrid, darrayValues, sbError );
 					if( nodeArray == null  ){
-						sbError.insert( 0, "error loading value array for DGrid " + new_node.sName + ": " );
+						sbError.insert( 0, "error loading value array for DGrid " + new_node.getName() + ": " );
 						return null;
 					}
 					nodeGrid.arrayValues = nodeArray;
@@ -500,10 +655,10 @@ class Node {   // functions as both the root node and a structure node
 		return new_node;
 	}
 	String sGetSummaryText(){
-		return sName;
+		return getName();
 	}
 	
-	boolean createDefaultMember( DAP_VARIABLE variable_type, StringBuffer sbError ){
+	Node createDefaultMember( DAP_VARIABLE variable_type, StringBuffer sbError ){
 		String sDefaultVariableName = "new_variable";
 		BaseType new_bt = null;
 		switch( variable_type ){
@@ -533,7 +688,7 @@ class Node {   // functions as both the root node and a structure node
 				new_bt = new DString(); break;
 		}
 		new_bt.setClearName( sDefaultVariableName );
-		new_bt.setParent( this.bt );
+		new_bt.setParent( getBaseType() );
 		// create attribute table TODO
 		switch( variable_type ){
 			case Structure:
@@ -576,10 +731,11 @@ class Node {   // functions as both the root node and a structure node
 		Node new_node = Node.create( this, new_bt, sbError );
 		if( new_node == null ){
 			sbError.insert( 0, "failed to create new node: " );
-			return false;
+			return null;
 		}
 		subnodes.add( new_node );
-		return true;
+		modelParent.insertNodeInto( new_node, this, this.getChildCount() ); // add new member at end
+		return new_node;
 	}
 }
 
@@ -593,7 +749,7 @@ class Node_Grid extends Node {
 	}
 	String sGetSummaryText(){
 		StringBuffer sb = new StringBuffer( 250 );
-		sb.append( sName );
+		sb.append( getName() );
 		long nTotalSize = 1;
 		for( int xDimension = 1; xDimension <= arrayValues.listDimensions.size(); xDimension++ ){
 			DArrayDimension dim = arrayValues.listDimensions.get( xDimension - 1);
@@ -633,7 +789,7 @@ class Node_Array extends Node {
 	PrimitiveVector primitive_vector; // the data values, if any	
 	String sGetSummaryText(){
 		StringBuffer sb = new StringBuffer( 250 );
-		sb.append( sName );
+		sb.append( getName() );
 		long nTotalSize = 1;
 		for( int xDimension = 1; xDimension <= listDimensions.size(); xDimension++ ){
 			DArrayDimension dim = listDimensions.get( xDimension - 1);

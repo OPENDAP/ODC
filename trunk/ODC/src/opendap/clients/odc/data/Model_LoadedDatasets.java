@@ -15,7 +15,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 	private int miCapacity = 1000;
 	private int mctDatasets = 0;
 	private int miSelectedItem = 0;
-	private Model_Dataset[] maDatasets = new Model_Dataset[ 1000 ];
+	private Model_Dataset[] maDatasets0 = new Model_Dataset[ 1000 ];
 	private ArrayList<ListDataListener> listListeners = new ArrayList<ListDataListener>(); 
 
 	private Model_LoadedDatasets(){}
@@ -28,7 +28,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 	public static int getSessionDatasetCount(){ return mctSessionDatasets; }
 	
 	boolean _contains( Model_Dataset model ){
-		for( int xModel = 1; xModel <= mctDatasets; xModel++ ) if( maDatasets[xModel].equals( model ) ) return true;
+		for( int xModel = 1; xModel <= mctDatasets; xModel++ ) if( maDatasets0[xModel - 1] == model ) return true;
 		return false;
 	}
 	
@@ -41,7 +41,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 			sbError.append( "internal error, invalid item number (" + xItem0 + ")" );
 			return false;
 		}
-		maDatasets[xItem0].setTitle( sNewName );
+		maDatasets0[xItem0].setTitle( sNewName );
 		fireContentsChanged( this, xItem0, xItem0 );
 		return true;
 	}
@@ -52,7 +52,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 			return;
 		}
 		for( int xDataset = 0; xDataset < mctDatasets; xDataset++ ){
-			if( url.equals( maDatasets[xDataset] ) ){
+			if( url.equals( maDatasets0[xDataset] ) ){
 				ApplicationController.vShowError("internal error, attempt to add duplicate dataset");
 				return;
 			}
@@ -60,11 +60,11 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 		if( mctDatasets == miCapacity ){
 			int iNewCapacity = 2 * miCapacity;
 			Model_Dataset[] aEnlargedDatasetBuffer = new Model_Dataset[ iNewCapacity ];
-			System.arraycopy( maDatasets, 0, aEnlargedDatasetBuffer, 0, mctDatasets );
-			maDatasets = aEnlargedDatasetBuffer;
+			System.arraycopy( maDatasets0, 0, aEnlargedDatasetBuffer, 0, mctDatasets );
+			maDatasets0 = aEnlargedDatasetBuffer;
 			miCapacity = iNewCapacity;
 		}
-		maDatasets[mctDatasets] = url;
+		maDatasets0[mctDatasets] = url;
 		mctDatasets++;
 		mctSessionDatasets--;
 		int interval_index = mctDatasets - 1;
@@ -80,7 +80,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 			return;
 		}
 		for( int xList = iIndex0; xList < mctDatasets - 1; xList++ ){
-			maDatasets[xList] = maDatasets[xList + 1];
+			maDatasets0[xList] = maDatasets0[xList + 1];
 		}
 		mctDatasets--;
 		if( iIndex0 <= miSelectedItem ){
@@ -93,8 +93,8 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 
 	void removeDataset( Model_Dataset url ){
 		for( int xList = 0; xList < mctDatasets; xList++ ){
-			if( maDatasets[xList] == url ){
-				for( ; xList < mctDatasets - 1; xList++ ) maDatasets[xList] = maDatasets[xList + 1];
+			if( maDatasets0[xList] == url ){
+				for( ; xList < mctDatasets - 1; xList++ ) maDatasets0[xList] = maDatasets0[xList + 1];
 				mctDatasets--;
 				if( xList <= miSelectedItem ){
 					miSelectedItem--; 
@@ -115,13 +115,13 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 			ApplicationController.vShowWarning("attempt to get non-existent dataset element " + iIndex0);
 			return null;
 		}
-		return maDatasets[iIndex0];
+		return maDatasets0[iIndex0];
 	}
 
 	// ComboBoxModel Interface
 	public Object getSelectedItem(){
 		if( miSelectedItem >= 0 && miSelectedItem < mctDatasets ){
-			return maDatasets[miSelectedItem];
+			return maDatasets0[miSelectedItem];
 		} else {
 			return null;
 		}
@@ -129,7 +129,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 
     public int getIndexOf( Object o ){
 		for( int xList = 0; xList < mctDatasets; xList++ ){
-			if( maDatasets[xList] == o ){
+			if( maDatasets0[xList] == o ){
 				return xList;
 			}
 		}
@@ -142,12 +142,12 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 			ApplicationController.vShowError( "internal error, attempt to set dataset list to null" );
 			return;
 		}
-		Model_Dataset modelSelected = maDatasets[miSelectedItem];
+		Model_Dataset modelSelected = maDatasets0[miSelectedItem];
 		if( o instanceof Model_Dataset ){
 			if( ( 	modelSelected != null && !modelSelected.equals( o ) ) ||
 					modelSelected == null && o != null ){
 				for( int xList = 0; xList < mctDatasets; xList++ ){
-					if( maDatasets[xList] == o ){
+					if( maDatasets0[xList] == o ){
 						miSelectedItem = xList;
 						fireContentsChanged( this, -1, -1 );
 						return;
@@ -191,7 +191,9 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
     public void removeElement(Object anObject) {
     	System.out.println( "removeElement" );
     }
-	
-	
+
 }
+
+
+
 

@@ -36,7 +36,10 @@ import opendap.dap.BaseType;
 
 public class Model_DataTree extends DefaultTreeModel {
 	public static final char SEPARATOR = '.';
-	public Model_DataTree( DataTreeNode nodeRoot ){
+	private Model_DataTree(){
+		super( null );
+	}
+	private Model_DataTree( DataTreeNode nodeRoot ){
 		super( nodeRoot );
 	}
 	private DataTreeNode mnodeSelected = null;

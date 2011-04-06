@@ -43,7 +43,7 @@ public class Panel_Edit_Container extends JPanel {
 			sbError.insert( 0, "initializing data define panel: " );
 			return null;
 		}
-		if( ! panelEditContainer.mEditStructure._zInitialize( panelEditContainer.mDefineData, sbError ) ){
+		if( ! panelEditContainer.mEditStructure._zInitialize( parent, panelEditContainer.mDefineData, sbError ) ){
 			sbError.insert( 0, "initializing structure panel: " );
 			return null;
 		}
@@ -62,6 +62,10 @@ public class Panel_Edit_Container extends JPanel {
 		removeAll();
 		add( mEditBlank, BorderLayout.CENTER );
 	}
+	void _select( Node node ){
+		mEditStructure._select( node );
+		mDefineData._showVariable( node );
+	}
 	boolean _zSetModel( Model_Dataset model, StringBuffer sbError ){
 		if( model == null ){
 			sbError.insert( 0, "supplied model was null" );
@@ -69,7 +73,7 @@ public class Panel_Edit_Container extends JPanel {
 		}
 		switch( model.getType() ){
 			case Model_Dataset.TYPE_Data:
-				Model_DataTree tree = model.getDataTree( sbError );
+				Model_Dataset_Local tree = model.getDataTree( sbError );
 				if( tree == null ){
 					sbError.insert( 0, "failed to get data tree for model" );
 					return false;
@@ -77,12 +81,7 @@ public class Panel_Edit_Container extends JPanel {
 				removeAll();
 				add( mEditStructure, BorderLayout.CENTER );
 				add( mDefineData, BorderLayout.EAST );
-				Model_DataTree data_tree = model.getDataTree( sbError );
-				if( data_tree == null ){
-					sbError.insert( 0,"failed to get data tree for model " + model.getDDS_Name() );
-					return false;
-				}
-				mEditStructure._setModel( data_tree );
+				mEditStructure._setModel( tree );
 				break;
 			case Model_Dataset.TYPE_Expression:
 				if( mEditExpression._setModel( model, sbError ) ){

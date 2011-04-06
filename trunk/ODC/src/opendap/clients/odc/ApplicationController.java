@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-2011
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.06
+ * @version      3.07
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -51,8 +51,8 @@ public class ApplicationController {
 	private static final ApplicationController thisSingleton = new ApplicationController();
 
 	private static final String msAppName = "OPeNDAP Data Connector";
-	private static final String msAppVersion = "3.06";
-	private static final String msAppReleaseDate = "9 October 2009"; // todo create ANT substitution
+	private static final String msAppVersion = "3.07";
+	private static final String msAppReleaseDate = "10 April 2011"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	public final String getAppName(){ return msAppName; }

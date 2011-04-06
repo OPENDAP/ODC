@@ -21,25 +21,38 @@ import opendap.dap.BaseType;
 
 // see Panel_EditContainer for guide
 // this class is used directly by the container to show the dataset structure tree
+//
+//    Panel_Define_Dataset
+//       mscrollpane_DataTree contains
+//          mtreeData exposes mTreeModel
 public class Panel_Edit_StructureView extends JPanel {
-	private Model_DataTree mTreeModel = null;
+	private Panel_View_Data parent;
+	private Model_Dataset_Local mTreeModel = null;
 	private JScrollPane mscrollpane_DataTree;
-	private Panel_Define_Dataset mParent;
+	private Panel_Define_Dataset mDefinitionPanel;
 	private Dimension dimMinimum = new Dimension(100, 80);
 	private JTree mtreeData = null;
+	Panel_Edit_StructureView(){} // can only be created with the method below
 	public Dimension getMinimumSize(){
 		return dimMinimum;
 	}
 	void _update( BaseType bt ){   // if this base type has changed, update the tree appropriately
 		mTreeModel._update( bt );
 	}
-	void _setModel( Model_DataTree model ){
+	void _setModel( Model_Dataset_Local model ){
 		mTreeModel = model;
 		if( mtreeData != null ) mtreeData.setModel( mTreeModel );
 	}
-	boolean _zInitialize( Panel_Define_Dataset parent, StringBuffer sbError ){
+	Model_Dataset_Local _getModel(){
+		return mTreeModel;
+	}
+	void _select( Node node ){
+		mTreeModel.setSelectedNode( node );
+	}
+	boolean _zInitialize( Panel_View_Data view, Panel_Define_Dataset definition_panel, StringBuffer sbError ){
 		try {
-			mParent = parent;
+			parent = view;
+			mDefinitionPanel = definition_panel;
 
 			Border borderEtched = BorderFactory.createEtchedBorder();
 
@@ -69,8 +82,8 @@ public class Panel_Edit_StructureView extends JPanel {
 						TreePath tp = mtreeData.getSelectionPath();
 						if( tp == null ) return;
 						Object oSelectedNode = tp.getLastPathComponent();
-						DataTreeNode node = (DataTreeNode)oSelectedNode;
-						mParent._showVariable( node.getBaseType() );
+						Node node = (Node)oSelectedNode;
+						mDefinitionPanel._showVariable( node );
 					}
 				}
 			);
