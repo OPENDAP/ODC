@@ -334,7 +334,7 @@ Parametric  (example: 2*sin(t) [x assumed]
 
 In every case you should only enter the expression, not the L-value, ie do not write y = 2*x for example, just write 2*x. The L-value determination is configured in the variable definition panel.
 
-When the expression is plotted the ODC substitutes numeric values for "substitution tokens" which are specified in the variable definition panel. By default the substition tokens are "x", "y", "z", "theta" and "t". If you are using these letters already in your expression (for example, using tan() in a parametric expression) you will need to change substition token to something distinctive like $t. Note that the ODC is smart and if it sees "$x" or "$t" in your expression it will automatically use $-sign tokens instead of plain tokens.
+When the expression is plotted the ODC substitutes numeric values for "substitution tokens" which are specified in the variable definition panel. By default the substition tokens are "x", "y", "z", "theta" and "t". If you are using these letters already in your expression you will need to change substition token to something distinctive like $t. Note that the ODC is smart and if it sees "$x" or "$t" in your expression it will automatically use $-sign tokens instead of plain tokens.
 
 For Cartesian expressions you select the L-value with the radio button and enter substition tokens for the other variable (or variables if it is 3D). You can do multiple expressions at the same time by entering them each on their own line. The ODC will plot them at the same time. This is useful, for example, when plotting quadratic equations that have a +/- alternative.
 
@@ -781,6 +781,26 @@ The data viewer allows you to view, edit, save and load data sets in various for
 
 If you choose the plot view you will see a plot of the data instead of a tabular view. The plot view controls are on the plotter tab. You can save plotter configurations. If the plotter configuration which is open when the data is generated does not match the data then a default configuration will be automatically determined by the ODC.
 
+#Data Viewer - Datasets
+
+Datasets are bundles of data in the OPeNDAP or other formats. For full details on the specification of this format see the PDF /doc/DAP_4.0.pdf in the base directory where you installed the ODC. You can Load (open), Unload (close) existing datasets from the Data Viewer (View / Data tab). You can also create New datasets.
+
+Dataset Titles:
+                   When you load a dataset or create a new one, it's title will appear in the combo box in the upper left of the screen. Do not confuse the title of a dataset with its name. For example, a dataset loaded from the internet might have a automatically-generated title of "http://ndbc.noaa.gov/data/buoys/A31/20110127.cdf" but a name of "Woonsocket Soundings". The name is a label applied to the data itself. The title is the name associated with the file or source of the data. When you create new datasets use a title that would you like the data's filename to be. The name of the dataset can be more generic. For example, your dataset might have a title of "IceCore 20110402 McMurdoNE5", but the dataset name, which is applied to the uppermost structure can just be "Ice Core Series" because the other info will be in the attribute table for the dataset. You can change the title of a dataset by using the "Retitle" button at the far right of the button bar at the top of the screen.
+
+Editing Datasets:
+                   When you create a new dataset it will be automatically added to the list of datasets and activated. The structure of the dataset is shown in the "Dataset Structure" pane. Select any element of the structure to edit it. When a dataset is first created it is empty. There are four main operations you can do to a dataset element:
+
+	Add Member (blue plus)      - adds a new element to the structure of the type shown in the drop-down box
+	Delete (blue minus)         - deletes the current element (the top-level structure cannot be deleted)
+	Move Up (blue up arrow)     - moves the element up if there is more than one and it is not at the top already
+	Move Down (blue down arrow) - moves the element down if there is more than one and it is not at the bottom
+	
+You can also edit the characteristics of the element depending what it is. For example, an array element can have dimensions added/deleted/renamed and resized.
+
+Creating Arrays: 
+                   When you create new arrays they are automatically dimensioned to 100 elements and the dimension is given a generic name of "dim1". This is to give you a starting point with something to work with. You can add more dimensions, rename them and resize them. An array must have at least one dimension. You can view and edit the data your array contains in the tabular view at the bottom of the screen. You can paste data into this matrix, type or generate it using an expression (see the topic "Data Viewer - Expressions"). Note that you can use expressions to generate entire datasets, as well.
+
 #Data Viewer - Expressions
 
 Data Viewer expressions allow you to generate data using mathematical expressions and functions in the Python language. This can be useful in wide variety of ways. For example, using the expression generator you can calculate a linear regression of a data set and then, using the layer capability of the plotter, overlay the regression line on a plot of the data. Expressions can be used for more mundane uses. For example, you might want to add a dimensional index numbers to a dataset that lacks them. You can also use expressions to modify existing data sets. For example, you can use the geodesic functions that are built into the ODC to perform transformations such as orthorectification on satellite data sets.
@@ -810,7 +830,7 @@ To refer to existing data sets in an expression first make sure they are loaded.
 	size = MyData.Variable1.length
 	value = MyData.Variable1[$1] + 1
 	
-This expression would create a new one-dimensional array in which each value was one greater than the corresponding value in the Variable1 array.
+This expression would create a new one-dimensional array in which each value was one greater than the corresponding value in the Variable1 array. Note that you do not have to specify the path to the variable. For example, if you have a nested dataset where the variable you want is, say, MyData.data.Structure5.array1 then you only need to reference MyData.array1 (where MyData is the title of the dataset). The ODC will search through the data structure for the occurrence of "array1" and use the first one it finds.
 
 See "Data Viewer - Parameter Reference" for a listing of all the possible parameters in an expression set.
 

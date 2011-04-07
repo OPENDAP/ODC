@@ -66,6 +66,13 @@ import java.util.ArrayList;
 
 /** Panel_LoadedDatasets    dataset combo box and action buttons
  *  Model_DataView          key actions (new dataset, delete dataset, etc)
+ *
+ * contains the editing panels:
+ * Data -        left: Panel_Edit_StructureView      right: Panel_Define_Dataset
+ *                                                              Panel_Edit_Dataset
+ *                                                              Panel_Edit_Variable
+ * Expression -  left: Panel_Edit_Expression         right: Panel_Define_Expression
+ * Stream -      left: Panel_Edit_Stream             right: Panel_Define_Stream
  */
 
 public class Panel_View_Data extends JPanel implements IControlPanel {
@@ -188,10 +195,6 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 		return true; 
 	}
 
-	public void _select( Node node ){
-		panelEditContainer._select( node );
-	}
-	
 	public Model_DataView _getModelDataView(){ return modelDataView; }
 	
 }
@@ -226,28 +229,35 @@ class Model_DataView {
 			String sTitle = "Dataset";
 			addDataset_DataDDS( model, sTitle );
 			mDatasetList.setSelectedItem( model );
-//			mParent.panelLoadedDatasets._select( model );
+			mParent._vActivate( model );
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, "(Panel_View_Data) while trying to create new dataset: " );
 		}
 	}
 	void addDataset_DataDDS( Model_Dataset model, String sTitle ){
-		if( model == null ){
-			ApplicationController.vShowError( "(Panel_View_Data) internal error, attempted to add non-existent model" );
-			return;
+		try {
+			mParent.mzAddingItemToList = true;
+			if( model == null ){
+				ApplicationController.vShowError( "(Panel_View_Data) internal error, attempted to add non-existent model" );
+				return;
+			}
+			if( mDatasetList._contains( model ) ){
+				ApplicationController.vShowError( "(Panel_View_Data) internal error, duplicate model" );
+				return;
+			}
+			DataDDS data = model.getData();
+			if( data == null ){
+				ApplicationController.vShowError( "(Panel_View_Data) internal error, attempted to add model with no data" );
+				return;
+			}
+			model.setTitle( sTitle );
+			ctNewDatasets++;
+			mDatasetList.addDataset( model );
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t,"While adding model " + model + " as DataDDS to list" );
+		} finally {
+			mParent.mzAddingItemToList = false;
 		}
-		if( mDatasetList._contains( model ) ){
-			ApplicationController.vShowError( "(Panel_View_Data) internal error, duplicate model" );
-			return;
-		}
-		DataDDS data = model.getData();
-		if( data == null ){
-			ApplicationController.vShowError( "(Panel_View_Data) internal error, attempted to add model with no data" );
-			return;
-		}
-		model.setTitle( sTitle );
-		ctNewDatasets++;
-		mDatasetList.addDataset( model );
 	}
 	void action_New_Expression(){
 		try {
@@ -306,33 +316,33 @@ class Model_DataView {
 			modelActive.getSavable()._saveAs( modelActive );
 		}
 	}
-	void action_Rename(){
+	void action_Retitle(){
 		if( modelActive == null ){
-			ApplicationController.vShowStatus_NoCache( "no dataset selected for renaming operation" );
+			ApplicationController.vShowStatus_NoCache( "no dataset selected for retitling operation" );
 		} else {
 			StringBuffer sbError = new StringBuffer();
 			try {
-				String sPromptStandard = "Enter new name for " + modelActive.getTitle() + ":";
-				String sPromptVerbose = "Enter new name for " + modelActive.getTitle() + " (cannot be blank or over 255 characters):";
+				String sPromptStandard = "Enter new title for " + modelActive.getTitle() + ":";
+				String sPromptVerbose = "Enter new title for " + modelActive.getTitle() + " (cannot be blank or over 255 characters):";
 				String sPrompt = sPromptStandard;
 				String sOldName = modelActive.getTitle();
 				while( true ){
 					String sNewName = JOptionPane.showInputDialog( sPrompt );
 					if( sNewName == null ) return; // cancel
 					if( sNewName.length()  == 0 ){
-						ApplicationController.vShowStatus_NoCache( "new name for dataset cannot be blank" );
+						ApplicationController.vShowStatus_NoCache( "new title for dataset cannot be blank" );
 						sPrompt = sPromptVerbose;
 						continue;
 					}
 					if( sNewName.length() > 255 ){
-						ApplicationController.vShowStatus_NoCache( "new name for dataset cannot be longer than 255 characters" );
+						ApplicationController.vShowStatus_NoCache( "new title for dataset cannot be longer than 255 characters" );
 						sPrompt = sPromptVerbose;
 						continue;
 					}
 					if( mDatasetList._setName( sNewName, sbError ) ){
-						ApplicationController.vShowStatus( "Dataset renamed from " + sOldName + " to " + sNewName );
+						ApplicationController.vShowStatus( "Dataset retitled from " + sOldName + " to " + sNewName );
 					} else {
-						ApplicationController.vShowError( "Error attempting to rename dataset to [" + sNewName + "]: " );
+						ApplicationController.vShowError( "Error attempting to retitle dataset to [" + sNewName + "]: " );
 					}
 					return;
 				}
@@ -381,7 +391,7 @@ class Panel_LoadedDatasets extends JPanel {
 		JButton buttonUnload = new JButton( "Unload" );
 		JButton buttonSave = new JButton( "Save" );
 		JButton buttonSaveAs = new JButton( "Save as..." );
-		JButton buttonRename = new JButton( "Rename" );
+		JButton buttonRetitle = new JButton( "Retitle" );
 
 		jcbLoadedDatasets.setRenderer( new CellRenderer_UniqueLabel() );
 		modelDataView.mDatasetList.addListDataListener( jcbLoadedDatasets );
@@ -395,7 +405,7 @@ class Panel_LoadedDatasets extends JPanel {
 		this.add( buttonUnload );
 		this.add( buttonSave );
 		this.add( buttonSaveAs );
-		this.add( buttonRename );
+		this.add( buttonRetitle );
 
 		jcbLoadedDatasets.addItemListener(
 			new java.awt.event.ItemListener(){
@@ -475,29 +485,15 @@ class Panel_LoadedDatasets extends JPanel {
 				}
 			}
 		);
-		buttonRename.addActionListener(
+		buttonRetitle.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed(ActionEvent event) {
-					modelDataView.action_Rename();
+					modelDataView.action_Retitle();
 				}
 			}
 		);
 
 		return true;
-	}
-	void _select( Model_Dataset model ){
-		if( model == null ){
-			ApplicationController.vShowWarning( "(Panel_LoadedDatasets) internal error, attempt to select null data model" );
-			return;
-		}
-		System.out.println( "selected index: " + jcbLoadedDatasets.getSelectedIndex() );
-		System.out.println( "selected item: " + jcbLoadedDatasets.getSelectedItem() );
-		jcbLoadedDatasets.setSelectedItem( model );
-//		javax.swingListCellRender renderer = jcbLoadedDatasets.getRenderer();
-//		String sSelectedText = jcbLoadedDatasets.getModel(). 
-//		jcbLoadedDatasets.getEditor().setItem( model.getTitle() );
-		System.out.println( "selected index 2: " + jcbLoadedDatasets.getSelectedIndex() );
-		System.out.println( "selected item 2: " + jcbLoadedDatasets.getSelectedItem() );
 	}
 }
 
@@ -516,12 +512,13 @@ class CellRenderer_UniqueLabel extends javax.swing.DefaultListCellRenderer {
 		if( value == null ){
 			setText( "" );
 		} else {
-			int ctListItems = list.getModel().getSize();
-			int iSelectedIndex = list.getSelectedIndex();
-			if( index == -1 && (iSelectedIndex < 0 || iSelectedIndex >= ctListItems) ){
-				setText( "?" );
+			Model_LoadedDatasets model = (Model_LoadedDatasets)list.getModel();
+			Object oSelected = model.getSelectedItem();
+			int ctListItems = model.getSize();
+			if( index == -1 && oSelected == null ){
+				setText( "" );
 			} else {
-				if( index == -1 ) index = iSelectedIndex;
+				if( index == -1 ) index = model.getSelectedIndex0();
 				String sValue = value.toString();
 				int ctDuplicateItems = 0;
 				int xDuplicateItem = 0;

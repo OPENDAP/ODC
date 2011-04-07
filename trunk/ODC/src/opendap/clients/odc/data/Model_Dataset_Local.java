@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 // local ODC copy of a dataset
 // used for modifying and creating datasets
@@ -27,14 +28,27 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 	Model_Dataset mSourceModel = null;
 	transient private SavableImplementation mSavable;
 	boolean zHasData;
-	String sDatasetName;
-	private Node mnodeSelected = null;
+	private String sDatasetName;
 	private Model_Dataset_Local( Node nodeRoot ){
 		super( nodeRoot );
 	}
 	
 	public SavableImplementation getSavable(){ return mSavable; }	
 
+	public String getName(){
+		return sDatasetName;
+	}
+
+	public boolean setName( String sNewName, StringBuffer sbError ){
+		try {
+			mSourceModel.getData().setName( sNewName );
+			return true;
+		} catch( Throwable t ) {
+			sbError.append( "Error setting dataset name: " + t );
+			return false;
+		}
+	}
+	
     /**
      * Set the directory location of the file this dataset is currently being saved to.
      * @param urlTitle The title of the URL.
@@ -96,9 +110,6 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 	}
 
 	Node getRootNode(){ return (Node)this.getRoot(); }
-	void setSelectedNode( Node nodeSelected ){
-		mnodeSelected = nodeSelected;
-	}
 	void _update( BaseType bt ){
 		_update( (Node)getRoot(), bt ); 
 	}
@@ -112,7 +123,6 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 			_update( children.nextElement(), bt );
 		}
 	}
-	Node getSelectedNode(){ return mnodeSelected; }
 	String getPathForNode( Node node ){
 		if( node == null ) return "";
 		TreeNode[] aNodes = node.getPath();
@@ -348,7 +358,7 @@ class Node extends DefaultMutableTreeNode {   // functions as both the root node
 	private opendap.dap.BaseType mBaseType; // null only in the case of the root node
 	private boolean mzSelected = false;
 	private boolean mzTerminal = false; // == terminal node / used instead of isLeaf because isLeaf controls default icon
-	DAP_VARIABLE eVariableType;
+	DAP_VARIABLE eVariableType = null;
 	private String msName = "[undefined]";
 	AttributeTable attributes;
 	Node nodeParent;
@@ -375,7 +385,12 @@ class Node extends DefaultMutableTreeNode {   // functions as both the root node
 	public boolean isSelected(){ return mzSelected; }
 	public boolean isTerminal(){ return mzTerminal; }
 	public void setTerminal( boolean zTerminal ){ mzTerminal = zTerminal; }
-	String getPathString(){
+	public TreePath getTreePath(){
+		TreeNode[] aPathNodes = getPath();
+		TreePath path = new TreePath( aPathNodes );
+		return path;
+	}
+	public String getPathString(){
 		TreeNode[] aNodes = this.getPath();
 		StringBuffer sbPath = new StringBuffer(80);
 		for( int xNode = 1; xNode < aNodes.length; xNode++ ){ // skip the root
@@ -391,8 +406,19 @@ class Node extends DefaultMutableTreeNode {   // functions as both the root node
 	}
 
 	public boolean _setName( String sNewName, StringBuffer sbError ){ // sets name normally (will be encoded)
-		// TODO validation
-		mBaseType.setName( sNewName );
+		if( isRoot() ){
+			msName = sNewName;
+			if( ! this.modelParent.setName( sNewName, sbError ) ){
+				sbError.insert( 0, "failed to set name to \"" + sNewName + "\"" );
+				return false;
+			}
+		} else {
+			if( mBaseType == null ){
+				sbError.append( "node has no corresponding base type" );
+				return false;
+			}
+			mBaseType.setName( sNewName );
+		}
 		modelParent.nodeChanged( this );
 		return true;
 	}
@@ -401,11 +427,6 @@ class Node extends DefaultMutableTreeNode {   // functions as both the root node
 		// TODO validation
 		mBaseType.setClearName( sNewName );
 		return true;
-	}
-	
-	public void _select(){
-		setSelected( true );
-		modelParent.setSelectedNode( this );
 	}
 	
 	// returns an array of selected children, zero-based

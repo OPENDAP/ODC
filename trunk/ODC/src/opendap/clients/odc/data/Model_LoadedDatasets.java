@@ -14,7 +14,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 	private static int mctSessionDatasets = 0; // keeps track of total number of datasets created in this session
 	private int miCapacity = 1000;
 	private int mctDatasets = 0;
-	private int miSelectedItem = 0;
+	private int miSelectedItem0 = -1; // nothing selected
 	private Model_Dataset[] maDatasets0 = new Model_Dataset[ 1000 ];
 	private ArrayList<ListDataListener> listListeners = new ArrayList<ListDataListener>(); 
 
@@ -33,7 +33,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 	}
 	
 	boolean _setName( String sNewName, StringBuffer sbError ){
-		return _setName( miSelectedItem, sNewName, sbError );
+		return _setName( miSelectedItem0, sNewName, sbError );
 	}
 	
 	boolean _setName( int xItem0, String sNewName, StringBuffer sbError ){
@@ -68,7 +68,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 		mctDatasets++;
 		mctSessionDatasets--;
 		int interval_index = mctDatasets - 1;
-		miSelectedItem = interval_index;
+		miSelectedItem0 = interval_index;
 		for( ListDataListener listener : listListeners ){
 			listener.intervalAdded( new ListDataEvent( this, interval_index, interval_index, ListDataEvent.INTERVAL_ADDED ) );
 		}
@@ -83,8 +83,8 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 			maDatasets0[xList] = maDatasets0[xList + 1];
 		}
 		mctDatasets--;
-		if( iIndex0 <= miSelectedItem ){
-			miSelectedItem--; 
+		if( iIndex0 <= miSelectedItem0 ){
+			miSelectedItem0--; 
 		}
 		for( ListDataListener listener : listListeners ){
 			listener.intervalAdded( new ListDataEvent( this, iIndex0, iIndex0, ListDataEvent.INTERVAL_REMOVED ) );
@@ -96,8 +96,8 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 			if( maDatasets0[xList] == url ){
 				for( ; xList < mctDatasets - 1; xList++ ) maDatasets0[xList] = maDatasets0[xList + 1];
 				mctDatasets--;
-				if( xList <= miSelectedItem ){
-					miSelectedItem--; 
+				if( xList <= miSelectedItem0 ){
+					miSelectedItem0--; 
 				}
 				for( ListDataListener listener : listListeners ){
 					listener.intervalAdded( new ListDataEvent( this, xList, xList, ListDataEvent.INTERVAL_REMOVED ) );
@@ -120,13 +120,18 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 
 	// ComboBoxModel Interface
 	public Object getSelectedItem(){
-		if( miSelectedItem >= 0 && miSelectedItem < mctDatasets ){
-			return maDatasets0[miSelectedItem];
+		if( miSelectedItem0 >= 0 && miSelectedItem0 < mctDatasets ){
+			return maDatasets0[miSelectedItem0];
 		} else {
 			return null;
 		}
 	}
 
+	/** returns -1 if nothing is selected */
+	public int getSelectedIndex0(){
+		return miSelectedItem0;
+	}
+	
     public int getIndexOf( Object o ){
 		for( int xList = 0; xList < mctDatasets; xList++ ){
 			if( maDatasets0[xList] == o ){
@@ -142,13 +147,13 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 			ApplicationController.vShowError( "internal error, attempt to set dataset list to null" );
 			return;
 		}
-		Model_Dataset modelSelected = maDatasets0[miSelectedItem];
+		Model_Dataset modelSelected = maDatasets0[miSelectedItem0];
 		if( o instanceof Model_Dataset ){
 			if( ( 	modelSelected != null && !modelSelected.equals( o ) ) ||
 					modelSelected == null && o != null ){
 				for( int xList = 0; xList < mctDatasets; xList++ ){
 					if( maDatasets0[xList] == o ){
-						miSelectedItem = xList;
+						miSelectedItem0 = xList;
 						fireContentsChanged( this, -1, -1 );
 						return;
 					}
