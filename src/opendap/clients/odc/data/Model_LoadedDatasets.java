@@ -48,12 +48,12 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 
 	void addDataset( Model_Dataset url ){
 		if( url == null ){
-			ApplicationController.vShowError("internal error, attempt to add null dataset");
+			ApplicationController.vShowError("(Model_LoadedDataset) internal error, attempt to add null dataset");
 			return;
 		}
 		for( int xDataset = 0; xDataset < mctDatasets; xDataset++ ){
-			if( url.equals( maDatasets0[xDataset] ) ){
-				ApplicationController.vShowError("internal error, attempt to add duplicate dataset");
+			if( url == maDatasets0[xDataset] ){
+				ApplicationController.vShowError("(Model_LoadedDataset) internal error, attempt to add duplicate dataset");
 				return;
 			}
 		}

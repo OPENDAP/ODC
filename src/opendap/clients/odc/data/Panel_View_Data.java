@@ -216,14 +216,17 @@ class Model_DataView {
 			int iHeaderType = opendap.dap.ServerVersion.XDAP; // this is the simple version (eg "2.1.5"), server version strings are like "XDODS/2.1.5", these are only used in HTTP, not in files
 			opendap.dap.ServerVersion server_version = new opendap.dap.ServerVersion( sServerVersion, iHeaderType );
 			opendap.dap.DataDDS datadds = new opendap.dap.DataDDS( server_version );
-			datadds.setName( "dataset" );
+			datadds.setName( "data" );
 			StringBuffer sbError = new StringBuffer(256);
 			Model_Dataset model = Model_Dataset.createData( datadds, sbError );
 			if( model == null ){
 				ApplicationController.vShowError( "(Panel_View_Data) error creating data model: " + sbError.toString() );
 				return;
 			}
-			addDataset_DataDDS( model, "data" );
+			String sTitle = "Dataset";
+			addDataset_DataDDS( model, sTitle );
+			mDatasetList.setSelectedItem( model );
+//			mParent.panelLoadedDatasets._select( model );
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, "(Panel_View_Data) while trying to create new dataset: " );
 		}
@@ -360,6 +363,7 @@ class Model_DataView {
 class Panel_LoadedDatasets extends JPanel {
 	Panel_View_Data mParent;
 	Model_DataView modelDataView;
+	JComboBox jcbLoadedDatasets;
 	boolean zInitialize( final Panel_View_Data parent, final StringBuffer sbError ){
 
 		if( parent == null ){
@@ -370,7 +374,7 @@ class Panel_LoadedDatasets extends JPanel {
 		modelDataView = mParent.modelDataView;
 
 		// create controls
-		JComboBox jcbLoadedVariables = new JComboBox( modelDataView.mDatasetList );
+		jcbLoadedDatasets = new JComboBox( modelDataView.mDatasetList );
 		JButton buttonNewDataset = new JButton( "New" );
 		JButton buttonNewExpression = new JButton( "New Exp" );
 		JButton buttonLoad = new JButton( "Load..." );
@@ -379,12 +383,12 @@ class Panel_LoadedDatasets extends JPanel {
 		JButton buttonSaveAs = new JButton( "Save as..." );
 		JButton buttonRename = new JButton( "Rename" );
 
-		jcbLoadedVariables.setRenderer( new CellRenderer_UniqueLabel() );
-		modelDataView.mDatasetList.addListDataListener( jcbLoadedVariables );
+		jcbLoadedDatasets.setRenderer( new CellRenderer_UniqueLabel() );
+		modelDataView.mDatasetList.addListDataListener( jcbLoadedDatasets );
 
 		// layout controls
 		this.setLayout( new BoxLayout(this, BoxLayout.X_AXIS) );
-		this.add( jcbLoadedVariables );
+		this.add( jcbLoadedDatasets );
 		this.add( buttonNewDataset );
 		this.add( buttonNewExpression );
 		this.add( buttonLoad );
@@ -393,7 +397,7 @@ class Panel_LoadedDatasets extends JPanel {
 		this.add( buttonSaveAs );
 		this.add( buttonRename );
 
-		jcbLoadedVariables.addItemListener(
+		jcbLoadedDatasets.addItemListener(
 			new java.awt.event.ItemListener(){
 				public void itemStateChanged( ItemEvent event ){
 					if( mParent.mzAddingItemToList ) return; // item is being programmatically added
@@ -404,8 +408,8 @@ class Panel_LoadedDatasets extends JPanel {
 				}
 			}
 		);
-		jcbLoadedVariables.setEditable( true );
-		jcbLoadedVariables.addActionListener(
+		jcbLoadedDatasets.setEditable( false );
+		jcbLoadedDatasets.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed( ActionEvent e ){
 					if( "comboBoxEdited".equals( e.getActionCommand() ) ){
@@ -481,6 +485,20 @@ class Panel_LoadedDatasets extends JPanel {
 
 		return true;
 	}
+	void _select( Model_Dataset model ){
+		if( model == null ){
+			ApplicationController.vShowWarning( "(Panel_LoadedDatasets) internal error, attempt to select null data model" );
+			return;
+		}
+		System.out.println( "selected index: " + jcbLoadedDatasets.getSelectedIndex() );
+		System.out.println( "selected item: " + jcbLoadedDatasets.getSelectedItem() );
+		jcbLoadedDatasets.setSelectedItem( model );
+//		javax.swingListCellRender renderer = jcbLoadedDatasets.getRenderer();
+//		String sSelectedText = jcbLoadedDatasets.getModel(). 
+//		jcbLoadedDatasets.getEditor().setItem( model.getTitle() );
+		System.out.println( "selected index 2: " + jcbLoadedDatasets.getSelectedIndex() );
+		System.out.println( "selected item 2: " + jcbLoadedDatasets.getSelectedItem() );
+	}
 }
 
 // this changes the label to append a duplicate count after the string
@@ -495,20 +513,34 @@ class CellRenderer_UniqueLabel extends javax.swing.DefaultListCellRenderer {
 			boolean chf)    // the list and the cell have the focus
 	{
 		super.getListCellRendererComponent(list, value, index, iss, chf);
-		String sValue = value.toString();
-		int ctListItems = list.getModel().getSize();
-		int ctDuplicateItems = 0;
-		int xDuplicateItem = 0;
-		for( int xItem = 0; xItem < ctListItems; xItem++ ){
-			if( index == xItem ){
-				xDuplicateItem = ctDuplicateItems + 1; 
-				continue;
+		if( value == null ){
+			setText( "" );
+		} else {
+			int ctListItems = list.getModel().getSize();
+			int iSelectedIndex = list.getSelectedIndex();
+			if( index == -1 && (iSelectedIndex < 0 || iSelectedIndex >= ctListItems) ){
+				setText( "?" );
+			} else {
+				if( index == -1 ) index = iSelectedIndex;
+				String sValue = value.toString();
+				int ctDuplicateItems = 0;
+				int xDuplicateItem = 0;
+				for( int xItem = 0; xItem < ctListItems; xItem++ ){
+					if( index == xItem ){
+						xDuplicateItem = ctDuplicateItems + 1; 
+						continue;
+					}
+					Object o = list.getModel().getElementAt( xItem );
+					if( o.toString().equals( sValue ) ) ctDuplicateItems++;
+				}
+				if( ctDuplicateItems > 0 ){
+					String sText = sValue + ' ' + '(' + xDuplicateItem + ')';
+					setText( sText );
+					System.out.println( "item number " + index + " string: " + sText + " value " + sValue );
+				} else {
+					setText( sValue );
+				}
 			}
-			Object o = list.getModel().getElementAt( xItem );
-			if( o.toString().equals( sValue ) ) ctDuplicateItems++;
-		}
-		if( ctDuplicateItems > 0 ){
-			setText( sValue + ' ' + '(' + xDuplicateItem + ')' );
 		}
 		// setIcon(...); TODO
 		return this;
