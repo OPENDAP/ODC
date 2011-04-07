@@ -16,14 +16,14 @@ import javax.swing.border.TitledBorder;
 // Stream -      left: Panel_Edit_Stream             right: Panel_Define_Stream
 
 public class Panel_Edit_Container extends JPanel {
-	Panel_View_Data mParent;
-	Panel_Edit_blank mEditBlank;
+	private Panel_View_Data mParent;
+	private Panel_Edit_blank mEditBlank;
 	Panel_Edit_StructureView mEditStructure;
-	Panel_Edit_Expression mEditExpression;
-	Panel_Edit_Stream mEditStream;
-	Panel_Define_Dataset mDefineData;
-	Panel_Define_Expression mDefineExpression;
-	Panel_Define_Stream mDefineStream;
+	private Panel_Edit_Expression mEditExpression;
+	private Panel_Edit_Stream mEditStream;
+	private Panel_Define_Dataset mDefineData;
+	private Panel_Define_Expression mDefineExpression;
+	private Panel_Define_Stream mDefineStream;
 	private Panel_Edit_Container(){}
 	static Panel_Edit_Container _zCreate( Panel_View_Data parent, StringBuffer sbError ){
 		if( parent == null ){
@@ -39,7 +39,7 @@ public class Panel_Edit_Container extends JPanel {
 		panelEditContainer.mEditStream = new Panel_Edit_Stream();
 		panelEditContainer.mDefineData = new Panel_Define_Dataset();
 		panelEditContainer.mDefineStream = new Panel_Define_Stream();
-		if( ! panelEditContainer.mDefineData._zInitialize( parent, panelEditContainer.mEditStructure, sbError ) ){
+		if( ! panelEditContainer.mDefineData._zInitialize( parent, panelEditContainer, sbError ) ){
 			sbError.insert( 0, "initializing data define panel: " );
 			return null;
 		}
@@ -58,13 +58,10 @@ public class Panel_Edit_Container extends JPanel {
 		panelEditContainer._vClear();
 		return panelEditContainer;
 	}
+	Panel_Edit_StructureView _getStructureView(){ return mEditStructure; }
 	void _vClear(){
 		removeAll();
 		add( mEditBlank, BorderLayout.CENTER );
-	}
-	void _select( Node node ){
-		mEditStructure._select( node );
-		mDefineData._showVariable( node );
 	}
 	boolean _zSetModel( Model_Dataset model, StringBuffer sbError ){
 		if( model == null ){

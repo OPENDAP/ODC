@@ -28,16 +28,22 @@ public class Panel_Edit_Dataset extends JPanel {
 	Panel_View_Data view; 
 	ButtonGroup buttongroupSelection = new ButtonGroup(); // this is used to select the active variable for viewing
 	Panel_EditVariable_Controls mControls;
+	Panel_Edit_Container container;
 	private Panel_Edit_Dataset(){}
-	public Panel_Edit_Dataset( Panel_View_Data parent ){
+	public Panel_Edit_Dataset( Panel_View_Data parent, Panel_Edit_Container container ){
 		view = parent;
-		mControls = new Panel_EditVariable_Controls( this );
+		this.container = container;
+		mControls = new Panel_EditVariable_Controls( this, container );
 		setLayout( new java.awt.BorderLayout() );
 		add( mControls, java.awt.BorderLayout.CENTER );
 		setPreferredSize( new java.awt.Dimension( 400, 25 ) );
 	}	
 	void actionAddVariable( Node node ){
-		if( node.eVariableType != DAP.DAP_VARIABLE.Structure ){
+		if( node == null ){
+			ApplicationController.vShowError( "Internal error, attempt to add variable to a null node." );
+			return;
+		}
+		if( ! node.isRoot() && node.eVariableType != DAP.DAP_VARIABLE.Structure ){
 			ApplicationController.vShowError( "Attempt to add variable to a " + node.eVariableType + ". Variables may only be added to a structure." );
 			return;
 		}
@@ -47,22 +53,18 @@ public class Panel_Edit_Dataset extends JPanel {
 			return;
 		}
 		StringBuffer sbError = new StringBuffer();
-		Node new_node = node.createDefaultMember( eVariableType, sbError ); 
+		Node new_node = node.createDefaultMember( eVariableType, sbError ); // creates and adds the node 
 		if( new_node == null ){
 			ApplicationController.vShowError( "Failed to create new " +  node.eVariableType + ": " + sbError.toString() );
 			return;
 		}
-		node.setSelected( true );
-		actionSelect( node );
+		container._getStructureView()._select( new_node );
 	}
 	void actionDeleteVariable( Node node ){
 	}
 	void actionMoveVariableUp( Node node ){
 	}
 	void actionMoveVariableDown( Node node ){
-	}
-	void actionSelect( Node node ){
-		view._select( node );
 	}
 }
 
@@ -75,13 +77,14 @@ class Panel_EditVariable_Controls extends JPanel {
 	JButton button_Down;
 	JComboBox jcbVariableType;
 	JLabel labelSummary;
-	
+
 	Panel_Edit_Dataset parent;
-	Node node;
+	Panel_Edit_Container container;
 	
-	public Panel_EditVariable_Controls( final Panel_Edit_Dataset parent ){
+	public Panel_EditVariable_Controls( final Panel_Edit_Dataset parent, final Panel_Edit_Container container ){
 		
 		this.parent = parent;
+		this.container = container;
 		
 		jrbSelectVariable = new JRadioButton();
 		parent.buttongroupSelection.add( jrbSelectVariable );
@@ -92,8 +95,13 @@ class Panel_EditVariable_Controls extends JPanel {
 		button_Add.setToolTipText( "add new variable below" );
 		button_Add.addActionListener(new java.awt.event.ActionListener( ){
 			public void actionPerformed( java.awt.event.ActionEvent e ){
-				Node node = Panel_EditVariable_Controls.this.node; 
-				Panel_EditVariable_Controls.this.parent.actionAddVariable( node );
+				Panel_Edit_StructureView structure = container._getStructureView();
+				Node nodeSelected = structure._getSelectedNode();
+				if( nodeSelected == null ){
+					ApplicationController.vShowStatus_NoCache( "no element selected to add member to" );
+					return;
+				}
+				Panel_EditVariable_Controls.this.parent.actionAddVariable( nodeSelected );
 			}
 		});
 
@@ -102,8 +110,13 @@ class Panel_EditVariable_Controls extends JPanel {
 		button_Delete.setToolTipText( "delete variable" );
 		button_Delete.addActionListener(new java.awt.event.ActionListener( ){
 			public void actionPerformed(java.awt.event.ActionEvent e ){
-				Node node = Panel_EditVariable_Controls.this.node; 
-				Panel_EditVariable_Controls.this.parent.actionDeleteVariable( node );
+				Panel_Edit_StructureView structure = container._getStructureView();
+				Node nodeSelected = structure._getSelectedNode();
+				if( nodeSelected == null ){
+					ApplicationController.vShowStatus_NoCache( "no element selected for deletion" );
+					return;
+				}
+				Panel_EditVariable_Controls.this.parent.actionDeleteVariable( nodeSelected );
 			}
 		});
 		
@@ -112,8 +125,13 @@ class Panel_EditVariable_Controls extends JPanel {
 		button_Up.setToolTipText( "move variable up" );
 		button_Up.addActionListener(new java.awt.event.ActionListener( ){
 			public void actionPerformed(java.awt.event.ActionEvent e ){
-				Node node = Panel_EditVariable_Controls.this.node; 
-				Panel_EditVariable_Controls.this.parent.actionMoveVariableUp( node );
+				Panel_Edit_StructureView structure = container._getStructureView();
+				Node nodeSelected = structure._getSelectedNode();
+				if( nodeSelected == null ){
+					ApplicationController.vShowStatus_NoCache( "no element selected for moving up" );
+					return;
+				}
+				Panel_EditVariable_Controls.this.parent.actionMoveVariableUp( nodeSelected );
 			}
 		});
 		
@@ -122,8 +140,13 @@ class Panel_EditVariable_Controls extends JPanel {
 		button_Down.setToolTipText( "move variable down" );
 		button_Down.addActionListener(new java.awt.event.ActionListener( ){
 			public void actionPerformed(java.awt.event.ActionEvent e ){
-				Node node = Panel_EditVariable_Controls.this.node; 
-				Panel_EditVariable_Controls.this.parent.actionMoveVariableDown( node );
+				Panel_Edit_StructureView structure = container._getStructureView();
+				Node nodeSelected = structure._getSelectedNode();
+				if( nodeSelected == null ){
+					ApplicationController.vShowStatus_NoCache( "no element selected for moving down" );
+					return;
+				}
+				Panel_EditVariable_Controls.this.parent.actionMoveVariableDown( nodeSelected );
 			}
 		});
 		
@@ -160,12 +183,6 @@ class Panel_EditVariable_Controls extends JPanel {
 		add( Box.createRigidArea( new Dimension( 4, 0)) );
 		add( button_Down );
 		add( Box.createRigidArea( new Dimension( 4, 0)) );
-	}
-	
-	void setNode( Node node ){
-		this.node = node;
-		jcbVariableType.setSelectedItem( node.eVariableType.toString() );
-		labelSummary.setText( node.sGetSummaryText() );
 	}
 	
 	DAP.DAP_VARIABLE getSelectedType(){

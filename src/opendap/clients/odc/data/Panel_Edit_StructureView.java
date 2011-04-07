@@ -19,7 +19,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.gui.LeaflessTreeCellRenderer;
 import opendap.dap.BaseType;
 
-// see Panel_EditContainer for guide
+// see Panel_Edit_Container for guide
 // this class is used directly by the container to show the dataset structure tree
 //
 //    Panel_Define_Dataset
@@ -43,11 +43,18 @@ public class Panel_Edit_StructureView extends JPanel {
 		mTreeModel = model;
 		if( mtreeData != null ) mtreeData.setModel( mTreeModel );
 	}
+	void _select( Node node ){
+		mtreeData.setSelectionPath( node.getTreePath() );
+	}
+	Node _getSelectedNode(){
+		TreePath path = mtreeData.getSelectionPath();
+		if( path == null ) return null;
+		Object oSelected = path.getLastPathComponent();
+		if( oSelected == null ) return null;
+		return (Node)oSelected;
+	}
 	Model_Dataset_Local _getModel(){
 		return mTreeModel;
-	}
-	void _select( Node node ){
-		mTreeModel.setSelectedNode( node );
 	}
 	boolean _zInitialize( Panel_View_Data view, Panel_Define_Dataset definition_panel, StringBuffer sbError ){
 		try {

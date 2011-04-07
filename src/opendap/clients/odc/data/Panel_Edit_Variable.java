@@ -213,7 +213,7 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 				}
 			}
 		} catch( Throwable t ) {
-			ApplicationController.vShowError( "Error changing dimension name: " + t );
+			ApplicationController.vUnexpectedError( t, "Error changing dimension name: " + t );
 		}
 	}
 }

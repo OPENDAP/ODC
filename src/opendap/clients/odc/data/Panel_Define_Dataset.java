@@ -29,10 +29,11 @@ public class Panel_Define_Dataset extends JPanel {
 	public Dimension getMinimumSize(){
 		return dimMinimum;
 	}
-	boolean _zInitialize( Panel_View_Data parent, Panel_Edit_StructureView structure_view, StringBuffer sbError ){
+	boolean _zInitialize( Panel_View_Data parent, Panel_Edit_Container container, StringBuffer sbError ){
 		try {
 			mParent = parent;
-			mEditingControls = new Panel_Edit_Dataset( mParent );
+			Panel_Edit_StructureView structure_view = container.mEditStructure;
+			mEditingControls = new Panel_Edit_Dataset( mParent, container );
 			mVariableEditingPanel = Panel_Edit_Variable._create( this, structure_view, sbError );
 			if( mVariableEditingPanel == null  ){
 				sbError.insert( 0, "failed to create variable editing panel: " );
