@@ -257,7 +257,7 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 					Node_Grid nodeGrid = (Node_Grid)nodeCurrent;
 					Node_Array nodeValueArray = nodeGrid.arrayValues;
 					DArray btValueArray = new DArray();
-					btValueArray.getPrimitiveVector().setInternalStorage( nodeValueArray.primitive_vector );
+					btValueArray.getPrimitiveVector().setInternalStorage( nodeValueArray.getPrimitiveVector() );
 					for( int xDimension = 1; xDimension <= nodeValueArray.listDimensions.size(); xDimension++ ){
 						DArrayDimension dimension = nodeValueArray.listDimensions.get( xDimension - 1 );
 						btValueArray.appendDim( dimension.getSize(), dimension.getClearName() );
@@ -279,7 +279,7 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 				case Array:
 					DArray btArray = (DArray)new_bt;
 					Node_Array nodeArray = (Node_Array)nodeCurrent;
-					btArray.getPrimitiveVector().setInternalStorage( nodeArray.primitive_vector );
+					btArray.getPrimitiveVector().setInternalStorage( nodeArray.getPrimitiveVector() );
 					for( int xDimension = 1; xDimension <= nodeArray.listDimensions.size(); xDimension++ ){
 						DArrayDimension dimension = nodeArray.listDimensions.get( xDimension - 1 );
 						btArray.appendDim( dimension.getSize(), dimension.getClearName() );
@@ -623,7 +623,6 @@ class Node extends DefaultMutableTreeNode {   // functions as both the root node
 			case Array:
 				DArray array = (DArray)bt;
 				Node_Array nodeArray = (Node_Array)new_node;
-				nodeArray.primitive_vector = array.getPrimitiveVector();
 				java.util.Enumeration dimension_list = array.getDimensions();
 				int xDimension = 0;
 				while( dimension_list.hasMoreElements() ){
@@ -679,84 +678,56 @@ class Node extends DefaultMutableTreeNode {   // functions as both the root node
 		return getName();
 	}
 	
+	static BaseType createDefaultBaseType( StringBuffer sbError ){ // subclass must override
+		return null;
+	}
+	
 	Node createDefaultMember( DAP_VARIABLE variable_type, StringBuffer sbError ){
-		String sDefaultVariableName = "new_variable";
 		BaseType new_bt = null;
 		switch( variable_type ){
 			case Structure:
-				new_bt = new DStructure(); break;
+				new_bt = Node_Structure.createDefaultBaseType( sbError ); break;
 			case Grid:
-				new_bt = new DGrid(); break;
+				new_bt = Node_Grid.createDefaultBaseType( sbError ); break;
 			case Sequence:
-				new_bt = new DSequence(); break;
+				new_bt = Node_Sequence.createDefaultBaseType( sbError ); break;
 			case Array:
-				new_bt = new DArray(); break;
+				new_bt = Node_Array.createDefaultBaseType( sbError ); break;
 			case Byte:
-				new_bt = new DByte(); break;
+				new_bt = Node_Byte.createDefaultBaseType( sbError ); break;
 			case Int16:
-				new_bt = new DInt16(); break;
+				new_bt = Node_Int16.createDefaultBaseType( sbError ); break;
 			case Int32:
-				new_bt = new DInt32(); break;
+				new_bt = Node_Int32.createDefaultBaseType( sbError ); break;
 			case UInt16:
-				new_bt = new DUInt16(); break;
+				new_bt = Node_UInt16.createDefaultBaseType( sbError ); break;
 			case UInt32:
-				new_bt = new DUInt32(); break;
+				new_bt = Node_UInt32.createDefaultBaseType( sbError ); break;
 			case Float32:
-				new_bt = new DFloat32(); break;
+				new_bt = Node_Float32.createDefaultBaseType( sbError ); break;
 			case Float64:
-				new_bt = new DFloat64(); break;
+				new_bt = Node_Float64.createDefaultBaseType( sbError ); break;
 			case String:
-				new_bt = new DString(); break;
+				new_bt = Node_String.createDefaultBaseType( sbError ); break;
 		}
-		new_bt.setClearName( sDefaultVariableName );
-		new_bt.setParent( getBaseType() );
 		// create attribute table TODO
-		switch( variable_type ){
-			case Structure:
-				// no further initialization required
-				break;
-			case Grid:
-				// no further initialization required
-				break;
-			case Sequence:
-				// no further initialization required
-				break;
-			case Array:
-				// no further initialization required
-				break;
-			case Byte:
-				// no further initialization required
-				break;
-			case Int16:
-				// no further initialization required
-				break;
-			case Int32:
-				// no further initialization required
-				break;
-			case UInt16:
-				// no further initialization required
-				break;
-			case UInt32:
-				// no further initialization required
-				break;
-			case Float32:
-				// no further initialization required
-				break;
-			case Float64:
-				// no further initialization required
-				break;
-			case String:
-				// no further initialization required
-				break;
-		}
 		Node new_node = Node.create( this, new_bt, sbError );
 		if( new_node == null ){
 			sbError.insert( 0, "failed to create new node: " );
 			return null;
 		}
+		new_bt.setParent( getBaseType() );
 		subnodes.add( new_node );
 		modelParent.insertNodeInto( new_node, this, this.getChildCount() ); // add new member at end
 		return new_node;
+	}
+}
+
+class Node_Structure extends Node {
+	DStructure dstructure;
+	protected Node_Structure( DStructure bt ){
+		super( bt );
+		dstructure = bt;
 	}
 }
 
@@ -800,14 +771,31 @@ class Node_Sequence extends Node {
 }
 
 class Node_Array extends Node {
+	public static String DEFAULT_DimensionName = "dim";	
 	DArray darray;
 	protected Node_Array( DArray bt ){
 		super( bt );
 		darray = bt;
 	}
 	DAP_TYPE eDataType;
-	ArrayList<DArrayDimension> listDimensions = new ArrayList<DArrayDimension>(); 
-	PrimitiveVector primitive_vector; // the data values, if any	
+	ArrayList<DArrayDimension> listDimensions = new ArrayList<DArrayDimension>();
+	PrimitiveVector getPrimitiveVector(){ return darray.getPrimitiveVector(); }
+	static BaseType createDefaultBaseType( StringBuffer sbError ){
+		DArray array = new DArray();
+		array.setName( "array1" );
+		array.appendDim( 100, "dim1");
+		try {
+			DArrayDimension d = array.getDimension(0);
+			
+		} catch( Exception ex ){}
+		opendap.dap.DInt32 template = new opendap.dap.DInt32();
+		template.setName( "template_name" );
+		array.addVariable( template ); // this creates the primitive vector inside the array
+		int[] aiDefaultArray = new int[100];
+		PrimitiveVector pv = array.getPrimitiveVector();
+		pv.setInternalStorage( aiDefaultArray );
+		return array;
+	}
 	String sGetSummaryText(){
 		StringBuffer sb = new StringBuffer( 250 );
 		sb.append( getName() );
