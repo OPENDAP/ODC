@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.DefaultCellEditor;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
@@ -18,6 +20,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.DAP;
 import opendap.clients.odc.FormLayout;
 import opendap.clients.odc.Utility_String;
+import opendap.clients.odc.gui.Resources;
 import opendap.dap.BaseType;
 import opendap.dap.DArray;
 import opendap.dap.DArrayDimension;
@@ -93,19 +96,15 @@ public class Panel_Edit_Variable extends JPanel {
 			switch( DAP.getType( bt ) ){
 				case Array:
 					mActiveEditor = editArray;
-					System.out.println( "showing array editor" );
 					break;
 				case Grid:
 					mActiveEditor = editGrid;
-					System.out.println( "showing grid editor" );
 					break;
 				case Sequence:
 					mActiveEditor = editSequence;
-					System.out.println( "showing sequence editor" );
 					break;
 				case Structure:
 					mActiveEditor = editStructure;
-					System.out.println( "showing structure editor, layout " + editStructure.layout + " with " + editStructure.layout.listDefinedElements.size() + " elements" );
 					break;
 				case Byte:
 				case Int16:
@@ -229,72 +228,95 @@ class Panel_Edit_Variable_root extends Panel_Edit_VariableEditor {
 }
 
 class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
-	private DArray btArray_active = null;
+	private Node_Array nodeActive = null;
 	public static final int MAX_DIMENSIONS = 10;
 	public static final int INDENT = 10;
 	public static final int LABEL_MARGIN = 4;
+	public static final int BUTTON_MARGIN = 7;
+	public static final int BUTTON_SPACING = 5;
 	public static final int COLUMN_SPACING = 6;
-	private JLabel labelType = new JLabel( "Value Type:" );
+	private JLabel labelValueCount = new JLabel( "Value Count:" );
+	private JLabel labelValueCount_value = new JLabel( "0" );
+	private JLabel labelValueType = new JLabel( "Value Type:" );
 	private JComboBox jcbType;
 	private JLabel labelDimensions = new JLabel( "Dimensions:" );
 	private JButton buttonAddDimension = new JButton( "New" );
 	private ArrayList<JPanel> listDimensionPanel = new ArrayList<JPanel>(); 
 	private ArrayList<JTextField> listDimensionNameJTF = new ArrayList<JTextField>(); 
-	private ArrayList<JTextField> listDimensionSizeJTF = new ArrayList<JTextField>(); 
+	private ArrayList<JTextField> listDimensionSizeJTF = new ArrayList<JTextField>();
+	private ArrayList<JButton> listDimensionDelete = new ArrayList<JButton>(); 
+	private ArrayList<JButton> listDimensionUp = new ArrayList<JButton>(); 
+	private ArrayList<JButton> listDimensionDown = new ArrayList<JButton>(); 
 	void _show( Node node ){
 		super._show( node );
-		btArray_active = (DArray)node.getBaseType();
-		jcbType.setSelectedItem( DAP.getTypeEnumByName( btArray_active.getTypeName() ) );
-		int xDimension = 1;
-		for( ; xDimension <= btArray_active.getLength(); xDimension++ ){
-			opendap.dap.DArrayDimension dimension;
-			try {
-				dimension = btArray_active.getDimension( xDimension - 1 );
-			} catch( Throwable t ) {
-				continue; // TODO issue error
-			}
-			listDimensionPanel.get( xDimension - 1).setVisible( true );
-			listDimensionNameJTF.get( xDimension - 1 ).setVisible( true );
-			listDimensionNameJTF.get( xDimension - 1 ).setText( dimension.getName() );
-			listDimensionSizeJTF.get( xDimension - 1 ).setVisible( true );
-			listDimensionSizeJTF.get( xDimension - 1 ).setText( Integer.toString( dimension.getSize() ) );
+		nodeActive = (Node_Array)node;
+		labelValueCount_value.setText( Integer.toString( nodeActive.getValueCount() ) );
+		jcbType.setSelectedItem( DAP.getTypeEnumByName( nodeActive.getValueTypeString() ) );
+		int xDimension1 = 1;
+		int ctDimension = nodeActive.getDimensionCount();
+		for( ; xDimension1 <= ctDimension; xDimension1++ ){
+			listDimensionNameJTF.get( xDimension1 - 1 ).setText( nodeActive.getDimensionName( xDimension1 ) );
+			listDimensionSizeJTF.get( xDimension1 - 1 ).setText( Integer.toString( nodeActive.getDimensionSize( xDimension1 ) ) );
+			listDimensionDelete.get( xDimension1 - 1 ).setVisible( ctDimension > 1 );
+			listDimensionUp.get( xDimension1 - 1 ).setVisible( xDimension1 > 1 );
+			listDimensionDown.get( xDimension1 - 1 ).setVisible( xDimension1 < ctDimension );
+			listDimensionPanel.get( xDimension1 - 1 ).setVisible( true );
 		}
-		for( ; xDimension <= MAX_DIMENSIONS; xDimension++ ){
-			listDimensionPanel.get( xDimension - 1).setVisible( false );
+		for( ; xDimension1 <= MAX_DIMENSIONS; xDimension1++ ){
+			listDimensionPanel.get( xDimension1 - 1).setVisible( false );
 		}
 	}
 	boolean _zInitialize( Panel_Edit_StructureView structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
 		Class<?> class_DAP_TYPE = DAP.DAP_TYPE.class;
 		jcbType = new JComboBox( class_DAP_TYPE.getEnumConstants() ) ;
-		layout.add( labelType, jcbType );  
+		layout.add( labelValueCount, labelValueCount_value );  
+		layout.add( labelValueType, jcbType );  
 		layout.add( labelDimensions, buttonAddDimension );
 		listDimensionPanel.clear();
 		listDimensionNameJTF.clear();
 		listDimensionSizeJTF.clear();
-		for( int xDimension = 1; xDimension <= MAX_DIMENSIONS; xDimension++ ){
+		listDimensionDelete.clear();
+		listDimensionUp.clear();
+		listDimensionDown.clear();
+		Dimension dimName_preferred = new Dimension( 120, 25 );
+		Dimension dimSize_preferred = new Dimension( 50, 25 );
+		for( int xDimension1 = 1; xDimension1 <= MAX_DIMENSIONS; xDimension1++ ){
 			final JPanel panelDimensionEditor = new JPanel();
 			final JTextField jtfDimensionName = new JTextField();
-			final JTextField jtfDimensionSize = new JTextField(); 
+			final JTextField jtfDimensionSize = new JTextField();
+			final JButton buttonDelete = new JButton( new ImageIcon( Resources.imageNavigateMinus ) );
+			final JButton buttonUp = new JButton( new ImageIcon( Resources.imageArrowUp ) );
+			final JButton buttonDown = new JButton( new ImageIcon( Resources.imageArrowDown ) );
+			jtfDimensionName.setPreferredSize( new Dimension( dimName_preferred ) );
+			jtfDimensionSize.setPreferredSize( new Dimension( dimSize_preferred ) );
 			listDimensionNameJTF.add( jtfDimensionName );
 			listDimensionSizeJTF.add( jtfDimensionSize );
+			listDimensionDelete.add( buttonDelete );
+			listDimensionUp.add( buttonUp );
+			listDimensionDown.add( buttonDown );
 			panelDimensionEditor.setLayout( new BoxLayout( panelDimensionEditor, BoxLayout.X_AXIS ) );
-			panelDimensionEditor.add( new JLabel( "Name:" ) );
-			panelDimensionEditor.add( Box.createHorizontalStrut( LABEL_MARGIN ) );
-			panelDimensionEditor.add( jtfDimensionName );
-			panelDimensionEditor.add( Box.createHorizontalStrut( COLUMN_SPACING ) );
 			panelDimensionEditor.add( new JLabel( "Size:" ) );
 			panelDimensionEditor.add( Box.createHorizontalStrut( LABEL_MARGIN ) );
 			panelDimensionEditor.add( jtfDimensionSize ); 
+			panelDimensionEditor.add( Box.createHorizontalStrut( COLUMN_SPACING ) );
+			panelDimensionEditor.add( new JLabel( "Name:" ) );
+			panelDimensionEditor.add( Box.createHorizontalStrut( LABEL_MARGIN ) );
+			panelDimensionEditor.add( jtfDimensionName );
+			panelDimensionEditor.add( Box.createHorizontalStrut( BUTTON_MARGIN ) );
+			panelDimensionEditor.add( buttonDelete );
+			panelDimensionEditor.add( Box.createHorizontalStrut( BUTTON_SPACING ) );
+			panelDimensionEditor.add( buttonUp );
+			panelDimensionEditor.add( Box.createHorizontalStrut( BUTTON_SPACING ) );
+			panelDimensionEditor.add( buttonDown );
 			listDimensionPanel.add( panelDimensionEditor );
 			layout.add( Box.createHorizontalStrut( INDENT ), panelDimensionEditor );  
 			
-			final int xDimension_final = xDimension;
+			final int xDimension_final1 = xDimension1;
 			jtfDimensionName.addFocusListener(
 				new java.awt.event.FocusAdapter(){
 					public void focusLost(java.awt.event.FocusEvent evt) {
-						String sNewName = jtfDimensionName.getText();
-						if( ! sNewName.equals( btArray_active.getName() ) ) setDimensionName( xDimension_final, sNewName );
+						// do nothing
 					}
 				}
 			);
@@ -302,15 +324,14 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 				new java.awt.event.ActionListener(){
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
 						String sNewName = jtfDimensionName.getText();
-						if( ! sNewName.equals( btArray_active.getName() ) ) setDimensionName( xDimension_final, sNewName );
+						if( ! sNewName.equals( nodeActive.getName() ) ) setDimensionName( xDimension_final1, sNewName );
 					}
 				}
 			);
 			jtfDimensionSize.addFocusListener(
 				new java.awt.event.FocusAdapter(){
 					public void focusLost(java.awt.event.FocusEvent evt) {
-						String sNewSize = jtfDimensionSize.getText();
-						if( ! sNewSize.equals( btArray_active.getName() ) ) setDimensionSize( xDimension_final, sNewSize );
+						// do nothing
 					}
 				}
 			);
@@ -318,34 +339,61 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 				new java.awt.event.ActionListener(){
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
 						String sNewSize = jtfDimensionSize.getText();
-						if( ! sNewSize.equals( btArray_active.getName() ) ) setDimensionSize( xDimension_final, sNewSize );
+						if( ! sNewSize.equals( nodeActive.getDimensionSize( xDimension_final1 ) ) ) setDimensionSize( xDimension_final1, sNewSize );
+					}
+				}
+			);
+			buttonDelete.addActionListener( 
+				new java.awt.event.ActionListener(){
+					public void actionPerformed( java.awt.event.ActionEvent evt ){
+						JOptionPane.showMessageDialog( Panel_Edit_Variable_Array.this, "not implemented" );
 					}
 				}
 			);
 		}
+		buttonAddDimension.addActionListener( 
+			new java.awt.event.ActionListener(){
+				public void actionPerformed( java.awt.event.ActionEvent evt ){
+					addDimension();
+				}
+			}
+		);
 		return true;
 	}
-	void setDimensionName( int xDimension0, String sNewName ){
-		try {
-			opendap.dap.DArrayDimension dimension = btArray_active.getDimension( xDimension0 );
-			dimension.setName( sNewName );
-		} catch( Throwable t ) {
-			ApplicationController.vShowError( "Error changing dimension name: " + t );
+	void addDimension(){
+		StringBuffer sbError = new StringBuffer( 256 );
+		if( nodeActive.addDimension(sbError) ){
+			_show( nodeActive );
+		} else {
+			ApplicationController.vShowError( "Error adding new dimension: " + sbError );
 		}
 	}
-	void setDimensionSize( int xDimension0, String sNewSize ){
+	void setDimensionName( int xDimension1, String sNewName ){
+		StringBuffer sbError = new StringBuffer( 256 );
+		if( nodeActive.setDimensionName( xDimension1, sNewName, sbError ) ){
+			ApplicationController.vShowStatus( "Changed dimension " + xDimension1 + " name to " + sNewName );
+		} else {
+			ApplicationController.vShowError( "Error changing dimension name: " + sbError );
+		}
+		_show( nodeActive );
+		System.out.println( "showed active" );
+	}
+	void setDimensionSize( int xDimension1, String sNewSize ){
 		try {
 			int iNewSize = Integer.parseInt( sNewSize );
-			if( iNewSize < 1 || iNewSize > 9 ){
-				ApplicationController.vShowError( "New size: " + sNewSize + " is invalid. It must be a positive integer greater than 0 and less than 10." );			
+			StringBuffer sbError = new StringBuffer( 256 );
+			if( nodeActive.setDimensionSize( xDimension1, iNewSize, sbError ) ){
+				ApplicationController.vShowStatus( "Changed dimension " + xDimension1 + " size to " + iNewSize );
+			} else {
+				ApplicationController.vShowError( "Error changing size of dimension " + xDimension1 + ": " + sbError );
 			}
-			opendap.dap.DArrayDimension dimension = btArray_active.getDimension( xDimension0 );
-			dimension.setSize( iNewSize );
+			_show( nodeActive ); 
 		} catch( NumberFormatException e ) {
 			ApplicationController.vShowError( "New size: " + sNewSize + " could not be interpreted as an integer." );			
 		} catch( Throwable t ) {
-			ApplicationController.vShowError( "Error changing dimension size: " + t );
+			ApplicationController.vShowError( "Error changing size of dimension " + xDimension1 + ": " + t );
 		}
+		_show( nodeActive );
 	}
 }
 class Panel_Edit_Variable_Grid extends Panel_Edit_VariableEditor {

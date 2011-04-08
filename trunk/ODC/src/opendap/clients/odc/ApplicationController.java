@@ -176,6 +176,7 @@ public class ApplicationController {
 			} else {
 				thisInstance.vActivate();
 			}
+//			vRedirectStandardOut();
 		} catch( Throwable t ) {
 			String sStackTrace = Utility.errorExtractStackTrace( t );
 			System.out.println("Unexpected error starting application: " + sStackTrace);
@@ -194,6 +195,15 @@ public class ApplicationController {
 		return true;
 	}
 
+	static void vRedirectStandardOut(){
+		PrintStream ps = new PrintStream( System.out ){
+			public void print( final String string ){
+				new RuntimeException().printStackTrace();
+			}
+		};
+		System.setOut( ps );
+    }
+	
 	void vActivate(){
 		thisSingleton.appframe.vActivate();
 		vSetFrameBounds();
