@@ -293,6 +293,26 @@ ScanForStartOfMatch:
 		return sFixedWidth(Integer.toString(intSz), 3, '0', ALIGNMENT_RIGHT) + cOrder;
 	}
 
+	public static String getByteCountReadable( long nBytes ){
+		char cOrder;
+		double dSz;
+		if( nBytes < 1000 ){
+			return Long.toString( nBytes );
+		} else
+		if( nBytes < 0x100000 ){ // kilobytes
+			dSz = nBytes / 1024;
+			cOrder = 'K';
+		} else
+		if( nBytes < 0x40000000 ){ // megabytes
+			dSz = nBytes / 0x100000;
+			cOrder = 'M';
+		} else {
+			dSz = nBytes / 0x40000000;
+			cOrder = 'G';
+		}
+		return truncate( Double.toString(dSz), 4 ) + cOrder;
+	}
+	
 	/** Returns the text in between two strings within a string.
 	 *     - if left frame is null, returns everything to left of right frame
 	 *     - if right frame is null, returns everything to right of left frame
@@ -671,6 +691,12 @@ ScanForStartOfMatch:
 		int pos = sReverse( s ).lastIndexOf( c );
 		if( pos == -1 ) return s;
 		return s.substring( 0, pos );
+	}
+
+	/** Truncates a string after a set number of characters */
+	final public static String truncate( String s, int iCharacters ){
+		if( s.length() <= iCharacters ) return s;
+		return s.substring( 0, iCharacters - 1 );
 	}
 	
 }

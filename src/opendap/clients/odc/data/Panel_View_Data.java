@@ -533,7 +533,6 @@ class CellRenderer_UniqueLabel extends javax.swing.DefaultListCellRenderer {
 				if( ctDuplicateItems > 0 ){
 					String sText = sValue + ' ' + '(' + xDuplicateItem + ')';
 					setText( sText );
-					System.out.println( "item number " + index + " string: " + sText + " value " + sValue );
 				} else {
 					setText( sValue );
 				}

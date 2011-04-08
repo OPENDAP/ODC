@@ -162,6 +162,19 @@ public class DAP {
 		if( pvector instanceof UInt32PrimitiveVector ) return DATA_TYPE_Int32;
 		return 0;
 	}
+	public static DAP_TYPE getDAPType( DArray darray ){
+		if( darray == null ) return null;
+		PrimitiveVector pvector = darray.getPrimitiveVector();
+		if( pvector instanceof BytePrimitiveVector ) return DAP_TYPE.Byte;
+		if( pvector instanceof Int16PrimitiveVector ) return DAP_TYPE.Int16;
+		if( pvector instanceof Int32PrimitiveVector ) return DAP_TYPE.Int32;
+		if( pvector instanceof Float32PrimitiveVector ) return DAP_TYPE.Float32;
+		if( pvector instanceof Float64PrimitiveVector ) return DAP_TYPE.Float64;
+		if( pvector instanceof UInt16PrimitiveVector ) return DAP_TYPE.UInt16;
+		if( pvector instanceof UInt32PrimitiveVector ) return DAP_TYPE.Int32;
+		return null;
+	}
+	
 	public static String getDArrayType_String( DArray darray ){
 		return getType_String(getDArrayType(darray));
 	}
@@ -1053,6 +1066,135 @@ public class DAP {
 		}
 	}
 
+	public static boolean zDimension_Add( Object[] eggData, DAP_TYPE eDataType, int iNewDimLength, StringBuffer sbError ){
+		try {
+			int ctValues;
+			int ctValues_new;
+			switch( eDataType ){
+				case Byte:
+				case Int16:
+					short[] ashValues = (short[])eggData[0];
+					ctValues = ashValues.length;
+					ctValues_new = ctValues * iNewDimLength;
+					short[] ashValues_new = new short[ctValues_new];
+					System.arraycopy( ashValues, 0, ashValues_new, 0, ctValues );
+					eggData[0] = ashValues_new;
+					break;
+				case UInt16:
+				case Int32:
+					int[] aiValues = (int[])eggData[0];
+					ctValues = aiValues.length;
+					ctValues_new = ctValues * iNewDimLength;
+					int[] aiValues_new = new int[ctValues_new];
+					System.arraycopy( aiValues, 0, aiValues_new, 0, ctValues );
+					eggData[0] = aiValues_new;
+					break;
+				case UInt32:
+					long[] anValues = (long[])eggData[0];
+					ctValues = anValues.length;
+					ctValues_new = ctValues * iNewDimLength;
+					long[] anValues_new = new long[ctValues_new];
+					System.arraycopy( anValues, 0, anValues_new, 0, ctValues );
+					eggData[0] = anValues_new;
+					break;
+				case Float32:
+					float[] afValues = (float[])eggData[0];
+					ctValues = afValues.length;
+					ctValues_new = ctValues * iNewDimLength;
+					float[] afValues_new = new float[ctValues_new];
+					System.arraycopy( afValues, 0, afValues_new, 0, ctValues );
+					eggData[0] = afValues_new;
+					break;
+				case Float64:
+					double[] adValues = (double[])eggData[0];
+					ctValues = adValues.length;
+					ctValues_new = ctValues * iNewDimLength;
+					double[] adValues_new = new double[ctValues_new];
+					System.arraycopy( adValues, 0, adValues_new, 0, ctValues );
+					eggData[0] = adValues_new;
+					break;
+				case String:
+					String[] asValues = (String[])eggData[0];
+					ctValues = asValues.length;
+					ctValues_new = ctValues * iNewDimLength;
+					String[] asValues_new = new String[ctValues_new];
+					System.arraycopy( asValues, 0, asValues_new, 0, ctValues );
+					eggData[0] = asValues_new;
+					break;
+				default:
+					sbError.append("unknown array data type: " + eDataType);
+					return false;
+			}
+			return true;
+		} catch(Exception ex) {
+			ApplicationController.vUnexpectedError(ex, sbError);
+			return false;
+		}
+	}
+
+	public static boolean zDimension_ModifySize( Object[] eggData, DAP_TYPE eDataType, int[] aiDimLengths, int xDimension1, int iNewDimLength, StringBuffer sbError ){
+		try {
+			int ctValues;
+			int ctValues_new;
+			int ctDimensions = aiDimLengths[0];
+			switch( eDataType ){
+				case Byte:
+				case Int16:
+					short[] ashValues = (short[])eggData[0];
+					ctValues = ashValues.length;
+					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
+					short[] ashValues_new = new short[ctValues_new];
+					eggData[0] = ashValues_new;
+					break;
+				case UInt16:
+				case Int32:
+					int[] aiValues = (int[])eggData[0];
+					ctValues = aiValues.length;
+					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
+					int[] aiValues_new = new int[ctValues_new];
+					System.out.format( "new size dap %d %d %d %d ", ctValues_new, ctValues, aiDimLengths[xDimension1], iNewDimLength );
+					eggData[0] = aiValues_new;
+					break;
+				case UInt32:
+					long[] anValues = (long[])eggData[0];
+					ctValues = anValues.length;
+					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
+					long[] anValues_new = new long[ctValues_new];
+					eggData[0] = anValues_new;
+					break;
+				case Float32:
+					float[] afValues = (float[])eggData[0];
+					ctValues = afValues.length;
+					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
+					float[] afValues_new = new float[ctValues_new];
+					eggData[0] = afValues_new;
+					break;
+				case Float64:
+					double[] adValues = (double[])eggData[0];
+					ctValues = adValues.length;
+					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
+					double[] adValues_new = new double[ctValues_new];
+					eggData[0] = adValues_new;
+					break;
+				case String:
+					String[] asValues = (String[])eggData[0];
+					ctValues = asValues.length;
+					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
+					String[] asValues_new = new String[ctValues_new];
+					eggData[0] = asValues_new;
+					break;
+				default:
+					sbError.append("unknown array data type: " + eDataType);
+					return false;
+			}
+			return true;
+		} catch(Exception ex) {
+			ApplicationController.vUnexpectedError(ex, sbError);
+			return false;
+		}
+	}
+	
+	
 	public static String toBinaryString( byte b ){
 		StringBuffer sb = new StringBuffer(8);
 		for(int xDigit = 1; xDigit <= 8; xDigit++){

@@ -45,7 +45,7 @@ public class Panel_Define_Dataset extends JPanel {
 			// set up panel
 			setMinimumSize( dimMinimum );
 //			setPreferredSize( dimPreferred );
-			setBorder( BorderFactory.createTitledBorder(borderEtched, "Define Dataset", TitledBorder.RIGHT, TitledBorder.TOP) );
+			setBorder( BorderFactory.createTitledBorder(borderEtched, "Define Variable", TitledBorder.RIGHT, TitledBorder.TOP) );
 			setLayout( new BorderLayout() );
 			add( mEditingControls, BorderLayout.NORTH );
 			add( mVariableEditingPanel, BorderLayout.CENTER );
