@@ -2,8 +2,10 @@ package opendap.clients.odc.data;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 import opendap.clients.odc.ApplicationController;
@@ -14,6 +16,16 @@ public class Panel_Edit_ViewArray extends javax.swing.JPanel {
 	private static boolean mzFatalError = false;
 	private Font fontHeader = new Font( "LucidaBrightDemiBold", Font.PLAIN, 12 );
 	private Font fontValue = new Font( "LucidaBrightDemiBold", Font.PLAIN, 12 );
+	private Color colorHeaderBackground = new Color( 0xFF9FE5FF ); // muted blue
+	private Color colorHeaderText = new Color( 0xFF505050 ); // dark gray
+	private Color colorGridlines = new Color( 0xFFB0B0B0 ); // light gray
+	
+	private Panel_Edit_ViewArray(){}
+	
+	final static Panel_Edit_ViewArray _create( StringBuffer sbError ){
+		Panel_Edit_ViewArray panel = new Panel_Edit_ViewArray();
+		return panel;
+	}
 	
 	public void paintComponent( Graphics g ){
 		try {
@@ -26,7 +38,10 @@ public class Panel_Edit_ViewArray extends javax.swing.JPanel {
 		super.paintComponent(g);
 	}
 
-	private void vUpdateImage( int[][] ai, int xD1, int xD2 ){
+	public void _vUpdateImage( Node_Array node ){
+		Model_VariableView view = node._getView();
+		int xD1 = view.array_origin_x;
+		int xD2 = view.array_origin_y;
 
 		// standard scaled area
 		int pxCanvasWidth = this.getWidth();
@@ -36,53 +51,119 @@ public class Panel_Edit_ViewArray extends javax.swing.JPanel {
 			mbi = new BufferedImage( pxCanvasWidth, pxCanvasHeight, BufferedImage.TYPE_INT_ARGB );
 		}
 		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
-		int pxCellWidth = 80;
-		int pxCellHeight = 20;
 		
-		int ctRows = ai.length;
-		int ctColumns = ai[0].length;
+		g2.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF );
+		
+		int pxCell_width = 80;
+		int pxCell_height = 20;
+		int pxRowHeader_width = 60;
+		int pxColumnHeader_height = pxCell_height;  
+		
+		int ctRows = node._getRowCount();
+		int ctColumns = node._getColumnCount();
+
+		// draw header backgrounds
+		int posColumnHeader_x = pxRowHeader_width; 
+		int posColumnHeader_y = 0;
+		int pxColumnHeader_width = pxCanvasWidth - posColumnHeader_x;
+		if( pxColumnHeader_width > ctColumns * pxCell_width ) pxColumnHeader_width = ctColumns * pxCell_width;
+		int posRowHeader_x = 0;
+		int posRowHeader_y = pxColumnHeader_height;
+		int pxRowHeader_height = pxCanvasHeight - posRowHeader_y;
+		if( pxRowHeader_height > ctRows * pxCell_height ) pxRowHeader_height = ctRows * pxCell_height;   
+		g2.setColor( colorHeaderBackground );
+		g2.fillRect( posColumnHeader_x, posColumnHeader_y, pxColumnHeader_width, pxColumnHeader_height );
+		g2.fillRect( posRowHeader_x, posRowHeader_y, pxRowHeader_width, pxRowHeader_height );
 		
 		// draw column headers centered
 		g2.setFont( fontHeader );
+		g2.setColor( colorHeaderText );
 		FontMetrics fmHeader = g2.getFontMetrics( fontHeader );
 		int pxHeaderFontHeight = fmHeader.getAscent() + fmHeader.getLeading(); // digits do not have descents
-		int offsetY = (pxCellHeight - pxHeaderFontHeight) / 2; 
+		int offsetY = (pxCell_height - pxHeaderFontHeight) / 2; 
 		int posCell_x = 0;
 		int posCell_y = 0;
-		posCell_x += pxCellWidth; // advance cursor past row header
+		posCell_x = pxRowHeader_width; // advance cursor past row header
 		for( int xColumn = xD2; xColumn <= ctColumns; xColumn++ ){
 			String sHeaderText = Integer.toString( xColumn );
 			int iStringWidth = fmHeader.stringWidth( sHeaderText );
-			int offsetX = (pxCellWidth - iStringWidth ) / 2;
+			int offsetX = (pxCell_width - iStringWidth ) / 2;
 			g2.drawString( sHeaderText, posCell_x + offsetX, posCell_y + offsetY );
-			posCell_x += pxCellWidth; // advance to next cell
+			posCell_x += pxCell_width; // advance to next cell
 			if( posCell_x > pxCanvasWidth ) break; // not enough canvas to draw all the columns
 		}
 
 		// draw row headers centered
 		posCell_x = 0; // start at lefthand edge of screen
-		posCell_y += pxCellHeight; // advance cursor past column header
-		for( int xRow = xD1; xRow <= ai.length; xRow++ ){
+		posCell_y += pxCell_height; // advance cursor past column header
+		for( int xRow = xD1; xRow <= ctRows; xRow++ ){
 			String sHeaderText = Integer.toString( xRow );
 			int iStringWidth = fmHeader.stringWidth( sHeaderText );
-			int offsetX = (pxCellWidth - iStringWidth ) / 2;
+			int offsetX = (pxCell_width - iStringWidth ) / 2;
 			g2.drawString( sHeaderText, posCell_x + offsetX, posCell_y + offsetY );
-			posCell_y += pxCellHeight; // advance to next cell
+			posCell_y += pxCell_height; // advance to next cell
 			if( posCell_y > pxCanvasHeight ) break; // not enough canvas to draw all the columns
 		}
 
-		// draw cell values
-		g2.setFont( fontValue );
-		FontMetrics fmValue = g2.getFontMetrics( fontValue );
-		int pxValueFontHeight = fmValue.getAscent() + fmValue.getLeading(); // digits do not have descents
-		for( int xRow = xD1; xRow <= ctRows; xRow++ ){
-			for( int xColumn = xD2; xColumn <= ai[0].length; xColumn++ ){
-			}
-		}
-		
 		// draw grid lines
+		g2.setColor( colorGridlines );
+		int posLine_x = posColumnHeader_x;
+		int posLine_y = pxColumnHeader_height;
+		int posLine_width = pxCanvasWidth;
+		int posLine_height = pxCanvasHeight;
+		if( posLine_width > posColumnHeader_x + ctColumns * pxCell_width ) posLine_width = posColumnHeader_x + ctColumns * pxCell_width;  
+		if( posLine_height > pxColumnHeader_height + ctRows * pxCell_height ) posLine_height = pxColumnHeader_height + ctRows * pxCell_height;  
+		while( true ){
+			if( posLine_x > pxCanvasWidth ) break;
+			g2.drawLine( posLine_x, 0, posLine_x, posLine_height );
+			posLine_x += pxCell_width; 
+		}
+		while( true ){
+			if( posLine_y > pxCanvasHeight ) break;
+			g2.drawLine( 0, posLine_y, posLine_width, posLine_y );
+			posLine_y += pxCell_height; 
+		}		
+
+		vUpdateCellValues( g2, node, xD1, xD2, pxRowHeader_width, pxColumnHeader_height, pxCell_width, pxCell_height );
 		
 		repaint();
 	}
 
+	private void vUpdateCellValues( Graphics2D g2, Node_Array node, int xD1, int xD2, int posX_origin, int posY_origin, int pxCell_width, int pxCell_height ){
+
+		int pxCanvasWidth = this.getWidth();
+		int pxCanvasHeight = this.getHeight();
+		int posCell_x = posX_origin;
+		int posCell_y = posY_origin;
+		
+		g2.setRenderingHint( RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON );
+		opendap.dap.PrimitiveVector pv = node.getPrimitiveVector();
+		Object oValues = pv.getInternalStorage();
+		int[] aiValues = (int[])oValues;
+		
+		// draw cell values
+		g2.setColor( Color.BLACK );
+		g2.setFont( fontValue );
+		FontMetrics fmValue = g2.getFontMetrics( fontValue );
+		int pxRightInset = 2;
+		int ctRows = node._getRowCount();
+		int ctColumns = node._getColumnCount();
+		int pxValueFontHeight = fmValue.getAscent() + fmValue.getLeading(); // digits do not have descents
+		int offsetY = pxCell_height - pxValueFontHeight;
+		for( int xRow = xD1; xRow <= ctRows; xRow++ ){
+			for( int xColumn = xD2; xColumn <= ctColumns; xColumn++ ){
+				int iValueIndex = node._getValueIndex( xRow, xColumn );
+				String sValueText = Integer.toString( aiValues[iValueIndex] );
+				int iStringWidth = fmValue.stringWidth( sValueText );
+				int offsetX = pxCell_width - iStringWidth + pxRightInset;
+				g2.drawString( sValueText, posCell_x + offsetX, posCell_y + offsetY );
+				posCell_x += pxCell_width; // advance to next cell
+				if( posCell_x > pxCanvasWidth ) break; // not enough canvas to draw all the columns
+			}
+			posCell_y += pxCell_width; // advance to next row
+			if( posCell_y > pxCanvasHeight ) break; // not enough canvas to draw all the rows
+			posCell_x = posX_origin;   // reset x-position to first column
+		}
+				
+	}
 }

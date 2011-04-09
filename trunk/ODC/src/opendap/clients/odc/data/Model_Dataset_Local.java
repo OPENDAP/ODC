@@ -361,6 +361,7 @@ abstract class Node extends DefaultMutableTreeNode {   // functions as both the 
 	private boolean mzTerminal = false; // == terminal node / used instead of isLeaf because isLeaf controls default icon
 	DAP_VARIABLE eVariableType = null;
 	private String msName = "[undefined]";
+	protected transient Model_VariableView view = new Model_VariableView();
 	AttributeTable attributes;
 	Node nodeParent;
 	ArrayList<Node> subnodes;
@@ -375,7 +376,7 @@ abstract class Node extends DefaultMutableTreeNode {   // functions as both the 
 	void setModel( Model_Dataset_Local parent ){
 		modelParent = parent;
 	}
-	
+	Model_VariableView _getView(){ return view; }
 	opendap.dap.BaseType getBaseType(){ return mBaseType; }
 	abstract DAP_VARIABLE getType();
 	void setBaseType( opendap.dap.BaseType bt ){
@@ -811,6 +812,16 @@ class Node_Array extends Node {
 		} catch( Throwable t ) {
 			return 0;
 		}
+	}
+	int _getRowCount(){ // calculates row count according to view
+		return getDimensionLengths()[view.array_dim_x];
+	}
+	int _getColumnCount(){ // calculates row count according to view
+		return getDimensionLengths()[view.array_dim_y];
+	}
+	int _getValueIndex( int x, int y ){ // calculates index of value according to view, zero-based
+		int iColumnSize = getDimensionLengths()[view.array_dim_y];
+		return x * iColumnSize + y;
 	}
 	String getValueTypeString(){
 		return DAP.getDArrayType_String( darray );
