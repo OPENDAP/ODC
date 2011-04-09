@@ -24,6 +24,7 @@ package opendap.clients.odc.data;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
+import opendap.clients.odc.DAP.DAP_VARIABLE;
 import opendap.clients.odc.IControlPanel;
 import opendap.clients.odc.Interpreter;
 import opendap.clients.odc.geo.Utility;
@@ -44,6 +45,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -87,8 +89,14 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
     
 	public boolean _zInitialize( Model_LoadedDatasets data_list, StringBuffer sbError ){
 		try {
+			msplitViewData = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
+
 			panelLoadedDatasets = new Panel_LoadedDatasets();
-			panelVarView = new Panel_VarView();	
+			panelVarView = Panel_VarView._create( msplitViewData, sbError );	
+			if( panelVarView == null ){
+				sbError.insert( 0, "failed to create var view: " );
+				return false;
+			}			
 			modelDataView = new Model_DataView();
 			if( ! modelDataView.zInitialize( this, data_list, sbError ) ){
 				sbError.insert(0, "failed to initialize model: ");
@@ -104,16 +112,10 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 				return false;
 			}
 			
-			if( ! panelVarView._zInitialize( sbError ) ){
-				sbError.insert( 0, "failed to initialize var view: " );
-				return false;
-			}
-			
 			JPanel panelTop = new JPanel();
 			panelTop.setLayout( new BorderLayout() );
 			panelTop.add( panelLoadedDatasets, BorderLayout.NORTH );
 			panelTop.add( panelEditContainer, BorderLayout.CENTER );
-			msplitViewData = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
 			msplitViewData.setContinuousLayout( true );
 			msplitViewData.setTopComponent( panelTop );
 			msplitViewData.setBottomComponent( panelVarView );
@@ -732,25 +734,78 @@ class Panel_Edit_Stream extends JPanel {
 	Panel_Define_Stream _getParent(){ return mParent; }
 }
 
+// depending on mode/selected variable type
+// draw on canvas
+// on click/double click events
+// right click to resize stuff
+// be able to record and store presentation info in class below
 class Panel_VarView extends JPanel {
-	public Panel_VarView(){}
-	public boolean _zInitialize( StringBuffer sbError ){
-		this.add( new JLabel("var view") );
-		return true;
+	JPanel panelArray_Command;
+	Panel_Edit_Cell panelArray_CellEditor;
+	Panel_Edit_ViewArray panelArray_View;
+	JTextField jtfArray_x;
+	JTextField jtfArray_y;
+	JTextField jtfArray_value;
+	JSplitPane mSplitPane;     // this panel is in the lower half of this split pane
+	private Panel_VarView(){}
+	public static Panel_VarView _create( JSplitPane jsp, StringBuffer sbError ){
+		Panel_VarView panel = new Panel_VarView();
+		panel.mSplitPane = jsp;
+		
+		// set up command panel for array viewer
+		panel.jtfArray_x = new JTextField();
+		panel.jtfArray_y = new JTextField();
+		panel.jtfArray_value = new JTextField();
+		panel.panelArray_Command = new JPanel();
+		panel.panelArray_Command.setLayout( new BoxLayout( panel.panelArray_Command, BoxLayout.X_AXIS ) );
+		panel.panelArray_Command.add( new JLabel( "x:" ) ); panel.add( Box.createHorizontalStrut(2) );
+		panel.panelArray_Command.add( panel.jtfArray_x ); panel.add( Box.createHorizontalStrut(4) );
+		panel.panelArray_Command.add( new JLabel( "y:" ) ); panel.add( Box.createHorizontalStrut(2) );
+		panel.panelArray_Command.add( panel.jtfArray_y ); panel.add( Box.createHorizontalStrut(6) );
+		panel.panelArray_Command.add( new JLabel( "value:" ) ); panel.add( Box.createHorizontalStrut(2) );
+		panel.panelArray_Command.add( panel.jtfArray_value ); panel.add( Box.createHorizontalStrut(4) );
+		
+		// set up array viewer
+		panel.panelArray_View = Panel_Edit_ViewArray._create( sbError );
+		if( panel.panelArray_View ==  null ){
+			sbError.insert( 0, "failed to create array viewer" );
+			return null;
+		}
+
+		panel.setLayout( new BorderLayout() );
+		panel.add( panel.panelArray_Command, BorderLayout.NORTH );
+		panel.add( panel.panelArray_View, BorderLayout.CENTER );		
+		
+		return panel;
 	}
-	// depending on mode/selected variable type
-	// draw on canvas
-	// on click/double click events
-	// right click to resize stuff
-	// be able to record and store presentation info in class below
+	
+	public void _show( Node node ){
+		if( node == null ){
+			setVisible( false );
+			return;
+		}
+		if( node.getType() == DAP_VARIABLE.Array ){
+			setVisible( true );
+			panelArray_View._vUpdateImage( (Node_Array)node );
+			return;
+		} else {
+			setVisible( false );
+			return;
+		}
+	}
 }
 
 // stores information about how the dataset should be viewed (column widths etc)
 class Model_DatasetView {
-	// TODO
 }
 
 class Model_VariableView {
-	// TODO
+	int array_origin_x = 0;
+	int array_origin_y = 0;
+	int array_cursor_x = 0;
+	int array_cursor_y = 0;
+	int array_dim_x = 0;
+	int array_dim_y = 0;
+	int[] array_page = new int[10];
 }
 
