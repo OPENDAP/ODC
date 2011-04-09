@@ -18,7 +18,7 @@ import javax.swing.border.TitledBorder;
 public class Panel_Edit_Container extends JPanel {
 	private Panel_View_Data mParent;
 	private Panel_Edit_blank mEditBlank;
-	Panel_Edit_StructureView mEditStructure;
+	Panel_Edit_ViewStructure mEditStructure;
 	private Panel_Edit_Expression mEditExpression;
 	private Panel_Edit_Stream mEditStream;
 	private Panel_Define_Dataset mDefineData;
@@ -34,7 +34,7 @@ public class Panel_Edit_Container extends JPanel {
 		panelEditContainer.mParent = parent; 
 		panelEditContainer.mDefineExpression = Panel_Define_Expression._zCreate( parent, sbError );
 		panelEditContainer.mEditBlank = new Panel_Edit_blank();
-		panelEditContainer.mEditStructure = new Panel_Edit_StructureView();
+		panelEditContainer.mEditStructure = new Panel_Edit_ViewStructure();
 		panelEditContainer.mEditExpression = new Panel_Edit_Expression();
 		panelEditContainer.mEditStream = new Panel_Edit_Stream();
 		panelEditContainer.mDefineData = new Panel_Define_Dataset();
@@ -58,7 +58,7 @@ public class Panel_Edit_Container extends JPanel {
 		panelEditContainer._vClear();
 		return panelEditContainer;
 	}
-	Panel_Edit_StructureView _getStructureView(){ return mEditStructure; }
+	Panel_Edit_ViewStructure _getStructureView(){ return mEditStructure; }
 	void _vClear(){
 		removeAll();
 		add( mEditBlank, BorderLayout.CENTER );

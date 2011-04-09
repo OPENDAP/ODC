@@ -95,7 +95,7 @@ class Panel_EditVariable_Controls extends JPanel {
 		button_Add.setToolTipText( "add new variable below" );
 		button_Add.addActionListener(new java.awt.event.ActionListener( ){
 			public void actionPerformed( java.awt.event.ActionEvent e ){
-				Panel_Edit_StructureView structure = container._getStructureView();
+				Panel_Edit_ViewStructure structure = container._getStructureView();
 				Node nodeSelected = structure._getSelectedNode();
 				if( nodeSelected == null ){
 					ApplicationController.vShowStatus_NoCache( "no element selected to add member to" );
@@ -110,7 +110,7 @@ class Panel_EditVariable_Controls extends JPanel {
 		button_Delete.setToolTipText( "delete variable" );
 		button_Delete.addActionListener(new java.awt.event.ActionListener( ){
 			public void actionPerformed(java.awt.event.ActionEvent e ){
-				Panel_Edit_StructureView structure = container._getStructureView();
+				Panel_Edit_ViewStructure structure = container._getStructureView();
 				Node nodeSelected = structure._getSelectedNode();
 				if( nodeSelected == null ){
 					ApplicationController.vShowStatus_NoCache( "no element selected for deletion" );
@@ -125,7 +125,7 @@ class Panel_EditVariable_Controls extends JPanel {
 		button_Up.setToolTipText( "move variable up" );
 		button_Up.addActionListener(new java.awt.event.ActionListener( ){
 			public void actionPerformed(java.awt.event.ActionEvent e ){
-				Panel_Edit_StructureView structure = container._getStructureView();
+				Panel_Edit_ViewStructure structure = container._getStructureView();
 				Node nodeSelected = structure._getSelectedNode();
 				if( nodeSelected == null ){
 					ApplicationController.vShowStatus_NoCache( "no element selected for moving up" );
@@ -140,7 +140,7 @@ class Panel_EditVariable_Controls extends JPanel {
 		button_Down.setToolTipText( "move variable down" );
 		button_Down.addActionListener(new java.awt.event.ActionListener( ){
 			public void actionPerformed(java.awt.event.ActionEvent e ){
-				Panel_Edit_StructureView structure = container._getStructureView();
+				Panel_Edit_ViewStructure structure = container._getStructureView();
 				Node nodeSelected = structure._getSelectedNode();
 				if( nodeSelected == null ){
 					ApplicationController.vShowStatus_NoCache( "no element selected for moving down" );
