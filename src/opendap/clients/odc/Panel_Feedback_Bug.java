@@ -25,10 +25,10 @@ package opendap.clients.odc;
 /**
  * Title:        Panel_Feedback_Bug
  * Description:  Output text area which displays messages and data
- * Copyright:    Copyright (c) 2004-7
- * Company:      University of Rhode Island, Graduate School of Oceanography
+ * Copyright:    Copyright (c) 2004-11
+ * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.64
+ * @version      3.07
  */
 
 import java.awt.event.*;
@@ -48,10 +48,11 @@ public class Panel_Feedback_Bug extends JPanel implements IControlPanel {
 	public final static String WIKI_LineBreak = "[[BR]]";
 
 	public final static String[] CHOICE_OS = {
-		"Windows XP/Milennium",
-		"Windows 95/98",
+		"Windows XP",
+		"Windows Millennium95/98",
 		"Windows NT",
 		"Windows 2000",
+		"Windows Vista",
 		"Windows other",
 		"MacOS X 2.6+",
 		"Mac other",
@@ -94,6 +95,10 @@ public class Panel_Feedback_Bug extends JPanel implements IControlPanel {
 		"View / Text",
 		"View / Table",
 		"View / Image File",
+		"View / Data : Dataset",
+		"View / Data : Expression",
+		"View / Data : Table View",
+		"View / Data : File Load/Save",
 		"View / Plotter : dataset list",
 		"View / Plotter : Variables",
 		"View / Plotter : Options",
