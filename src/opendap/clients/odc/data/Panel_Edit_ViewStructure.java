@@ -25,14 +25,14 @@ import opendap.dap.BaseType;
 //    Panel_Define_Dataset
 //       mscrollpane_DataTree contains
 //          mtreeData exposes mTreeModel
-public class Panel_Edit_StructureView extends JPanel {
+public class Panel_Edit_ViewStructure extends JPanel {
 	private Panel_View_Data parent;
 	private Model_Dataset_Local mTreeModel = null;
 	private JScrollPane mscrollpane_DataTree;
 	private Panel_Define_Dataset mDefinitionPanel;
 	private Dimension dimMinimum = new Dimension(100, 80);
 	private JTree mtreeData = null;
-	Panel_Edit_StructureView(){} // can only be created with the method below
+	Panel_Edit_ViewStructure(){} // can only be created with the method below
 	public Dimension getMinimumSize(){
 		return dimMinimum;
 	}

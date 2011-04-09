@@ -42,7 +42,7 @@ public class Panel_Edit_Variable extends JPanel {
 	private Panel_Edit_Variable_Structure editStructure;
 	private Panel_Edit_Variable_Primitive editPrimitive;
 	private Panel_Edit_Variable(){};
-	static Panel_Edit_Variable _create( Panel_Define_Dataset parent, Panel_Edit_StructureView view, StringBuffer sbError ){
+	static Panel_Edit_Variable _create( Panel_Define_Dataset parent, Panel_Edit_ViewStructure view, StringBuffer sbError ){
 		Panel_Edit_Variable panel = new Panel_Edit_Variable();
 		try {
 			panel.mParent = parent;
@@ -130,7 +130,7 @@ public class Panel_Edit_Variable extends JPanel {
 
 abstract class Panel_Edit_VariableEditor extends JPanel {
 	private Node node_active = null;
-	private Panel_Edit_StructureView view;
+	private Panel_Edit_ViewStructure view;
 	protected JLabel labelName = new JLabel( "Name:" );
 	protected JLabel labelName_Long = new JLabel( "Long Name:" );
 	protected JLabel displayName_Long = new JLabel();  // long name is not editable (automatically determined by dataset structure)
@@ -138,7 +138,7 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 	protected JTextField jtfName = new JTextField();
 	protected JLabel labelName_Encoded = new JLabel();
 	protected FormLayout layout;
-	boolean _zInitialize( Panel_Edit_StructureView structure_view, StringBuffer sbError ){
+	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		try {
 			this.view = structure_view;
 			jtfName.setPreferredSize( new Dimension( 200, 28 ) );
@@ -201,7 +201,7 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 		}
 		node_active = node;
 	}
-	void _setName( String sNewName, Panel_Edit_StructureView view ){
+	void _setName( String sNewName, Panel_Edit_ViewStructure view ){
 		try {
 			if( node_active == null ){ // blank screen
 				ApplicationController.vShowWarning( "unable to set name, no model is active" );
@@ -221,7 +221,7 @@ class Panel_Edit_Variable_root extends Panel_Edit_VariableEditor {
 	void _show( Node node ){ // will be null
 		super._show( node );
 	}
-	boolean _zInitialize( Panel_Edit_StructureView structure_view, StringBuffer sbError ){
+	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
 		return true;
 	}
@@ -266,7 +266,7 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 			listDimensionPanel.get( xDimension1 - 1).setVisible( false );
 		}
 	}
-	boolean _zInitialize( Panel_Edit_StructureView structure_view, StringBuffer sbError ){
+	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
 		Class<?> class_DAP_TYPE = DAP.DAP_TYPE.class;
 		jcbType = new JComboBox( class_DAP_TYPE.getEnumConstants() ) ;
@@ -400,7 +400,7 @@ class Panel_Edit_Variable_Grid extends Panel_Edit_VariableEditor {
 	void _show( Node node ){
 		super._show( node );
 	}
-	boolean _zInitialize( Panel_Edit_StructureView structure_view, StringBuffer sbError ){
+	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
 		return true;
 	}
@@ -409,7 +409,7 @@ class Panel_Edit_Variable_Sequence extends Panel_Edit_VariableEditor {
 	void _show( Node node ){
 		super._show( node );
 	}
-	boolean _zInitialize( Panel_Edit_StructureView structure_view, StringBuffer sbError ){
+	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
 		return true;
 	}
@@ -418,7 +418,7 @@ class Panel_Edit_Variable_Structure extends Panel_Edit_VariableEditor {
 	void _show( Node node ){
 		super._show( node );
 	}
-	boolean _zInitialize( Panel_Edit_StructureView structure_view, StringBuffer sbError ){
+	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
 		return true;
 	}
@@ -430,7 +430,7 @@ class Panel_Edit_Variable_Primitive extends Panel_Edit_VariableEditor {
 		super._show( node );
 		jcbType.setSelectedItem( DAP.getTypeEnumByName( node.getBaseType().getTypeName() ) );
 	}
-	boolean _zInitialize( Panel_Edit_StructureView structure_view, StringBuffer sbError ){
+	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
 		Class<?> class_DAP_TYPE = DAP.DAP_TYPE.class;
 		jcbType = new JComboBox( class_DAP_TYPE.getEnumConstants() ) ;

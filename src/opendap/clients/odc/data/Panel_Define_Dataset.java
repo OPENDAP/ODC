@@ -32,7 +32,7 @@ public class Panel_Define_Dataset extends JPanel {
 	boolean _zInitialize( Panel_View_Data parent, Panel_Edit_Container container, StringBuffer sbError ){
 		try {
 			mParent = parent;
-			Panel_Edit_StructureView structure_view = container.mEditStructure;
+			Panel_Edit_ViewStructure structure_view = container.mEditStructure;
 			mEditingControls = new Panel_Edit_Dataset( mParent, container );
 			mVariableEditingPanel = Panel_Edit_Variable._create( this, structure_view, sbError );
 			if( mVariableEditingPanel == null  ){
