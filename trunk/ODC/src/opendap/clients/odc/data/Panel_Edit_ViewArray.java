@@ -1,25 +1,32 @@
 package opendap.clients.odc.data;
 
 import javax.swing.JPanel;
-import java.awt.event.ComponentListener;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.geom.Rectangle2D;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.plot.PlotOptions;
+import opendap.clients.odc.gui.Styles;
 
 public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 	private static final long serialVersionUID = 0L;
 	private BufferedImage mbi = null;
+	private int miBufferWidth;
+	private int miBufferHeight;
 	private static boolean mzFatalError = false;
-	private Font fontHeader = new Font( "LucidaBrightDemiBold", Font.PLAIN, 12 );
-	private Font fontValue = new Font( "LucidaBrightDemiBold", Font.PLAIN, 12 );
+	private Font fontHeader = Styles.fontSansSerifBold12;
+	private Font fontValue = Styles.fontSansSerif12;
+	private Color colorBackground = Color.WHITE;
 	private Color colorHeaderBackground = new Color( 0xFF9FE5FF ); // muted blue
 	private Color colorHeaderText = new Color( 0xFF505050 ); // dark gray
 	private Color colorGridlines = new Color( 0xFFB0B0B0 ); // light gray
@@ -29,7 +36,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 	
 	final static Panel_Edit_ViewArray _create( StringBuffer sbError ){
 		Panel_Edit_ViewArray panel = new Panel_Edit_ViewArray();
-		panel.setBackground( Color.WHITE );
+		panel.setBackground( panel.colorBackground );
 		panel.addComponentListener( panel );
 		return panel;
 	}
@@ -37,7 +44,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 	public void paintComponent( Graphics g ){
 		super.paintComponent(g);
 		try {
-			if( mbi != null ) g.drawString( "Xmj", 0, 0);
+			// if( mbi != null ) g.drawString( "Xmj", 0, 0);
 			if( mbi != null ) ((Graphics2D)g).drawImage(mbi, null, 0, 0); // flip image to canvas
 		} catch(Exception ex) {
 			if( mzFatalError ) return; // got the training wheels on here todo
@@ -58,6 +65,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 	public void componentShown( ComponentEvent e ){}
 	
 	public void _vDrawImage( Node_Array node ){
+		nodeActive = node;
 		Model_VariableView view = node._getView();
 		int xD1 = view.array_origin_x;
 		int xD2 = view.array_origin_y;
@@ -67,11 +75,17 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 		int pxCanvasHeight = this.getHeight();
 
 		if( mbi == null ){
-			mbi = new BufferedImage( pxCanvasWidth, pxCanvasHeight, BufferedImage.TYPE_INT_ARGB );
+			Dimension dimScreen = Toolkit.getDefaultToolkit().getScreenSize();
+			miBufferWidth = dimScreen.width;
+			miBufferHeight = dimScreen.height;
+			mbi = new BufferedImage( miBufferWidth, miBufferHeight, BufferedImage.TYPE_INT_ARGB );
 		}
 		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
+		g2.setColor( colorBackground );
+		g2.fillRect( 0, 0, miBufferWidth, miBufferHeight ); // clear buffer
 		
 		g2.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF );
+		g2.setRenderingHint( RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON );
 		
 		int pxCell_width = 80;
 		int pxCell_height = 20;
@@ -100,7 +114,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 		g2.setColor( colorHeaderText );
 		FontMetrics fmHeader = g2.getFontMetrics( fontHeader );
 		int pxHeaderFontHeight = fmHeader.getAscent() + fmHeader.getLeading(); // digits do not have descents
-		int offsetY = (pxCell_height - pxHeaderFontHeight) / 2; 
+		int offsetY = pxCell_height - (pxCell_height - pxHeaderFontHeight) / 2; 
 		int posCell_x = 0;
 		int posCell_y = 0;
 		posCell_x = pxRowHeader_width; // advance cursor past row header
@@ -146,22 +160,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 		}		
 
 		_vUpdateCellValues( g2, node, xD1, xD2, pxRowHeader_width, pxColumnHeader_height, pxCell_width, pxCell_height );
-				
-		g2.setFont( new Font( "Lucida Bright Demibold", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Bright Demibold", 50, 50 ); 
-		g2.setFont( new Font( "Lucida Bright Italic", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Bright Italic", 50, 75 ); 
-		g2.setFont( new Font( "Lucida Bright Regular", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Bright Regular", 50, 100 ); 
-		g2.setFont( new Font( "Lucida Console", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Console", 50, 125 ); 
-		g2.setFont( new Font( "Lucida Sans Demibold", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Demibold", 50, 150 ); 
-		g2.setFont( new Font( "Lucida Sans Demibold Italic", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Demibold Italic", 50, 175 ); 
-		g2.setFont( new Font( "Lucida Sans Demibold Roman", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Demibold Roman", 50, 200 ); 
-		g2.setFont( new Font( "Lucida Sans Italic", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Italic", 50, 225 ); 
-		g2.setFont( new Font( "Lucida Sans Regular", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Regular", 50, 250 ); 		
-		g2.setFont( new Font( "Lucida Sans Typewriter Bold", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Typewriter Bold", 50, 275 ); 
-		g2.setFont( new Font( "Lucida Sans Typewriter Bold Oblique", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Typewriter Bold Oblique", 50, 300 ); 
-		g2.setFont( new Font( "Lucida Sans Typewriter Oblique", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Typewriter Oblique", 50, 325 ); 
-		g2.setFont( new Font( "Lucida Sans Typewriter Regular", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Typewriter Regular", 50, 350 ); 
-		g2.setFont( new Font( "Lucida Sans Unicode", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Unicode", 50, 375 ); 
-		
+						
 		repaint();
 	}
 
@@ -196,10 +195,14 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 				posCell_x += pxCell_width; // advance to next cell
 				if( posCell_x > pxCanvasWidth ) break; // not enough canvas to draw all the columns
 			}
-			posCell_y += pxCell_width; // advance to next row
+			posCell_y += pxCell_height; // advance to next row
 			if( posCell_y > pxCanvasHeight ) break; // not enough canvas to draw all the rows
 			posCell_x = posX_origin;   // reset x-position to first column
 		}
 				
 	}
 }
+
+//g2D.setComposite( AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f) );
+//Rectangle2D.Double rect = new Rectangle2D.Double(0,0,width,height); 
+//g2D.fill(rect);

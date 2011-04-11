@@ -771,6 +771,8 @@ class Panel_VarView extends JPanel {
 			sbError.insert( 0, "failed to create array viewer" );
 			return null;
 		}
+//		javax.swing.plaf.basic.BasicSplitPaneUI jspUI = (javax.swing.plaf.basic.BasicSplitPaneUI)panel.mSplitPane.getUI(); 
+//		jspUI.getDivider().addComponentListener( panel.panelArray_View ); // listens for movements of the split pane
 
 		panel.setLayout( new BorderLayout() );
 		panel.add( panel.panelArray_Command, BorderLayout.NORTH );
