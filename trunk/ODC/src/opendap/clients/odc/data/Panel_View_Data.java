@@ -786,7 +786,7 @@ class Panel_VarView extends JPanel {
 		}
 		if( node.getType() == DAP_VARIABLE.Array ){
 			setVisible( true );
-			panelArray_View._vUpdateImage( (Node_Array)node );
+			panelArray_View._vDrawImage( (Node_Array)node );
 			return;
 		} else {
 			setVisible( false );
@@ -804,8 +804,8 @@ class Model_VariableView {
 	int array_origin_y = 0;
 	int array_cursor_x = 0;
 	int array_cursor_y = 0;
-	int array_dim_x = 0;
-	int array_dim_y = 0;
+	int array_dim_x = 1;
+	int array_dim_y = 2;
 	int[] array_page = new int[10];
 }
 

@@ -130,7 +130,7 @@ public class Panel_Edit_Variable extends JPanel {
 
 abstract class Panel_Edit_VariableEditor extends JPanel {
 	private Node node_active = null;
-	private Panel_Edit_ViewStructure view;
+	protected Panel_Edit_ViewStructure view;
 	protected JLabel labelName = new JLabel( "Name:" );
 	protected JLabel labelName_Long = new JLabel( "Long Name:" );
 	protected JLabel displayName_Long = new JLabel();  // long name is not editable (automatically determined by dataset structure)
@@ -265,6 +265,7 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 		for( ; xDimension1 <= MAX_DIMENSIONS; xDimension1++ ){
 			listDimensionPanel.get( xDimension1 - 1).setVisible( false );
 		}
+		view._getVariableView()._show( node );
 	}
 	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
