@@ -42,6 +42,7 @@ public class Panel_Edit_ViewStructure extends JPanel {
 	void _setModel( Model_Dataset_Local model ){
 		mTreeModel = model;
 		if( mtreeData != null ) mtreeData.setModel( mTreeModel );
+		_select( mTreeModel.getRootNode() );
 	}
 	void _select( Node node ){
 		mtreeData.setSelectionPath( node.getTreePath() );

@@ -70,6 +70,7 @@ public class Interpreter {
 			mInterpreter.setOut(os);
 			mInterpreter.setErr(os);
 			mInterpreter.exec("import sys");
+			mInterpreter.exec("import site");
 			mInterpreter.exec("import opendap.clients.odc.API");
 			mInterpreter.exec("odcapi = opendap.clients.odc.API");
 			String sScriptDirectory = ConfigurationManager.getInstance().getProperty_DIR_Scripts();

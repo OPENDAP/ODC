@@ -52,6 +52,21 @@ public class Styles {
 	public final static Font fontSansSerif14 = new Font("Sans Serif", Font.PLAIN, 14);
 	public final static Font fontSansSerif18 = new Font("Sans Serif", Font.PLAIN, 18);
 	public final static Font fontSansSerifBold10 = new Font("Sans Serif", Font.BOLD, 10);
+	public final static Font fontLucidaBrightDemibold = new Font( "Lucida Bright Demibold", Font.PLAIN, 12 ); 
+	public final static Font fontLucidaBrightItalic = new Font( "Lucida Bright Italic", Font.PLAIN, 12 ); 
+	public final static Font fontLucidaBrightRegular = new Font( "Lucida Bright Regular", Font.PLAIN, 12 ); 
+	public final static Font fontLucidaConsole = new Font( "Lucida Console", Font.PLAIN, 12 ); 
+	public final static Font fontLucidaSansDemibold = new Font( "Lucida Sans Demibold", Font.PLAIN, 12 ); 
+	public final static Font fontLucidaSansDemiboldItalic = new Font( "Lucida Sans Demibold Italic", Font.PLAIN, 12 ); 
+	public final static Font fontLucidaSansDemiboldRoman = new Font( "Lucida Sans Demibold Roman", Font.PLAIN, 12 ); 
+	public final static Font fontLucidaSansItalic = new Font( "Lucida Sans Italic", Font.PLAIN, 12 ); 
+	public final static Font fontLucidaSansRegular = new Font( "Lucida Sans Regular", Font.PLAIN, 12 ); 		
+	public final static Font fontLucidaSansTypewriterBold = new Font( "Lucida Sans Typewriter Bold", Font.PLAIN, 12 ); 
+	public final static Font fontLucidaSansTypewriterBoldOblique = new Font( "Lucida Sans Typewriter Bold Oblique", Font.PLAIN, 12 ); 
+	public final static Font fontLucidaSansTypewriterOblique = new Font( "Lucida Sans Typewriter Oblique", Font.PLAIN, 12 ); 
+	public final static Font fontLucidaSansTypewriterRegular = new Font( "Lucida Sans Typewriter Regular", Font.PLAIN, 12 ); 
+	public final static Font fontLucidaSansUnicode = new Font( "Lucida Sans Unicode", Font.PLAIN, 12 ); 
+	
 	public final static Color colorNeutralYellow1 = new Color(0xFFEBCD);
 	public final static Color colorLightGray = new Color(0xD3D3D3);
 	public final static Color colorCyanHighlight = new Color(0x8040FF);
@@ -84,5 +99,19 @@ public class Styles {
     }
 }
 
+//		g2.setFont( new Font( "Lucida Bright Demibold", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Bright Demibold", 50, 50 ); 
+//		g2.setFont( new Font( "Lucida Bright Italic", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Bright Italic", 50, 75 ); 
+//		g2.setFont( new Font( "Lucida Bright Regular", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Bright Regular", 50, 100 ); 
+//		g2.setFont( new Font( "Lucida Console", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Console", 50, 125 ); 
+//		g2.setFont( new Font( "Lucida Sans Demibold", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Demibold", 50, 150 ); 
+//		g2.setFont( new Font( "Lucida Sans Demibold Italic", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Demibold Italic", 50, 175 ); 
+//		g2.setFont( new Font( "Lucida Sans Demibold Roman", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Demibold Roman", 50, 200 ); 
+//		g2.setFont( new Font( "Lucida Sans Italic", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Italic", 50, 225 ); 
+//		g2.setFont( new Font( "Lucida Sans Regular", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Regular", 50, 250 ); 		
+//		g2.setFont( new Font( "Lucida Sans Typewriter Bold", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Typewriter Bold", 50, 275 ); 
+//		g2.setFont( new Font( "Lucida Sans Typewriter Bold Oblique", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Typewriter Bold Oblique", 50, 300 ); 
+//		g2.setFont( new Font( "Lucida Sans Typewriter Oblique", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Typewriter Oblique", 50, 325 ); 
+//		g2.setFont( new Font( "Lucida Sans Typewriter Regular", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Typewriter Regular", 50, 350 ); 
+//		g2.setFont( new Font( "Lucida Sans Unicode", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Unicode", 50, 375 ); 
 
 

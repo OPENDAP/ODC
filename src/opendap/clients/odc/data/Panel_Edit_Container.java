@@ -8,6 +8,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 // parent: Panel_View_Data
+// Panel_LoadedDatasets    dataset combo box and action buttons
 // contains the editing panels:
 // Data -        left: Panel_Edit_StructureView      right: Panel_Define_Dataset
 //                                                              Panel_Edit_Dataset
