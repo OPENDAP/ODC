@@ -146,6 +146,21 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 		}		
 
 		_vUpdateCellValues( g2, node, xD1, xD2, pxRowHeader_width, pxColumnHeader_height, pxCell_width, pxCell_height );
+				
+		g2.setFont( new Font( "Lucida Bright Demibold", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Bright Demibold", 50, 50 ); 
+		g2.setFont( new Font( "Lucida Bright Italic", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Bright Italic", 50, 75 ); 
+		g2.setFont( new Font( "Lucida Bright Regular", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Bright Regular", 50, 100 ); 
+		g2.setFont( new Font( "Lucida Console", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Console", 50, 125 ); 
+		g2.setFont( new Font( "Lucida Sans Demibold", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Demibold", 50, 150 ); 
+		g2.setFont( new Font( "Lucida Sans Demibold Italic", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Demibold Italic", 50, 175 ); 
+		g2.setFont( new Font( "Lucida Sans Demibold Roman", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Demibold Roman", 50, 200 ); 
+		g2.setFont( new Font( "Lucida Sans Italic", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Italic", 50, 225 ); 
+		g2.setFont( new Font( "Lucida Sans Regular", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Regular", 50, 250 ); 		
+		g2.setFont( new Font( "Lucida Sans Typewriter Bold", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Typewriter Bold", 50, 275 ); 
+		g2.setFont( new Font( "Lucida Sans Typewriter Bold Oblique", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Typewriter Bold Oblique", 50, 300 ); 
+		g2.setFont( new Font( "Lucida Sans Typewriter Oblique", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Typewriter Oblique", 50, 325 ); 
+		g2.setFont( new Font( "Lucida Sans Typewriter Regular", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Typewriter Regular", 50, 350 ); 
+		g2.setFont( new Font( "Lucida Sans Unicode", Font.PLAIN, 12 ) ); g2.drawString( "0123456789 Lucida Sans Unicode", 50, 375 ); 
 		
 		repaint();
 	}
