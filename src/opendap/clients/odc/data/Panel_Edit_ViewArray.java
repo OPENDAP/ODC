@@ -1,5 +1,8 @@
 package opendap.clients.odc.data;
 
+import javax.swing.JPanel;
+import java.awt.event.ComponentListener;
+import java.awt.event.ComponentEvent;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Color;
@@ -11,7 +14,8 @@ import java.awt.image.BufferedImage;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.plot.PlotOptions;
 
-public class Panel_Edit_ViewArray extends javax.swing.JPanel {
+public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
+	private static final long serialVersionUID = 0L;
 	private BufferedImage mbi = null;
 	private static boolean mzFatalError = false;
 	private Font fontHeader = new Font( "LucidaBrightDemiBold", Font.PLAIN, 12 );
@@ -19,26 +23,41 @@ public class Panel_Edit_ViewArray extends javax.swing.JPanel {
 	private Color colorHeaderBackground = new Color( 0xFF9FE5FF ); // muted blue
 	private Color colorHeaderText = new Color( 0xFF505050 ); // dark gray
 	private Color colorGridlines = new Color( 0xFFB0B0B0 ); // light gray
+	private Node_Array nodeActive;
 	
 	private Panel_Edit_ViewArray(){}
 	
 	final static Panel_Edit_ViewArray _create( StringBuffer sbError ){
 		Panel_Edit_ViewArray panel = new Panel_Edit_ViewArray();
+		panel.setBackground( Color.WHITE );
+		panel.addComponentListener( panel );
 		return panel;
 	}
 	
 	public void paintComponent( Graphics g ){
+		super.paintComponent(g);
 		try {
+			if( mbi != null ) g.drawString( "Xmj", 0, 0);
 			if( mbi != null ) ((Graphics2D)g).drawImage(mbi, null, 0, 0); // flip image to canvas
 		} catch(Exception ex) {
 			if( mzFatalError ) return; // got the training wheels on here todo
 			mzFatalError = true;
 			ApplicationController.vUnexpectedError(ex, "Error rendering plot image");
 		}
-		super.paintComponent(g);
 	}
-
-	public void _vUpdateImage( Node_Array node ){
+	
+	public void componentResized( java.awt.event.ComponentEvent e ){
+		if( nodeActive == null ){
+			// clear TODO
+		} else {
+			_vDrawImage( nodeActive );
+		}
+	}
+	public void componentHidden( ComponentEvent e ){}
+	public void componentMoved( ComponentEvent e ){}
+	public void componentShown( ComponentEvent e ){}
+	
+	public void _vDrawImage( Node_Array node ){
 		Model_VariableView view = node._getView();
 		int xD1 = view.array_origin_x;
 		int xD2 = view.array_origin_y;
@@ -57,6 +76,7 @@ public class Panel_Edit_ViewArray extends javax.swing.JPanel {
 		int pxCell_width = 80;
 		int pxCell_height = 20;
 		int pxRowHeader_width = 60;
+		int pxRowHeader_bottom_inset = 2;
 		int pxColumnHeader_height = pxCell_height;  
 		
 		int ctRows = node._getRowCount();
@@ -84,7 +104,7 @@ public class Panel_Edit_ViewArray extends javax.swing.JPanel {
 		int posCell_x = 0;
 		int posCell_y = 0;
 		posCell_x = pxRowHeader_width; // advance cursor past row header
-		for( int xColumn = xD2; xColumn <= ctColumns; xColumn++ ){
+		for( int xColumn = xD2; xColumn < ctColumns; xColumn++ ){
 			String sHeaderText = Integer.toString( xColumn );
 			int iStringWidth = fmHeader.stringWidth( sHeaderText );
 			int offsetX = (pxCell_width - iStringWidth ) / 2;
@@ -96,7 +116,8 @@ public class Panel_Edit_ViewArray extends javax.swing.JPanel {
 		// draw row headers centered
 		posCell_x = 0; // start at lefthand edge of screen
 		posCell_y += pxCell_height; // advance cursor past column header
-		for( int xRow = xD1; xRow <= ctRows; xRow++ ){
+		offsetY = pxCell_height - pxRowHeader_bottom_inset;
+		for( int xRow = xD1; xRow < ctRows; xRow++ ){
 			String sHeaderText = Integer.toString( xRow );
 			int iStringWidth = fmHeader.stringWidth( sHeaderText );
 			int offsetX = (pxCell_width - iStringWidth ) / 2;
@@ -124,12 +145,12 @@ public class Panel_Edit_ViewArray extends javax.swing.JPanel {
 			posLine_y += pxCell_height; 
 		}		
 
-		vUpdateCellValues( g2, node, xD1, xD2, pxRowHeader_width, pxColumnHeader_height, pxCell_width, pxCell_height );
+		_vUpdateCellValues( g2, node, xD1, xD2, pxRowHeader_width, pxColumnHeader_height, pxCell_width, pxCell_height );
 		
 		repaint();
 	}
 
-	private void vUpdateCellValues( Graphics2D g2, Node_Array node, int xD1, int xD2, int posX_origin, int posY_origin, int pxCell_width, int pxCell_height ){
+	private void _vUpdateCellValues( Graphics2D g2, Node_Array node, int xD1, int xD2, int posX_origin, int posY_origin, int pxCell_width, int pxCell_height ){
 
 		int pxCanvasWidth = this.getWidth();
 		int pxCanvasHeight = this.getHeight();

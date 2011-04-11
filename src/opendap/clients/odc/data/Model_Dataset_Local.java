@@ -814,13 +814,17 @@ class Node_Array extends Node {
 		}
 	}
 	int _getRowCount(){ // calculates row count according to view
+		int[] aiDimensionLengths = getDimensionLengths();
+		if( view.array_dim_x == 0 || view.array_dim_x > aiDimensionLengths[0] ) return 0; 
 		return getDimensionLengths()[view.array_dim_x];
 	}
 	int _getColumnCount(){ // calculates row count according to view
-		return getDimensionLengths()[view.array_dim_y];
+		int[] aiDimensionLengths = getDimensionLengths();
+		if( view.array_dim_y == 0 || view.array_dim_y > aiDimensionLengths[0] ) return 1; 
+		return aiDimensionLengths[view.array_dim_y];
 	}
 	int _getValueIndex( int x, int y ){ // calculates index of value according to view, zero-based
-		int iColumnSize = getDimensionLengths()[view.array_dim_y];
+		int iColumnSize = view.array_dim_y == 0 || view.array_dim_y > getDimensionLengths()[0] ? 0 : getDimensionLengths()[view.array_dim_y];
 		return x * iColumnSize + y;
 	}
 	String getValueTypeString(){
