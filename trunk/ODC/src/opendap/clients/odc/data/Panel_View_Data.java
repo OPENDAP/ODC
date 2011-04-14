@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.beans.PropertyChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
+import java.awt.event.ComponentEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -58,6 +59,7 @@ import javax.swing.JButton;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -744,7 +746,7 @@ class Panel_Edit_Stream extends JPanel {
 // on click/double click events
 // right click to resize stuff
 // be able to record and store presentation info in class below
-class Panel_VarView extends JPanel implements java.awt.event.FocusListener {
+class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, java.awt.event.FocusListener {
 	JPanel panelArray_Command;
 	Panel_Edit_Cell panelArray_CellEditor;
 	Panel_Edit_ViewArray panelArray_View;
@@ -753,55 +755,34 @@ class Panel_VarView extends JPanel implements java.awt.event.FocusListener {
 	JTextField jtfArray_value;
 	Node_Array nodeActive;
 	JSplitPane mSplitPane;     // this panel is in the lower half of this split pane
+	final JLabel labelY = new JLabel( "y:" );
+	final JLabel labelValue = new JLabel( "value:" );
+	final ClickableButton buttonX = new ClickableButton( "x:" );
 	private boolean mzShowingSelectionCoordinates = true;
 	private Panel_VarView(){}
 	public static Panel_VarView _create( JSplitPane jsp, StringBuffer sbError ){
 		final Panel_VarView panel = new Panel_VarView();
 		panel.mSplitPane = jsp;
-		
-		final java.awt.Component strut2 = Box.createHorizontalStrut(2);
-		final java.awt.Component strut8 = Box.createHorizontalStrut(8);
-		final java.awt.Component strut10 = Box.createHorizontalStrut(10);
-		final JLabel labelY = new JLabel( "y:" );
-		final JButton buttonX = new JButton( "x:" );
-		buttonX.setMaximumSize( new Dimension( 5, 22 ) );
-		buttonX.addActionListener( // toggle selection coordinates
-			new java.awt.event.ActionListener(){
-				public void actionPerformed( java.awt.event.ActionEvent evt ){
-					if( panel.mzShowingSelectionCoordinates ){
-						strut2.setVisible( false );
-						strut8.setVisible( false );
-						strut10.setVisible( false );
-						labelY.setVisible( false );
-						panel.jtfArray_x.setVisible( false );
-						panel.jtfArray_y.setVisible( false );
-						panel.mzShowingSelectionCoordinates = false;
-					} else {
-						strut2.setVisible( true );
-						strut8.setVisible( true );
-						strut10.setVisible( true );
-						labelY.setVisible( true );
-						panel.jtfArray_x.setVisible( true );
-						panel.jtfArray_y.setVisible( true );
-						panel.mzShowingSelectionCoordinates = true;
-					}
-				}
-			}
-		);
 				
 		// set up command panel for array viewer
-		panel.jtfArray_x = new JTextField(); panel.jtfArray_x.setMinimumSize( new Dimension( 300, 25 ) ); panel.jtfArray_x.setMaximumSize( new Dimension( 240, 25 ) );
-		panel.jtfArray_y = new JTextField(); panel.jtfArray_y.setMinimumSize( new Dimension( 300, 25 ) ); panel.jtfArray_y.setMaximumSize( new Dimension( 340, 25 ) );
+		panel.jtfArray_x = new JTextField();
+		panel.jtfArray_y = new JTextField();
 		panel.jtfArray_value = new JTextField();
+		panel.labelY.setHorizontalAlignment( JLabel.RIGHT );
+//		panel.labelY.setBorder( BorderFactory.createLineBorder( Color.BLUE ) );
+		panel.labelValue.setHorizontalAlignment( JLabel.RIGHT );
+//		panel.labelValue.setBorder( BorderFactory.createLineBorder( Color.BLUE ) );
+		panel.buttonX.setHorizontalAlignment( JLabel.CENTER );
+		panel.buttonX.addMouseListener( panel.buttonX );
 		panel.panelArray_Command = new JPanel();
-		panel.panelArray_Command.setLayout( new BoxLayout( panel.panelArray_Command, BoxLayout.X_AXIS ) );
-		panel.panelArray_Command.add( Box.createHorizontalStrut(10) );
-		panel.panelArray_Command.add( buttonX ); panel.panelArray_Command.add( strut2 );
-		panel.panelArray_Command.add( panel.jtfArray_x ); panel.panelArray_Command.add( strut8 );
-		panel.panelArray_Command.add( labelY ); panel.panelArray_Command.add( strut2 );
-		panel.panelArray_Command.add( panel.jtfArray_y ); panel.panelArray_Command.add( strut10 );
-		panel.panelArray_Command.add( new JLabel( "value:" ) ); panel.panelArray_Command.add( Box.createHorizontalStrut(2) );
-		panel.panelArray_Command.add( panel.jtfArray_value ); panel.panelArray_Command.add( Box.createHorizontalStrut(4) );
+		panel.panelArray_Command.setPreferredSize( new Dimension( 400, 30 ) );
+		panel.panelArray_Command.setLayout( null );
+		panel.panelArray_Command.add( panel.buttonX );
+		panel.panelArray_Command.add( panel.jtfArray_x );
+		panel.panelArray_Command.add( panel.labelY );
+		panel.panelArray_Command.add( panel.jtfArray_y );
+		panel.panelArray_Command.add( panel.labelValue );
+		panel.panelArray_Command.add( panel.jtfArray_value );
 		
 		// set up array viewer
 		panel.panelArray_View = Panel_Edit_ViewArray._create( panel, sbError );
@@ -814,10 +795,74 @@ class Panel_VarView extends JPanel implements java.awt.event.FocusListener {
 
 		panel.setLayout( new BorderLayout() );
 		panel.add( panel.panelArray_Command, BorderLayout.NORTH );
-		panel.add( panel.panelArray_View, BorderLayout.CENTER );		
+		panel.add( panel.panelArray_View, BorderLayout.CENTER );
+		panel.addComponentListener( panel );
+		panel.addFocusListener( panel );
 		
 		return panel;
 	}
+	
+	private class ClickableButton extends JLabel implements java.awt.event.MouseListener {
+		Border borderX_up = new SoftBevelBorder( SoftBevelBorder.RAISED );
+		Border borderX_down = new SoftBevelBorder( SoftBevelBorder.LOWERED );
+		public ClickableButton( String sLabel ){
+			super( sLabel );
+			setBorder( borderX_up );
+		}
+		public void mouseReleased( java.awt.event.MouseEvent e ){
+			setBorder( borderX_up );
+		}
+		public void mouseEntered( java.awt.event.MouseEvent e ){}
+		public void mouseExited( java.awt.event.MouseEvent e ){}
+		public void mousePressed( java.awt.event.MouseEvent e ){
+			setBorder( borderX_down );
+		}
+		public void mouseClicked( java.awt.event.MouseEvent e ){
+			if( mzShowingSelectionCoordinates ){
+				labelY.setVisible( false );
+				jtfArray_x.setVisible( false );
+				jtfArray_y.setVisible( false );
+				mzShowingSelectionCoordinates = false;
+			} else {
+				labelY.setVisible( true );
+				jtfArray_x.setVisible( true );
+				jtfArray_y.setVisible( true );
+				mzShowingSelectionCoordinates = true;
+			}
+			_resize();
+		}
+	}
+	
+	private void _resize(){
+		int posSelection_x = 6;
+		int posSelection_y = 4;
+		int pxLabelMargin = 3;
+		int pxButtonX_width = 20;
+		int pxSelectionJTF_width = 80;
+		int pxLabelY_width = 15;
+		int pxLabelValue_width = 38;
+		buttonX.setBounds( posSelection_x, posSelection_y + 2, pxButtonX_width, 20 );
+		jtfArray_x.setBounds( posSelection_x + pxButtonX_width + pxLabelMargin, posSelection_y, pxSelectionJTF_width, 25 );
+		int posYLabel_x = posSelection_x + pxButtonX_width + pxLabelMargin + pxSelectionJTF_width + 2;
+		labelY.setBounds( posYLabel_x, posSelection_y, pxLabelY_width, 22 );
+		jtfArray_y.setBounds( posYLabel_x + pxLabelY_width + pxLabelMargin, posSelection_y, pxSelectionJTF_width, 25 );
+		int pxSelection_width;   
+		if( mzShowingSelectionCoordinates ){
+			pxSelection_width = pxButtonX_width + pxLabelMargin + pxSelectionJTF_width *2 + 2 + pxLabelY_width + 6;   
+		} else {
+			pxSelection_width = pxButtonX_width + 2;
+		}
+		int pxValueEditor_x = posSelection_x + pxSelection_width + 2;
+		labelValue.setBounds( pxValueEditor_x, posSelection_y, pxLabelValue_width, 22 );
+		int posJTFArray_x = pxValueEditor_x + pxLabelValue_width + pxLabelMargin;
+		int pxJTFArray_width = this.getWidth() - posJTFArray_x - 15; 
+		jtfArray_value.setBounds( posJTFArray_x, posSelection_y, pxJTFArray_width, 25 ); 
+	}
+	
+	public void componentHidden( ComponentEvent e ){ _resize(); }
+	public void componentMoved( ComponentEvent e ){ _resize(); }
+	public void componentResized( ComponentEvent e ){ _resize(); }
+	public void componentShown( ComponentEvent e ){ _resize(); }
 
 	public static final Border borderBlue = BorderFactory.createLineBorder( Color.BLUE ); 
 	public void focusGained( java.awt.event.FocusEvent e ){
@@ -844,6 +889,7 @@ class Panel_VarView extends JPanel implements java.awt.event.FocusListener {
 		}
 	}
 	void _setSelection( int row, int column ){
+		if( nodeActive == null ) return;
 		nodeActive.iSelection_x = row;
 		nodeActive.iSelection_y = column;
 		jtfArray_x.setText( Integer.toString( row ) );
