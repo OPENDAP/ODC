@@ -793,7 +793,9 @@ class Node_Sequence extends Node {
 class Node_Array extends Node {
 	public static String DEFAULT_ArrayName = "array";	
 	public static String DEFAULT_DimensionName = "dim";
-	public static int DEFAULT_DimensionSize = 100;	
+	public static int DEFAULT_DimensionSize = 100;
+	transient public int iSelection_x = 0; // 0-based
+	transient public int iSelection_y = 0; 
 	DArray darray;
 	protected Node_Array( DArray bt ){
 		super( bt );
@@ -826,6 +828,13 @@ class Node_Array extends Node {
 	int _getValueIndex( int x, int y ){ // calculates index of value according to view, zero-based
 		int iColumnSize = view.array_dim_y == 0 || view.array_dim_y > getDimensionLengths()[0] ? 0 : getDimensionLengths()[view.array_dim_y];
 		return x * iColumnSize + y;
+	}
+	String _getValueString( int x, int y ){
+		int xValue = _getValueIndex( x, y );
+		opendap.dap.PrimitiveVector pv = getPrimitiveVector();
+		Object oValues = pv.getInternalStorage();
+		int[] aiValues = (int[])oValues;
+		return Integer.toString( aiValues[xValue] );
 	}
 	String getValueTypeString(){
 		return DAP.getDArrayType_String( darray );

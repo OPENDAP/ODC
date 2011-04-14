@@ -3,6 +3,8 @@ package opendap.clients.odc.data;
 import javax.swing.JPanel;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -18,7 +20,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.plot.PlotOptions;
 import opendap.clients.odc.gui.Styles;
 
-public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
+public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 0L;
 	private BufferedImage mbi = null;
 	private int miBufferWidth;
@@ -30,14 +32,19 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 	private Color colorHeaderBackground = new Color( 0xFF9FE5FF ); // muted blue
 	private Color colorHeaderText = new Color( 0xFF505050 ); // dark gray
 	private Color colorGridlines = new Color( 0xFFB0B0B0 ); // light gray
+	private Color colorSelectedCellBorder = new Color( 0xFF606060 ); // dark gray
 	private Node_Array nodeActive;
+	private Panel_VarView parent;
 	
 	private Panel_Edit_ViewArray(){}
 	
-	final static Panel_Edit_ViewArray _create( StringBuffer sbError ){
+	final static Panel_Edit_ViewArray _create( Panel_VarView parent, StringBuffer sbError ){
 		Panel_Edit_ViewArray panel = new Panel_Edit_ViewArray();
+		panel.parent = parent;
 		panel.setBackground( panel.colorBackground );
 		panel.addComponentListener( panel );
+		panel.addMouseListener( panel );
+		panel.addMouseMotionListener( panel );
 		return panel;
 	}
 	
@@ -64,6 +71,10 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 	public void componentMoved( ComponentEvent e ){}
 	public void componentShown( ComponentEvent e ){}
 	
+	int pxCell_width = 80;
+	int pxCell_height = 20;
+	int pxRowHeader_width = 60;
+	int pxColumnHeader_height = pxCell_height;  
 	public void _vDrawImage( Node_Array node ){
 		nodeActive = node;
 		Model_VariableView view = node._getView();
@@ -87,9 +98,6 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 		g2.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF );
 		g2.setRenderingHint( RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON );
 		
-		int pxCell_width = 80;
-		int pxCell_height = 20;
-		int pxRowHeader_width = 60;
 		int pxRowHeader_bottom_inset = 2;
 		int pxColumnHeader_height = pxCell_height;  
 		
@@ -166,6 +174,14 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 			xGridline++;
 		}		
 
+		// draw selection
+		int posSelection_x = pxRowHeader_width + pxCell_width * node.iSelection_y - 1;
+		int posSelection_y = pxColumnHeader_height + pxCell_height * node.iSelection_x - 1;
+		int pxSelection_width = pxCell_width + 1;
+		int pxSelection_height = pxCell_height + 1;
+		g2.setColor( colorSelectedCellBorder );
+		g2.drawRect( posSelection_x, posSelection_y, pxSelection_width, pxSelection_height );
+		
 		_vUpdateCellValues( g2, node, xD1, xD2, pxRowHeader_width, pxColumnHeader_height, pxCell_width, pxCell_height );
 						
 		repaint();
@@ -195,7 +211,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 		int offsetY = pxCell_height - pxDescent;
 		int ctColumns_shown = ctColumns == 0 ? 1 : ctColumns;
 		for( int xRow = xD1; xRow < ctRows; xRow++ ){
-			for( int xColumn = xD2; xColumn < ctColumns; xColumn++ ){
+			for( int xColumn = xD2; xColumn < ctColumns_shown; xColumn++ ){
 				int iValueIndex = node._getValueIndex( xRow, xColumn );
 				String sValueText = Integer.toString( aiValues[iValueIndex] );
 				int iStringWidth = fmValue.stringWidth( sValueText );
@@ -210,6 +226,34 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 		}
 				
 	}
+	public void mousePressed( java.awt.event.MouseEvent e ){
+		java.awt.Point point = e.getPoint();
+		int x = point.x;
+		int y = point.y;
+		if( x < pxRowHeader_width ) return; // ignore clicks on headers for now
+		if( y < pxColumnHeader_height ) return;
+		int xCell_row = (y - pxColumnHeader_height)/pxCell_height;
+		int xCell_column = (x - pxRowHeader_width)/pxCell_width;
+		parent._setSelection( xCell_row, xCell_column );
+	}
+
+	public void mouseReleased( java.awt.event.MouseEvent e ){
+	}
+
+	public void mouseEntered( java.awt.event.MouseEvent e ){
+	}
+
+	public void mouseExited( java.awt.event.MouseEvent e ){
+	}
+
+	public void mouseClicked( java.awt.event.MouseEvent e ){
+	}
+
+	public void mouseDragged( java.awt.event.MouseEvent e ){
+    }
+
+	public void mouseMoved( java.awt.event.MouseEvent e ){
+    }
 }
 
 //g2D.setComposite( AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f) );

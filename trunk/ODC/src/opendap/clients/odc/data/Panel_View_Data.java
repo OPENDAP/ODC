@@ -744,35 +744,67 @@ class Panel_Edit_Stream extends JPanel {
 // on click/double click events
 // right click to resize stuff
 // be able to record and store presentation info in class below
-class Panel_VarView extends JPanel {
+class Panel_VarView extends JPanel implements java.awt.event.FocusListener {
 	JPanel panelArray_Command;
 	Panel_Edit_Cell panelArray_CellEditor;
 	Panel_Edit_ViewArray panelArray_View;
 	JTextField jtfArray_x;
 	JTextField jtfArray_y;
 	JTextField jtfArray_value;
+	Node_Array nodeActive;
 	JSplitPane mSplitPane;     // this panel is in the lower half of this split pane
+	private boolean mzShowingSelectionCoordinates = true;
 	private Panel_VarView(){}
 	public static Panel_VarView _create( JSplitPane jsp, StringBuffer sbError ){
-		Panel_VarView panel = new Panel_VarView();
+		final Panel_VarView panel = new Panel_VarView();
 		panel.mSplitPane = jsp;
 		
+		final java.awt.Component strut2 = Box.createHorizontalStrut(2);
+		final java.awt.Component strut8 = Box.createHorizontalStrut(8);
+		final java.awt.Component strut10 = Box.createHorizontalStrut(10);
+		final JLabel labelY = new JLabel( "y:" );
+		final JButton buttonX = new JButton( "x:" );
+		buttonX.setMaximumSize( new Dimension( 5, 22 ) );
+		buttonX.addActionListener( // toggle selection coordinates
+			new java.awt.event.ActionListener(){
+				public void actionPerformed( java.awt.event.ActionEvent evt ){
+					if( panel.mzShowingSelectionCoordinates ){
+						strut2.setVisible( false );
+						strut8.setVisible( false );
+						strut10.setVisible( false );
+						labelY.setVisible( false );
+						panel.jtfArray_x.setVisible( false );
+						panel.jtfArray_y.setVisible( false );
+						panel.mzShowingSelectionCoordinates = false;
+					} else {
+						strut2.setVisible( true );
+						strut8.setVisible( true );
+						strut10.setVisible( true );
+						labelY.setVisible( true );
+						panel.jtfArray_x.setVisible( true );
+						panel.jtfArray_y.setVisible( true );
+						panel.mzShowingSelectionCoordinates = true;
+					}
+				}
+			}
+		);
+				
 		// set up command panel for array viewer
-		panel.jtfArray_x = new JTextField(); panel.jtfArray_x.setPreferredSize( new Dimension( 100, 25 ) );
-		panel.jtfArray_y = new JTextField(); panel.jtfArray_y.setPreferredSize( new Dimension( 100, 25 ) );
+		panel.jtfArray_x = new JTextField(); panel.jtfArray_x.setMinimumSize( new Dimension( 300, 25 ) ); panel.jtfArray_x.setMaximumSize( new Dimension( 240, 25 ) );
+		panel.jtfArray_y = new JTextField(); panel.jtfArray_y.setMinimumSize( new Dimension( 300, 25 ) ); panel.jtfArray_y.setMaximumSize( new Dimension( 340, 25 ) );
 		panel.jtfArray_value = new JTextField();
 		panel.panelArray_Command = new JPanel();
 		panel.panelArray_Command.setLayout( new BoxLayout( panel.panelArray_Command, BoxLayout.X_AXIS ) );
 		panel.panelArray_Command.add( Box.createHorizontalStrut(10) );
-		panel.panelArray_Command.add( new JLabel( "x:" ) ); panel.panelArray_Command.add( Box.createHorizontalStrut(2) );
-		panel.panelArray_Command.add( panel.jtfArray_x ); panel.panelArray_Command.add( Box.createHorizontalStrut(8) );
-		panel.panelArray_Command.add( new JLabel( "y:" ) ); panel.panelArray_Command.add( Box.createHorizontalStrut(2) );
-		panel.panelArray_Command.add( panel.jtfArray_y ); panel.panelArray_Command.add( Box.createHorizontalStrut(6) );
+		panel.panelArray_Command.add( buttonX ); panel.panelArray_Command.add( strut2 );
+		panel.panelArray_Command.add( panel.jtfArray_x ); panel.panelArray_Command.add( strut8 );
+		panel.panelArray_Command.add( labelY ); panel.panelArray_Command.add( strut2 );
+		panel.panelArray_Command.add( panel.jtfArray_y ); panel.panelArray_Command.add( strut10 );
 		panel.panelArray_Command.add( new JLabel( "value:" ) ); panel.panelArray_Command.add( Box.createHorizontalStrut(2) );
 		panel.panelArray_Command.add( panel.jtfArray_value ); panel.panelArray_Command.add( Box.createHorizontalStrut(4) );
 		
 		// set up array viewer
-		panel.panelArray_View = Panel_Edit_ViewArray._create( sbError );
+		panel.panelArray_View = Panel_Edit_ViewArray._create( panel, sbError );
 		if( panel.panelArray_View ==  null ){
 			sbError.insert( 0, "failed to create array viewer" );
 			return null;
@@ -786,6 +818,15 @@ class Panel_VarView extends JPanel {
 		
 		return panel;
 	}
+
+	public static final Border borderBlue = BorderFactory.createLineBorder( Color.BLUE ); 
+	public void focusGained( java.awt.event.FocusEvent e ){
+		setBorder( borderBlue );
+	}
+
+	public void focusLost( java.awt.event.FocusEvent e ){
+		setBorder( null );
+	}
 	
 	public void _show( Node node ){
 		if( node == null ){
@@ -794,13 +835,23 @@ class Panel_VarView extends JPanel {
 		}
 		if( node.getType() == DAP_VARIABLE.Array ){
 			setVisible( true );
-			panelArray_View._vDrawImage( (Node_Array)node );
+			nodeActive = (Node_Array)node;
+			_setSelection( nodeActive.iSelection_x, nodeActive.iSelection_y );
 			return;
 		} else {
 			setVisible( false );
 			return;
 		}
 	}
+	void _setSelection( int row, int column ){
+		nodeActive.iSelection_x = row;
+		nodeActive.iSelection_y = column;
+		jtfArray_x.setText( Integer.toString( row ) );
+		jtfArray_y.setText( Integer.toString( column ) );
+		jtfArray_value.setText( nodeActive._getValueString( row, column ) );
+		panelArray_View._vDrawImage( nodeActive );
+	}
+	public boolean _isShowingSelectionCoordinates(){ return mzShowingSelectionCoordinates; } 
 }
 
 // stores information about how the dataset should be viewed (column widths etc)
