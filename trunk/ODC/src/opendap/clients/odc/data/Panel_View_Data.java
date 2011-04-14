@@ -75,6 +75,11 @@ import java.util.ArrayList;
  *                                                              Panel_Edit_Variable
  * Expression -  left: Panel_Edit_Expression         right: Panel_Define_Expression
  * Stream -      left: Panel_Edit_Stream             right: Panel_Define_Stream
+ * 
+ * Panel below (South):
+ * 
+ *   Panel_VarView (North)
+ *   Panel_Edit_ViewArray  (South)
  */
 
 public class Panel_View_Data extends JPanel implements IControlPanel {
@@ -753,17 +758,18 @@ class Panel_VarView extends JPanel {
 		panel.mSplitPane = jsp;
 		
 		// set up command panel for array viewer
-		panel.jtfArray_x = new JTextField();
-		panel.jtfArray_y = new JTextField();
+		panel.jtfArray_x = new JTextField(); panel.jtfArray_x.setPreferredSize( new Dimension( 100, 25 ) );
+		panel.jtfArray_y = new JTextField(); panel.jtfArray_y.setPreferredSize( new Dimension( 100, 25 ) );
 		panel.jtfArray_value = new JTextField();
 		panel.panelArray_Command = new JPanel();
 		panel.panelArray_Command.setLayout( new BoxLayout( panel.panelArray_Command, BoxLayout.X_AXIS ) );
-		panel.panelArray_Command.add( new JLabel( "x:" ) ); panel.add( Box.createHorizontalStrut(2) );
-		panel.panelArray_Command.add( panel.jtfArray_x ); panel.add( Box.createHorizontalStrut(4) );
-		panel.panelArray_Command.add( new JLabel( "y:" ) ); panel.add( Box.createHorizontalStrut(2) );
-		panel.panelArray_Command.add( panel.jtfArray_y ); panel.add( Box.createHorizontalStrut(6) );
-		panel.panelArray_Command.add( new JLabel( "value:" ) ); panel.add( Box.createHorizontalStrut(2) );
-		panel.panelArray_Command.add( panel.jtfArray_value ); panel.add( Box.createHorizontalStrut(4) );
+		panel.panelArray_Command.add( Box.createHorizontalStrut(10) );
+		panel.panelArray_Command.add( new JLabel( "x:" ) ); panel.panelArray_Command.add( Box.createHorizontalStrut(2) );
+		panel.panelArray_Command.add( panel.jtfArray_x ); panel.panelArray_Command.add( Box.createHorizontalStrut(8) );
+		panel.panelArray_Command.add( new JLabel( "y:" ) ); panel.panelArray_Command.add( Box.createHorizontalStrut(2) );
+		panel.panelArray_Command.add( panel.jtfArray_y ); panel.panelArray_Command.add( Box.createHorizontalStrut(6) );
+		panel.panelArray_Command.add( new JLabel( "value:" ) ); panel.panelArray_Command.add( Box.createHorizontalStrut(2) );
+		panel.panelArray_Command.add( panel.jtfArray_value ); panel.panelArray_Command.add( Box.createHorizontalStrut(4) );
 		
 		// set up array viewer
 		panel.panelArray_View = Panel_Edit_ViewArray._create( sbError );

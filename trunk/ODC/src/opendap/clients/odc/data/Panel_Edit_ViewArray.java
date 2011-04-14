@@ -95,6 +95,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 		
 		int ctRows = node._getRowCount();
 		int ctColumns = node._getColumnCount();
+		if( ctColumns == 0 ) ctColumns = 1;
 
 		// draw header backgrounds
 		int posColumnHeader_x = pxRowHeader_width; 
@@ -147,16 +148,22 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 		int posLine_width = pxCanvasWidth;
 		int posLine_height = pxCanvasHeight;
 		if( posLine_width > posColumnHeader_x + ctColumns * pxCell_width ) posLine_width = posColumnHeader_x + ctColumns * pxCell_width;  
-		if( posLine_height > pxColumnHeader_height + ctRows * pxCell_height ) posLine_height = pxColumnHeader_height + ctRows * pxCell_height;  
+		if( posLine_height > pxColumnHeader_height + ctRows * pxCell_height ) posLine_height = pxColumnHeader_height + ctRows * pxCell_height;
+		int xGridline = 0;
 		while( true ){
 			if( posLine_x > pxCanvasWidth ) break;
+			if( xGridline > ctColumns ) break;
 			g2.drawLine( posLine_x, 0, posLine_x, posLine_height );
-			posLine_x += pxCell_width; 
+			posLine_x += pxCell_width;
+			xGridline++;
 		}
+		xGridline = 0;
 		while( true ){
 			if( posLine_y > pxCanvasHeight ) break;
+			if( xGridline > ctRows ) break;
 			g2.drawLine( 0, posLine_y, posLine_width, posLine_y );
 			posLine_y += pxCell_height; 
+			xGridline++;
 		}		
 
 		_vUpdateCellValues( g2, node, xD1, xD2, pxRowHeader_width, pxColumnHeader_height, pxCell_width, pxCell_height );
@@ -180,17 +187,19 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener {
 		g2.setColor( Color.BLACK );
 		g2.setFont( fontValue );
 		FontMetrics fmValue = g2.getFontMetrics( fontValue );
+		int pxDescent = fmValue.getDescent();
 		int pxRightInset = 2;
 		int ctRows = node._getRowCount();
 		int ctColumns = node._getColumnCount();
 		int pxValueFontHeight = fmValue.getAscent() + fmValue.getLeading(); // digits do not have descents
-		int offsetY = pxCell_height - pxValueFontHeight;
-		for( int xRow = xD1; xRow <= ctRows; xRow++ ){
-			for( int xColumn = xD2; xColumn <= ctColumns; xColumn++ ){
+		int offsetY = pxCell_height - pxDescent;
+		int ctColumns_shown = ctColumns == 0 ? 1 : ctColumns;
+		for( int xRow = xD1; xRow < ctRows; xRow++ ){
+			for( int xColumn = xD2; xColumn < ctColumns; xColumn++ ){
 				int iValueIndex = node._getValueIndex( xRow, xColumn );
 				String sValueText = Integer.toString( aiValues[iValueIndex] );
 				int iStringWidth = fmValue.stringWidth( sValueText );
-				int offsetX = pxCell_width - iStringWidth + pxRightInset;
+				int offsetX = pxCell_width - iStringWidth - pxRightInset;
 				g2.drawString( sValueText, posCell_x + offsetX, posCell_y + offsetY );
 				posCell_x += pxCell_width; // advance to next cell
 				if( posCell_x > pxCanvasWidth ) break; // not enough canvas to draw all the columns
