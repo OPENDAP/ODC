@@ -802,6 +802,14 @@ You can also edit the characteristics of the element depending what it is. For e
 Creating Arrays: 
                    When you create new arrays they are automatically dimensioned to 100 elements and the dimension is given a generic name of "dim1". This is to give you a starting point with something to work with. You can add more dimensions, rename them and resize them. An array must have at least one dimension. You can view and edit the data your array contains in the tabular view at the bottom of the screen. You can paste data into this matrix, type or generate it using an expression (see the topic "Data Viewer - Expressions"). Note that you can use expressions to generate entire datasets, as well.
 
+#Data Viewer - Array View
+
+The array viewer is located in the bottom half of the Data / View tab and is shown when a dataset element of type array, grid or sequence is selected. This viewer looks like a spreadsheet and gives you a two-dimensional view of the data in the array. The view can be configured through the variable editing box to show different slices of a multi-dimensional array or to show different dimensions on the x- and y-axes. Using the array view you can edit the data in an array, copy it, paste new values in, and use expressions to modify or make special views of the data in the array.
+
+When the array view is active it will be surrounded by a thin blue rectangle. To activate in the array view click in it somewhere. Keystrokes will only take effect in the array view if it is active.
+
+The top bar of the array viewer is the viewer's action bar. It contains the current selection coordinates (x,y) followed by a value editor (labeled "value:"). When a cell of the array is selected its value will appear in the value editor. If you change this value and press enter the value in the array will be changed to the new value. The array viewer does not support in-cell editing. The selection coordinate display can be toggled visible or invisible by clicking the "x:" button. You can also edit cells by using the Value Editor interface located to the right of the Variable Editor (see the topic "Data Viewer - Value Editor" for more information about that interface).
+
 #Data Viewer - Expressions
 
 Data Viewer expressions allow you to generate data using mathematical expressions and functions in the Python language. This can be useful in wide variety of ways. For example, using the expression generator you can calculate a linear regression of a data set and then, using the layer capability of the plotter, overlay the regression line on a plot of the data. Expressions can be used for more mundane uses. For example, you might want to add a dimensional index numbers to a dataset that lacks them. You can also use expressions to modify existing data sets. For example, you can use the geodesic functions that are built into the ODC to perform transformations such as orthorectification on satellite data sets.
