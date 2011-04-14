@@ -10,6 +10,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Color;
+import java.awt.Stroke;
+import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.RenderingHints;
@@ -33,6 +35,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 	private Color colorHeaderText = new Color( 0xFF505050 ); // dark gray
 	private Color colorGridlines = new Color( 0xFFB0B0B0 ); // light gray
 	private Color colorSelectedCellBorder = new Color( 0xFF606060 ); // dark gray
+	private Stroke strokeSelection = new BasicStroke( 2f );
 	private Node_Array nodeActive;
 	private Panel_VarView parent;
 	
@@ -177,9 +180,10 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 		// draw selection
 		int posSelection_x = pxRowHeader_width + pxCell_width * node.iSelection_y - 1;
 		int posSelection_y = pxColumnHeader_height + pxCell_height * node.iSelection_x - 1;
-		int pxSelection_width = pxCell_width + 1;
-		int pxSelection_height = pxCell_height + 1;
+		int pxSelection_width = pxCell_width + 3;
+		int pxSelection_height = pxCell_height + 3;
 		g2.setColor( colorSelectedCellBorder );
+		g2.setStroke( strokeSelection );
 		g2.drawRect( posSelection_x, posSelection_y, pxSelection_width, pxSelection_height );
 		
 		_vUpdateCellValues( g2, node, xD1, xD2, pxRowHeader_width, pxColumnHeader_height, pxCell_width, pxCell_height );
