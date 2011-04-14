@@ -820,7 +820,7 @@ class Node_Array extends Node {
 	}
 	int _getColumnCount(){ // calculates row count according to view
 		int[] aiDimensionLengths = getDimensionLengths();
-		if( view.array_dim_y == 0 || view.array_dim_y > aiDimensionLengths[0] ) return 1; 
+		if( view.array_dim_y == 0 || view.array_dim_y > aiDimensionLengths[0] ) return 0; 
 		return aiDimensionLengths[view.array_dim_y];
 	}
 	int _getValueIndex( int x, int y ){ // calculates index of value according to view, zero-based
