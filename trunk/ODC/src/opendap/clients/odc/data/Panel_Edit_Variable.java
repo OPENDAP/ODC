@@ -251,11 +251,11 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 		super._show( node );
 		nodeActive = (Node_Array)node;
 		labelValueCount_value.setText( Integer.toString( nodeActive.getValueCount() ) );
-		jcbType.setSelectedItem( DAP.getTypeEnumByName( nodeActive.getValueTypeString() ) );
+		jcbType.setSelectedItem( DAP.getTypeEnumByName( nodeActive._getValueTypeString() ) );
 		int xDimension1 = 1;
 		int ctDimension = nodeActive.getDimensionCount();
 		for( ; xDimension1 <= ctDimension; xDimension1++ ){
-			listDimensionNameJTF.get( xDimension1 - 1 ).setText( nodeActive.getDimensionName( xDimension1 ) );
+			listDimensionNameJTF.get( xDimension1 - 1 ).setText( nodeActive._getDimensionName( xDimension1 ) );
 			listDimensionSizeJTF.get( xDimension1 - 1 ).setText( Integer.toString( nodeActive.getDimensionSize( xDimension1 ) ) );
 			listDimensionDelete.get( xDimension1 - 1 ).setVisible( ctDimension > 1 );
 			listDimensionUp.get( xDimension1 - 1 ).setVisible( xDimension1 > 1 );
@@ -363,7 +363,7 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 	}
 	void addDimension(){
 		StringBuffer sbError = new StringBuffer( 256 );
-		if( nodeActive.addDimension(sbError) ){
+		if( nodeActive._addDimension(sbError) ){
 			_show( nodeActive );
 		} else {
 			ApplicationController.vShowError( "Error adding new dimension: " + sbError );

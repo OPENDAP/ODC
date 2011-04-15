@@ -432,6 +432,8 @@ abstract class Node extends DefaultMutableTreeNode {   // functions as both the 
 		return true;
 	}
 	
+	abstract public boolean _setSelectedValue( String sNewValue, StringBuffer sbError );
+	
 	// returns an array of selected children, zero-based
 	// if no children are selected returns null
 	public Node[] getSelectedChildren(){
@@ -747,6 +749,10 @@ class Node_Structure extends Node {
 		dstructure = (DStructure)bt;
 	}
 	DAP_VARIABLE getType(){ return DAP.DAP_VARIABLE.Structure; }
+	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		sbError.append( "structures have no values" );
+		return false;
+	}
 }
 
 class Node_Grid extends Node {
@@ -776,6 +782,10 @@ class Node_Grid extends Node {
 		sb.append( nTotalSize );
 		return sb.toString();
 	}
+	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
 }
 
 class Node_Sequence extends Node {
@@ -788,6 +798,10 @@ class Node_Sequence extends Node {
 	ArrayList<String> listFieldNames = new ArrayList<String>();
 	ArrayList<DAP_VARIABLE> listFieldTypes = new ArrayList<DAP_VARIABLE>();
 	ArrayList<ArrayList<BaseType>> listRows = new ArrayList<ArrayList<BaseType>>(); // this contains the data, if any 
+	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
 }
 
 class Node_Array extends Node {
@@ -806,7 +820,7 @@ class Node_Array extends Node {
 	ArrayList<DArrayDimension> listDimensions = new ArrayList<DArrayDimension>();
 	PrimitiveVector getPrimitiveVector(){ return darray.getPrimitiveVector(); }
 	int getValueCount(){ return darray.getLength(); }
-	int getByteSize(){ return darray.getLength() * DAP.getDataSize( getValueType() ); }
+	int getByteSize(){ return darray.getLength() * DAP.getDataSize( _getValueType() ); }
 	int getDimensionCount(){ return darray.numDimensions(); }
 	int getDimensionSize( int xDimension1 ){
 		try {
@@ -827,7 +841,10 @@ class Node_Array extends Node {
 	}
 	int _getValueIndex( int x, int y ){ // calculates index of value according to view, zero-based
 		int iColumnSize = view.array_dim_y == 0 || view.array_dim_y > getDimensionLengths()[0] ? 0 : getDimensionLengths()[view.array_dim_y];
-		return x * iColumnSize + y;
+		return x + y * iColumnSize;
+	}
+	String _getValueString_selected(){
+		return _getValueString( iSelection_x, iSelection_y );
 	}
 	String _getValueString( int x, int y ){
 		int xValue = _getValueIndex( x, y );
@@ -836,33 +853,77 @@ class Node_Array extends Node {
 		int[] aiValues = (int[])oValues;
 		return Integer.toString( aiValues[xValue] );
 	}
-	String getValueTypeString(){
+	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		return _setValue( sNewValue, _getValueIndex( iSelection_x, iSelection_y ), sbError );  
+	}
+	public boolean _setValue( String sNewValue, int index, StringBuffer sbError ){
+		try {
+			opendap.dap.PrimitiveVector pv = getPrimitiveVector();
+			Object oValues = pv.getInternalStorage();
+			switch( _getValueType() ){
+				case Byte:
+				case Int16:
+					short[] ashValues = (short[])oValues;
+					ashValues[index] = Short.parseShort( sNewValue ); 
+					break;
+				case Int32:
+				case UInt16:
+					int[] aiValues = (int[])oValues;
+					aiValues[index] = Integer.parseInt( sNewValue ); 
+					break;
+				case UInt32:
+					long[] anValues = (long[])oValues;
+					anValues[index] = Integer.parseInt( sNewValue ); 
+					break;
+				case Float32:
+					float[] afValues = (float[])oValues;
+					afValues[index] = Integer.parseInt( sNewValue ); 
+					break;
+				case Float64:
+					double[] adValues = (double[])oValues;
+					adValues[index] = Double.parseDouble( sNewValue ); 
+					break;
+				case String:
+					String[] asValues = (String[])oValues;
+					asValues[index] = sNewValue; 
+					break;
+				default:
+					sbError.append( "unknown DAP type" );
+					return false;
+			}
+			return true;
+		} catch( NumberFormatException ex ) {
+			sbError.append( "new value '" + sNewValue + "' could not be interpeted as a " + _getValueType() );
+			return false;
+		}
+	}
+	String _getValueTypeString(){
 		return DAP.getDArrayType_String( darray );
 	}
-	DAP_TYPE getValueType(){
+	DAP_TYPE _getValueType(){
 		return DAP.getDAPType( darray );
 	}
-	String getDimensionName( int xDimension1 ){
+	String _getDimensionName( int xDimension1 ){
 		try {
 			return darray.getDimension( xDimension1 - 1 ).getName(); 
 		} catch( Throwable t ) {
 			return null;
 		}
 	}
-	boolean addDimension( StringBuffer sbError ){
-		return addDimension( DEFAULT_DimensionSize, sbError );
+	boolean _addDimension( StringBuffer sbError ){
+		return _addDimension( DEFAULT_DimensionSize, sbError );
 	}
-	boolean addDimension( int iDimensionSize, StringBuffer sbError ){
+	boolean _addDimension( int iDimensionSize, StringBuffer sbError ){
 		if( Integer.MAX_VALUE / iDimensionSize < getValueCount() ){
 			sbError.append( "unable to add dimension because arrays may not have more than " + Utility_String.getByteCountReadable( Integer.MAX_VALUE ) + " values" );
 			return false;
 		}
 		int iNewValueCount = iDimensionSize * getValueCount();
-		if( Integer.MAX_VALUE / DAP.getDataSize( getValueType() ) < iNewValueCount ){
+		if( Integer.MAX_VALUE / DAP.getDataSize( _getValueType() ) < iNewValueCount ){
 			sbError.append( "unable to add dimension because size of array would exceed " + Utility_String.getByteCountReadable( Integer.MAX_VALUE ) + " bytes" );
 			return false;
 		}
-		int iNewByteSize = DAP.getDataSize( getValueType() ) * iNewValueCount;
+		int iNewByteSize = DAP.getDataSize( _getValueType() ) * iNewValueCount;
 		int iAdditionalBytesRequired = iNewByteSize - getByteSize();  
 		if( ! Utility.zMemoryCheck( iNewByteSize ) ){ // need to accommodate new array in memory
 			sbError.append( "unable to add dimension because there is not enough memory for an additional " + Utility_String.getByteCountReadable( iAdditionalBytesRequired ) + " bytes. See help for info on memory." );
@@ -871,7 +932,7 @@ class Node_Array extends Node {
 		darray.appendDim( iDimensionSize, DEFAULT_DimensionName + (getDimensionCount() + 1) );
 		Object[] eggPrimitiveVector = new Object[1];
 		eggPrimitiveVector[0] = darray.getPrimitiveVector().getInternalStorage();
-		if( DAP.zDimension_Add( eggPrimitiveVector, getValueType(), iDimensionSize, sbError ) ){
+		if( DAP.zDimension_Add( eggPrimitiveVector, _getValueType(), iDimensionSize, sbError ) ){
 			darray.getPrimitiveVector().setInternalStorage( eggPrimitiveVector[0] );
 		} else {
 			sbError.insert( 0, "dimension size " + iDimensionSize + ": " );
@@ -912,7 +973,7 @@ class Node_Array extends Node {
 			Object[] eggPrimitiveVector = new Object[1];
 			eggPrimitiveVector[0] = darray.getPrimitiveVector().getInternalStorage();
 			int[] aiDimLengths = getDimensionLengths();
-			if( DAP.zDimension_ModifySize( eggPrimitiveVector, getValueType(), aiDimLengths, xDimension1, iNewSize, sbError ) ){
+			if( DAP.zDimension_ModifySize( eggPrimitiveVector, _getValueType(), aiDimLengths, xDimension1, iNewSize, sbError ) ){
 				darray.getPrimitiveVector().setInternalStorage( eggPrimitiveVector[0] );
 			} else {
 				sbError.insert( 0, "new dimension " + xDimension1 + " size " + iNewSize + ": " );
@@ -964,6 +1025,10 @@ class Node_Byte extends Node {
 	}
 	DAP_VARIABLE getType(){ return DAP.DAP_VARIABLE.Byte; }
 	int value;
+	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
 }
 class Node_Int16 extends Node {
 	DInt16 dint16;
@@ -973,6 +1038,10 @@ class Node_Int16 extends Node {
 	}
 	DAP_VARIABLE getType(){ return DAP.DAP_VARIABLE.Int16; }
 	int value;
+	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
 }
 class Node_Int32 extends Node {
 	DInt32 dint32;
@@ -982,6 +1051,10 @@ class Node_Int32 extends Node {
 	}
 	DAP_VARIABLE getType(){ return DAP.DAP_VARIABLE.Int32; }
 	int value;
+	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
 }
 class Node_UInt16 extends Node {
 	DUInt16 duint16;
@@ -991,6 +1064,10 @@ class Node_UInt16 extends Node {
 	}
 	DAP_VARIABLE getType(){ return DAP.DAP_VARIABLE.UInt16; }
 	int value;
+	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
 }
 class Node_UInt32 extends Node {
 	DUInt32 duint32;
@@ -1000,6 +1077,10 @@ class Node_UInt32 extends Node {
 	}
 	DAP_VARIABLE getType(){ return DAP.DAP_VARIABLE.UInt32; }
 	long value;
+	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
 }
 class Node_Float32 extends Node {
 	DFloat32 dfloat32;
@@ -1009,6 +1090,10 @@ class Node_Float32 extends Node {
 	}
 	DAP_VARIABLE getType(){ return DAP.DAP_VARIABLE.Float32; }
 	float value;
+	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
 }
 class Node_Float64 extends Node {
 	DFloat64 dfloat64;
@@ -1018,6 +1103,10 @@ class Node_Float64 extends Node {
 	}
 	DAP_VARIABLE getType(){ return DAP.DAP_VARIABLE.Float64; }
 	double value;
+	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
 }
 class Node_String extends Node {
 	DString dstring;
@@ -1027,6 +1116,10 @@ class Node_String extends Node {
 	}
 	DAP_VARIABLE getType(){ return DAP.DAP_VARIABLE.String; }
 	String value;
+	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
 }
 
 

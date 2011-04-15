@@ -144,6 +144,7 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 						}}});
 			
 		} catch( Exception ex ) {
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 		return true;
@@ -753,12 +754,16 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 	JTextField jtfArray_x;
 	JTextField jtfArray_y;
 	JTextField jtfArray_value;
+	JTextField jtfArray_exp;
+	JComboBox jcbArray_exp_range;
 	Node_Array nodeActive;
 	JSplitPane mSplitPane;     // this panel is in the lower half of this split pane
 	final JLabel labelY = new JLabel( "y:" );
 	final JLabel labelValue = new JLabel( "value:" );
+	final JLabel labelExp = new JLabel( "exp:" );
 	final ClickableButton buttonX = new ClickableButton( "x:" );
 	private boolean mzShowingSelectionCoordinates = true;
+	private StringBuffer sbError_local = new StringBuffer( 256 );
 	private Panel_VarView(){}
 	public static Panel_VarView _create( JSplitPane jsp, StringBuffer sbError ){
 		final Panel_VarView panel = new Panel_VarView();
@@ -768,6 +773,9 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		panel.jtfArray_x = new JTextField();
 		panel.jtfArray_y = new JTextField();
 		panel.jtfArray_value = new JTextField();
+		panel.jtfArray_exp = new JTextField();
+		String[] asExpressionRangeModes = { "All", "Value", "Selection", "View" };
+		panel.jcbArray_exp_range = new JComboBox( asExpressionRangeModes );
 		panel.labelY.setHorizontalAlignment( JLabel.RIGHT );
 //		panel.labelY.setBorder( BorderFactory.createLineBorder( Color.BLUE ) );
 		panel.labelValue.setHorizontalAlignment( JLabel.RIGHT );
@@ -783,6 +791,9 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		panel.panelArray_Command.add( panel.jtfArray_y );
 		panel.panelArray_Command.add( panel.labelValue );
 		panel.panelArray_Command.add( panel.jtfArray_value );
+		panel.panelArray_Command.add( panel.labelExp );
+		panel.panelArray_Command.add( panel.jtfArray_exp );
+		panel.panelArray_Command.add( panel.jcbArray_exp_range );
 		
 		// set up array viewer
 		panel.panelArray_View = Panel_Edit_ViewArray._create( panel, sbError );
@@ -798,6 +809,59 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		panel.add( panel.panelArray_View, BorderLayout.CENTER );
 		panel.addComponentListener( panel );
 		panel.addFocusListener( panel );
+		
+		panel.jtfArray_x.addActionListener(			
+			new java.awt.event.ActionListener(){
+				public void actionPerformed( ActionEvent event) {
+					try {
+						int xNewRow = Integer.parseInt( panel.jtfArray_x.getText() );
+						if( xNewRow < 0 ) xNewRow = 0;
+						if( xNewRow >= panel.nodeActive._getRowCount() ) xNewRow = panel.nodeActive._getRowCount() - 1;
+						panel._setSelection( xNewRow, panel.nodeActive.iSelection_y );
+					} catch( NumberFormatException ex ) {
+						ApplicationController.vShowError_NoModal( "Unable to intepret new row number [" + panel.jtfArray_x.getText() + "] as an integer" );
+						panel.jtfArray_x.setText( String.valueOf( panel.nodeActive.iSelection_x ) );
+					} catch( Throwable t ){
+						ApplicationController.vUnexpectedError( t, "While setting selection coordinate for x" );
+					}
+				}
+			}
+		);
+
+		panel.jtfArray_y.addActionListener(			
+			new java.awt.event.ActionListener(){
+				public void actionPerformed( ActionEvent event) {
+					try {
+							int xNewColumn = Integer.parseInt( panel.jtfArray_y.getText() );
+						if( panel.nodeActive._getColumnCount() == 0 ){ // if this is a vector there are no columns
+							xNewColumn = 0; // for a vector the column index is always zero
+						} else {
+							if( xNewColumn < 0 ) xNewColumn = 0;
+							if( xNewColumn >= panel.nodeActive._getColumnCount() ) xNewColumn = panel.nodeActive._getColumnCount() - 1;
+						}
+						panel._setSelection( panel.nodeActive.iSelection_x, xNewColumn );
+					} catch( NumberFormatException ex ) {
+						ApplicationController.vShowError_NoModal( "Unable to intepret new Column number [" + panel.jtfArray_y.getText() + "] as an integer" );
+						panel.jtfArray_x.setText( String.valueOf( panel.nodeActive.iSelection_y ) );
+					} catch( Throwable t ){
+						ApplicationController.vUnexpectedError( t, "While setting selection coordinate for y" );
+					}
+				}
+			}
+		);
+
+		panel.jtfArray_value.addActionListener(			
+			new java.awt.event.ActionListener(){
+				public void actionPerformed( ActionEvent event) {
+					panel.sbError_local.setLength( 0 );
+					if( panel._setSelectedValue( panel.jtfArray_value.getText(), panel.sbError_local ) ){
+						panel.panelArray_View._vDrawImage( panel.nodeActive );
+					} else {
+						panel.jtfArray_value.setText( panel.nodeActive._getValueString_selected() );
+					}
+				}
+			}
+		);
 		
 		return panel;
 	}
@@ -841,6 +905,7 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		int pxSelectionJTF_width = 80;
 		int pxLabelY_width = 15;
 		int pxLabelValue_width = 38;
+		int pxExpValue_width = 25;
 		buttonX.setBounds( posSelection_x, posSelection_y + 2, pxButtonX_width, 20 );
 		jtfArray_x.setBounds( posSelection_x + pxButtonX_width + pxLabelMargin, posSelection_y, pxSelectionJTF_width, 25 );
 		int posYLabel_x = posSelection_x + pxButtonX_width + pxLabelMargin + pxSelectionJTF_width + 2;
@@ -852,11 +917,24 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		} else {
 			pxSelection_width = pxButtonX_width + 2;
 		}
+		
+		// value editor
 		int pxValueEditor_x = posSelection_x + pxSelection_width + 2;
 		labelValue.setBounds( pxValueEditor_x, posSelection_y, pxLabelValue_width, 22 );
 		int posJTFArray_x = pxValueEditor_x + pxLabelValue_width + pxLabelMargin;
-		int pxJTFArray_width = this.getWidth() - posJTFArray_x - 15; 
-		jtfArray_value.setBounds( posJTFArray_x, posSelection_y, pxJTFArray_width, 25 ); 
+		int pxJTFArray_width = 160; 
+		jtfArray_value.setBounds( posJTFArray_x, posSelection_y, pxJTFArray_width, 25 );
+		int pxValueEditor_width = pxLabelValue_width + pxLabelMargin + pxJTFArray_width; 
+		
+		// expression one-liner and mode combo
+		int pxExpressionEditor_x = pxValueEditor_x + pxValueEditor_width + 2;
+		labelExp.setBounds( pxExpressionEditor_x, posSelection_y, pxExpValue_width, 22 );
+		int posJTFExp_x = pxExpressionEditor_x + pxExpValue_width;
+		int pxRangeModeCombo_width = 75;
+		int pxRightHandMargin = 6;
+		int pxJTFexp_width = this.getWidth() - posJTFExp_x - pxRangeModeCombo_width - pxRightHandMargin;
+		jtfArray_exp.setBounds( posJTFExp_x, posSelection_y, pxJTFexp_width, 25 );
+		jcbArray_exp_range.setBounds( posJTFExp_x + pxJTFexp_width + 3, posSelection_y, pxRangeModeCombo_width, 25 );
 	}
 	
 	public void componentHidden( ComponentEvent e ){ _resize(); }
@@ -897,6 +975,11 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		jtfArray_value.setText( nodeActive._getValueString( row, column ) );
 		panelArray_View._vDrawImage( nodeActive );
 	}
+	
+	boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
+		return nodeActive._setSelectedValue( sNewValue, sbError );
+	}
+	
 	public boolean _isShowingSelectionCoordinates(){ return mzShowingSelectionCoordinates; } 
 }
 

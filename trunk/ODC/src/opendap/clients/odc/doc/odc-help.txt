@@ -808,7 +808,41 @@ The array viewer is located in the bottom half of the Data / View tab and is sho
 
 When the array view is active it will be surrounded by a thin blue rectangle. To activate in the array view click in it somewhere. Keystrokes will only take effect in the array view if it is active.
 
-The top bar of the array viewer is the viewer's action bar. It contains the current selection coordinates (x,y) followed by a value editor (labeled "value:"). When a cell of the array is selected its value will appear in the value editor. If you change this value and press enter the value in the array will be changed to the new value. The array viewer does not support in-cell editing. The selection coordinate display can be toggled visible or invisible by clicking the "x:" button. You can also edit cells by using the Value Editor interface located to the right of the Variable Editor (see the topic "Data Viewer - Value Editor" for more information about that interface).
+The top bar of the array viewer is the viewer's action bar. It contains the current selection coordinates (x,y) followed by a value editor (labeled "value:") and an expression one-line editor (labeled "exp:"). If you modify the selection coordinate cells and press enter the selection will jump to that coordinate.  The selection coordinate display can be toggled visible or invisible by clicking the "x:" button.
+
+Value Text Box
+              When a cell of the array is selected its value will appear in the value text box. If you change this value and press enter the value in the array will be changed to the new value. The array viewer does not support in-cell editing. You can also edit cells by using the Value Editor interface located to the right of the Variable Editor (see the topic "Data Viewer - Value Editor" for more information about that interface). 
+			  
+Expression One-Liner
+                      The expression editing text box labeled "exp:" next to the value text box is called the expression "one-liner". It allows you to write quick expressions (formulas) to modify cell contents or create a "view" of cells. A view changes the way cells are displayed, but does not change the actual contents of the dataset. For example, you could use a view to see Celsius values in Farenheit without actually changing the dataset itself. Next to the one-liner is a mode drop-down. This controls the range of cells affected by the expression when the enter key is pressed (All, Selection, Value, View). For more information on the expression one-liner see the topic "Data Viewer - Expression One-Liner".
+
+#Data Viewer - Expression One Liner
+
+The expression one-liner is a text box that allows you to write short expressions to modify data or create a view of the data as seen in the array viewer (View / Data, lower half of screen). In general, this text box behaves similarly to expressions created in the Expression Editor or Value Editor. The main difference is that it assumes you are only setting the "value" variable so you do not need an equation, you just write the R-value. For example, the one-liner:
+
+	$1 + $2
+	
+with a mode setting of "All" will add the row number to the column number of the array and put it in the cell. The one-liner:
+
+	$0 * 9 / 5 + 32
+	
+Will convert the cell from Celsius to Farenheit. "$0*9/5+32" would work just as well. If the mode selection is "All", Earthware will visit every cell in the dataset, substitute its current value for $0, evaluate the expression and put the result back in the cell. The modes available are as follows:
+
+	All        perform expression on every cell in dataset
+	Selection  perform expression on every cell in the current selection
+	Value      perform expression on current cell and put result in value text box
+	View       perform expression on cells as they render (do not change actual values)
+
+If the mode is "Value", the expression will modify the value in the value text box, but will not modify dataset until you press 'Enter' a second time. This allows you to see the results of a calculation before committing to a change in the data. If you press the 'Esc' key, the text box will revert to the current value of the cell without making changes.
+
+If the mode is "View", no permanent changes to the data are made. The calculation is only done when the cell value is rendered to the screen, so the data remains the same, but its appearance in the viewer changes. This is useful when you want to see the results of a conversion or see data in a particular format without changing data.
+
+One-Liner Ranges
+                  Even though it says "every cell" in the table above, this is only the default behavior. You can override the default range of a one-liner by using the same directives used to control range in expressions (see the topic "Data Viewer - Expression Ranges" for full details). For example, let's imagine you were viewing a sequence with a field called 'Pressure' in Torrs and you wanted to view, but not convert, that field to mega Pascals (MPa). You could set the mode to "View" and then use the following one-liner:
+				  
+	#![]['Pressure']; $0 * 0.0001333
+	
+This one-liner tells the array viewer to only apply the one-liner to the 'Pressure' column. Since the mode is "View", no data will be changed. Note that the semi-colon is optional and the example will work without it, but it is good practice to include it because semantically the directive is a separate statement from the value expression. See the "Data Viewer - Expression Ranges" for more information on how to control ranges.
 
 #Data Viewer - Expressions
 
@@ -870,6 +904,7 @@ The complete set of predefined parameters and their default values is as follows
 	index_3 = null
 	index_4 = null
 
+	$0 is the macro substitution for the current value of the cell being operated on
 	$1, $2, $3 and $4 are macro substitutions for index values as the expression set is evaluated
 	
 	$$ is the escape sequence to indicate a literal '$' in case you have the above strings ($1, $2, $3 and $4) and you don't want them to be replaced.
@@ -925,6 +960,34 @@ Python is an untyped language. The ODC takes whatever value Python generates and
 	String
 
 The index variables are L-values you can use to create grids. Normally dimension 1 is x, dimension 2 is y, dimension 3 is z and dimension 4 is time, but in some applications the dimensions could have other meanings. See the help section "Data Viewer - Grid Expressions" for more information on creating grids and the use of these variables. The size of the index arrays is determined by the size of the array they index.
+
+#Data Viewer - Expression Ranges
+
+To control the range over which an expression operates you can use range directives. By default an expression will be executed against the entire active dataset. Range directives are entered as Python comments followed an exclamation point, or what is known as a hash-bang in programming parlance, for example:
+
+	#![10][15]
+
+This directive, placed normally at the beginning of the expression file, restricts the range to a single cell of the array (or grid or sequence), which is row 11, column 16. Index numbers are 0-based so the 5th row has an index number of "4", for example. When working with sequences the field name can be used in lieu of an index number:
+
+	#![10]['Temperature']
+
+This would a single cell as well: the 11th record, field named 'Temperature'. You can specify ranges with dashes, and use commas to separate multiple ranges:
+
+	#![10-90,100-120]
+
+If brackets are omitted or left blank then there is no constraint, every index number is allowed:
+
+	#![][50-80]
+	#![][90-]
+
+The first example would be every row, columns 51-81. The second example is every row, columns 91 to the end. You can also specify the active cell or active selection (as indicated in the array viewer):
+
+	#!cell
+	#!selection
+	
+Earthware remembers the last selected cell, and selection range for every loaded dataset, so if the dataset is not being currently viewed, then the range will be constrained to whatever the last selection was. This allows you to select a range in one dataset, activate a different dataset, then perform some mutual calculation using the two selections.
+
+Expressions can be used to control ranges, but be aware that the range directive is evaluated before anything else in the expression.
 
 #Data Viewer - Expression Errors
 
