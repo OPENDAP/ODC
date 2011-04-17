@@ -816,6 +816,43 @@ Value Text Box
 Expression One-Liner
                       The expression editing text box labeled "exp:" next to the value text box is called the expression "one-liner". It allows you to write quick expressions (formulas) to modify cell contents or create a "view" of cells. A view changes the way cells are displayed, but does not change the actual contents of the dataset. For example, you could use a view to see Celsius values in Farenheit without actually changing the dataset itself. Next to the one-liner is a mode drop-down. This controls the range of cells affected by the expression when the enter key is pressed (All, Selection, Value, View). For more information on the expression one-liner see the topic "Data Viewer - Expression One-Liner".
 
+#Data Viewer - Array View Navigation
+
+To navigate in the array view:
+
+	arrow keys                     move the selection one cell at a time
+	Ctrl+arrow keys                move the selection to the next cell with the same value
+	PageUp/PageDown                moves the view up/down by a screen of rows
+	Ctrl+PageUp/PageDown           moves the view left/right by a screen of columns
+	Ctrl+Shift+PageUp/PageDown     moves the view diagonally by a screen
+	Ctrl+Home                      moves the selection to [0][0]
+	Ctrl+End                       moves the selection to the end of the slice
+	Atl+PageUp/PageDown            moves the view to the next/previous page (ie slice)
+	
+The last mentioned control is only useful in data that has three or more dimensions.	
+					  
+#Data Viewer - Copy and Paste
+
+You can copy and paste one-dimensional or two-dimensional information into and out of the data viewer. Select the cells desired and press Ctrl+C to copy. Press Ctrl+A to select all the cells in the current view. To paste into the array viewer the following key combinations are possible:
+
+	Ctrl+C                copy
+	Ctrl+A                select the entire page being viewed
+	Ctrl+Spacebar         select the current column(s)
+	Ctrl+Shift+Spacebar   select the current row(s)
+	Ctrl+V                pastes data at the current selection, any extra data that does not fit will be ignored
+	Ctrl+Shift+V          pastes data at the current selection, expands dimensions to accomodate data
+	Ctrl+Alt+V            pastes data at [0][0], resizes dimensions to match data, any existing data on that page is overwritten
+
+From the above you can see that you can instantly create a two-dimensional dataset by using the Ctrl+Alt+V combination. This will size the dataset to match the paste and then populate the array with the data from the paste. If you have a three-dimensional dataset you can use Ctrl+Alt+V to create the first two-dimensional page, add a third dimension, then paste in the z-order pages one at a time. To navigate through the z-order pages press Alt+PageUp
+
+Note that copied values are strings corresponding to the current view of the data. For example, if the data is Celsius and you are currently using an expression to view it in Farenheit, then the copied values will be the Farenheit values. Likewise, if you are formatting the view to include symbols or letters, those will be copied, just as they appear in the array view. If strings are truncated in the view due to cells being too small, then the full-sized value string is copied, not the truncated string. If you want to copy the actual data values, turn off the view by clearing the "Exp:" text box and pressing enter.
+
+#Data Viewer - Search and Replace
+
+Pressing Ctrl+F activates a search and replace dialog.
+
+You can search and replace data using the dialog.
+	
 #Data Viewer - Expression One Liner
 
 The expression one-liner is a text box that allows you to write short expressions to modify data or create a view of the data as seen in the array viewer (View / Data, lower half of screen). In general, this text box behaves similarly to expressions created in the Expression Editor or Value Editor. The main difference is that it assumes you are only setting the "value" variable so you do not need an equation, you just write the R-value. For example, the one-liner:
@@ -836,6 +873,8 @@ Will convert the cell from Celsius to Farenheit. "$0*9/5+32" would work just as 
 If the mode is "Value", the expression will modify the value in the value text box, but will not modify dataset until you press 'Enter' a second time. This allows you to see the results of a calculation before committing to a change in the data. If you press the 'Esc' key, the text box will revert to the current value of the cell without making changes.
 
 If the mode is "View", no permanent changes to the data are made. The calculation is only done when the cell value is rendered to the screen, so the data remains the same, but its appearance in the viewer changes. This is useful when you want to see the results of a conversion or see data in a particular format without changing data.
+
+To turn off a view clear the expression box and press enter.
 
 One-Liner Ranges
                   Even though it says "every cell" in the table above, this is only the default behavior. You can override the default range of a one-liner by using the same directives used to control range in expressions (see the topic "Data Viewer - Expression Ranges" for full details). For example, let's imagine you were viewing a sequence with a field called 'Pressure' in Torrs and you wanted to view, but not convert, that field to mega Pascals (MPa). You could set the mode to "View" and then use the following one-liner:
@@ -907,7 +946,7 @@ The complete set of predefined parameters and their default values is as follows
 	$0 is the macro substitution for the current value of the cell being operated on
 	$1, $2, $3 and $4 are macro substitutions for index values as the expression set is evaluated
 	
-	$$ is the escape sequence to indicate a literal '$' in case you have the above strings ($1, $2, $3 and $4) and you don't want them to be replaced.
+	$$ is the escape sequence to indicate a literal '$' in case you have the above strings ($0, $1, $2, $3 and $4) and you don't want them to be replaced.
 	
 Additional parameters that can be used to define multi-vector grids:
 
@@ -963,15 +1002,15 @@ The index variables are L-values you can use to create grids. Normally dimension
 
 #Data Viewer - Expression Ranges
 
-To control the range over which an expression operates you can use range directives. By default an expression will be executed against the entire active dataset. Range directives are entered as Python comments followed an exclamation point, or what is known as a hash-bang in programming parlance, for example:
+To control the range over which an expression operates you can use range directives. By default an expression will be executed against every value in the active dataset. Directives are entered as Python comments followed an exclamation point, or what is known as a hash-bang in programming parlance, for example:
 
 	#![10][15]
 
-This directive, placed normally at the beginning of the expression file, restricts the range to a single cell of the array (or grid or sequence), which is row 11, column 16. Index numbers are 0-based so the 5th row has an index number of "4", for example. When working with sequences the field name can be used in lieu of an index number:
+This directive, placed normally at the beginning of the expression, restricts the range to a single cell of the array (or grid or sequence), which is row 11, column 16. Index numbers are 0-based so the 5th row has an index number of "4", for example. When working with sequences the field name can be used in lieu of an index number:
 
 	#![10]['Temperature']
 
-This would a single cell as well: the 11th record, field named 'Temperature'. You can specify ranges with dashes, and use commas to separate multiple ranges:
+This would restrict the operative range to a single cell as well: the 11th record, field named 'Temperature'. You can specify ranges with dashes, and use commas to separate multiple ranges:
 
 	#![10-90,100-120]
 

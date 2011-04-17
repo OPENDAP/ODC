@@ -808,8 +808,6 @@ class Node_Array extends Node {
 	public static String DEFAULT_ArrayName = "array";	
 	public static String DEFAULT_DimensionName = "dim";
 	public static int DEFAULT_DimensionSize = 100;
-	transient public int iSelection_x = 0; // 0-based
-	transient public int iSelection_y = 0; 
 	DArray darray;
 	protected Node_Array( DArray bt ){
 		super( bt );
@@ -831,20 +829,21 @@ class Node_Array extends Node {
 	}
 	int _getRowCount(){ // calculates row count according to view
 		int[] aiDimensionLengths = getDimensionLengths();
-		if( view.array_dim_x == 0 || view.array_dim_x > aiDimensionLengths[0] ) return 0; 
-		return getDimensionLengths()[view.array_dim_x];
+		if( view.dim_row == 0 || view.dim_row > aiDimensionLengths[0] ) return 0; 
+		return getDimensionLengths()[view.dim_row];
 	}
 	int _getColumnCount(){ // calculates row count according to view
 		int[] aiDimensionLengths = getDimensionLengths();
-		if( view.array_dim_y == 0 || view.array_dim_y > aiDimensionLengths[0] ) return 0; 
-		return aiDimensionLengths[view.array_dim_y];
+		if( view.dim_column == 0 || view.dim_column > aiDimensionLengths[0] ) return 0;
+		int column_count = aiDimensionLengths[view.dim_column];
+		return column_count;
 	}
 	int _getValueIndex( int x, int y ){ // calculates index of value according to view, zero-based
-		int iColumnSize = view.array_dim_y == 0 || view.array_dim_y > getDimensionLengths()[0] ? 0 : getDimensionLengths()[view.array_dim_y];
+		int iColumnSize = view.dim_column == 0 || view.dim_column > getDimensionLengths()[0] ? 0 : getDimensionLengths()[view.dim_column];
 		return x + y * iColumnSize;
 	}
 	String _getValueString_selected(){
-		return _getValueString( iSelection_x, iSelection_y );
+		return _getValueString( view.cursor_row, view.cursor_column );
 	}
 	String _getValueString( int x, int y ){
 		int xValue = _getValueIndex( x, y );
@@ -854,7 +853,7 @@ class Node_Array extends Node {
 		return Integer.toString( aiValues[xValue] );
 	}
 	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
-		return _setValue( sNewValue, _getValueIndex( iSelection_x, iSelection_y ), sbError );  
+		return _setValue( sNewValue, _getValueIndex( view.cursor_row, view.cursor_column ), sbError );  
 	}
 	public boolean _setValue( String sNewValue, int index, StringBuffer sbError ){
 		try {
@@ -1120,6 +1119,21 @@ class Node_String extends Node {
 		sbError.append( "not implemented" );
 		return false;
 	}
+}
+
+class Model_VariableView {
+	int origin_row = 0;
+	int origin_column = 0;
+	int cursor_row = 0;
+	int cursor_column = 0;
+	int selectionUL_row = 0;
+	int selectionUL_column = 0;
+	int selectionLR_row = 0;
+	int selectionLR_column = 0;
+	int dim_row = 1;
+	int dim_column = 2;
+	int[] page = new int[10];
+	String sLastSelectedValue = null; // value of the last cell where Ctrl+arrow key was pressed
 }
 
 
