@@ -817,10 +817,10 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 						int xNewRow = Integer.parseInt( panel.jtfArray_x.getText() );
 						if( xNewRow < 0 ) xNewRow = 0;
 						if( xNewRow >= panel.nodeActive._getRowCount() ) xNewRow = panel.nodeActive._getRowCount() - 1;
-						panel._setCursor( xNewRow, panel.nodeActive.view.cursor_column );
+						panel._setCursor( xNewRow, panel.nodeActive._view.cursor_column );
 					} catch( NumberFormatException ex ) {
 						ApplicationController.vShowError_NoModal( "Unable to intepret new row number [" + panel.jtfArray_x.getText() + "] as an integer" );
-						panel.jtfArray_x.setText( String.valueOf( panel.nodeActive.view.cursor_row ) );
+						panel.jtfArray_x.setText( String.valueOf( panel.nodeActive._view.cursor_row ) );
 					} catch( Throwable t ){
 						ApplicationController.vUnexpectedError( t, "While setting selection coordinate for x" );
 					}
@@ -839,10 +839,10 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 							if( xNewColumn < 0 ) xNewColumn = 0;
 							if( xNewColumn >= panel.nodeActive._getColumnCount() ) xNewColumn = panel.nodeActive._getColumnCount() - 1;
 						}
-						panel._setCursor( panel.nodeActive.view.cursor_row, xNewColumn );
+						panel._setCursor( panel.nodeActive._view.cursor_row, xNewColumn );
 					} catch( NumberFormatException ex ) {
 						ApplicationController.vShowError_NoModal( "Unable to intepret new Column number [" + panel.jtfArray_y.getText() + "] as an integer" );
-						panel.jtfArray_x.setText( String.valueOf( panel.nodeActive.view.cursor_column ) );
+						panel.jtfArray_x.setText( String.valueOf( panel.nodeActive._view.cursor_column ) );
 					} catch( Throwable t ){
 						ApplicationController.vUnexpectedError( t, "While setting selection coordinate for y" );
 					}
@@ -959,7 +959,7 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		if( node.getType() == DAP_VARIABLE.Array ){
 			setVisible( true );
 			nodeActive = (Node_Array)node;
-			_setCursor( nodeActive.view.cursor_row, nodeActive.view.cursor_column );
+			_setCursor( nodeActive._view.cursor_row, nodeActive._view.cursor_column );
 			return;
 		} else {
 			setVisible( false );
@@ -972,20 +972,18 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		if( column > nodeActive._getColumnCount() - 1 ) column = nodeActive._getColumnCount() - 1;  
 		if( row < 0 ) row = 0;
 		if( column < 0 ) column = 0;
-		int xRow_origin_offset = nodeActive.view.cursor_row - nodeActive.view.origin_row; 
-		int xColumn_origin_offset = nodeActive.view.cursor_column - nodeActive.view.origin_column; 
-System.out.format( "row ct %d  origin %d  offset %d\n", nodeActive._getRowCount(), nodeActive.view.origin_row, nodeActive.view.cursor_row );	
-		if( row > panelArray_View.xLastFullRow || row < nodeActive.view.origin_row ){
-			nodeActive.view.origin_row = row - xRow_origin_offset;
-			if( nodeActive.view.origin_row < 0 ) nodeActive.view.origin_row = 0;
+		int xRow_origin_offset = nodeActive._view.cursor_row - nodeActive._view.origin_row; 
+		int xColumn_origin_offset = nodeActive._view.cursor_column - nodeActive._view.origin_column; 
+		if( row > panelArray_View.xLastFullRow || row < nodeActive._view.origin_row ){
+			nodeActive._view.origin_row = row - xRow_origin_offset;
+			if( nodeActive._view.origin_row < 0 ) nodeActive._view.origin_row = 0;
 		}
-		if( column > panelArray_View.xLastFullColumn || column < nodeActive.view.origin_column ){
-			nodeActive.view.origin_column = column - xColumn_origin_offset;
-			if( nodeActive.view.origin_column < 0 ) nodeActive.view.origin_column = 0;
+		if( column > panelArray_View.xLastFullColumn || column < nodeActive._view.origin_column ){
+			nodeActive._view.origin_column = column - xColumn_origin_offset;
+			if( nodeActive._view.origin_column < 0 ) nodeActive._view.origin_column = 0;
 		}
-		nodeActive.view.cursor_row = row;
-		nodeActive.view.cursor_column = column;
-System.out.format( "new origin %d  cursor %d\n", nodeActive.view.origin_row, row );	
+		nodeActive._view.cursor_row = row;
+		nodeActive._view.cursor_column = column;
 		jtfArray_x.setText( Integer.toString( row ) );
 		jtfArray_y.setText( Integer.toString( column ) );
 		jtfArray_value.setText( nodeActive._getValueString( row, column ) );
@@ -993,19 +991,19 @@ System.out.format( "new origin %d  cursor %d\n", nodeActive.view.origin_row, row
 	}
 	
 	void _setCursorUp(){
-		_setCursor( nodeActive.view.cursor_row - 1, nodeActive.view.cursor_column );
+		_setCursor( nodeActive._view.cursor_row - 1, nodeActive._view.cursor_column );
 	}
 
 	void _setCursorDown(){
-		_setCursor( nodeActive.view.cursor_row + 1, nodeActive.view.cursor_column );
+		_setCursor( nodeActive._view.cursor_row + 1, nodeActive._view.cursor_column );
 	}
 
 	void _setCursorLeft(){
-		_setCursor( nodeActive.view.cursor_row, nodeActive.view.cursor_column - 1 );
+		_setCursor( nodeActive._view.cursor_row, nodeActive._view.cursor_column - 1 );
 	}
 
 	void _setCursorRight(){
-		_setCursor( nodeActive.view.cursor_row, nodeActive.view.cursor_column + 1 );
+		_setCursor( nodeActive._view.cursor_row, nodeActive._view.cursor_column + 1 );
 	}
 
 	void _setCursorSliceUp(){
@@ -1017,27 +1015,27 @@ System.out.format( "new origin %d  cursor %d\n", nodeActive.view.origin_row, row
 	}
 	
 	void _setCursorPageUp(){
-		_setCursor( nodeActive.view.cursor_row - panelArray_View.iPageSize_row, nodeActive.view.cursor_column );
+		_setCursor( nodeActive._view.cursor_row - panelArray_View.iPageSize_row, nodeActive._view.cursor_column );
 	}
 
 	void _setCursorPageDown(){
-		_setCursor( nodeActive.view.cursor_row + panelArray_View.iPageSize_row, nodeActive.view.cursor_column );
+		_setCursor( nodeActive._view.cursor_row + panelArray_View.iPageSize_row, nodeActive._view.cursor_column );
 	}
 
 	void _setCursorPageLeft(){
-		_setCursor( nodeActive.view.cursor_row, nodeActive.view.cursor_column - panelArray_View.iPageSize_column );
+		_setCursor( nodeActive._view.cursor_row, nodeActive._view.cursor_column - panelArray_View.iPageSize_column );
 	}
 
 	void _setCursorPageRight(){
-		_setCursor( nodeActive.view.cursor_row, nodeActive.view.cursor_column + panelArray_View.iPageSize_column );
+		_setCursor( nodeActive._view.cursor_row, nodeActive._view.cursor_column + panelArray_View.iPageSize_column );
 	}
 
 	void _setCursorPageDiagonalUp(){
-		_setCursor( nodeActive.view.cursor_row - panelArray_View.iPageSize_row, nodeActive.view.cursor_column - panelArray_View.iPageSize_column );
+		_setCursor( nodeActive._view.cursor_row - panelArray_View.iPageSize_row, nodeActive._view.cursor_column - panelArray_View.iPageSize_column );
 	}
 
 	void _setCursorPageDiagonalDown(){
-		_setCursor( nodeActive.view.cursor_row + panelArray_View.iPageSize_row, nodeActive.view.cursor_column + panelArray_View.iPageSize_column );
+		_setCursor( nodeActive._view.cursor_row + panelArray_View.iPageSize_row, nodeActive._view.cursor_column + panelArray_View.iPageSize_column );
 	}
 
 	void _setCursorHome(){
@@ -1046,6 +1044,84 @@ System.out.format( "new origin %d  cursor %d\n", nodeActive.view.origin_row, row
 
 	void _setCursorEnd(){
 		_setCursor( nodeActive._getRowCount() - 1, nodeActive._getColumnCount() - 1 );
+	}
+	
+	void _selectRow( int xRow ){
+		nodeActive._view.selectionUL_row = xRow;
+		nodeActive._view.selectionUL_column = 0;
+		nodeActive._view.selectionLR_row = xRow;
+		nodeActive._view.selectionLR_column = nodeActive._getColumnCount() - 1;
+		if( nodeActive._view.selectionLR_column < 0 ) nodeActive._view.selectionLR_column = 0;
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectColumn( int xColumn ){
+		nodeActive._view.selectionUL_row = 0;
+		nodeActive._view.selectionUL_column = xColumn;
+		nodeActive._view.selectionLR_row = nodeActive._getRowCount() - 1;
+		nodeActive._view.selectionLR_column = xColumn;
+		if( nodeActive._view.selectionLR_row < 0 ) nodeActive._view.selectionLR_row = 0;
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectAll(){
+		nodeActive._view.selectionUL_row = 0;
+		nodeActive._view.selectionUL_column = 0;
+		nodeActive._view.selectionLR_row = nodeActive._getRowCount() - 1;
+		nodeActive._view.selectionLR_column = nodeActive._getColumnCount() - 1;
+		if( nodeActive._view.selectionLR_column < 0 ) nodeActive._view.selectionLR_column = 0;
+		if( nodeActive._view.selectionLR_row < 0 ) nodeActive._view.selectionLR_row = 0;
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectRange( int xRow1, int xColumn1, int xRow2, int xColumn2 ){
+		if( xRow1 < xRow2 ){
+			nodeActive._view.selectionUL_row = xRow1;
+			nodeActive._view.selectionLR_row = xRow2;
+		} else {
+			nodeActive._view.selectionUL_row = xRow2;
+			nodeActive._view.selectionLR_row = xRow1;
+		}
+		if( xColumn1 < xColumn2 ){
+			nodeActive._view.selectionUL_column = xColumn1;
+			nodeActive._view.selectionLR_column = xColumn2;
+		} else {
+			nodeActive._view.selectionUL_column = xColumn2;
+			nodeActive._view.selectionLR_column = xColumn1;
+		}
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectRows( int xRow1, int xRow2 ){
+		if( xRow1 < xRow2 ){
+			nodeActive._view.selectionUL_row = xRow1;
+			nodeActive._view.selectionUL_column = 0;
+			nodeActive._view.selectionLR_row = xRow2;
+			nodeActive._view.selectionLR_column = nodeActive._getColumnCount() - 1;
+		} else {
+			nodeActive._view.selectionUL_row = xRow2;
+			nodeActive._view.selectionUL_column = 0;
+			nodeActive._view.selectionLR_row = xRow1;
+			nodeActive._view.selectionLR_column = nodeActive._getColumnCount() - 1;
+		}
+		if( nodeActive._view.selectionLR_column < 0 ) nodeActive._view.selectionLR_column = 0; 
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectColumns( int xColumn1, int xColumn2 ){
+		if( xColumn1 < xColumn2 ){
+			nodeActive._view.selectionUL_row = 0;
+			nodeActive._view.selectionUL_column = xColumn1;
+			nodeActive._view.selectionLR_row = nodeActive._getRowCount() - 1;
+			nodeActive._view.selectionLR_column = xColumn2;
+		} else {
+			nodeActive._view.selectionUL_row = 0;
+			nodeActive._view.selectionUL_column = xColumn2;
+			nodeActive._view.selectionLR_row = nodeActive._getRowCount() - 1;
+			nodeActive._view.selectionLR_column = xColumn1;
+		}
+		if( nodeActive._view.selectionLR_row < 0 ) nodeActive._view.selectionLR_row = 0;
+		panelArray_View._vDrawImage( nodeActive );
 	}
 	
 	boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){

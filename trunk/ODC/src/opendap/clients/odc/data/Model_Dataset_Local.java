@@ -361,7 +361,7 @@ abstract class Node extends DefaultMutableTreeNode {   // functions as both the 
 	private boolean mzTerminal = false; // == terminal node / used instead of isLeaf because isLeaf controls default icon
 	DAP_VARIABLE eVariableType = null;
 	private String msName = "[undefined]";
-	protected transient Model_VariableView view = new Model_VariableView();
+	protected transient Model_VariableView _view = new Model_VariableView();
 	AttributeTable attributes;
 	Node nodeParent;
 	ArrayList<Node> subnodes;
@@ -376,7 +376,7 @@ abstract class Node extends DefaultMutableTreeNode {   // functions as both the 
 	void setModel( Model_Dataset_Local parent ){
 		modelParent = parent;
 	}
-	Model_VariableView _getView(){ return view; }
+	Model_VariableView _getView(){ return _view; }
 	opendap.dap.BaseType getBaseType(){ return mBaseType; }
 	abstract DAP_VARIABLE getType();
 	void setBaseType( opendap.dap.BaseType bt ){
@@ -829,21 +829,21 @@ class Node_Array extends Node {
 	}
 	int _getRowCount(){ // calculates row count according to view
 		int[] aiDimensionLengths = getDimensionLengths();
-		if( view.dim_row == 0 || view.dim_row > aiDimensionLengths[0] ) return 0; 
-		return getDimensionLengths()[view.dim_row];
+		if( _view.dim_row == 0 || _view.dim_row > aiDimensionLengths[0] ) return 0; 
+		return getDimensionLengths()[_view.dim_row];
 	}
 	int _getColumnCount(){ // calculates row count according to view
 		int[] aiDimensionLengths = getDimensionLengths();
-		if( view.dim_column == 0 || view.dim_column > aiDimensionLengths[0] ) return 0;
-		int column_count = aiDimensionLengths[view.dim_column];
+		if( _view.dim_column == 0 || _view.dim_column > aiDimensionLengths[0] ) return 0;
+		int column_count = aiDimensionLengths[_view.dim_column];
 		return column_count;
 	}
 	int _getValueIndex( int x, int y ){ // calculates index of value according to view, zero-based
-		int iColumnSize = view.dim_column == 0 || view.dim_column > getDimensionLengths()[0] ? 0 : getDimensionLengths()[view.dim_column];
+		int iColumnSize = _view.dim_column == 0 || _view.dim_column > getDimensionLengths()[0] ? 0 : getDimensionLengths()[_view.dim_column];
 		return x + y * iColumnSize;
 	}
 	String _getValueString_selected(){
-		return _getValueString( view.cursor_row, view.cursor_column );
+		return _getValueString( _view.cursor_row, _view.cursor_column );
 	}
 	String _getValueString( int x, int y ){
 		int xValue = _getValueIndex( x, y );
@@ -853,7 +853,7 @@ class Node_Array extends Node {
 		return Integer.toString( aiValues[xValue] );
 	}
 	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
-		return _setValue( sNewValue, _getValueIndex( view.cursor_row, view.cursor_column ), sbError );  
+		return _setValue( sNewValue, _getValueIndex( _view.cursor_row, _view.cursor_column ), sbError );  
 	}
 	public boolean _setValue( String sNewValue, int index, StringBuffer sbError ){
 		try {

@@ -39,8 +39,8 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 	private Color colorHeaderBackground = new Color( 0xFF9FE5FF ); // muted blue
 	private Color colorHeaderText = new Color( 0xFF505050 ); // dark gray
 	private Color colorGridlines = new Color( 0xFFB0B0B0 ); // light gray
-	private Color colorSelectedCellBorder = new Color( 0xFF606060 ); // dark gray
-	private Stroke strokeSelection = new BasicStroke( 2f );
+	private Color colorCursorCellBorder = new Color( 0xFF606060 ); // dark gray
+	private Stroke strokeCursor = new BasicStroke( 2f );
 	private Border borderFocused = BorderFactory.createLineBorder( Color.blue );
 	private Node_Array nodeActive;
 	private Panel_VarView parent;
@@ -199,14 +199,25 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 			xGridline++;
 		}		
 
+		// draw cursor
+		int posCursor_row = pxColumnHeader_height + pxCell_height * (view.cursor_row - view.origin_row) - 1;
+		int posCursor_column = pxRowHeader_width + pxCell_width * (view.cursor_column - view.origin_column) - 1;
+		int pxCursor_width = pxCell_width + 3;
+		int pxCursor_height = pxCell_height + 3;
+		g2.setColor( colorCursorCellBorder );
+		g2.setStroke( strokeCursor );
+		g2.drawRect( posCursor_column, posCursor_row, pxCursor_width, pxCursor_height );
+
 		// draw selection
-		int posSelection_row = pxColumnHeader_height + pxCell_height * (view.cursor_row - view.origin_row) - 1;
-		int posSelection_column = pxRowHeader_width + pxCell_width * (view.cursor_column - view.origin_column) - 1;
-		int pxSelection_width = pxCell_width + 3;
-		int pxSelection_height = pxCell_height + 3;
-		g2.setColor( colorSelectedCellBorder );
-		g2.setStroke( strokeSelection );
-		g2.drawRect( posSelection_column, posSelection_row, pxSelection_width, pxSelection_height );
+		int ctColumnsInSelection = view.selectionLR_column - view.selectionUL_column;
+		int ctRowsInSelection = view.selectionUL_row - view.selectionLR_row;
+		int posSelection_x = pxRowHeader_width + pxCell_width * (view.selectionUL_column - view.origin_column) - 1;
+		int posSelection_y = pxColumnHeader_height + pxCell_height * (view.selectionUL_row - view.origin_row) - 1;
+		int pxSelection_width = pxCell_width * ctColumnsInSelection + 3;
+		int pxSelection_height = pxCell_height * ctRowsInSelection + 3;
+		g2.setColor( colorCursorCellBorder );
+		g2.setStroke( strokeCursor );
+		g2.drawRect( posSelection_x, posSelection_y, pxSelection_width, pxSelection_height );
 		
 		_vUpdateCellValues( g2, node, xOrigin_row, xOrigin_column, pxRowHeader_width, pxColumnHeader_height, pxCell_width, pxCell_height );
 						
@@ -251,17 +262,6 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 			posCell_x = posX_origin;   // reset x-position to first column
 		}
 				
-	}
-	public void mousePressed( java.awt.event.MouseEvent e ){
-		requestFocusInWindow();
-		java.awt.Point point = e.getPoint();
-		int x = point.x;
-		int y = point.y;
-		if( x < pxRowHeader_width ) return; // ignore clicks on headers for now
-		if( y < pxColumnHeader_height ) return;
-		int xCell_row = (y - pxColumnHeader_height)/pxCell_height;
-		int xCell_column = (x - pxRowHeader_width)/pxCell_width;
-		parent._setCursor( xCell_row, xCell_column );
 	}
 
 	/**
@@ -329,7 +329,36 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 		// consumed
 	}
 
+	private boolean mzDraggingRow = false;
+	private boolean mzDraggingColumn = false;
+	public void mousePressed( java.awt.event.MouseEvent e ){
+		requestFocusInWindow();
+		java.awt.Point point = e.getPoint();
+		int x = point.x;
+		int y = point.y;
+		int xCell_row = (y - pxColumnHeader_height)/pxCell_height;
+		int xCell_column = (x - pxRowHeader_width)/pxCell_width;
+		if( x < pxRowHeader_width ){
+			if( y < pxColumnHeader_height ){
+				parent._setCursor( nodeActive._view.origin_row, nodeActive._view.origin_column );
+				parent._selectAll();
+			} else {
+				parent._setCursor( xCell_row, nodeActive._view.origin_column );
+				parent._selectRow( xCell_row );
+				mzDraggingRow = true;
+			}
+		} else if( y < pxColumnHeader_height ){
+				parent._setCursor( nodeActive._view.origin_row, xCell_column );
+				parent._selectColumn( xCell_column );
+				mzDraggingColumn = true;
+		} else {
+			parent._setCursor( xCell_row, xCell_column );
+		}
+	}
+	
 	public void mouseReleased( java.awt.event.MouseEvent e ){
+		mzDraggingRow = false;
+		mzDraggingColumn = false;
 	}
 
 	public void mouseEntered( java.awt.event.MouseEvent e ){
@@ -342,6 +371,18 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 	}
 
 	public void mouseDragged( java.awt.event.MouseEvent e ){
+		java.awt.Point point = e.getPoint();
+		int x = point.x;
+		int y = point.y;
+		int xCell_row = (y - pxColumnHeader_height)/pxCell_height;
+		int xCell_column = (x - pxRowHeader_width)/pxCell_width;
+		if( mzDraggingRow ){
+			parent._selectRows( xCell_row, nodeActive._view.selectionUL_row );
+		} else if( mzDraggingColumn ){
+			parent._selectColumns( xCell_column, nodeActive._view.selectionUL_column );
+		} else {
+			parent._selectRange( xCell_row, xCell_column, nodeActive._view.cursor_row, nodeActive._view.cursor_column );
+		}
     }
 
 	public void mouseMoved( java.awt.event.MouseEvent e ){

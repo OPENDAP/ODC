@@ -1,5 +1,5 @@
 #Introduction
-(help file revised 6 April 2011)
+(help file revised 17 April 2011)
 
 This is the OPeNDAP Data Connector (ODC). Using the ODC you can search for and retrieve datasets published by OPeNDAP data servers. OPeNDAP servers (also known as DODS servers) located at major institutions around the world serve a wide variety of data including: climatic data, satellite imagery, and ocean sensor results. The ODC allows you to find these datasets, download them to your machine, save them, and import them into client applications like IDL, Matlab, SPSS, Excel, or into databases such as Access and Oracle. The ODC is your gateway to terabytes of scientific data and imagery.
 
@@ -816,27 +816,37 @@ Value Text Box
 Expression One-Liner
                       The expression editing text box labeled "exp:" next to the value text box is called the expression "one-liner". It allows you to write quick expressions (formulas) to modify cell contents or create a "view" of cells. A view changes the way cells are displayed, but does not change the actual contents of the dataset. For example, you could use a view to see Celsius values in Farenheit without actually changing the dataset itself. Next to the one-liner is a mode drop-down. This controls the range of cells affected by the expression when the enter key is pressed (All, Selection, Value, View). For more information on the expression one-liner see the topic "Data Viewer - Expression One-Liner".
 
-#Data Viewer - Array View Navigation
+#Data Viewer - Array View Navigation and Selection
 
 To navigate in the array view:
 
-	arrow keys                     move the selection one cell at a time
-	Ctrl+arrow keys                move the selection to the next cell with the same value
-	PageUp/PageDown                moves the view up/down by a screen of rows
-	Ctrl+PageUp/PageDown           moves the view left/right by a screen of columns
-	Ctrl+Shift+PageUp/PageDown     moves the view diagonally by a screen
+	arrow keys                     move the cursor one cell at a time
+	Ctrl+arrow keys                move the cursor by one screen at a time
+	PageUp/PageDown                moves the view up/down by a screen at a time
+	Ctrl+PageUp/PageDown           moves the view diagonally by a screen
 	Ctrl+Home                      moves the selection to [0][0]
 	Ctrl+End                       moves the selection to the end of the slice
 	Atl+PageUp/PageDown            moves the view to the next/previous page (ie slice)
 	
 The last mentioned control is only useful in data that has three or more dimensions.	
 					  
+	Shift+[navigation key]         extend the selection relative to the cursor position
+	Ctrl+.                         rotate the cursor through the corners of the selection
+	Tab                            move the cursor forwards through the selection
+	Shift+Tab                      move the cursor backwards through the selection
+	click header corner            select entire page
+	click row header               select entire row
+	Shift+Spacebar                 select entire row
+	click column header            select entire column
+	Ctrl+Spacebar                  select entire column
+	Ctrl+A                         select the entire page
+					  
 #Data Viewer - Copy and Paste
 
 You can copy and paste one-dimensional or two-dimensional information into and out of the data viewer. Select the cells desired and press Ctrl+C to copy. Press Ctrl+A to select all the cells in the current view. To paste into the array viewer the following key combinations are possible:
 
 	Ctrl+C                copy
-	Ctrl+A                select the entire page being viewed
+	Ctrl+A                select the entire page
 	Ctrl+Spacebar         select the current column(s)
 	Ctrl+Shift+Spacebar   select the current row(s)
 	Ctrl+V                pastes data at the current selection, any extra data that does not fit will be ignored
