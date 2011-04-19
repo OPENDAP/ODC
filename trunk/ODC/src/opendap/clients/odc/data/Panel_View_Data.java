@@ -1045,6 +1045,14 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 	void _setCursorEnd(){
 		_setCursor( nodeActive._getRowCount() - 1, nodeActive._getColumnCount() - 1 );
 	}
+
+	void _selectCell( int xRow, int xColumn ){
+		nodeActive._view.selectionUL_row = xRow;
+		nodeActive._view.selectionUL_column = xColumn;
+		nodeActive._view.selectionLR_row = xRow;
+		nodeActive._view.selectionLR_column = xColumn;
+		panelArray_View._vDrawImage( nodeActive );
+	}
 	
 	void _selectRow( int xRow ){
 		nodeActive._view.selectionUL_row = xRow;
