@@ -991,18 +991,22 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 	}
 	
 	void _setCursorUp(){
+		_selectCell( nodeActive._view.cursor_row - 1, nodeActive._view.cursor_column );
 		_setCursor( nodeActive._view.cursor_row - 1, nodeActive._view.cursor_column );
 	}
 
 	void _setCursorDown(){
+		_selectCell( nodeActive._view.cursor_row + 1, nodeActive._view.cursor_column );
 		_setCursor( nodeActive._view.cursor_row + 1, nodeActive._view.cursor_column );
 	}
 
 	void _setCursorLeft(){
+		_selectCell( nodeActive._view.cursor_row, nodeActive._view.cursor_column - 1 );
 		_setCursor( nodeActive._view.cursor_row, nodeActive._view.cursor_column - 1 );
 	}
 
 	void _setCursorRight(){
+		_selectCell( nodeActive._view.cursor_row, nodeActive._view.cursor_column + 1 );
 		_setCursor( nodeActive._view.cursor_row, nodeActive._view.cursor_column + 1 );
 	}
 
@@ -1015,43 +1019,128 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 	}
 	
 	void _setCursorPageUp(){
+		_selectCell( nodeActive._view.cursor_row - panelArray_View.iPageSize_row, nodeActive._view.cursor_column );
 		_setCursor( nodeActive._view.cursor_row - panelArray_View.iPageSize_row, nodeActive._view.cursor_column );
 	}
 
 	void _setCursorPageDown(){
+		_selectCell( nodeActive._view.cursor_row + panelArray_View.iPageSize_row, nodeActive._view.cursor_column );
 		_setCursor( nodeActive._view.cursor_row + panelArray_View.iPageSize_row, nodeActive._view.cursor_column );
 	}
 
 	void _setCursorPageLeft(){
+		_selectCell( nodeActive._view.cursor_row, nodeActive._view.cursor_column - panelArray_View.iPageSize_column );
 		_setCursor( nodeActive._view.cursor_row, nodeActive._view.cursor_column - panelArray_View.iPageSize_column );
 	}
 
 	void _setCursorPageRight(){
+		_selectCell( nodeActive._view.cursor_row, nodeActive._view.cursor_column + panelArray_View.iPageSize_column );
 		_setCursor( nodeActive._view.cursor_row, nodeActive._view.cursor_column + panelArray_View.iPageSize_column );
 	}
 
 	void _setCursorPageDiagonalUp(){
+		_selectCell( nodeActive._view.cursor_row - panelArray_View.iPageSize_row, nodeActive._view.cursor_column - panelArray_View.iPageSize_column );
 		_setCursor( nodeActive._view.cursor_row - panelArray_View.iPageSize_row, nodeActive._view.cursor_column - panelArray_View.iPageSize_column );
 	}
 
 	void _setCursorPageDiagonalDown(){
+		_selectCell( nodeActive._view.cursor_row + panelArray_View.iPageSize_row, nodeActive._view.cursor_column + panelArray_View.iPageSize_column );
 		_setCursor( nodeActive._view.cursor_row + panelArray_View.iPageSize_row, nodeActive._view.cursor_column + panelArray_View.iPageSize_column );
 	}
 
 	void _setCursorHome(){
+		_selectCell( 0, 0 );
 		_setCursor( 0, 0 );
 	}
 
 	void _setCursorEnd(){
+		_selectCell( nodeActive._getRowCount() - 1, nodeActive._getColumnCount() - 1 );
 		_setCursor( nodeActive._getRowCount() - 1, nodeActive._getColumnCount() - 1 );
 	}
 
+	void _setCursorAdvance(){
+		if( nodeActive._view.selectionUL_row == nodeActive._view.selectionLR_row &&
+			nodeActive._view.selectionUL_column == nodeActive._view.selectionLR_column ){
+			int xNewColumn = nodeActive._view.cursor_column + 1;
+			int xNewRow = nodeActive._view.cursor_row;
+			if( xNewColumn >= nodeActive._getColumnCount() ){
+				xNewColumn = 0;
+				xNewRow++;
+				if( xNewRow >= nodeActive._getRowCount() ){
+					xNewRow = 0;
+				}
+			}
+			_selectCell( xNewRow, xNewColumn );
+			_setCursor( xNewRow, xNewColumn );
+		} else {
+			int xNewColumn = nodeActive._view.cursor_column + 1;
+			int xNewRow = nodeActive._view.cursor_row;
+			if( xNewColumn > nodeActive._view.selectionLR_column ){
+				xNewColumn = nodeActive._view.selectionUL_column;
+				xNewRow++;
+				if( xNewRow > nodeActive._view.selectionLR_row ){
+					xNewRow = nodeActive._view.selectionUL_row;
+				}
+			}
+			_setCursor( xNewRow, xNewColumn );
+		}
+	}
+
+	void _setCursorRetreat(){
+		if( nodeActive._view.selectionUL_row == nodeActive._view.selectionLR_row &&
+			nodeActive._view.selectionUL_column == nodeActive._view.selectionLR_column ){
+			int xNewColumn = nodeActive._view.cursor_column - 1;
+			int xNewRow = nodeActive._view.cursor_row;
+			if( xNewColumn < nodeActive._getColumnCount() ){
+				xNewColumn = nodeActive._getColumnCount() - 1;
+				xNewRow--;
+				if( xNewRow < 0 ){
+					xNewRow = 0;
+				}
+			}
+			_selectCell( xNewRow, xNewColumn );
+			_setCursor( xNewRow, xNewColumn );
+		} else {
+			int xNewColumn = nodeActive._view.cursor_column - 1;
+			int xNewRow = nodeActive._view.cursor_row;
+			if( xNewColumn < nodeActive._view.selectionUL_column ){
+				xNewColumn = nodeActive._view.selectionLR_column;
+				xNewRow--;
+				if( xNewRow < nodeActive._view.selectionUL_row ){
+					xNewRow = nodeActive._view.selectionLR_row;
+				}
+			}
+			_setCursor( xNewRow, xNewColumn );
+		}
+	}
+
+	void _setCursorRotate(){
+		if( nodeActive._view.cursor_row == nodeActive._view.selectionUL_row ){
+			if( nodeActive._view.cursor_column == nodeActive._view.selectionUL_column ){
+				_setCursor( nodeActive._view.selectionUL_row, nodeActive._view.selectionLR_column );
+			} else if( nodeActive._view.cursor_column == nodeActive._view.selectionLR_column ){
+				_setCursor( nodeActive._view.selectionLR_row, nodeActive._view.selectionLR_column );
+			} else {
+				_setCursor( nodeActive._view.selectionUL_row, nodeActive._view.selectionUL_column );
+			}
+		} else if( nodeActive._view.cursor_row == nodeActive._view.selectionLR_row ){ 
+			if( nodeActive._view.cursor_column == nodeActive._view.selectionLR_column ){
+				_setCursor( nodeActive._view.selectionLR_row, nodeActive._view.selectionUL_column );
+			} else if( nodeActive._view.cursor_column == nodeActive._view.selectionUL_column ){
+				_setCursor( nodeActive._view.selectionUL_row, nodeActive._view.selectionUL_column );
+			} else {
+				_setCursor( nodeActive._view.selectionUL_row, nodeActive._view.selectionUL_column );
+			}
+		} else {
+			_setCursor( nodeActive._view.selectionUL_row, nodeActive._view.selectionUL_column );
+		}
+	}
+	
 	void _selectCell( int xRow, int xColumn ){
 		nodeActive._view.selectionUL_row = xRow;
 		nodeActive._view.selectionUL_column = xColumn;
 		nodeActive._view.selectionLR_row = xRow;
 		nodeActive._view.selectionLR_column = xColumn;
-		panelArray_View._vDrawImage( nodeActive );
 	}
 	
 	void _selectRow( int xRow ){
@@ -1100,6 +1189,14 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		panelArray_View._vDrawImage( nodeActive );
 	}
 
+	void _selectActiveRows(){
+		_selectRows( nodeActive._view.selectionUL_row, nodeActive._view.selectionLR_row );  
+	}
+
+	void _selectActiveColumns(){
+		_selectColumns( nodeActive._view.selectionUL_column, nodeActive._view.selectionLR_column );  
+	}
+	
 	void _selectRows( int xRow1, int xRow2 ){
 		if( xRow1 < xRow2 ){
 			nodeActive._view.selectionUL_row = xRow1;
@@ -1129,6 +1226,150 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 			nodeActive._view.selectionLR_column = xColumn1;
 		}
 		if( nodeActive._view.selectionLR_row < 0 ) nodeActive._view.selectionLR_row = 0;
+		panelArray_View._vDrawImage( nodeActive );
+	}
+	
+	void _selectExtendUp(){
+		if( nodeActive._view.selectionLR_row > nodeActive._view.cursor_row ){
+			nodeActive._view.selectionLR_row--;
+		} else {
+			if( nodeActive._view.selectionUL_row == 0 ) return;
+			nodeActive._view.selectionUL_row--;
+		}
+		if( nodeActive._view.selectionUL_row < nodeActive._view.origin_row ){
+			nodeActive._view.origin_row = nodeActive._view.selectionUL_row; // when extending the selection, the extended region must always be in view 
+		}
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectExtendDown(){
+		if( nodeActive._view.selectionLR_row > nodeActive._view.cursor_row ){
+			if( nodeActive._view.selectionLR_row == nodeActive._getRowCount() - 1 ) return; // at end
+			nodeActive._view.selectionLR_row++;
+			if( nodeActive._view.selectionLR_row > panelArray_View.xLastFullRow ){
+				nodeActive._view.origin_row++; // when extending the selection, the extended region must always be in view 
+			}
+		} else {
+			nodeActive._view.selectionUL_row++;
+		}
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectExtendLeft(){
+		if( nodeActive._view.selectionLR_column > nodeActive._view.cursor_column ){
+			nodeActive._view.selectionLR_column--;
+		} else {
+			if( nodeActive._view.selectionUL_column == 0 ) return;
+			nodeActive._view.selectionUL_column--;
+			if( nodeActive._view.selectionUL_column < nodeActive._view.origin_column ){
+				nodeActive._view.origin_column = nodeActive._view.selectionUL_column; // when extending the selection, the extended region must always be in view 
+			}
+		}
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectExtendRight(){
+		if( nodeActive._view.selectionLR_column > nodeActive._view.cursor_column ){
+			if( nodeActive._view.selectionLR_column == nodeActive._getColumnCount() - 1 ) return; // at end
+			nodeActive._view.selectionLR_column++;
+			if( nodeActive._view.selectionLR_column > panelArray_View.xLastFullColumn ){
+				nodeActive._view.origin_column++; // when extending the selection, the extended region must always be in view 
+			}
+		} else {
+			nodeActive._view.selectionUL_column++;
+		}
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectExtendPageUp(){
+		if( nodeActive._view.selectionLR_row - panelArray_View.iPageSize_row >= nodeActive._view.cursor_row ){
+			nodeActive._view.selectionLR_row -= panelArray_View.iPageSize_row;
+		} else {
+			if( nodeActive._view.selectionUL_row == 0 ) return;
+			nodeActive._view.selectionUL_row -= panelArray_View.iPageSize_row;
+			if( nodeActive._view.selectionUL_row < 0 ) nodeActive._view.selectionUL_row = 0;
+			if( nodeActive._view.selectionUL_row < nodeActive._view.origin_row ){
+				nodeActive._view.origin_row = nodeActive._view.selectionUL_row; // when extending the selection, the extended region must always be in view 
+			}
+		}
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectExtendPageDown(){
+		if( nodeActive._view.selectionLR_row > nodeActive._view.cursor_row ){
+			nodeActive._view.selectionLR_row += panelArray_View.iPageSize_row;
+		} else {
+			nodeActive._view.selectionUL_row += panelArray_View.iPageSize_row;
+			if( nodeActive._view.selectionUL_row > nodeActive._view.cursor_row ){
+				nodeActive._view.selectionLR_row = nodeActive._view.selectionUL_row - nodeActive._view.cursor_row;
+				nodeActive._view.cursor_row = nodeActive._view.cursor_row;
+			}
+		}
+		if( nodeActive._view.selectionLR_row >= nodeActive._getRowCount() ){
+			nodeActive._view.selectionLR_row = nodeActive._getRowCount() - 1;
+		}
+		if( nodeActive._view.selectionLR_row > panelArray_View.xLastFullRow ){
+			nodeActive._view.origin_row = nodeActive._view.selectionLR_row - panelArray_View.iPageSize_row + 1; // when extending the selection, the extended region must always be in view 
+		}
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectExtendPageLeft(){
+		if( nodeActive._view.selectionLR_column - panelArray_View.iPageSize_column >= nodeActive._view.cursor_column ){
+			nodeActive._view.selectionLR_column -= panelArray_View.iPageSize_column;
+		} else {
+			if( nodeActive._view.selectionUL_column == 0 ) return;
+			nodeActive._view.selectionUL_column -= panelArray_View.iPageSize_column;
+			if( nodeActive._view.selectionUL_column < 0 ) nodeActive._view.selectionUL_column = 0;
+			if( nodeActive._view.selectionUL_column < nodeActive._view.origin_column ){
+				nodeActive._view.origin_column = nodeActive._view.selectionUL_column; // when extending the selection, the extended region must always be in view 
+			}
+		}
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectExtendPageRight(){
+		if( nodeActive._view.selectionLR_column > nodeActive._view.cursor_column ){
+			nodeActive._view.selectionLR_column += panelArray_View.iPageSize_column;
+		} else {
+			nodeActive._view.selectionUL_column += panelArray_View.iPageSize_column;
+			if( nodeActive._view.selectionUL_column > nodeActive._view.cursor_column ){
+				nodeActive._view.selectionLR_column = nodeActive._view.selectionUL_column - nodeActive._view.cursor_column;
+				nodeActive._view.cursor_column = nodeActive._view.cursor_column;
+			}
+		}
+		if( nodeActive._view.selectionLR_column >= nodeActive._getColumnCount() ){
+			nodeActive._view.selectionLR_column = nodeActive._getColumnCount() - 1;
+		}
+		if( nodeActive._view.selectionLR_column > panelArray_View.xLastFullColumn ){
+			nodeActive._view.origin_column = nodeActive._view.selectionLR_column - panelArray_View.iPageSize_column + 1; // when extending the selection, the extended region must always be in view 
+		}
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectExtendPageDiagonalUp(){
+		_selectExtendPageUp();
+		_selectExtendPageLeft();
+	}
+
+	void _selectExtendPageDiagonalDown(){
+		_selectExtendPageRight();
+		_selectExtendPageDown();
+	}
+
+	void _selectExtendHome(){
+		nodeActive._view.selectionUL_row = 0;
+		nodeActive._view.selectionUL_column = 0;
+		nodeActive._view.origin_row = 0;
+		nodeActive._view.origin_column = 0;
+		panelArray_View._vDrawImage( nodeActive );
+	}
+
+	void _selectExtendEnd(){
+		nodeActive._view.selectionLR_row = nodeActive._getRowCount() - 1;
+		nodeActive._view.selectionLR_column = nodeActive._getColumnCount() - 1;
+		nodeActive._view.origin_row = nodeActive._getRowCount() - panelArray_View.iPageSize_row;
+		nodeActive._view.origin_column = nodeActive._getColumnCount() - panelArray_View.iPageSize_column;
 		panelArray_View._vDrawImage( nodeActive );
 	}
 	

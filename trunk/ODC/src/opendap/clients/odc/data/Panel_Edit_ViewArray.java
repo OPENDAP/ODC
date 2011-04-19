@@ -41,6 +41,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 	private Color colorGridlines = new Color( 0xFFB0B0B0 ); // light gray
 	private Color colorSelectionFill = new Color( 0xFFD0D0D0 ); // light gray
 	private Color colorSelectionBorder = new Color( 0xFF606060 ); // dark gray
+	private Color colorCursor = Color.WHITE;
 	private Stroke strokeGridline = new BasicStroke( 1f );
 	private Stroke strokeCursor = new BasicStroke( 2f );
 	private Stroke strokeSelection = new BasicStroke( 2f );
@@ -60,6 +61,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 		panel.addMouseMotionListener( panel );
 		panel.addKeyListener( panel );
 		panel.addFocusListener( panel );
+		panel.setFocusTraversalKeysEnabled( false ); // prevents JPanel from grabbing the Tab key
 		return panel;
 	}
 	
@@ -177,19 +179,18 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 		}
 		xLastFullRow = xRow - 1;
 
-		// draw selection
+		// draw selection fill
 		int ctColumnsInSelection = view.selectionLR_column - view.selectionUL_column + 1;
 		int ctRowsInSelection = view.selectionLR_row - view.selectionUL_row + 1;
 		int posSelection_x = pxRowHeader_width + pxCell_width * (view.selectionUL_column - view.origin_column) - 1;
 		int posSelection_y = pxColumnHeader_height + pxCell_height * (view.selectionUL_row - view.origin_row) - 1;
 		int pxSelection_width = pxCell_width * ctColumnsInSelection + 3;
 		int pxSelection_height = pxCell_height * ctRowsInSelection + 3;
-		g2.setColor( colorSelectionFill );
-		g2.fillRect( posSelection_x, posSelection_y, pxSelection_width, pxSelection_height );
-		g2.setColor( colorSelectionBorder );
-		g2.setStroke( strokeSelection );
-		g2.drawRect( posSelection_x, posSelection_y, pxSelection_width, pxSelection_height );
-
+		if( ctColumnsInSelection > 1 || ctRowsInSelection > 1 ){
+			g2.setColor( colorSelectionFill );
+			g2.fillRect( posSelection_x, posSelection_y, pxSelection_width, pxSelection_height );
+		}
+			
 		// draw grid lines
 		g2.setStroke( strokeGridline );
 		g2.setColor( colorGridlines );
@@ -216,14 +217,22 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 			xGridline++;
 		}		
 		
-		// draw cursor
+		// draw cursor or selection border
 		int posCursor_row = pxColumnHeader_height + pxCell_height * (view.cursor_row - view.origin_row) - 1;
 		int posCursor_column = pxRowHeader_width + pxCell_width * (view.cursor_column - view.origin_column) - 1;
 		int pxCursor_width = pxCell_width + 3;
 		int pxCursor_height = pxCell_height + 3;
-		g2.setColor( colorSelectionBorder );
-		g2.setStroke( strokeCursor );
-		g2.drawRect( posCursor_column, posCursor_row, pxCursor_width, pxCursor_height );
+		if( ctColumnsInSelection == 1 && ctRowsInSelection == 1 ){
+			g2.setColor( colorSelectionBorder );
+			g2.setStroke( strokeCursor );
+			g2.drawRect( posCursor_column, posCursor_row, pxCursor_width, pxCursor_height );
+		} else {
+			g2.setColor( colorSelectionBorder );
+			g2.setStroke( strokeSelection );
+			g2.drawRect( posSelection_x, posSelection_y, pxSelection_width, pxSelection_height );
+			g2.setColor( colorCursor );
+			g2.fillRect( posCursor_column + 2, posCursor_row + 2, pxCursor_width - 4, pxCursor_height - 4 );
+		}
 		
 		_vUpdateCellValues( g2, node, xOrigin_row, xOrigin_column, pxRowHeader_width, pxColumnHeader_height, pxCell_width, pxCell_height );
 						
@@ -283,45 +292,139 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 //		System.out.println("key pressed: "  +  ke.getKeyCode());
 		switch( ke.getKeyCode() ){
 			case KeyEvent.VK_UP:
-				parent._setCursorUp(); break;
-			case KeyEvent.VK_DOWN:
-				parent._setCursorDown(); break;
-			case KeyEvent.VK_LEFT:
-				parent._setCursorLeft(); break;
-			case KeyEvent.VK_RIGHT:
-				parent._setCursorRight(); break;
-			case KeyEvent.VK_HOME:
-				parent._setCursorHome(); break;
-			case KeyEvent.VK_END:
-				parent._setCursorEnd(); break;
-			case KeyEvent.VK_PAGE_UP:
 				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0 ){
-					if( (ke.getModifiers() & KeyEvent.ALT_DOWN_MASK) == 0 ){
+					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+						parent._setCursorUp();
+					} else {
+						parent._selectExtendUp();
+					}
+				} else {
+					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorPageUp();
 					} else {
-						parent._setCursorSliceUp();
+						parent._selectExtendPageUp();
+					}
+				}
+				break;
+			case KeyEvent.VK_DOWN:
+				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0 ){
+					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+						parent._setCursorDown();
+					} else {
+						parent._selectExtendDown();
+					}
+				} else {
+					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+						parent._setCursorPageDown();
+					} else {
+						parent._selectExtendPageDown();
+					}
+				}
+				break;
+			case KeyEvent.VK_LEFT:
+				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0 ){
+					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+						parent._setCursorLeft();
+					} else {
+						parent._selectExtendLeft();
 					}
 				} else {
 					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorPageLeft();
 					} else {
-						parent._setCursorPageDiagonalUp();
+						parent._selectExtendPageLeft();
 					}
 				}
 				break;
-			case KeyEvent.VK_PAGE_DOWN:
+			case KeyEvent.VK_RIGHT:
 				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0 ){
-					if( (ke.getModifiers() & KeyEvent.ALT_DOWN_MASK) == 0 ){
-						parent._setCursorPageDown();
+					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+						parent._setCursorRight();
 					} else {
-						parent._setCursorSliceDown();
+						parent._selectExtendRight();
 					}
 				} else {
 					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorPageRight();
 					} else {
-						parent._setCursorPageDiagonalDown();
+						parent._selectExtendPageRight();
 					}
+				}
+				break;
+			case KeyEvent.VK_HOME:
+				if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+					parent._setCursorHome();
+				} else {
+					parent._selectExtendHome();
+				}
+				break;
+			case KeyEvent.VK_END:
+				if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+					parent._setCursorEnd();
+				} else {
+					parent._selectExtendEnd();
+				}
+				break;
+			case KeyEvent.VK_PAGE_UP:
+				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0 ){
+					if( (ke.getModifiers() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+						if( (ke.getModifiers() & KeyEvent.ALT_DOWN_MASK) == 0 ){
+							parent._setCursorPageUp();
+						} else {
+							parent._setCursorSliceUp();
+						}
+					} else {
+						parent._selectExtendPageUp();
+					}
+				} else {
+					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+						parent._setCursorPageDiagonalUp();
+					} else {
+						parent._selectExtendPageDiagonalUp();
+					}
+				}
+				break;
+			case KeyEvent.VK_PAGE_DOWN:
+				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0 ){
+					if( (ke.getModifiers() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+						if( (ke.getModifiers() & KeyEvent.ALT_DOWN_MASK) == 0 ){
+							parent._setCursorPageDown();
+						} else {
+							parent._setCursorSliceDown();
+						}
+					} else {
+						parent._selectExtendPageDown();
+					}
+				} else {
+					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+						parent._setCursorPageDiagonalDown();
+					} else {
+						parent._selectExtendPageDiagonalDown();
+					}
+				}
+				break;
+			case KeyEvent.VK_TAB:
+				if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+					parent._setCursorAdvance();
+				} else {
+					parent._setCursorRetreat();
+				}
+				break;
+			case KeyEvent.VK_PERIOD:
+				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0 ){
+					parent._setCursorRotate();
+				}
+				break;
+			case KeyEvent.VK_A:
+				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0 ){
+					parent._selectAll();
+				}
+				break;
+			case KeyEvent.VK_SPACE:
+				if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) != 0 ){
+					parent._selectActiveRows();
+				} else if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0 ){
+					parent._selectActiveColumns();
 				}
 				break;
 		}
@@ -358,8 +461,8 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 				parent._selectColumn( xCell_column );
 				mzDraggingColumn = true;
 		} else {
-			parent._setCursor( xCell_row, xCell_column );
 			parent._selectCell( xCell_row, xCell_column );
+			parent._setCursor( xCell_row, xCell_column );
 		}
 	}
 	
