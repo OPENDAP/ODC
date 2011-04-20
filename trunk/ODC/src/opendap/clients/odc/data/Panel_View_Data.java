@@ -1243,7 +1243,7 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 	}
 
 	void _selectExtendDown(){
-		if( nodeActive._view.selectionLR_row > nodeActive._view.cursor_row ){
+		if( nodeActive._view.selectionLR_row > nodeActive._view.cursor_row || nodeActive._view.selectionLR_row == nodeActive._view.selectionUL_row ){
 			if( nodeActive._view.selectionLR_row == nodeActive._getRowCount() - 1 ) return; // at end
 			nodeActive._view.selectionLR_row++;
 			if( nodeActive._view.selectionLR_row > panelArray_View.xLastFullRow ){
@@ -1269,7 +1269,7 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 	}
 
 	void _selectExtendRight(){
-		if( nodeActive._view.selectionLR_column > nodeActive._view.cursor_column ){
+		if( nodeActive._view.selectionLR_column > nodeActive._view.cursor_column || nodeActive._view.selectionLR_column == nodeActive._view.selectionUL_column ){ // right edge moving to right
 			if( nodeActive._view.selectionLR_column == nodeActive._getColumnCount() - 1 ) return; // at end
 			nodeActive._view.selectionLR_column++;
 			if( nodeActive._view.selectionLR_column > panelArray_View.xLastFullColumn ){
@@ -1296,19 +1296,25 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 	}
 
 	void _selectExtendPageDown(){
-		if( nodeActive._view.selectionLR_row > nodeActive._view.cursor_row ){
+System.out.println("1");
+		if( nodeActive._view.selectionLR_row > nodeActive._view.cursor_row || nodeActive._view.selectionLR_row == nodeActive._view.selectionUL_row ){
+			System.out.println("2");
 			nodeActive._view.selectionLR_row += panelArray_View.iPageSize_row;
 		} else {
+			System.out.println("3");
 			nodeActive._view.selectionUL_row += panelArray_View.iPageSize_row;
 			if( nodeActive._view.selectionUL_row > nodeActive._view.cursor_row ){
+				System.out.println("3.5");
 				nodeActive._view.selectionLR_row = nodeActive._view.selectionUL_row - nodeActive._view.cursor_row;
 				nodeActive._view.cursor_row = nodeActive._view.cursor_row;
 			}
 		}
 		if( nodeActive._view.selectionLR_row >= nodeActive._getRowCount() ){
+			System.out.println("4");
 			nodeActive._view.selectionLR_row = nodeActive._getRowCount() - 1;
 		}
 		if( nodeActive._view.selectionLR_row > panelArray_View.xLastFullRow ){
+			System.out.println("5");
 			nodeActive._view.origin_row = nodeActive._view.selectionLR_row - panelArray_View.iPageSize_row + 1; // when extending the selection, the extended region must always be in view 
 		}
 		panelArray_View._vDrawImage( nodeActive );
@@ -1329,7 +1335,7 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 	}
 
 	void _selectExtendPageRight(){
-		if( nodeActive._view.selectionLR_column > nodeActive._view.cursor_column ){
+		if( nodeActive._view.selectionLR_column > nodeActive._view.cursor_column || nodeActive._view.selectionLR_column == nodeActive._view.selectionUL_column ){
 			nodeActive._view.selectionLR_column += panelArray_View.iPageSize_column;
 		} else {
 			nodeActive._view.selectionUL_column += panelArray_View.iPageSize_column;

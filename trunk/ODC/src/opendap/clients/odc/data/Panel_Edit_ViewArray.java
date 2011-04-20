@@ -289,17 +289,18 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 	Atl+PageUp/PageDown            moves the view to the next/previous page (ie slice)
 	*/	
 	public void keyPressed( KeyEvent ke ){
+		int iModifiersEx = ke.getModifiersEx();
 //		System.out.println("key pressed: "  +  ke.getKeyCode());
 		switch( ke.getKeyCode() ){
 			case KeyEvent.VK_UP:
-				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0 ){
-					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+				if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) == 0 ){
+					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorUp();
 					} else {
 						parent._selectExtendUp();
 					}
 				} else {
-					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorPageUp();
 					} else {
 						parent._selectExtendPageUp();
@@ -307,14 +308,14 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 				}
 				break;
 			case KeyEvent.VK_DOWN:
-				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0 ){
-					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+				if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) == 0 ){
+					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorDown();
 					} else {
 						parent._selectExtendDown();
 					}
 				} else {
-					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorPageDown();
 					} else {
 						parent._selectExtendPageDown();
@@ -322,14 +323,14 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 				}
 				break;
 			case KeyEvent.VK_LEFT:
-				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0 ){
-					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+				if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) == 0 ){
+					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorLeft();
 					} else {
 						parent._selectExtendLeft();
 					}
 				} else {
-					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorPageLeft();
 					} else {
 						parent._selectExtendPageLeft();
@@ -337,14 +338,14 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 				}
 				break;
 			case KeyEvent.VK_RIGHT:
-				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0 ){
-					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+				if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) == 0 ){
+					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorRight();
 					} else {
 						parent._selectExtendRight();
 					}
 				} else {
-					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorPageRight();
 					} else {
 						parent._selectExtendPageRight();
@@ -352,21 +353,21 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 				}
 				break;
 			case KeyEvent.VK_HOME:
-				if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+				if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 					parent._setCursorHome();
 				} else {
 					parent._selectExtendHome();
 				}
 				break;
 			case KeyEvent.VK_END:
-				if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+				if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 					parent._setCursorEnd();
 				} else {
 					parent._selectExtendEnd();
 				}
 				break;
 			case KeyEvent.VK_PAGE_UP:
-				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0 ){
+				if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) == 0 ){
 					if( (ke.getModifiers() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						if( (ke.getModifiers() & KeyEvent.ALT_DOWN_MASK) == 0 ){
 							parent._setCursorPageUp();
@@ -377,7 +378,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 						parent._selectExtendPageUp();
 					}
 				} else {
-					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorPageDiagonalUp();
 					} else {
 						parent._selectExtendPageDiagonalUp();
@@ -385,9 +386,9 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 				}
 				break;
 			case KeyEvent.VK_PAGE_DOWN:
-				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0 ){
-					if( (ke.getModifiers() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
-						if( (ke.getModifiers() & KeyEvent.ALT_DOWN_MASK) == 0 ){
+				if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) == 0 ){
+					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+						if( (iModifiersEx & KeyEvent.ALT_DOWN_MASK) == 0 ){
 							parent._setCursorPageDown();
 						} else {
 							parent._setCursorSliceDown();
@@ -396,7 +397,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 						parent._selectExtendPageDown();
 					}
 				} else {
-					if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 						parent._setCursorPageDiagonalDown();
 					} else {
 						parent._selectExtendPageDiagonalDown();
@@ -404,26 +405,26 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 				}
 				break;
 			case KeyEvent.VK_TAB:
-				if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+				if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 					parent._setCursorAdvance();
 				} else {
 					parent._setCursorRetreat();
 				}
 				break;
 			case KeyEvent.VK_PERIOD:
-				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0 ){
+				if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) != 0 ){
 					parent._setCursorRotate();
 				}
 				break;
 			case KeyEvent.VK_A:
-				if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0 ){
+				if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) != 0 ){
 					parent._selectAll();
 				}
 				break;
 			case KeyEvent.VK_SPACE:
-				if( (ke.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) != 0 ){
+				if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) != 0 ){
 					parent._selectActiveRows();
-				} else if( (ke.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0 ){
+				} else if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) != 0 ){
 					parent._selectActiveColumns();
 				}
 				break;
