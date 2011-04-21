@@ -754,14 +754,14 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 	JTextField jtfArray_x;
 	JTextField jtfArray_y;
 	JTextField jtfArray_value;
-	JTextField jtfArray_exp;
+	JComboBox jcbArray_exp_text;
 	JComboBox jcbArray_exp_range;
 	Node_Array nodeActive;
 	JSplitPane mSplitPane;     // this panel is in the lower half of this split pane
-	final JLabel labelY = new JLabel( "y:" );
+	final ClickableButton buttonRow = new ClickableButton( "r:" );
+	final JLabel labelColumn = new JLabel( "c:" );
 	final JLabel labelValue = new JLabel( "value:" );
 	final JLabel labelExp = new JLabel( "exp:" );
-	final ClickableButton buttonX = new ClickableButton( "x:" );
 	private boolean mzShowingSelectionCoordinates = true;
 	private StringBuffer sbError_local = new StringBuffer( 256 );
 	private Panel_VarView(){}
@@ -773,27 +773,68 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		panel.jtfArray_x = new JTextField();
 		panel.jtfArray_y = new JTextField();
 		panel.jtfArray_value = new JTextField();
-		panel.jtfArray_exp = new JTextField();
-		String[] asExpressionRangeModes = { "All", "Value", "Selection", "View" };
+		panel.jcbArray_exp_text = new JComboBox();
+		String[] asExpressionRangeModes = { "All", "Value", "Selection", "Command", "View" };
 		panel.jcbArray_exp_range = new JComboBox( asExpressionRangeModes );
-		panel.labelY.setHorizontalAlignment( JLabel.RIGHT );
+		panel.labelColumn.setHorizontalAlignment( JLabel.RIGHT );
 //		panel.labelY.setBorder( BorderFactory.createLineBorder( Color.BLUE ) );
 		panel.labelValue.setHorizontalAlignment( JLabel.RIGHT );
 //		panel.labelValue.setBorder( BorderFactory.createLineBorder( Color.BLUE ) );
-		panel.buttonX.setHorizontalAlignment( JLabel.CENTER );
-		panel.buttonX.addMouseListener( panel.buttonX );
+		panel.buttonRow.setHorizontalAlignment( JLabel.CENTER );
+		panel.buttonRow.addMouseListener( panel.buttonRow );
 		panel.panelArray_Command = new JPanel();
 		panel.panelArray_Command.setPreferredSize( new Dimension( 400, 30 ) );
 		panel.panelArray_Command.setLayout( null );
-		panel.panelArray_Command.add( panel.buttonX );
+		panel.panelArray_Command.add( panel.buttonRow );
 		panel.panelArray_Command.add( panel.jtfArray_x );
-		panel.panelArray_Command.add( panel.labelY );
+		panel.panelArray_Command.add( panel.labelColumn );
 		panel.panelArray_Command.add( panel.jtfArray_y );
 		panel.panelArray_Command.add( panel.labelValue );
 		panel.panelArray_Command.add( panel.jtfArray_value );
 		panel.panelArray_Command.add( panel.labelExp );
-		panel.panelArray_Command.add( panel.jtfArray_exp );
+		panel.panelArray_Command.add( panel.jcbArray_exp_text );
 		panel.panelArray_Command.add( panel.jcbArray_exp_range );
+		
+		// set up one liner combo
+		panel.jcbArray_exp_text.setEditable( true );
+		panel.jcbArray_exp_text.setModel( ApplicationController.getInstance().getExpressionHistory() );
+		panel.jcbArray_exp_text.addItemListener(
+			new java.awt.event.ItemListener(){
+				public void itemStateChanged( ItemEvent event ){
+					System.out.println( "item state changed exp text" );
+//					if( mParent.mzAddingItemToList ) return; // item is being programmatically added
+//					if( event.getStateChange() == ItemEvent.SELECTED ){
+//						Model_Dataset modelSelected = (Model_Dataset)event.getItem();
+//						mParent._vActivate( modelSelected );
+//					}
+				}
+			}
+		);
+		panel.jcbArray_exp_text.addActionListener(
+			new java.awt.event.ActionListener(){
+				public void actionPerformed( ActionEvent e ){
+					System.out.println( "action performed: " + e.getActionCommand() );					
+					if( "comboBoxEdited".equals( e.getActionCommand() ) ){
+						JComboBox jcb = (JComboBox)e.getSource();
+						Object oEditBox = jcb.getEditor().getEditorComponent();
+						if( oEditBox == null ) return;
+						if( ! (oEditBox instanceof JTextField) ){
+							ApplicationController.vShowError( "internal error, combo box editor was not a JTextField" );
+							return;
+						}
+						JTextField jtfEditor = (JTextField)oEditBox;
+						String sText = jtfEditor.getText();
+						if( sText == null || sText.length() == 0 ){
+							ApplicationController.vShowWarning( "dataset names cannot be blank" );
+							return;
+						}
+						Model_LoadedDatasets model = (Model_LoadedDatasets)jcb.getModel();
+						StringBuffer sbError = new StringBuffer();
+						if( ! model._setName( sText, sbError ) ){
+							ApplicationController.vShowError( "error setting dataset name: " + sbError );
+						}
+					}
+            }});
 		
 		// set up array viewer
 		panel.panelArray_View = Panel_Edit_ViewArray._create( panel, sbError );
@@ -883,12 +924,12 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		}
 		public void mouseClicked( java.awt.event.MouseEvent e ){
 			if( mzShowingSelectionCoordinates ){
-				labelY.setVisible( false );
+				labelColumn.setVisible( false );
 				jtfArray_x.setVisible( false );
 				jtfArray_y.setVisible( false );
 				mzShowingSelectionCoordinates = false;
 			} else {
-				labelY.setVisible( true );
+				labelColumn.setVisible( true );
 				jtfArray_x.setVisible( true );
 				jtfArray_y.setVisible( true );
 				mzShowingSelectionCoordinates = true;
@@ -906,10 +947,10 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		int pxLabelY_width = 15;
 		int pxLabelValue_width = 38;
 		int pxExpValue_width = 25;
-		buttonX.setBounds( posSelection_x, posSelection_y + 2, pxButtonX_width, 20 );
+		buttonRow.setBounds( posSelection_x, posSelection_y + 2, pxButtonX_width, 20 );
 		jtfArray_x.setBounds( posSelection_x + pxButtonX_width + pxLabelMargin, posSelection_y, pxSelectionJTF_width, 25 );
 		int posYLabel_x = posSelection_x + pxButtonX_width + pxLabelMargin + pxSelectionJTF_width + 2;
-		labelY.setBounds( posYLabel_x, posSelection_y, pxLabelY_width, 22 );
+		labelColumn.setBounds( posYLabel_x, posSelection_y, pxLabelY_width, 22 );
 		jtfArray_y.setBounds( posYLabel_x + pxLabelY_width + pxLabelMargin, posSelection_y, pxSelectionJTF_width, 25 );
 		int pxSelection_width;   
 		if( mzShowingSelectionCoordinates ){
@@ -933,7 +974,7 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 		int pxRangeModeCombo_width = 75;
 		int pxRightHandMargin = 6;
 		int pxJTFexp_width = this.getWidth() - posJTFExp_x - pxRangeModeCombo_width - pxRightHandMargin;
-		jtfArray_exp.setBounds( posJTFExp_x, posSelection_y, pxJTFexp_width, 25 );
+		jcbArray_exp_text.setBounds( posJTFExp_x, posSelection_y, pxJTFexp_width, 25 );
 		jcbArray_exp_range.setBounds( posJTFExp_x + pxJTFexp_width + 3, posSelection_y, pxRangeModeCombo_width, 25 );
 	}
 	
@@ -1296,7 +1337,6 @@ class Panel_VarView extends JPanel implements java.awt.event.ComponentListener, 
 	}
 
 	void _selectExtendPageDown(){
-System.out.println("1");
 		if( nodeActive._view.selectionLR_row > nodeActive._view.cursor_row || nodeActive._view.selectionLR_row == nodeActive._view.selectionUL_row ){
 			System.out.println("2");
 			nodeActive._view.selectionLR_row += panelArray_View.iPageSize_row;

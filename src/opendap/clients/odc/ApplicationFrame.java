@@ -614,9 +614,9 @@ class StatusBar extends JPanel {
 				public void mousePressed( MouseEvent me ){
 					if( me.getClickCount() == 2 ){
 						String sMemoryStatus = ApplicationController.getInstance().sMemoryStatus();
-						JOptionPane jop = new JOptionPane(sMemoryStatus);
-						jop.setFont( Styles.fontFixed10 );
-						JOptionPane.showMessageDialog(ApplicationController.getInstance().getAppFrame(), sMemoryStatus);
+						JLabel labelMessage = new JLabel( sMemoryStatus );
+						labelMessage.setFont( Styles.fontFixed10 );
+						JOptionPane.showMessageDialog( ApplicationController.getInstance().getAppFrame(), labelMessage );
 					}
 				}
 			}

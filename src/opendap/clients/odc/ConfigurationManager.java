@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Configuration Manager
  * Description:  Maintains preferential settings for the application
- * Copyright:    Copyright (c) 2002-2008
+ * Copyright:    Copyright (c) 2002-2011
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.00
+ * @version      3.07
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,7 @@ public class ConfigurationManager {
 	private static final String FILE_NAME_XML = "datasets.xml";
 	private static final String FILE_NAME_ECHO_Valids = "ECHO_static_valids.xml";
 	private static final String FILE_NAME_Gazetteer = "gazetteer.txt";
+	private static final String FILE_NAME_ExpHistory = "exp.txt";
 
 	private static final String URL_Default_DatasetList = "http://xml.opendap.org/datasets/datasets.xml";
 	private static final String URL_Default_GCMD = "http://gcmd.nasa.gov/OpenAPI/";
@@ -91,6 +92,7 @@ public class ConfigurationManager {
 	public static final String PROPERTY_PATH_ECHO_Valids = "path.XML_ECHO_Valids";
 	public static final String PROPERTY_PATH_Gazetteer = "path.Gazetteer"; // can be file or directory
 	public static final String PROPERTY_PATH_Coastline = "path.Coastline"; // can be file or directory
+	public static final String PROPERTY_PATH_ExpHistory = "path.ExpHistory"; // can be file or directory
 	public static final String PROPERTY_DIR_ImageCache = "dir.ImageCache";
 	public static final String PROPERTY_DIR_DataCache = "dir.DataCache";
 	public static final String PROPERTY_DIR_Plots = "dir.Plots";
@@ -353,6 +355,7 @@ public class ConfigurationManager {
 		mlistProperties.add( PROPERTY_PATH_ECHO_Valids );
 		mlistProperties.add( PROPERTY_PATH_Gazetteer );
 		mlistProperties.add( PROPERTY_PATH_Coastline );
+		mlistProperties.add( PROPERTY_PATH_ExpHistory );
 		mlistProperties.add( PROPERTY_DIR_ImageCache );
 		mlistProperties.add( PROPERTY_DIR_DataCache );
 		mlistProperties.add( PROPERTY_DIR_Plots );
@@ -421,6 +424,7 @@ public class ConfigurationManager {
 	public String getProperty_PATH_XML_ECHO_Valids(){ return getInstance().getOption(PROPERTY_PATH_ECHO_Valids, this.getDefault_PATH_ECHO_Valids()); }
 	public String getProperty_PATH_Gazetteer(){ return getInstance().getOption(PROPERTY_PATH_Gazetteer, this.getDefault_PATH_Gazetteer()); }
 	public String getProperty_PATH_Coastline(){ return getInstance().getOption(PROPERTY_PATH_Coastline, this.getDefault_PATH_Coastline()); }
+	public String getProperty_PATH_ExpHistory(){ return getInstance().getOption(PROPERTY_PATH_ExpHistory, this.getDefault_PATH_ExpHistory()); }
 	public String getProperty_DIR_ImageCache(){ return getInstance().getOption(PROPERTY_DIR_ImageCache, this.getDefault_DIR_ImageCache()); }
 	public String getProperty_DIR_DataCache(){ return getInstance().getOption(PROPERTY_DIR_DataCache, this.getDefault_DIR_DataCache()); }
 	public String getProperty_DIR_Plots(){ return getInstance().getOption(PROPERTY_DIR_Plots, this.getDefault_DIR_Plots()); }
@@ -895,6 +899,10 @@ public class ConfigurationManager {
 		return Utility.sConnectPaths(getBaseDirectory(), DIR_Default_Coastline);
 	}
 
+	String getDefault_PATH_ExpHistory(){
+		return Utility.sConnectPaths(getBaseDirectory(), FILE_NAME_ExpHistory);
+	}
+	
 	String getPath_Properties(){
 		return Utility.sConnectPaths(getBaseDirectory(), FILE_NAME_PROPERTIES);
 	}
@@ -947,6 +955,7 @@ public class ConfigurationManager {
 		sb.append(PROPERTY_PATH_ECHO_Valids + " = " + this.getProperty_PATH_XML_ECHO_Valids() + "\n" );
 		sb.append(PROPERTY_PATH_Gazetteer + " = " + this.getProperty_PATH_Gazetteer() + "\n" );
 		sb.append(PROPERTY_PATH_Coastline + " = " + this.getProperty_PATH_Coastline() + "\n" );
+		sb.append(PROPERTY_PATH_ExpHistory + " = " + this.getProperty_PATH_ExpHistory() + "\n" );
 		sb.append(PROPERTY_DIR_ImageCache + " = " + this.getProperty_DIR_ImageCache() + "\n" );
 		sb.append(PROPERTY_DIR_DataCache + " = " + this.getProperty_DIR_DataCache() + "\n" );
 		sb.append(PROPERTY_DIR_Plots + " = " + this.getProperty_DIR_Plots() + "\n" );
@@ -1022,6 +1031,7 @@ public class ConfigurationManager {
 			mProperties.setProperty( PROPERTY_PATH_ECHO_Valids, this.getDefault_PATH_ECHO_Valids());
 			mProperties.setProperty( PROPERTY_PATH_Gazetteer, this.getDefault_PATH_Gazetteer());
 			mProperties.setProperty( PROPERTY_PATH_Coastline, this.getDefault_PATH_Coastline());
+			mProperties.setProperty( PROPERTY_PATH_ExpHistory, this.getDefault_PATH_ExpHistory());
 			mProperties.setProperty( PROPERTY_DIR_ImageCache, this.getDefault_DIR_ImageCache());
 			mProperties.setProperty( PROPERTY_DIR_DataCache, this.getDefault_DIR_DataCache());
 			mProperties.setProperty( PROPERTY_DIR_Plots, this.getDefault_DIR_Plots());

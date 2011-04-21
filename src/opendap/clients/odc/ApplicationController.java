@@ -38,6 +38,7 @@ import javax.swing.*;
 
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Model_LoadedDatasets;
+import opendap.clients.odc.data.Model_ExpressionHistory;
 import opendap.clients.odc.data.Model_Retrieve;
 import opendap.clients.odc.data.OutputEngine;
 import opendap.clients.odc.gui.Resources;
@@ -52,7 +53,7 @@ public class ApplicationController {
 
 	private static final String msAppName = "OPeNDAP Data Connector";
 	private static final String msAppVersion = "3.07";
-	private static final String msAppReleaseDate = "10 April 2011"; // todo create ANT substitution
+	private static final String msAppReleaseDate = "20 April 2011"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	public final String getAppName(){ return msAppName; }
@@ -78,6 +79,9 @@ public class ApplicationController {
 	private Model_LoadedDatasets mDatasets;
 	public Model_LoadedDatasets getDatasets(){ return mDatasets; }
 
+	private Model_ExpressionHistory mOneLiners;
+	public Model_ExpressionHistory getExpressionHistory(){ return mOneLiners; }
+	
 	public ArrayList<String> listStatusMessages = new ArrayList<String>();
 	public ArrayList<String> listWarnings = new ArrayList<String>();
 	public ArrayList<String> listErrors = new ArrayList<String>();
@@ -144,7 +148,8 @@ public class ApplicationController {
 			thisInstance.vShowStartupMessage("creating models");
 			thisInstance.mOutputEngine = new OutputEngine();
 			thisInstance.mRetrieve     = new Model_Retrieve();
-			thisInstance.mDatasets     = Model_LoadedDatasets.create();
+			thisInstance.mDatasets     = Model_LoadedDatasets._create();
+			thisInstance.mOneLiners    = Model_ExpressionHistory._create();
 
 // exclude geodesy for this build
 //			thisInstance.vShowStartupMessage("initializing geodesy");

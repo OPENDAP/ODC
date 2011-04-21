@@ -255,6 +255,7 @@ class CommandListener extends Thread {
 				writeLine("setv [var] [val]   - sets the value of an environment variable");
 				writeLine("eval [exp]         - evaluates an environment expression");
 				writeLine("getall             - gets the values of all environment variables");
+				writeLine("reload exps        - reloads the one-liner expression history");
 			} else if( sCommandUpper.equals("ABOUT") ){
 				writeLine(ApplicationController.getInstance().getAppName() + " version " + ApplicationController.getInstance().getAppVersion() + " " + ApplicationController.getInstance().getAppReleaseDate());
 				writeLine("  OPeNDAP.org");
@@ -350,6 +351,9 @@ class CommandListener extends Thread {
 				return;
 			} else if( sCommandUpper.startsWith("GETALL ") ){
 				writeLine(ApplicationController.getInstance().getall());
+				return;
+			} else if( sCommandUpper.startsWith("RELOAD EXPS") ){
+				ApplicationController.getInstance().getExpressionHistory()._reload();
 				return;
 			} else if( sCommandUpper.equals("DUMP TREE") ){
 				writeLine( retrieve_model.getDirectoryTreePrintout() );

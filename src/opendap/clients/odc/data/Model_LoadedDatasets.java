@@ -20,7 +20,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 
 	private Model_LoadedDatasets(){}
 	
-	public static Model_LoadedDatasets create(){
+	public static Model_LoadedDatasets _create(){
 		Model_LoadedDatasets new_model = new Model_LoadedDatasets();
 		return new_model;
 	}
@@ -180,21 +180,21 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 	
     // javax.swing.MutableComboBoxModel interface
     public void addElement( Object anObject ){
-    	System.out.println( "addElement" );
+    	System.out.println( "Model_LoadedDatasets: addElement" );
     }
 
     public void insertElementAt(Object anObject,int index) {
-    	System.out.println( "insertElementAt" );
+    	System.out.println( "Model_LoadedDatasets: insertElementAt" );
     }
 
     // implements javax.swing.MutableComboBoxModel
     public void removeElementAt(int index) {
-    	System.out.println( "removeElementAt" );
+    	System.out.println( "Model_LoadedDatasets: removeElementAt" );
     }
 
     // implements javax.swing.MutableComboBoxModel
     public void removeElement(Object anObject) {
-    	System.out.println( "removeElement" );
+    	System.out.println( "Model_LoadedDatasets: removeElement" );
     }
 
 }
