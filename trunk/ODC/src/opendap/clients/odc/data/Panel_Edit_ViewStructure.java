@@ -57,7 +57,7 @@ public class Panel_Edit_ViewStructure extends JPanel {
 	Model_Dataset_Local _getModel(){
 		return mTreeModel;
 	}
-	Panel_VarView _getVariableView(){
+	Panel_View_Variable _getVariableView(){
 		return parent.panelVarView;
 	}
 	boolean _zInitialize( Panel_View_Data view, Panel_Define_Dataset definition_panel, StringBuffer sbError ){

@@ -37,6 +37,7 @@ import opendap.clients.odc.data.Panel_View_Data;
 import opendap.clients.odc.gui.Resources;
 import opendap.clients.odc.gui.Styles;
 import opendap.clients.odc.plot.*;
+import opendap.clients.odc.data.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -461,6 +462,8 @@ public class ApplicationFrame extends JFrame {
 		return panelPlotter.zAddData_Invoked(url, sbError);
 	}
 
+	public Panel_View_Variable getVariableViewer(){ return this.panelDataView.panelVarView; }
+	
 	public Panel_View_Image getImageViewer(){ return this.panelImageView; }
 
 	public Panel_View_Plot getPlotter(){ return this.panelPlotter; }
@@ -609,14 +612,19 @@ class StatusBar extends JPanel {
 		jpbMemory.setMaximum(iMaximumMemory);
 		jpbMemory.setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0));
 		jpanelMemory.add(jpbMemory, BorderLayout.CENTER);
+		final JTextArea textArea = new JTextArea();
 		jpbMemory.addMouseListener(
 			new MouseAdapter(){
 				public void mousePressed( MouseEvent me ){
 					if( me.getClickCount() == 2 ){
 						String sMemoryStatus = ApplicationController.getInstance().sMemoryStatus();
-						JLabel labelMessage = new JLabel( sMemoryStatus );
-						labelMessage.setFont( Styles.fontFixed10 );
-						JOptionPane.showMessageDialog( ApplicationController.getInstance().getAppFrame(), labelMessage );
+						textArea.setPreferredSize( new Dimension( 500, 200 ) );
+						textArea.setLineWrap(true);
+						textArea.setWrapStyleWord(true);
+						textArea.setMargin(new Insets(5,5,5,5));
+						textArea.setText( sMemoryStatus );
+						textArea.setFont( Styles.fontFixed12 );
+						JOptionPane.showMessageDialog( ApplicationController.getInstance().getAppFrame(), textArea );
 					}
 				}
 			}

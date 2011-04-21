@@ -852,8 +852,68 @@ class Node_Array extends Node {
 		int[] aiValues = (int[])oValues;
 		return Integer.toString( aiValues[xValue] );
 	}
+	public boolean _deleteSelectedValue( StringBuffer sbError ){
+		return _deleteValue( _getValueIndex( _view.cursor_row, _view.cursor_column ), sbError );  
+	}
+	public boolean _deleteAllSelectedValues( StringBuffer sbError ){  // TODO process errors
+		for( int xRow = _view.selectionUL_row; xRow <= _view.selectionLR_row; xRow++ ){ 
+			for( int xColumn = _view.selectionUL_column; xColumn <= _view.selectionLR_column; xColumn++ ){
+				_deleteValue( _getValueIndex( xRow, xColumn ), sbError );
+			}
+		}
+		return true;
+	}
+	public boolean _deleteValue( int index, StringBuffer sbError ){
+		try {
+			opendap.dap.PrimitiveVector pv = getPrimitiveVector();
+			Object oValues = pv.getInternalStorage();
+			switch( _getValueType() ){
+				case Byte:
+				case Int16:
+					short[] ashValues = (short[])oValues;
+					ashValues[index] = 0; 
+					break;
+				case Int32:
+				case UInt16:
+					int[] aiValues = (int[])oValues;
+					aiValues[index] = 0; 
+					break;
+				case UInt32:
+					long[] anValues = (long[])oValues;
+					anValues[index] = 0; 
+					break;
+				case Float32:
+					float[] afValues = (float[])oValues;
+					afValues[index] = 0; 
+					break;
+				case Float64:
+					double[] adValues = (double[])oValues;
+					adValues[index] = 0; 
+					break;
+				case String:
+					String[] asValues = (String[])oValues;
+					asValues[index] = null; 
+					break;
+				default:
+					sbError.append( "unknown DAP type" );
+					return false;
+			}
+			return true;
+		} catch( NumberFormatException ex ) {
+			sbError.append( "numerical error deleting value of type " + _getValueType() );
+			return false;
+		}
+	}
 	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
 		return _setValue( sNewValue, _getValueIndex( _view.cursor_row, _view.cursor_column ), sbError );  
+	}
+	public boolean _setAllSelectedValues( String sNewValue, StringBuffer sbError ){  // TODO process errors
+		for( int xRow = _view.selectionUL_row; xRow <= _view.selectionLR_row; xRow++ ){ 
+			for( int xColumn = _view.selectionUL_column; xColumn <= _view.selectionLR_column; xColumn++ ){
+				_setValue( sNewValue, _getValueIndex( xRow, xColumn ), sbError );
+			}
+		}
+		return true;
 	}
 	public boolean _setValue( String sNewValue, int index, StringBuffer sbError ){
 		try {

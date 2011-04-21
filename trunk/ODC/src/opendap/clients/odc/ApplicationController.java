@@ -79,9 +79,6 @@ public class ApplicationController {
 	private Model_LoadedDatasets mDatasets;
 	public Model_LoadedDatasets getDatasets(){ return mDatasets; }
 
-	private Model_ExpressionHistory mOneLiners;
-	public Model_ExpressionHistory getExpressionHistory(){ return mOneLiners; }
-	
 	public ArrayList<String> listStatusMessages = new ArrayList<String>();
 	public ArrayList<String> listWarnings = new ArrayList<String>();
 	public ArrayList<String> listErrors = new ArrayList<String>();
@@ -149,7 +146,6 @@ public class ApplicationController {
 			thisInstance.mOutputEngine = new OutputEngine();
 			thisInstance.mRetrieve     = new Model_Retrieve();
 			thisInstance.mDatasets     = Model_LoadedDatasets._create();
-			thisInstance.mOneLiners    = Model_ExpressionHistory._create();
 
 // exclude geodesy for this build
 //			thisInstance.vShowStartupMessage("initializing geodesy");

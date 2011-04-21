@@ -47,11 +47,11 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 	private Stroke strokeSelection = new BasicStroke( 2f );
 	private Border borderFocused = BorderFactory.createLineBorder( Color.blue );
 	private Node_Array nodeActive;
-	private Panel_VarView parent;
+	private Panel_View_Variable parent;
 	
 	private Panel_Edit_ViewArray(){}
 	
-	final static Panel_Edit_ViewArray _create( Panel_VarView parent, StringBuffer sbError ){
+	final static Panel_Edit_ViewArray _create( Panel_View_Variable parent, StringBuffer sbError ){
 		Panel_Edit_ViewArray panel = new Panel_Edit_ViewArray();
 		panel.parent = parent;
 		panel.setFocusable( true );
@@ -292,6 +292,9 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 		int iModifiersEx = ke.getModifiersEx();
 //		System.out.println("key pressed: "  +  ke.getKeyCode());
 		switch( ke.getKeyCode() ){
+			case KeyEvent.VK_DELETE:
+				parent._deleteSelectedValues();
+				break;
 			case KeyEvent.VK_UP:
 				if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) == 0 ){
 					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){

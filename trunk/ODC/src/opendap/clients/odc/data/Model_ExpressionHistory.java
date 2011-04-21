@@ -6,31 +6,57 @@ import javax.swing.AbstractListModel;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListDataEvent;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.File;
+
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.Utility;
 
-/** The application controller maintains this object.
+/** The data viewer, Panel_VarView, owns this object.
  *  This models the one-liner history used in the array viewers combo box only, not scripts in general.
  *  This information is persisted by the file "exp.txt" in the base directory.
  */
-public class Model_ExpressionHistory extends AbstractListModel implements MutableComboBoxModel {
+public class Model_ExpressionHistory extends AbstractListModel implements MutableComboBoxModel, KeyListener {
 	private static int mctSessionExps = 0; // keeps track of total number of one-liners created in this session
 	private int miCapacity = 1000;
 	private int mctExpressions = 0;
 	private int miSelectedItem0 = -1; // nothing selected
 	private String[] msExpressions0 = new String[ 1000 ];
 	private ArrayList<ListDataListener> listListeners = new ArrayList<ListDataListener>(); 
-
+	private Panel_View_Variable panelParent;
+	
 	private Model_ExpressionHistory(){}
 	
-	public static Model_ExpressionHistory _create(){
+	public static Model_ExpressionHistory _create( Panel_View_Variable parent ){
 		Model_ExpressionHistory new_model = new Model_ExpressionHistory();
+		new_model.panelParent = parent;
 		StringBuffer sbError = new StringBuffer();
 		if( ! new_model._zLoadHistory( sbError ) ){
 			ApplicationController.vShowError_NoModal( "Expression history failed to load: " );
 		}
 		return new_model;
+	}
+	
+	final StringBuffer sbHistoryBuffer = new StringBuffer( 10000 );
+	final private StringBuffer sbError_save = new StringBuffer( 256 );
+	boolean mzSaveErrorReported = false; // do not report this error more than once
+	public final void _save(){
+		if( ConfigurationManager.getInstance().getProperty_MODE_ReadOnly() ) return; // can't save history in read-only mode
+		String sExpressionHistoryPath = ConfigurationManager.getInstance().getProperty_PATH_ExpHistory();
+		if( sExpressionHistoryPath == null || sExpressionHistoryPath.trim().length() == 0 ) return;
+		sbHistoryBuffer.setLength( 0 );
+		for( int xLine = 0; xLine < mctExpressions; xLine++ ){
+			sbHistoryBuffer.append( msExpressions0[xLine] );
+			sbHistoryBuffer.append( Utility.msFileSeparator );
+		}
+		if( ! Utility.fileSave( sExpressionHistoryPath, sbHistoryBuffer.toString(), sbError_save ) ){
+			if( ! mzSaveErrorReported ){
+				ApplicationController.getInstance().vShowError_NoModal( "Error saving expression history: " + sbError_save.toString() );
+				mzSaveErrorReported = true;
+			}
+		}
 	}
 	
 	public final boolean _contains( String sExpression ){
@@ -93,6 +119,7 @@ public class Model_ExpressionHistory extends AbstractListModel implements Mutabl
 		for( ListDataListener listener : listListeners ){
 			listener.intervalAdded( new ListDataEvent( this, interval_index, interval_index, ListDataEvent.INTERVAL_ADDED ) );
 		}
+		_save();
 	}
 
 	public final void _removeExpression( int iIndex0 ){
@@ -110,8 +137,35 @@ public class Model_ExpressionHistory extends AbstractListModel implements Mutabl
 		for( ListDataListener listener : listListeners ){
 			listener.intervalAdded( new ListDataEvent( this, iIndex0, iIndex0, ListDataEvent.INTERVAL_REMOVED ) );
 		}
+		_save();
 	}
 
+	public final void _replaceSelectedExpression( String sReplaceText ){
+		int iIndex0 = getSelectedIndex0();
+		if( iIndex0 == -1 ){
+			ApplicationController.getInstance().vShowStatus_NoCache( "nothing selected" );
+			return;
+		}
+		if( iIndex0 < 0 || iIndex0 >= mctExpressions ){
+			ApplicationController.vShowWarning("attempt to replace non-existent dataset index " + iIndex0);
+			return;
+		}
+		msExpressions0[iIndex0] = sReplaceText;
+		for( ListDataListener listener : listListeners ){
+			listener.intervalAdded( new ListDataEvent( this, iIndex0, iIndex0, ListDataEvent.CONTENTS_CHANGED ) );
+		}
+		_save();
+	}
+	
+	public final void _removeSelectedExpression(){
+		int xSelected = getSelectedIndex0();
+		if( xSelected == -1 ){
+			ApplicationController.getInstance().vShowStatus_NoCache( "nothing selected" );
+			return;
+		}
+		_removeExpression( xSelected ); 
+	}
+	
 	public final void _removeExpression( String sExpression ){
 		for( int xList = 0; xList < mctExpressions; xList++ ){
 			if( msExpressions0[xList] == sExpression ){
@@ -123,6 +177,7 @@ public class Model_ExpressionHistory extends AbstractListModel implements Mutabl
 				for( ListDataListener listener : listListeners ){
 					listener.intervalAdded( new ListDataEvent( this, xList, xList, ListDataEvent.INTERVAL_REMOVED ) );
 				}
+				_save();
 				return;
 			}
 		}
@@ -163,9 +218,14 @@ public class Model_ExpressionHistory extends AbstractListModel implements Mutabl
     }
 	
 	// used to programmatically change the selection of the item in the combo box
+    // part of the standard interface
 	public void setSelectedItem( Object o ){
 		if( o == null ){
 			ApplicationController.vShowError( "internal error, attempt to set dataset list to null" );
+			return;
+		}
+		if( miSelectedItem0 == -1 ){
+			System.out.println( "nothing selected" );
 			return;
 		}
 		String sExpressionSelected = msExpressions0[miSelectedItem0];
@@ -179,7 +239,7 @@ public class Model_ExpressionHistory extends AbstractListModel implements Mutabl
 						return;
 					}
 				}
-				ApplicationController.vShowError( "internal error, attempt to set one-liner history selection to unknown expression" );
+				_addExpression( sExpressionSelected ); // new expression
 				return;
 	        }
 		} else {
@@ -215,6 +275,31 @@ public class Model_ExpressionHistory extends AbstractListModel implements Mutabl
     public void removeElement(Object anObject) {
     	System.out.println( "removeElement" );
     }
+    
+	/**
+	  Enter         execute the one liner
+	  Shift+Enter   execute the one-liner and save it to the history
+	*/
+	public void keyReleased( KeyEvent ke ){
+		int iModifiersEx = ke.getModifiersEx();
+		System.out.println( "key typed: "  +  ke.getKeyCode() );
+		switch( ke.getKeyCode() ){
+			case KeyEvent.VK_ENTER:
+				if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) != 0 ){ // shift key down, save expression
+					System.out.println( "adding expression" );
+//					Model_ExpressionHistory.this._addExpression( msCurrentText );
+					System.out.println( "completed add" );
+				}
+//				System.out.println( "execing expression " + msCurrentText );
+//				panelParent._execExpression( msCurrentText );
+		}
+		// ke.consume(); // consume the event (don't let other components be triggered by these events)
+	}
+
+    // KeyListener interface
+	public void keyPressed( KeyEvent ke ){}
+
+	public void keyTyped( KeyEvent ke ){}
 
 }
 
