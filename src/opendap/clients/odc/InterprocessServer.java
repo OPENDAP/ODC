@@ -353,7 +353,7 @@ class CommandListener extends Thread {
 				writeLine(ApplicationController.getInstance().getall());
 				return;
 			} else if( sCommandUpper.startsWith("RELOAD EXPS") ){
-				ApplicationController.getInstance().getExpressionHistory()._reload();
+				ApplicationController.getInstance().getAppFrame().getVariableViewer().getExpressionHistory()._reload();
 				return;
 			} else if( sCommandUpper.equals("DUMP TREE") ){
 				writeLine( retrieve_model.getDirectoryTreePrintout() );
