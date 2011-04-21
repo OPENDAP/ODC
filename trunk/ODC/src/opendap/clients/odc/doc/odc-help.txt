@@ -802,19 +802,54 @@ You can also edit the characteristics of the element depending what it is. For e
 Creating Arrays: 
                    When you create new arrays they are automatically dimensioned to 100 elements and the dimension is given a generic name of "dim1". This is to give you a starting point with something to work with. You can add more dimensions, rename them and resize them. An array must have at least one dimension. You can view and edit the data your array contains in the tabular view at the bottom of the screen. You can paste data into this matrix, type or generate it using an expression (see the topic "Data Viewer - Expressions"). Note that you can use expressions to generate entire datasets, as well.
 
+#Data Viewer - Dataset Structure
+
+The Dataset Structure view is located in the left middle of screen on the Data / View tab. Topologically the view is a tree and looks like a file folder editor. It allows you to see and select elments from the overall structure of the dataset. The topmost element, the root of the structure, is the first "folder" in the tree. You can expand or collapse the tree branches by clicking the gray triangle icons next to the folders. Each folder is labeled with the name of the variable. When you select a variable (click on it once to select it), the corresponding variable is shown to the right in the "Define Variable" panel, and if applicable a view of the data in the variable is shown below in the array viewer. Not all variable types have an array view.
+
+The following editing actions are possible using a selection from the Dataset Structure view:
+
+	Delete a variable - Select the variable by clicking it once and pressing the blue "-" (minus) button in the Define Variable panel.
+	                    You cannot delete the root structure.
+						
+	Change variable name - Select the variable by clicking it once and modifying the "Name" text box in the Define Variable panel.
+	
+	Change variable ordering - Select the variable you want to move by clicking it once.
+                               Click the blue arrow up/down buttons Define Variable panel to change the variable's position.
+							   
+	Add a new variable -
+	   (1) Select a structure variable (or the root structure)
+	   (2) Select the type of variable wanted from the drop-down box next to the "+" button
+              in the Define Variable panel. For example, "Array".
+       (3) Click the "+" button. This will create a new variable with default characteristics
+		      as the last member of the selected structure.
+								
+	Paste data to creat a variable -
+	   (1) Copy data from another source, such as a spreadsheet, or database program.
+	          To copy usually Ctrl+C is used, or a menu command from an "Edit" menu.
+	   (2) Select a structure variable (or the root structure) to contain the data.
+       (3) Select the type of variable wanted from the drop-down box next to the "+" button
+		      in the Define Variable panel. For example, "Array".
+       (4) Press Ctrl+V to paste the data into the structure as a new variable.
+									 
+Note that when you paste data as a new variable the ODC needs to decide what kind of variable to create. It will take as a hint whatever variable type you select in the Define Variable panel. For example, if you select "Array" it will try to make the data into an array. If you select "Sequence", it will try to make a sequence. To type the data the ODC tries to parse it as different types with the following order of preference:
+	
+	Byte, Unsigned Short, Short, Unsigned Integer, Integer, Float32, Float64, String
+	
+Even a single string in the data will cause the whole dataset (if an array, or field if a sequence) to be typed as a String. If you want to coerce the data to be a particular type, create the variable yourself first (as in the "Add a new variable" instructions above) with the desired type. The dimensions do not matter--they will be overwritten by the paste. Then paste the data into the array view using the Ctrl+Alt+V key combination. This will size the array to match the paste and the values will be of the type you specified. See the topic "Data Viewer - Copy and Paste" for more information on this.	
+				   
 #Data Viewer - Array View
 
-The array viewer is located in the bottom half of the Data / View tab and is shown when a dataset element of type array, grid or sequence is selected. This viewer looks like a spreadsheet and gives you a two-dimensional view of the data in the array. The view can be configured through the variable editing box to show different slices of a multi-dimensional array or to show different dimensions on the x- and y-axes. Using the array view you can edit the data in an array, copy it, paste new values in, and use expressions to modify or make special views of the data in the array.
+The array viewer is located in the bottom half of the Data / View tab and is shown when a dataset element of type array, grid or sequence is selected. This viewer looks like a spreadsheet and gives you a two-dimensional view of the data in the array. The view can be configured through the Define Variable panel to show different slices of a multi-dimensional array or to show different dimensions on the x- and y-axes. Using the array view you can edit the data in an array, copy it, paste new values in, and use expressions to modify or make special views of the data in the array.
 
-When the array view is active it will be surrounded by a thin blue rectangle. To activate in the array view click in it somewhere. Keystrokes will only take effect in the array view if it is active.
+When the array view is active it will be surrounded by a thin blue border. To activate in the array view click in it somewhere. Keystrokes will only take effect in the array view if it is active.
 
-The top bar of the array viewer is the viewer's action bar. It contains the current selection coordinates (x,y) followed by a value editor (labeled "value:") and an expression one-line editor (labeled "exp:"). If you modify the selection coordinate cells and press enter the selection will jump to that coordinate.  The selection coordinate display can be toggled visible or invisible by clicking the "x:" button.
+The top bar of the array viewer is the viewer's action bar. It contains the current selection coordinates "r" (row) and "c" (column) followed by a value editor (labeled "value:") and an expression one-line editor (labeled "exp:"). If you modify the selection coordinate cells and press enter the selection will jump to that coordinate.  The selection coordinate display can be toggled visible or invisible by clicking the "r:" button.
 
 Value Text Box
-              When a cell of the array is selected its value will appear in the value text box. If you change this value and press enter the value in the array will be changed to the new value. The array viewer does not support in-cell editing. You can also edit cells by using the Value Editor interface located to the right of the Variable Editor (see the topic "Data Viewer - Value Editor" for more information about that interface). 
+              When a cell of the array is selected its value will appear in the value text box. If you change this value and press enter the value in the array will be changed to the new value. The array viewer does not support in-cell editing. You can also edit cells by using the Value Editor panel located to the right of the Variable Editor (see the topic "Data Viewer - Value Editor" for more information about that interface). 
 			  
 Expression One-Liner
-                      The expression editing text box labeled "exp:" next to the value text box is called the expression "one-liner". It allows you to write quick expressions (formulas) to modify cell contents or create a "view" of cells. A view changes the way cells are displayed, but does not change the actual contents of the dataset. For example, you could use a view to see Celsius values in Farenheit without actually changing the dataset itself. Next to the one-liner is a mode drop-down. This controls the range of cells affected by the expression when the enter key is pressed (All, Selection, Value, View). For more information on the expression one-liner see the topic "Data Viewer - Expression One-Liner".
+                      The expression editing combo box labeled "exp:" next to the value text box is called the expression "one-liner". It allows you to write quick expressions (formulas) to modify cell contents or create a "view" of cells. A view changes the way cells are displayed, but does not change the actual contents of the dataset. For example, you could use a view to see Celsius values in Farenheit without actually changing the dataset itself. Next to the one-liner is a mode drop-down. This controls the range of cells affected by the expression when the enter key is pressed (All, Selection, Value, View). For more information on the expression one-liner see the topic "Data Viewer - Expression One-Liner".
 
 #Data Viewer - Array View Navigation and Selection
 
@@ -848,12 +883,14 @@ You can copy and paste one-dimensional or two-dimensional information into and o
 	Ctrl+C                copy
 	Ctrl+A                select the entire page
 	Ctrl+Spacebar         select the current column(s)
-	Ctrl+Shift+Spacebar   select the current row(s)
+	Shift+Spacebar        select the current row(s)
 	Ctrl+V                pastes data at the current selection, any extra data that does not fit will be ignored
 	Ctrl+Shift+V          pastes data at the current selection, expands dimensions to accomodate data
 	Ctrl+Alt+V            pastes data at [0][0], resizes dimensions to match data, any existing data on that page is overwritten
 
-From the above you can see that you can instantly create a two-dimensional dataset by using the Ctrl+Alt+V combination. This will size the dataset to match the paste and then populate the array with the data from the paste. If you have a three-dimensional dataset you can use Ctrl+Alt+V to create the first two-dimensional page, add a third dimension, then paste in the z-order pages one at a time. To navigate through the z-order pages press Alt+PageUp
+From the above you can see that you can instantly create a two-dimensional dataset by using the Ctrl+Alt+V combination. This will size the dataset to match the paste and then populate the array with the data from the paste. If you have a three-dimensional dataset you can use Ctrl+Alt+V to create the first two-dimensional page, add a third dimension, then paste in the z-order pages one at a time. To navigate through the z-order pages press Alt+PageUp.
+
+Copy and paste in the Data Viewer only affects the currently selected variable. If you want to create a new variable with a paste, select a structure in the "Dataset Structure" tree view and paste there. See the topic Data Viewer - Dataset Structure for more information.
 
 Note that copied values are strings corresponding to the current view of the data. For example, if the data is Celsius and you are currently using an expression to view it in Farenheit, then the copied values will be the Farenheit values. Likewise, if you are formatting the view to include symbols or letters, those will be copied, just as they appear in the array view. If strings are truncated in the view due to cells being too small, then the full-sized value string is copied, not the truncated string. If you want to copy the actual data values, turn off the view by clearing the "Exp:" text box and pressing enter.
 
@@ -865,7 +902,7 @@ You can search and replace data using the dialog.
 	
 #Data Viewer - Expression One Liner
 
-The expression one-liner is a text box that allows you to write short expressions to modify data or create a view of the data as seen in the array viewer (View / Data, lower half of screen). In general, this text box behaves similarly to expressions created in the Expression Editor or Value Editor. The main difference is that it assumes you are only setting the "value" variable so you do not need an equation, you just write the R-value. For example, the one-liner:
+The expression one-liner is a combo box that allows you to write short expressions to modify data or create a view of the data as seen in the array viewer (View / Data, lower half of screen). An expression is a formula in Python that evaluates to a value. In general, this text box behaves similarly to expressions created in the Script Editor or Value Editor. The main difference is that it assumes you are only setting the "value" variable so you do not need an equation, you just write the R-value. For example, the one-liner:
 
 	$1 + $2
 	
@@ -873,31 +910,45 @@ with a mode setting of "All" will add the row number to the column number of the
 
 	$0 * 9 / 5 + 32
 	
-Will convert the cell from Celsius to Farenheit. "$0*9/5+32" would work just as well. If the mode selection is "All", Earthware will visit every cell in the dataset, substitute its current value for $0, evaluate the expression and put the result back in the cell. The modes available are as follows:
+Will convert the cell from Celsius to Farenheit. "$0*9/5+32" would work just as well. If the mode selection is "All", Earthware will visit every cell in the currently selected dataset variable, even if it is not visible in the array view, substitute its current value for $0, evaluate the expression and put the result back in the cell. The old value in the cell is overwritten. The modes available are as follows:
 
 	All        perform expression on every cell in dataset
 	Selection  perform expression on every cell in the current selection
 	Value      perform expression on current cell and put result in value text box
+	Command    perform expression on current cell and put result in command window
 	View       perform expression on cells as they render (do not change actual values)
 
-If the mode is "Value", the expression will modify the value in the value text box, but will not modify dataset until you press 'Enter' a second time. This allows you to see the results of a calculation before committing to a change in the data. If you press the 'Esc' key, the text box will revert to the current value of the cell without making changes.
+If the mode is "Value", the expression will modify the value in the value text box and move the cursor to the "value:" text box. No data is modified until you press 'Enter' a second time. This allows you to see the results of a calculation before committing to a change in the data. If you press the 'Esc' key, the text box will revert to the current value of the cell without making changes.
 
 If the mode is "View", no permanent changes to the data are made. The calculation is only done when the cell value is rendered to the screen, so the data remains the same, but its appearance in the viewer changes. This is useful when you want to see the results of a conversion or see data in a particular format without changing data.
 
 To turn off a view clear the expression box and press enter.
 
+One-Liner History
+                  The one-liner combo box contains the history of one-liners you have saved. If you click the down arrow next to the box it will show the list of previously saved one-liners. To save a one-liner hold down the 'Shift' key when you press enter. This will execute the one-liner and save it to the history at the same time. You can replace a one-liner by pressing Ctrl+Shift+Enter. Note that every time you execute a one-liner there will be an entry in the status logs (see the topic "Status and Errors") so you can always find a full record of your work there, even if you don't explicitly save the one-liner to the stored history. To delete a one-liner from the stored history, mouse over it to select it, and press the 'Delete' key. The stored history is saved in a file called "exp.txt" in your base directory. You can change the contents of the history by editing that file and restarting the ODC or making the command "!reload exp".
+
 One-Liner Ranges
-                  Even though it says "every cell" in the table above, this is only the default behavior. You can override the default range of a one-liner by using the same directives used to control range in expressions (see the topic "Data Viewer - Expression Ranges" for full details). For example, let's imagine you were viewing a sequence with a field called 'Pressure' in Torrs and you wanted to view, but not convert, that field to mega Pascals (MPa). You could set the mode to "View" and then use the following one-liner:
+                  Even though it says "every cell" in the table above, this is only the default behavior. You can override the default range of a one-liner by using the same directives used to control range in scripts (see the topic "Data Viewer - Script Ranges" for full details). For example, let's imagine you were viewing a sequence with a field called 'Pressure' in Torrs and you wanted to view, but not convert, that field to mega Pascals (MPa). You could set the mode to "View" and then use the following one-liner:
 				  
 	#![]['Pressure']; $0 * 0.0001333
 	
 This one-liner tells the array viewer to only apply the one-liner to the 'Pressure' column. Since the mode is "View", no data will be changed. Note that the semi-colon is optional and the example will work without it, but it is good practice to include it because semantically the directive is a separate statement from the value expression. See the "Data Viewer - Expression Ranges" for more information on how to control ranges.
 
-#Data Viewer - Expressions
+One-Liner Labels
+                  If you have a lot of stored one-liners it can be useful to label them. The ODC directive preprocessor specially supports this by allowing you to insert a comment immediately after the hash-bang like so:
+				  
+	#!Torr to MPa: []['Pressure']; $0 * 0.0001333
+	#!Torr to MPa: $0 * 0.0001333
+				  
+In the first example there is an expression label, followed by a directive. In the second, the label is followed by an expression with no directive. When the preprocessor encounters an unknown string after the hash-bang it treats it as comment until a colon (":") is encountered, then it will look for a directive. If it finds no valid directive, it will regard the rest of the text as a Python expression.
 
-Data Viewer expressions allow you to generate data using mathematical expressions and functions in the Python language. This can be useful in wide variety of ways. For example, using the expression generator you can calculate a linear regression of a data set and then, using the layer capability of the plotter, overlay the regression line on a plot of the data. Expressions can be used for more mundane uses. For example, you might want to add a dimensional index numbers to a dataset that lacks them. You can also use expressions to modify existing data sets. For example, you can use the geodesic functions that are built into the ODC to perform transformations such as orthorectification on satellite data sets.
+#Data Viewer - Scripts
 
-Expressions are stored as text files which are intended for use by the ODC's Python engine. The file is pre-processed, however, so its format is more restricted than a normal Python script file. At a minimum the file must define at least one output. For example, the expression
+Data Viewer scripts allow you to generate data using mathematical expressions and functions in the Python language. This can be useful in wide variety of ways. For example, using the scripting engine you can calculate a linear regression of a data set and then, using the layer capability of the plotter, overlay the regression line on a plot of the data. Scripts can be used for more mundane uses. For example, you might want to add a dimensional index numbers to a dataset that lacks them. You can also use scripts to modify existing data sets. For example, you can use the geodesic functions that are built into the ODC to perform transformations such as orthorectification on satellite data sets.
+
+There are three ways to use scripting: create a full script in the text editor or data viewer, create a mini-script in the Value Editor panel, or create a one-liner in the array view panel. This rest of this topics applies only to full-size or mini-scripts. For information on one-liners see the topic "Data Viewer - Expression One Liner".
+
+Scripts are stored as text files which are intended for use by the ODC's Python engine. The file is pre-processed, however, so its format is more restricted than a normal Python script file. At a minimum the file must define at least one output. For example, the statement
 
 	value = 5
 	
@@ -907,7 +958,7 @@ would create a 1-dimensional vector in which every single value is 5. Note that 
 	size = 50
 	value = 1 + $1
 
-The order of the parameters does not matter. The term $1 is a macro substitution referring to the current value of the index in the first dimension which begins at 0. You can use up to 4 dimensions. You can also create recursive functions. For example, if we wanted a vector with the first 20 values of the fibonacci sequence the expression would be:
+The order of the parameters does not matter. The term $1 is a macro substitution referring to the current value of the index in the first dimension which begins at 0. The first dimension is the row. You can use up to 4 dimensions. You can also create recursive functions. For example, if we wanted a vector with the first 20 values of the fibonacci sequence the script would be:
 
 	type = "Int32"
 	size = 20
@@ -915,14 +966,14 @@ The order of the parameters does not matter. The term $1 is a macro substitution
 	
 From the above you can see that you can have the array refer to members of itself using the syntax value[x] where x is index number desired. Note that if the array member has not been defined yet its value will be null. So, for example, expressions like value[$1 + 1] will always be null. You cannot use array references as L-values. In other words, you can read from the array but you cannot write into it. For example, a line beginning value[1] = ... would be ignored by the preprocessor as invalid.
 
-Value calculations can easily become unwieldy so you may wonder if it is possible to use intermediate values to calculate parts of the value separately and thereby break the calculation into several easier-to-understand sub-calculations. Yes, you can define and use other variables as you wish in your expression file. Just be aware that there is a specific order of evaluation for the different expressions. See the help topic "Data Viewer - Intermediate Values" for more information.
+Value calculations can easily become unwieldy so you may wonder if it is possible to use intermediate values to calculate parts of the value separately and thereby break the calculation into several easier-to-understand sub-calculations. Yes, you can define and use other variables as you wish in your script file. Just be aware that there is a specific order of evaluation for the different expressions. See the help topic "Data Viewer - Intermediate Values" for more information.
 
-To refer to existing data sets in an expression first make sure they are loaded. If you look at the drop down list box at the top of the data viewer it has in it all of the loaded data sets. To refer to the data use the same syntax you would use for a constraint. For example:
+To refer to existing data sets in an script first make sure they are loaded. If you look at the drop down list box at the top of the data viewer it has in it all of the loaded data sets. To refer to the data use the same syntax you would use for a constraint. For example:
 
 	size = MyData.Variable1.length
 	value = MyData.Variable1[$1] + 1
 	
-This expression would create a new one-dimensional array in which each value was one greater than the corresponding value in the Variable1 array. Note that you do not have to specify the path to the variable. For example, if you have a nested dataset where the variable you want is, say, MyData.data.Structure5.array1 then you only need to reference MyData.array1 (where MyData is the title of the dataset). The ODC will search through the data structure for the occurrence of "array1" and use the first one it finds.
+This script would create a new one-dimensional array in which each value was one greater than the corresponding value in the Variable1 array. Note that you do not have to specify the path to the variable. For example, if you have a nested dataset where the variable you want is, say, MyData.data.Structure5.array1 then you only need to reference MyData.array1 (where MyData is the title of the dataset). The ODC will search through the data structure for the occurrence of "array1" and use the first one it finds.
 
 See "Data Viewer - Parameter Reference" for a listing of all the possible parameters in an expression set.
 
@@ -1010,13 +1061,19 @@ Python is an untyped language. The ODC takes whatever value Python generates and
 
 The index variables are L-values you can use to create grids. Normally dimension 1 is x, dimension 2 is y, dimension 3 is z and dimension 4 is time, but in some applications the dimensions could have other meanings. See the help section "Data Viewer - Grid Expressions" for more information on creating grids and the use of these variables. The size of the index arrays is determined by the size of the array they index.
 
-#Data Viewer - Expression Ranges
+#Data Viewer - Mini Scripts
 
-To control the range over which an expression operates you can use range directives. By default an expression will be executed against every value in the active dataset. Directives are entered as Python comments followed an exclamation point, or what is known as a hash-bang in programming parlance, for example:
+In the data viewer's "Value Editor" panel is a text pane you can use to create mini-scripts along with a target selector ("All", "View", etc). A mini script operates the same way as a full size script, except that you can specify a target, which you cannot do with a full-size script. Mini scripts are useful when you want to do small-scale editing and viewing, but need a multi-line script that goes beyond the capabilities of the one-liner interface.
+
+Note that you can only have one view expression active at a given time and the mini script panel takes precedence over the one-liner. If you have both set to "View", the one-liner will be ignored and only the mini script will be used.
+
+#Data Viewer - Script Ranges
+
+To control the range over which an script operates you can use range directives. By default a script will be executed against every value in the active dataset. Directives are entered as Python comments followed an exclamation point, or what is known as a hash-bang in programming parlance, for example:
 
 	#![10][15]
 
-This directive, placed normally at the beginning of the expression, restricts the range to a single cell of the array (or grid or sequence), which is row 11, column 16. Index numbers are 0-based so the 5th row has an index number of "4", for example. When working with sequences the field name can be used in lieu of an index number:
+This directive, placed normally at the beginning of the script, restricts the range to a single cell of the array (or grid or sequence), which is row 11, column 16. Index numbers are 0-based so the 5th row has an index number of "4", for example. When working with sequences the field name can be used in lieu of an index number:
 
 	#![10]['Temperature']
 
@@ -1038,9 +1095,9 @@ Earthware remembers the last selected cell, and selection range for every loaded
 
 Expressions can be used to control ranges, but be aware that the range directive is evaluated before anything else in the expression.
 
-#Data Viewer - Expression Errors
+#Data Viewer - Script Errors
 
-The "allow_errors" parameter allows you to control how errors are handled when your expression is evaluated. By default this parameter is false so if an error occurs execution halts and an error is generated. If you want to allow errors in your data and continue execution even when errors occur set this value to true. In this case the data value that is in error will have one of the following values depending on its type:
+The "allow_errors" parameter allows you to control how errors are handled when your script is executed. By default this parameter is false so if an error occurs execution halts and an error is generated. If you want to allow errors in your data and continue execution even when errors occur set this value to true. In this case the data value that is in error will have one of the following values depending on its type:
 
 	Byte	255
 	Int16	-32768
@@ -1051,29 +1108,31 @@ The "allow_errors" parameter allows you to control how errors are handled when y
 	Float64	NaN
 	String	#ERROR#
 
-Note that some errors are fatal and will result in process termination regardless of the allow_errors setting. For example, if there is an error evaluating the expression for a dimensional size then nothing further can be done and an error will be returned.
+Note that some errors are fatal and will result in process termination regardless of the allow_errors setting. For example, if there is an error evaluating the script for a dimensional size then nothing further can be done and an error will be returned.
 
-Python errors are different than ODC-related errors. If a Python error occurs it will say Python syntax error or Python error. In this case you need to check the syntax or content of your expression to make sure it is correct Python. Other errors indicate a problem with ODC-specific processing and there will usually be a detailed error message describing the problem.
+Python errors are different than ODC-related errors. If a Python error occurs it will say Python syntax error or Python error. In this case you need to check the syntax or content of your script to make sure it is correct Python. Other errors indicate a problem with ODC-specific processing and there will usually be a detailed error message describing the problem.
 
-#Data Viewer - Debugging Expressions
+#Data Viewer - Debugging Script
 
 The "trace" parameter enables you to debug the operation of your expression. With no parameters supplied every loop through the data will be traced. Beware that the trace will generate up to a page of text for every loop through the data. So if you are generating a million-member array with tracing on for all points the ODC will attempt to send a million pages of text to your text viewer and probably bring your system to its knees. To control which loops are traced use the following syntax:
 
 	trace 5 15 0
 	
-This would tell the system to trace only the generation of the data value [5][15][0] in the dataset. You can also specify ranges using a colon:
+This would tell the system to trace only the generation of the data value [5][15][0] in the dataset. You can also specify ranges using dashes:
 
-	trace 5:11 15 0:2
+	trace 5-11 15 0-2
 
-This would trace elements [5:11][15][0:2]. There would be 21 traces in this case (7 x 1 x 3).
+This would trace elements [5-11][15][0-2]. There would be 21 traces in this case (7 x 1 x 3).
 
 All trace output is sent to the text viewer (View/Text).
 	
 #Data Viewer - Intermediate Values
 
-If your expression formulas are complicated you may want to break them into easier-to-understand sub-calculations using intermediate values or variables. The key thing when doing this is to understand the order of evaluation of the different statements you place in your expression file which is as follows:
+If your script formulas are complicated you may want to break them into easier-to-understand sub-calculations using intermediate values or variables. The key thing when doing this is to understand the order of evaluation of the different statements you place in your expression file which is as follows:
 
-(1) tracing parameter is evaluated if present
+(0) Tracing parameter is evaluated if present
+
+(1) Range directives are evaluated if present
 
 (2) All unrecognized variables beginning with "__" are evaluated.
 
@@ -1095,9 +1154,9 @@ If your expression formulas are complicated you may want to break them into easi
 
 Steps (6) and (8) are your chance to define intermediate values that are used to calculate (7) and (9). You can also designate variables to be evaluated once at the beginning of the variable creation by prefixing them with "__". See the section "Data Viewer - Grid Expressions" for examples of using intermediate expressions.
 	
-#Data Viewer - Grid Expressions
+#Data Viewer - Grid Scripts
 
-The help section "Data Viewer - Expressions" describes how to create simple vectors and matrices using expressions. You can also use expressions to create grids. Grids are vectors or matrices with quantified indices. For example, if you have a satellite image you may like to know what the coordinates of each pixel in the image are. This is what the grid indices tell you. To create a grid with the constant value of 5 with the indices going from 180 to 210 in the "x" direction (longitude) and 40 to 60 in "y" direction (latitude) you would write:
+The help section "Data Viewer - Scripts" describes how to create simple vectors and matrices using scripts. You can also use scripts to create grids. Grids are vectors or matrices with quantified indices. For example, if you have a satellite image you may like to know what the coordinates of each pixel in the image are. This is what the grid indices tell you. To create a grid with the constant value of 5 with the indices going from 180 to 210 in the "x" direction (longitude) and 40 to 60 in "y" direction (latitude) you would write:
 
 	type = "Int32"
 	size_1 = 31
@@ -1118,7 +1177,7 @@ The $index_dimensions variable is used to create multi-dimensional grid indices.
 
 Example: Creating an ECEF Grid
 
-To create an earth-centered, earth-fixed (ECEF) grid we could use the following expression set:
+To create an earth-centered, earth-fixed (ECEF) grid we could use the following script:
 
 	type = "Int32"
 	value = 5
@@ -1140,7 +1199,7 @@ To create an earth-centered, earth-fixed (ECEF) grid we could use the following 
 	_latitude_radians = longitude * math.pi / 180
 	_radius_of_curvature = __earth_equatorial_radius / math.sqrt( 1 - __eccentricity_squared * math.pow( math.sin( latitude_radians ) ) )
 
-This will create the grid as the previous example except that the index will be a three arrays containing the ECF coordinates of the values instead of two vectors containing the latitude and longitude coordinates. Note that the "__" variables are evaluated only once at the beginning of the run and the "_" variables are evaluated before the index values (index_1_1, index_1_2, index_1_3) are evaluated.
+This will create the grid as the previous example except that the index will be a three arrays containing the ECEF coordinates of the values instead of two vectors containing the latitude and longitude coordinates. Note that the "__" variables are evaluated only once at the beginning of the run and the "_" variables are evaluated before the index values (index_1_1, index_1_2, index_1_3) are evaluated.
 
 #Desired Features
 circular/coverage plots

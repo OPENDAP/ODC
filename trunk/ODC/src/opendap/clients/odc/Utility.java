@@ -1048,6 +1048,36 @@ public class Utility {
 		}
 	}
 
+	public static boolean zFileExists( String sPath, StringBuffer sbError ){
+		File file;
+		String sCanonicalPath;
+		try {
+		    file = new File( sPath );
+		} catch(Exception ex) {
+			sbError.append("string could not be interpreted as a path (" + Utility_String.sSafeSubstring(sPath, 0, 80) + ")");
+			return false;
+		}
+		try {
+		    sCanonicalPath = file.getCanonicalPath();
+			if( sCanonicalPath == null || sCanonicalPath.length() == 0 ){
+			   sbError.append("could not obtain canonical path for file (" + Utility_String.sSafeSubstring(sPath, 0, 80) + ")");
+			   return false;
+			}
+		} catch(Exception ex) {
+			sbError.append("error obtaining canonical path for file (" + Utility_String.sSafeSubstring(sPath, 0, 80) + "): " + ex);
+			return false;
+		}
+		if( !file.isFile() ){
+			sbError.append("path does not resolve to a file: " + sCanonicalPath);
+			return false;
+		}
+		if( !file.exists() ){
+			sbError.append( "file does not exist: " + sCanonicalPath );
+			return false;
+		}
+		return true;
+	}
+	
 	public static boolean zDirectoryValidate( String sPath, StringBuffer sbError ){
 		File fileDirectory;
 		String sCanonicalPath;
