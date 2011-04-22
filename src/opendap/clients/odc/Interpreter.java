@@ -128,6 +128,15 @@ public class Interpreter {
 		}
 	}
 	
+	public enum OneLinerMode {
+		View,
+		All,
+	}
+	
+	public String executeOneLiner( String sExpression, opendap.clients.odc.data.Node node ){
+		return "";
+	}
+	
 	/** see help text for details on the rules for generation of the data set
 	 *  @return null on error */
 	public Model_Dataset generateDatasetFromExpression( String sExpressionText, StringBuffer sbError ){
@@ -456,6 +465,7 @@ public class Interpreter {
 					if( allow_errors ){
 						// default will be used
 					} else {
+						sbError.insert( 0, "failed to evaluate dimension " + xDim + " name: " );
 						return null;
 					}
 				} else {
@@ -477,6 +487,7 @@ public class Interpreter {
 						if( allow_errors ){
 							// default will be used
 						} else {
+							sbError.insert( 0, "failed to evaluate dimension " + xDim + " vector name: " );
 							return null;
 						}
 					} else {

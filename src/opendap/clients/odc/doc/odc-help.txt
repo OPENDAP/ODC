@@ -111,6 +111,12 @@ Failing to change maximum memory setting can be particularly debilitating becaus
 
 Note that the amount of memory used will often be much larger than the raw amount of memory a dataset consumes. For example, a dataset that consumes 20 megabytes as a raw stream might easily use 80 megabytes when it is being manipulated in memory. The reason for this is that for some operations, notably plotting, the data must be held in multiple buffers simultaneously.
 
+#About Undo, There is None
+
+The ODC does not have an undo feature like you may be used to in other desktop applications. The reason for this is that it is programmatically complex to implement undo procedures and it strains memory. For example, if you are doing cell-level modifications on a dataset that takes up 500 MB of memory, the program would have to keep an entire copy of the previous version of the data in memory to support an undo. The operation would also be more time-consuming because all 500 MB of memory would have to be copied before the modification could be started. In the interests of maximizing speed and memory there is therefore no undo.
+
+Since there is no undo it is recommended that when doing modifications you maintain checkpoint versions of your data on disk so that in the event that a modification goes wrong you have a backup copy of the data.
+
 #Status and Errors
 
 The ODC keeps track of most major application actions in its status log. It also records all errors and warnings. To view status or error information go to the View / Text tab. At the bottom of the screen are buttons that will output the status and error information to the text windows. If you encounter a problem and want to report it to the developers please copy and paste your status log into the message to us. Errors always print out at the end of a status log dump. You can also dump just the errors and warnings by clicking the "Show Errors" button.
@@ -267,8 +273,10 @@ InterprocessServer.on = Yes
 
 	config.txt
 	datasets.xml
+	exp.txt
 	ECHO_static_valids.xml
 	/preferences
+	/scripts
 	/ImageCache
 
 * By default the PC launcher automatically sets the base directory to wherever the launcher executable is located. You can specify a different directory adding the following line to your startup.ini file:
@@ -613,9 +621,9 @@ To generate a continuous color system, pick the basic type (gray scale, multi-hu
         all six colors (red, green, blue, yellow, cyan, magenta)
         are of equal size; has the best spectrum distribution 
   
-#Plotting - HSB
+#Plotting - HSB Colors
 
-The plotting color system uses the HSB (Hue-Saturation-Brightness) system. To make colors in this system you start with a hue and add black (saturation) or white (brightness). This table shows some of the conventional terms used under this system:
+The plotting color system uses the HSB (Hue-Saturation-Brightness-Alpha) color system. To make colors in this system you start with a hue and add black (saturation) or white (brightness). This table shows some of the conventional terms used under this system:
 
 Colour type   S      B
 
@@ -627,7 +635,9 @@ Shade        100%   1-99%
 Tint         1-99%  100%
 Tone         1-99%  1-99%
 
-For example, to make a brown shade you start with a yellow-red hue and shade it down to the brown.
+For example, to make a brown shade you start with a yellow-red hue and shade it down to the brown by reducing the brightness.
+
+The Alpha channel is transparency.
 
 #Plotting - Line Styles
 
@@ -637,14 +647,14 @@ The dash pattern is a string. If you leave the box blank the line will be contin
 
 Example:
 
-The dash pattern 4 2 3 1 would look like this (x's are pixels, ~'s are gaps),
+The dash pattern 4 2 3 1 would look like this (x's are pixels, -'s are gaps),
 
-	XXXX~~XXX~XXXX~~XXX~XXXX~~XXX~XXXX~~XXX~XXXX~~XXX~
+	XXXX--XXX-XXXX--XXX-XXXX--XXX-XXXX--XXX-XXXX--XXX-
 
 By specifying a phase you can change where the pattern starts.
 For example 4 2 3 1 : 2 looks like this,
 
-	XX~~XXX~XXXX~~XXX~XXXX~~XXX~XXXX~~XXX~XXXX~~XXX~
+	XX--XXX-XXXX--XXX-XXXX--XXX-XXXX--XXX-XXXX--XXX-
 
 The phase must be greater than or equal to zero and cannot be greater than the total pattern length. For example, in the pattern above the total length is 4 + 2 + 3 + 1 = 10.
 
@@ -920,7 +930,7 @@ Will convert the cell from Celsius to Farenheit. "$0*9/5+32" would work just as 
 
 If the mode is "Value", the expression will modify the value in the value text box and move the cursor to the "value:" text box. No data is modified until you press 'Enter' a second time. This allows you to see the results of a calculation before committing to a change in the data. If you press the 'Esc' key, the text box will revert to the current value of the cell without making changes.
 
-If the mode is "View", no permanent changes to the data are made. The calculation is only done when the cell value is rendered to the screen, so the data remains the same, but its appearance in the viewer changes. This is useful when you want to see the results of a conversion or see data in a particular format without changing data.
+If the mode is "View", no permanent changes to the data are made. The calculation is only done when the cell value is rendered to the screen, so the data remains the same, but its appearance in the viewer changes. This is useful when you want to see the results of a conversion or see data in a particular format without changing data. The formal term for this functionality is an "expression view".
 
 To turn off a view clear the expression box and press enter.
 
@@ -941,6 +951,19 @@ One-Liner Labels
 	#!Torr to MPa: $0 * 0.0001333
 				  
 In the first example there is an expression label, followed by a directive. In the second, the label is followed by an expression with no directive. When the preprocessor encounters an unknown string after the hash-bang it treats it as comment until a colon (":") is encountered, then it will look for a directive. If it finds no valid directive, it will regard the rest of the text as a Python expression.
+
+One-Liner Errors
+                   By default a one-liner will always stop on an error before doing a modification (modes: All and Selection), and will output the string "#Error#" when doing a view-type evaluation( modes: Value, Command and View). If you double-click a cell that has an error display the cell will be re-evaluated and any error generated will be shown and logged. It is a good idea to do a #!test one-liner or use view mode before running an expression on All, because that will irreversibly overwrite the data.
+
+One-Liner Differences From Scripts
+                                    One-liners are evaluated in a different way than scripts and there are important differences between the two, mostly limitations on one-liners that scripts do not have. The main differences are as follows:
+									
+	- you cannot create a new dataset with a one-liner
+	- you cannot change the size, shape or type of the data
+	- you cannot trace the evaluation
+	- script parameters like "value" and "type" are not defined
+	
+In general, the operating principle of a one-liner is that you can modify existing data or expression-view existing data using only the macro substitutions, $0 (the cell), and $1-$5, the dimensional index (up to five dimensions).
 
 #Data Viewer - Scripts
 
@@ -977,6 +1000,51 @@ This script would create a new one-dimensional array in which each value was one
 
 See "Data Viewer - Parameter Reference" for a listing of all the possible parameters in an expression set.
 
+#Data Viewer - Script Directives
+
+Scripts can be prefaced by special directives that control the target of the script and the range of cells to be operated on. Directives are indicated by a hash-bang "#!". Python treats hashes ('#') as comments so the directives are ignored by the Python engine. They only have meaning to the ODC.
+
+Script Directives (invalid for one-liners)
+
+#!new             generate a new dataset using the script (this is the default mode)
+#!modify          modify the currently active dataset
+#!modify_view     modify the active 2D array in the array view
+#!modify MyData   modify the dataset called "MyData"
+
+General Directives (can be used in one-liners and scripts)
+
+#!test n          make no modifications, report up to n errors in the console
+#![20-30]         restrict range to rows 21-31 (see topic "Data Viewer - Script Ranges" for details)
+#!cell            restrict range to cell where the cursor is
+#!selection       restrict range to the active selection
+
+Note that the informational label can be used in conjunction with a directive and is typically used in one liners. For example:
+
+      #!report first fifteen errors: test 15;
+
+The first part of this directive ("report first fifteen errors") is an informational label.
+	  
+#Data Viewer - Modifying Data with Scripts
+
+In addition to making new datasets, you can modify datasets with scripts. Use a directive to indicate that you want to do a modification. There are three typical types of directives to do this:
+
+#!modify          modify the currently active dataset
+#!modify_view     modify the active 2D array in the array view
+#!modify MyData   modify the dataset called "MyData"
+
+You can then create expressions to modify the data. For example, to convert a dataset from Celsius to Farenheit in the active dataset you could use the script:
+
+#!modify
+value = $0 * 9 / 5 + 32
+
+Note that this is a little different than a one-liner because you have to use an L-value (the "value =" part) whereas in a one-liner you would just write the R-Value ("$0 * 9 / 5 + 32"). This is because a one-liner automatically assumes that the result of the expression will be applied to the value. You can also modify specific ranges. For example:
+
+#!modify
+#!selection
+value = $0 * 9 / 5 + 32
+
+Would convert to Farenheit only the selected cells in the active dataset. Note that the ODC remembers the selection for every loaded dataset, so even if a dataset is not currently active you can still refer to its last selection. If a dataset is freshly loaded the initial selection is the first element of the first variable, which is [0][0] in the case of a two-dimensional array.
+	  
 #Data Viewer - Parameter Reference
 
 The parameter names are case-sensitive and must be lower-case to be recognized.
@@ -1069,7 +1137,7 @@ Note that you can only have one view expression active at a given time and the m
 
 #Data Viewer - Script Ranges
 
-To control the range over which an script operates you can use range directives. By default a script will be executed against every value in the active dataset. Directives are entered as Python comments followed an exclamation point, or what is known as a hash-bang in programming parlance, for example:
+To control the range over which a script does a modification you can use range directives. By default a script will be executed against every value in the active dataset. Range restrictions are ignored if a new (#!new) dataset is being generated. Directives are entered as Python comments followed an exclamation point, or what is known as a hash-bang in programming parlance, for example:
 
 	#![10][15]
 
