@@ -754,7 +754,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 	}
 	
 	public void _execExpression( String s ){
-		
+//		ApplicationController.getInstance().getInterpreter().zCreateInterpreter(os, sbError)
 	}
 	
 	public boolean _isShowingSelectionCoordinates(){ return mzShowingSelectionCoordinates; } 
