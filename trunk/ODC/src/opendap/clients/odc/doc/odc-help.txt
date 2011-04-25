@@ -942,7 +942,7 @@ One-Liner Ranges
 				  
 	#![]['Pressure']; $0 * 0.0001333
 	
-This one-liner tells the array viewer to only apply the one-liner to the 'Pressure' column. Since the mode is "View", no data will be changed. Note that the semi-colon is optional and the example will work without it, but it is good practice to include it because semantically the directive is a separate statement from the value expression. See the "Data Viewer - Expression Ranges" for more information on how to control ranges.
+This one-liner tells the array viewer to only apply the one-liner to the 'Pressure' column. Since the mode is "View", no data will be changed. Note that the semi-colon is required. It indicates where the directive ends and the expression begins. See the "Data Viewer - Expression Ranges" for more information on how to control ranges.
 
 One-Liner Labels
                   If you have a lot of stored one-liners it can be useful to label them. The ODC directive preprocessor specially supports this by allowing you to insert a comment immediately after the hash-bang like so:
@@ -1002,7 +1002,7 @@ See "Data Viewer - Parameter Reference" for a listing of all the possible parame
 
 #Data Viewer - Script Directives
 
-Scripts can be prefaced by special directives that control the target of the script and the range of cells to be operated on. Directives are indicated by a hash-bang "#!". Python treats hashes ('#') as comments so the directives are ignored by the Python engine. They only have meaning to the ODC.
+Scripts can be prefaced by special directives that control the target of the script and the range of cells to be operated on. Directives are indicated by a hash-bang "#!" and must end with a semicolon ";" if they are used in a one-liner. Python treats hashes ('#') as comments so the directives are ignored by the Python engine. They only have meaning to the ODC.
 
 Script Directives (invalid for one-liners)
 
@@ -1015,14 +1015,14 @@ General Directives (can be used in one-liners and scripts)
 
 #!test n          make no modifications, report up to n errors in the console
 #![20-30]         restrict range to rows 21-31 (see topic "Data Viewer - Script Ranges" for details)
-#!cell            restrict range to cell where the cursor is
+#!cursor          restrict range to cell where the cursor is
 #!selection       restrict range to the active selection
 
-Note that the informational label can be used in conjunction with a directive and is typically used in one liners. For example:
+If a directive is used in a one-liner it must be separated from the expression by a semi-colon. Note that the informational label can be used in conjunction with a directive and is typically used in one liners. For example:
 
       #!report first fifteen errors: test 15;
 
-The first part of this directive ("report first fifteen errors") is an informational label.
+The first part of this directive ("report first fifteen errors") is an informational label. Informational labels must not begin with "test", "[", "cursor", or "selection", and must end with a colon.
 	  
 #Data Viewer - Modifying Data with Scripts
 
