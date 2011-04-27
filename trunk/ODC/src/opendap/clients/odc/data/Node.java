@@ -494,11 +494,11 @@ class Node_Array extends Node {
 	DAP_VARIABLE getType(){ return DAP.DAP_VARIABLE.Array; }
 	DAP_TYPE eDataType;
 	ArrayList<DArrayDimension> listDimensions = new ArrayList<DArrayDimension>();
-	PrimitiveVector getPrimitiveVector(){ return darray.getPrimitiveVector(); }
-	int getValueCount(){ return darray.getLength(); }
-	int getByteSize(){ return darray.getLength() * DAP.getDataSize( _getValueType() ); }
-	int getDimensionCount(){ return darray.numDimensions(); }
-	int getDimensionSize( int xDimension1 ){
+	PrimitiveVector _getPrimitiveVector(){ return darray.getPrimitiveVector(); }
+	int _getValueCount(){ return darray.getLength(); }
+	int _getByteSize(){ return darray.getLength() * DAP.getDataSize( _getValueType() ); }
+	int _getDimensionCount(){ return darray.numDimensions(); }
+	int _getDimensionSize( int xDimension1 ){
 		try {
 			return darray.getDimension( xDimension1 - 1 ).getSize(); 
 		} catch( Throwable t ) {
@@ -506,35 +506,57 @@ class Node_Array extends Node {
 		}
 	}
 	int _getRowCount(){ // calculates row count according to view
-		int[] aiDimensionLengths = getDimensionLengths();
+		int[] aiDimensionLengths = _getDimensionLengths1();
 		if( _view.dim_row == 0 || _view.dim_row > aiDimensionLengths[0] ) return 0; 
-		return getDimensionLengths()[_view.dim_row];
+		return _getDimensionLengths1()[_view.dim_row];
 	}
 	int _getColumnCount(){ // calculates row count according to view
-		int[] aiDimensionLengths = getDimensionLengths();
+		int[] aiDimensionLengths = _getDimensionLengths1();
 		if( _view.dim_column == 0 || _view.dim_column > aiDimensionLengths[0] ) return 0;
 		int column_count = aiDimensionLengths[_view.dim_column];
 		return column_count;
 	}
 	int _getValueIndex( int row, int column ){ // calculates index of value according to view, zero-based
-		int iColumnSize = _view.dim_column == 0 || _view.dim_column > getDimensionLengths()[0] ? 0 : getDimensionLengths()[_view.dim_column];
+		int iColumnSize = _view.dim_column == 0 || _view.dim_column > _getDimensionLengths1()[0] ? 0 : _getDimensionLengths1()[_view.dim_column];
 		return column + row * iColumnSize;
 	}
-	int _getValueIndex( int[] axDim ){ // calculates index of value according to exact set of dimensional indices
-		return 0;
+	private final int[] aiDimSelector = new int[10];
+	private final int[] aiDimSize = new int[10];
+	public int _getValueIndex_Cursor(){  // returns the value index of the view cursor
+		int xDimRow = _view.dim_row;
+		int xDimColumn = _view.dim_column;
+		aiDimSelector[0] = _getDimensionCount();
+		for( int xDimension = 1; xDimension <= aiDimSelector[0]; xDimension++ ){
+			if( xDimension == xDimRow ){
+				aiDimSelector[xDimension] = _view.cursor_row;
+			} else if( xDimension == xDimColumn ){
+				aiDimSelector[xDimension] = _view.cursor_column;
+			} else {
+				aiDimSelector[xDimension] = _view.page[xDimension];
+			}
+		}
+		return _getValueIndex( aiDimSelector );  
+	}
+	int _getValueIndex( int[] axDim1 ){ // calculates index of value according to exact set of dimensional indices
+		int index = 0;
+		int[] aiDimLengths1 = _getDimensionLengths1();
+		int ctDimensions = aiDimSelector[0];
+		for( int xDimension = 1; xDimension <= ctDimensions ; xDimension++ )
+			index += java.lang.Math.pow( aiDimLengths1[xDimension], xDimension - 1 ) * axDim1[ctDimensions - xDimension + 1];
+		return index;
 	}
 	String _getValueString_selected(){
 		return _getValueString( _view.cursor_row, _view.cursor_column );
 	}
 	String _getValueString( int row, int column ){
 		int xValue = _getValueIndex( row, column );
-		opendap.dap.PrimitiveVector pv = getPrimitiveVector();
+		opendap.dap.PrimitiveVector pv = _getPrimitiveVector();
 		Object oValues = pv.getInternalStorage();
 		int[] aiValues = (int[])oValues;
 		return Integer.toString( aiValues[xValue] );
 	}
 	Object _getValueObject( int index ){
-		opendap.dap.PrimitiveVector pv = getPrimitiveVector();
+		opendap.dap.PrimitiveVector pv = _getPrimitiveVector();
 		Object oValues = pv.getInternalStorage();
 		switch( _getValueType() ){
 			case Byte:
@@ -574,7 +596,7 @@ class Node_Array extends Node {
 	}
 	public boolean _deleteValue( int index, StringBuffer sbError ){
 		try {
-			opendap.dap.PrimitiveVector pv = getPrimitiveVector();
+			opendap.dap.PrimitiveVector pv = _getPrimitiveVector();
 			Object oValues = pv.getInternalStorage();
 			switch( _getValueType() ){
 				case Byte:
@@ -626,7 +648,7 @@ class Node_Array extends Node {
 	}
 	public boolean _setValue( String sNewValue, int index, StringBuffer sbError ){
 		try {
-			opendap.dap.PrimitiveVector pv = getPrimitiveVector();
+			opendap.dap.PrimitiveVector pv = _getPrimitiveVector();
 			Object oValues = pv.getInternalStorage();
 			switch( _getValueType() ){
 				case Byte:
@@ -667,7 +689,7 @@ class Node_Array extends Node {
 	}
 	public boolean _setValue( PyObject oNewValue, int index, StringBuffer sbError ){
 		try {
-			opendap.dap.PrimitiveVector pv = getPrimitiveVector();
+			opendap.dap.PrimitiveVector pv = _getPrimitiveVector();
 			Object oValues = pv.getInternalStorage();
 			switch( _getValueType() ){
 				case Byte:
@@ -726,22 +748,22 @@ class Node_Array extends Node {
 		return _addDimension( DEFAULT_DimensionSize, sbError );
 	}
 	boolean _addDimension( int iDimensionSize, StringBuffer sbError ){
-		if( Integer.MAX_VALUE / iDimensionSize < getValueCount() ){
+		if( Integer.MAX_VALUE / iDimensionSize < _getValueCount() ){
 			sbError.append( "unable to add dimension because arrays may not have more than " + Utility_String.getByteCountReadable( Integer.MAX_VALUE ) + " values" );
 			return false;
 		}
-		int iNewValueCount = iDimensionSize * getValueCount();
+		int iNewValueCount = iDimensionSize * _getValueCount();
 		if( Integer.MAX_VALUE / DAP.getDataSize( _getValueType() ) < iNewValueCount ){
 			sbError.append( "unable to add dimension because size of array would exceed " + Utility_String.getByteCountReadable( Integer.MAX_VALUE ) + " bytes" );
 			return false;
 		}
 		int iNewByteSize = DAP.getDataSize( _getValueType() ) * iNewValueCount;
-		int iAdditionalBytesRequired = iNewByteSize - getByteSize();  
+		int iAdditionalBytesRequired = iNewByteSize - _getByteSize();  
 		if( ! Utility.zMemoryCheck( iNewByteSize ) ){ // need to accommodate new array in memory
 			sbError.append( "unable to add dimension because there is not enough memory for an additional " + Utility_String.getByteCountReadable( iAdditionalBytesRequired ) + " bytes. See help for info on memory." );
 			return false;
 		}
-		darray.appendDim( iDimensionSize, DEFAULT_DimensionName + (getDimensionCount() + 1) );
+		darray.appendDim( iDimensionSize, DEFAULT_DimensionName + (_getDimensionCount() + 1) );
 		Object[] eggPrimitiveVector = new Object[1];
 		eggPrimitiveVector[0] = darray.getPrimitiveVector().getInternalStorage();
 		if( DAP.zDimension_Add( eggPrimitiveVector, _getValueType(), iDimensionSize, sbError ) ){
@@ -752,7 +774,7 @@ class Node_Array extends Node {
 		}
 		return true;
 	}
-	boolean setDimensionName( int xDimension1, String sNewName, StringBuffer sbError ){
+	boolean _setDimensionName( int xDimension1, String sNewName, StringBuffer sbError ){
 		try {
 			DArrayDimension dim = darray.getDimension( xDimension1 - 1 );
 			dim.setName( sNewName );
@@ -762,16 +784,16 @@ class Node_Array extends Node {
 			return false;
 		}
 	}
-	int[] getDimensionLengths(){
-		int ctDimension = getDimensionCount();
+	int[] _getDimensionLengths1(){
+		int ctDimension = _getDimensionCount();
 		int[] aiDimensionLengths = new int[ctDimension + 1];
 		aiDimensionLengths[0] = ctDimension;
 		for( int xDimension1 = 1; xDimension1 <= ctDimension; xDimension1++ ){
-			aiDimensionLengths[xDimension1] = getDimensionSize( xDimension1 );
+			aiDimensionLengths[xDimension1] = _getDimensionSize( xDimension1 );
 		}
 		return aiDimensionLengths;
 	}
-	boolean setDimensionSize( int xDimension1, int iNewSize, StringBuffer sbError ){
+	boolean _setDimensionSize( int xDimension1, int iNewSize, StringBuffer sbError ){
 		try {
 			if( iNewSize == 0 ){
 				sbError.append( "dimensions cannot have a size of 0" );
@@ -784,7 +806,7 @@ class Node_Array extends Node {
 			DArrayDimension dim = darray.getDimension( xDimension1 - 1 );
 			Object[] eggPrimitiveVector = new Object[1];
 			eggPrimitiveVector[0] = darray.getPrimitiveVector().getInternalStorage();
-			int[] aiDimLengths = getDimensionLengths();
+			int[] aiDimLengths = _getDimensionLengths1();
 			if( DAP.zDimension_ModifySize( eggPrimitiveVector, _getValueType(), aiDimLengths, xDimension1, iNewSize, sbError ) ){
 				darray.getPrimitiveVector().setInternalStorage( eggPrimitiveVector[0] );
 			} else {
@@ -809,7 +831,7 @@ class Node_Array extends Node {
 		pv.setInternalStorage( aiDefaultArray );
 		return array;
 	}
-	String sGetSummaryText(){
+	String _sGetSummaryText(){
 		StringBuffer sb = new StringBuffer( 250 );
 		sb.append( getName() );
 		long nTotalSize = 1;

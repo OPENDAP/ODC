@@ -38,7 +38,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 	JTextField jtfArray_column;
 	JTextField jtfArray_value;
 	JComboBox jcbArray_exp_text;
-	JComboBox jcbArray_exp_range;
+	JComboBox jcbArray_exp_mode;
 	Node_Array nodeActive;
 	JSplitPane mSplitPane;     // this panel is in the lower half of this split pane
 	final ClickableButton buttonRow = new ClickableButton( "r:" );
@@ -58,7 +58,8 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		panel.jtfArray_value = new JTextField();
 		panel.jcbArray_exp_text = new JComboBox();
 		String[] asExpressionRangeModes = { "All", "Value", "Selection", "Command", "View" };
-		panel.jcbArray_exp_range = new JComboBox( asExpressionRangeModes );
+		panel.jcbArray_exp_mode = new JComboBox( asExpressionRangeModes );
+		panel.jcbArray_exp_mode.setEditable( false );
 		panel.labelColumn.setHorizontalAlignment( JLabel.RIGHT );
 //		panel.labelY.setBorder( BorderFactory.createLineBorder( Color.BLUE ) );
 		panel.labelValue.setHorizontalAlignment( JLabel.RIGHT );
@@ -76,7 +77,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		panel.panelArray_Command.add( panel.jtfArray_value );
 		panel.panelArray_Command.add( panel.labelExp );
 		panel.panelArray_Command.add( panel.jcbArray_exp_text );
-		panel.panelArray_Command.add( panel.jcbArray_exp_range );
+		panel.panelArray_Command.add( panel.jcbArray_exp_mode );
 		
 		// set up one liner combo
 		panel.mOneLiners = Model_ExpressionHistory._create( panel );
@@ -126,6 +127,10 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 					}
 					JTextField jtfEditor = (JTextField)oEditBox;
 					String sText = jtfEditor.getText();
+					String sScript = sText;
+//					String sMode = ((javax.swing.text.JTextComponent)panel.jcbArray_exp_mode.getEditor().getEditorComponent()).getText();
+					String sMode = panel.jcbArray_exp_mode.getSelectedItem().toString();
+					Node node = panel.nodeActive;
 					switch( ke.getKeyCode() ){
 						case KeyEvent.VK_ENTER:
 							if( sText == null || sText.length() == 0 ){
@@ -134,14 +139,14 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 							}
 							if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
 								if(( iModifiersEx & KeyEvent.CTRL_DOWN_MASK) == 0 ){ // plain enter, exec only
-									panel._execExpression( sText );
+									panel._executeOneLiner(sScript, sMode, node);
 								} else { // Ctrl only: save, but do not exec
 									panel.mOneLiners._addExpression( sText );
 								}
 							} else {
 								if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) == 0 ){ // Shift only, add and exec
 									panel.mOneLiners._addExpression( sText );
-									panel._execExpression( sText );
+									panel._executeOneLiner(sScript, sMode, node);
 								} else { // Shift+Ctrl
 									panel.mOneLiners._replaceSelectedExpression( sText );
 								}
@@ -299,7 +304,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		int pxRightHandMargin = 6;
 		int pxJTFexp_width = this.getWidth() - posJTFExp_x - pxRangeModeCombo_width - pxRightHandMargin;
 		jcbArray_exp_text.setBounds( posJTFExp_x, posSelection_y, pxJTFexp_width, 25 );
-		jcbArray_exp_range.setBounds( posJTFExp_x + pxJTFexp_width + 3, posSelection_y, pxRangeModeCombo_width, 25 );
+		jcbArray_exp_mode.setBounds( posJTFExp_x + pxJTFexp_width + 3, posSelection_y, pxRangeModeCombo_width, 25 );
 	}
 	
 	public void componentHidden( ComponentEvent e ){ _resize(); }
@@ -756,18 +761,14 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		return;
 	}
 	
-	public void _execExpression( String s ){
-//		ApplicationController.getInstance().getInterpreter().zCreateInterpreter(os, sbError)
-	}
-	
 	public boolean _isShowingSelectionCoordinates(){ return mzShowingSelectionCoordinates; } 
 	
-	public void executeOneLiner( String sScript, String sMode, opendap.clients.odc.data.Node node ){
+	public void _executeOneLiner( String sScript, String sMode, opendap.clients.odc.data.Node node ){
 		boolean zTest = false;
 		int iTestErrorCount = 0;
-		boolean zIncludeCursor = false;
-		boolean zIncludeSelection = false;
-		boolean zIncludeRange = false;
+		boolean zFilterCursor = false;
+		boolean zFilterSelection = false;
+		boolean zFilterRange = false;
 		StringBuffer sbNumber = new StringBuffer();
 		StringBuffer sbExpression = new StringBuffer();
 		int xDimension = 0;
@@ -777,7 +778,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		int posToken = 0; // this is used for error reporting
 		int pos = 0;
 		int len = sScript.length();
-		int state = 0; // start
+		int state = 1; // start
 		String sError = null;
 		while( pos < len ){
 			char c = sScript.charAt( pos );
@@ -796,7 +797,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 					if( c=='[' ){
 						state = 4; // after initial range directive bracket
 						posToken = pos;
-						zIncludeRange = true;
+						zFilterRange = true;
 						break; } // at beginning of range directive
 					if( c=='t' ){
 						if( sScript.startsWith( "test", pos ) ){
@@ -811,7 +812,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 					if( c=='c' ){
 						if( sScript.startsWith( "cursor", pos ) ){
 							pos += "cursor".length();
-							zIncludeCursor = true;
+							zFilterCursor = true;
 							state = 7; // after cursor directive
 						} else {
 							state = 6; // in informational label
@@ -820,7 +821,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 					if( c=='s' ){
 						if( sScript.startsWith( "selection", pos ) ){
 							pos += "selection".length();
-							zIncludeSelection = true;
+							zFilterSelection = true;
 							state = 8; // after cell directive
 						} else {
 							state = 6; // in informational label
@@ -1033,6 +1034,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 				ApplicationController.vShowError( "Error executing one-liner '" + sScript + "' at position " + pos + ": " + sError );
 				return;
 			}
+			pos++;
 		}
 		String sExpression = null;
 		switch( state ){
@@ -1062,19 +1064,45 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 			case 10: //  in expression
 				sExpression = sbExpression.toString();
 		}
-//	int[] actFilters1 = new int[10]; // the number of filters for this particular dimension
-//	int[][] aiFilterBegin = new int[10][100]; // the begin of the filtered range, -1 means no contraint 
-//	int[][] aiFilterEnd = new int[10][100]; // the begin of the filtered range, -1 means no contraint
 		String sExpression_macroed = Utility_String.sReplaceString( sExpression, "$0", "_value0" );
+		sExpression_macroed = Utility_String.sReplaceString( sExpression_macroed, "$1", "_dim1" );
+		sExpression_macroed = Utility_String.sReplaceString( sExpression_macroed, "$2", "_dim2" );
 		opendap.clients.odc.Interpreter interpreter = ApplicationController.getInstance().getInterpreter();
 		StringBuffer sbError = new StringBuffer( 256 );
-		if( sMode.equals( "All" ) ){
-		} else if( sMode.equals( "Selection" ) ){
-			opendap.clients.odc.data.Node_Array array = (opendap.clients.odc.data.Node_Array)node;
+		opendap.clients.odc.data.Node_Array array = (opendap.clients.odc.data.Node_Array)node;
+		if( sMode.equals( "Value" ) || sMode.equals( "Command" ) || zFilterCursor ){
+			int index = array._getValueIndex_Cursor();
+			Object oCurrentCellValue = array._getValueObject( index );
+			if( ! interpreter.zSet( "_value0", oCurrentCellValue, sbError ) ){
+				ApplicationController.vShowError( "failed to set current cell value (row " + array._view.cursor_row + ", column " + array._view.cursor_column + "): " + sbError );
+				return;
+			}
+			PyObject pyobject = interpreter.zEval( sExpression_macroed, sbError );
+			if( pyobject == null ){
+				ApplicationController.vShowError( "failed to set eval cell value (row " + array._view.cursor_row + ", column " + array._view.cursor_column + ") with expression " +  sExpression_macroed + ": " + sbError );
+				return;
+			}
+			if( sMode.equals( "Value" ) ){ 
+				jtfArray_value.setText( pyobject.toString() );
+				jtfArray_value.selectAll();
+			} else if( sMode.equals( "Command" ) ){
+				ApplicationController.vShowStatus( pyobject.toString() );
+			} else {
+				if( ! array._setValue( pyobject, index, sbError ) ){
+					ApplicationController.vShowError( "failed to set current cell value (row " + array._view.cursor_row + ", column " + array._view.cursor_column + "): " + sbError );
+					return;
+				}
+				panelArray_View._vDrawImage( nodeActive );
+			}
+		} else if( sMode.equals( "Selection" ) || zFilterSelection ){
 			int xDimRow = node._view.dim_row;
 			int xDimColumn = node._view.dim_column;
 			for( int row = array._view.selectionUL_row; row <= array._view.selectionLR_row; row++ ){
-				if( zIncludeRange ){ // apply filter
+				if( ! interpreter.zSet( "_dim1", new Integer( row ), sbError ) ){
+					ApplicationController.vShowError( "failed to set current row value (" + row + "): " + sbError );
+					return;
+				}
+				if( zFilterRange ){ // apply filter
 					boolean zIncludeRow = true;
 					for( int xRowFilter = 1; xRowFilter <= actFilters1[xDimRow]; xRowFilter++ ){
 						if( aiFilterBegin[xDimRow][xRowFilter] >= 0 && row < aiFilterBegin[xDimRow][xRowFilter] ){
@@ -1089,7 +1117,11 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 					if( ! zIncludeRow ) continue; // row does not meet filter criteria
 				}
 				for( int column = array._view.selectionUL_column; column <= array._view.selectionLR_column; column++ ){
-					if( zIncludeRange ){ // apply filter
+					if( ! interpreter.zSet( "_dim2", new Integer( column ), sbError ) ){
+						ApplicationController.vShowError( "failed to set current column value (" + column + "): " + sbError );
+						return;
+					}
+					if( zFilterRange ){ // apply filter
 						boolean zIncludeColumn = true;
 						for( int xColumnFilter = 1; xColumnFilter <= actFilters1[xDimColumn]; xColumnFilter++ ){
 							if( aiFilterBegin[xDimColumn][xColumnFilter] >= 0 && column < aiFilterBegin[xDimColumn][xColumnFilter] ){
@@ -1120,9 +1152,84 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 					}
 				}
 			}
-		} else if( sMode.equals( "Value" ) ){
-		} else if( sMode.equals( "Command" ) ){
+			panelArray_View._vDrawImage( nodeActive );
+		} else if( sMode.equals( "All" ) ){
+			boolean zHasDims = sExpression_macroed.indexOf( "_dim" ) >= 0;
+			Integer oZero = new Integer( 0 );
+			if( zFilterRange ){
+				ApplicationController.vShowError( "range filters not implemented for All mode" );
+				return;
+			} else { // no range filter, process every cell in the dataset
+long time = System.currentTimeMillis();				
+				int ctDim = array._getDimensionCount();
+				int[] aiDimLengths = array._getDimensionLengths1();
+				int[] axDim = new int[ctDim + 1];
+				int xDim = ctDim;
+				int xValue = 0;
+				int ctValues = array._getValueCount();
+				for( int xDimInitialization = 1; xDimInitialization <= ctDim; xDimInitialization++ ){
+					if( ! interpreter.zSet( "_dim" + xDimInitialization, oZero, sbError ) ){
+						ApplicationController.vShowError( "failed to initialize dim value (dim " + xDim + ") to zero: " + sbError );
+						return;
+					}
+				}
+				while( true ){
+long timed = (System.currentTimeMillis() - time);					
+if( timed > 100 ) System.out.println( "1: " + timed );
+time = System.currentTimeMillis();
+					if( xValue == ctValues ) break; // done
+					Object oCurrentCellValue = array._getValueObject( xValue );
+					if( ! interpreter.zSet( "_value0", oCurrentCellValue, sbError ) ){
+						ApplicationController.vShowError( "failed to set current cell value (index " + xValue + "): " + sbError );
+						return;
+					}
+timed = (System.currentTimeMillis() - time);					
+if( timed > 100 ) System.out.println( "2: " + timed );
+time = System.currentTimeMillis();
+					PyObject pyobject = interpreter.zEval( sExpression_macroed, sbError );
+					if( pyobject == null ){
+						ApplicationController.vShowError( "failed to eval expression (index " + xValue + ") with expression " +  sExpression_macroed + ": " + sbError );
+						return;
+					}
+timed = (System.currentTimeMillis() - time);					
+if( timed > 100 ) System.out.println( "3: " + timed );
+time = System.currentTimeMillis();
+					if( ! array._setValue( pyobject, xValue, sbError ) ){
+						ApplicationController.vShowError( "failed to set cell value (index " + xValue + "): " + sbError );
+						return;
+					}
+timed = (System.currentTimeMillis() - time);					
+if( timed > 100 ) System.out.println( "4: " + timed );
+time = System.currentTimeMillis();
+					while( true ){
+						axDim[xDim]++;
+						if( zHasDims ){ // need to track dims
+							if( ! interpreter.zSet( "_dim" + xDim, new Integer( axDim[xDim] ), sbError ) ){
+								ApplicationController.vShowError( "failed to set current dim value (dim " + xDim + ", value " + axDim[xDim] + "): " + sbError );
+								return;
+							}
+						}
+						if( axDim[xDim] >= aiDimLengths[xDim] ){
+                            axDim[xDim] = 0;
+							if( zHasDims ){ // need to track dims
+								if( ! interpreter.zSet( "_dim" + xDim, oZero, sbError ) ){
+									ApplicationController.vShowError( "failed to set current dim value (dim " + xDim + ") to zero: " + sbError );
+									return;
+								}
+							}
+							xDim--;
+						} else break;
+					}
+timed = (System.currentTimeMillis() - time);					
+if( timed > 100 ) System.out.println( "5: " + timed );
+time = System.currentTimeMillis();
+					xDim = ctDim;
+					xValue++;
+				}
+			}
+			panelArray_View._vDrawImage( nodeActive );
 		} else if( sMode.equals( "View" ) ){
+			panelArray_View._vDrawImage( nodeActive );
 		} else {
 			ApplicationController.vShowError( "Unknown mode for one-liner: " + sMode );
 			return;

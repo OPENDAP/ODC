@@ -258,7 +258,7 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 					Node_Grid nodeGrid = (Node_Grid)nodeCurrent;
 					Node_Array nodeValueArray = nodeGrid.arrayValues;
 					DArray btValueArray = new DArray();
-					btValueArray.getPrimitiveVector().setInternalStorage( nodeValueArray.getPrimitiveVector() );
+					btValueArray.getPrimitiveVector().setInternalStorage( nodeValueArray._getPrimitiveVector() );
 					for( int xDimension = 1; xDimension <= nodeValueArray.listDimensions.size(); xDimension++ ){
 						DArrayDimension dimension = nodeValueArray.listDimensions.get( xDimension - 1 );
 						btValueArray.appendDim( dimension.getSize(), dimension.getClearName() );
@@ -280,7 +280,7 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 				case Array:
 					DArray btArray = (DArray)new_bt;
 					Node_Array nodeArray = (Node_Array)nodeCurrent;
-					btArray.getPrimitiveVector().setInternalStorage( nodeArray.getPrimitiveVector() );
+					btArray.getPrimitiveVector().setInternalStorage( nodeArray._getPrimitiveVector() );
 					for( int xDimension = 1; xDimension <= nodeArray.listDimensions.size(); xDimension++ ){
 						DArrayDimension dimension = nodeArray.listDimensions.get( xDimension - 1 );
 						btArray.appendDim( dimension.getSize(), dimension.getClearName() );

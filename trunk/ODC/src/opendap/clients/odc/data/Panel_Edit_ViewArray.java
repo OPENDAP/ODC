@@ -247,7 +247,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 		int posCell_y = posY_origin;
 		
 		g2.setRenderingHint( RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON );
-		opendap.dap.PrimitiveVector pv = node.getPrimitiveVector();
+		opendap.dap.PrimitiveVector pv = node._getPrimitiveVector();
 		Object oValues = pv.getInternalStorage();
 		int[] aiValues = (int[])oValues;
 		

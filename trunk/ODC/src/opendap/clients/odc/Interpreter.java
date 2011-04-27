@@ -145,7 +145,13 @@ public class Interpreter {
 			return null;
 		}
 		try {
-			return mInterpreter.eval( sExpression );
+			long t1 = System.currentTimeMillis();
+			PyObject pyobject = mInterpreter.eval( sExpression );
+			long t2 = System.currentTimeMillis();
+			if( t2 - t1 > 90 ){
+				System.out.println( "eval " + (t2-t1) + " " + sExpression );
+			}
+			return pyobject;
 		} catch( org.python.core.PySyntaxError parse_error ) {
 			sbError.append( "!python syntax error: " + parse_error );
 			return null;
