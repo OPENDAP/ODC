@@ -250,13 +250,13 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 	void _show( Node node ){
 		super._show( node );
 		nodeActive = (Node_Array)node;
-		labelValueCount_value.setText( Integer.toString( nodeActive.getValueCount() ) );
+		labelValueCount_value.setText( Integer.toString( nodeActive._getValueCount() ) );
 		jcbType.setSelectedItem( DAP.getTypeEnumByName( nodeActive._getValueTypeString() ) );
 		int xDimension1 = 1;
-		int ctDimension = nodeActive.getDimensionCount();
+		int ctDimension = nodeActive._getDimensionCount();
 		for( ; xDimension1 <= ctDimension; xDimension1++ ){
 			listDimensionNameJTF.get( xDimension1 - 1 ).setText( nodeActive._getDimensionName( xDimension1 ) );
-			listDimensionSizeJTF.get( xDimension1 - 1 ).setText( Integer.toString( nodeActive.getDimensionSize( xDimension1 ) ) );
+			listDimensionSizeJTF.get( xDimension1 - 1 ).setText( Integer.toString( nodeActive._getDimensionSize( xDimension1 ) ) );
 			listDimensionDelete.get( xDimension1 - 1 ).setVisible( ctDimension > 1 );
 			listDimensionUp.get( xDimension1 - 1 ).setVisible( xDimension1 > 1 );
 			listDimensionDown.get( xDimension1 - 1 ).setVisible( xDimension1 < ctDimension );
@@ -340,7 +340,7 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 				new java.awt.event.ActionListener(){
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
 						String sNewSize = jtfDimensionSize.getText();
-						if( ! sNewSize.equals( nodeActive.getDimensionSize( xDimension_final1 ) ) ) setDimensionSize( xDimension_final1, sNewSize );
+						if( ! sNewSize.equals( nodeActive._getDimensionSize( xDimension_final1 ) ) ) setDimensionSize( xDimension_final1, sNewSize );
 					}
 				}
 			);
@@ -371,7 +371,7 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 	}
 	void setDimensionName( int xDimension1, String sNewName ){
 		StringBuffer sbError = new StringBuffer( 256 );
-		if( nodeActive.setDimensionName( xDimension1, sNewName, sbError ) ){
+		if( nodeActive._setDimensionName( xDimension1, sNewName, sbError ) ){
 			ApplicationController.vShowStatus( "Changed dimension " + xDimension1 + " name to " + sNewName );
 		} else {
 			ApplicationController.vShowError( "Error changing dimension name: " + sbError );
@@ -383,7 +383,7 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 		try {
 			int iNewSize = Integer.parseInt( sNewSize );
 			StringBuffer sbError = new StringBuffer( 256 );
-			if( nodeActive.setDimensionSize( xDimension1, iNewSize, sbError ) ){
+			if( nodeActive._setDimensionSize( xDimension1, iNewSize, sbError ) ){
 				ApplicationController.vShowStatus( "Changed dimension " + xDimension1 + " size to " + iNewSize );
 			} else {
 				ApplicationController.vShowError( "Error changing size of dimension " + xDimension1 + ": " + sbError );
