@@ -110,6 +110,80 @@ public class Interpreter {
 		return true;
 	}
 
+	public boolean zExecute( String sCommand, StringBuffer sbError ){
+		if( sCommand == null ){
+			sbError.append( "null sExpression to exec" );
+			return false;
+		}
+		if( mInterpreter == null ){
+			sbError.append("no Python interpreter exists");
+			return false;
+		}
+		try {
+			mInterpreter.exec( sCommand );
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			sbError.append( "!python syntax error: " + parse_error );
+			return false;
+		} catch( org.python.core.PyException python_error ) {
+			sbError.append( "!python error: " + python_error );
+			return false;
+		} catch( Throwable t ) {
+			sbError.append( "interpreter error: " + t.getClass().getName() );
+			ApplicationController.vUnexpectedError( t, sbError );
+			return false;
+		}
+		return true;
+	}
+
+	public PyObject zEval( String sExpression, StringBuffer sbError ){
+		if( sExpression == null ){
+			sbError.append( "null sExpression to eval" );
+			return null;
+		}
+		if( mInterpreter == null ){
+			sbError.append("no Python interpreter exists for evaluation");
+			return null;
+		}
+		try {
+			return mInterpreter.eval( sExpression );
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			sbError.append( "!python syntax error: " + parse_error );
+			return null;
+		} catch( org.python.core.PyException python_error ) {
+			sbError.append( "!python error: " + python_error );
+			return null;
+		} catch( Throwable t ) {
+			sbError.append( "interpreter error: " + t.getClass().getName() );
+			ApplicationController.vUnexpectedError( t, sbError );
+			return null;
+		}
+	}
+	
+	public boolean zSet( String sVariableName, Object oRValue, StringBuffer sbError ){
+		if( sVariableName == null ){
+			ApplicationController.vShowWarning( "null variable name to exec" );
+		}
+		if( mInterpreter == null ){
+			sbError.append("no Python interpreter exists for set");
+			return false;
+		}
+		try {
+			mInterpreter.set( sVariableName, oRValue );
+			return true;
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			sbError.append( "!python syntax error: " + parse_error );
+			return false;
+		} catch( org.python.core.PyException python_error ) {
+			sbError.append( "!python error: " + python_error );
+			return false;
+		} catch( Throwable t ) {
+			sbError.append( "interpreter error: " + t.getClass().getName() );
+			ApplicationController.vUnexpectedError( t, sbError );
+			return false;
+		}
+	}
+	
+	
 	public void vWritePrompt( java.io.OutputStream os ){
 		try {
 			os.write( msPrompt.getBytes() );
@@ -126,282 +200,7 @@ public class Interpreter {
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, "Failed to write interpreter line: " );
 		}
-	}
-	
-	public void executeOneLiner( String sExpression, String sMode, opendap.clients.odc.data.Node node ){
-		boolean zTest = false;
-		int iTestErrorCount = 0;
-		boolean zIncludeCursor = false;
-		boolean zIncludeSelection = false;
-		boolean zIncludeRange = false;
-		StringBuffer sbNumber = new StringBuffer();
-		StringBuffer sbExpression = new StringBuffer();
-		int xDimension = 0;
-		int[] actFilters1 = new int[10]; // the number of filters for this particular dimension
-		int[][] aiFilterBegin = new int[10][100]; // the begin of the filtered range, -1 means no contraint 
-		int[][] aiFilterEnd = new int[10][100]; // the begin of the filtered range, -1 means no contraint
-		int posToken = 0; // this is used for error reporting
-		int pos = 0;
-		int len = sExpression.length();
-		int state = 0; // start
-		String sError = null;
-		while( pos < len ){
-			char c = sExpression.charAt( pos );
-			switch( state ){
-				case 1: // start
-					if( Character.isWhitespace( c ) ) break; // ignore whitespace
-					if( c == '#' ){ state = 2; break; } // after hash
-					sbExpression.append( c );
-					state = 10; //  in expression
-					break;
-				case 2: // after hash
-					if( c == '!' ){ state = 3; break; } // after hash-bang, before directive
-					sError = "comment character (#) not followed by '!'; regular comments not allowed in one-liners";
-					break;
-				case 3: // before directive
-					if( c=='[' ){
-						state = 4; // after initial range directive bracket
-						posToken = pos;
-						zIncludeRange = true;
-						break; } // at beginning of range directive
-					if( c=='t' ){
-						if( sExpression.startsWith( "test", pos ) ){
-							posToken = pos;
-							pos += "test".length();
-							zTest = true;
-							state = 5; // after test directive
-						} else {
-							state = 6; // in informational label
-						}
-						break; }
-					if( c=='c' ){
-						if( sExpression.startsWith( "cursor", pos ) ){
-							pos += "cursor".length();
-							zIncludeCursor = true;
-							state = 7; // after cursor directive
-						} else {
-							state = 6; // in informational label
-						}
-						break; }
-					if( c=='s' ){
-						if( sExpression.startsWith( "selection", pos ) ){
-							pos += "selection".length();
-							zIncludeSelection = true;
-							state = 8; // after cell directive
-						} else {
-							state = 6; // in informational label
-						}
-						break; }
-					if( c==';' ){
-						state = 10; // in expression
-						break; }
-					state = 6; // in informational label
-					break;
-				case 4: // at beginning of range directive
-					xDimension++;
-					if( c == ']' ){ state = 3; break; } // blank range restriction, after range directive dimension
-					if( c == '-' ){ state = 12; break; } // after leading hyphen in range filter
-					if( c == '"' ){ state = 13; posToken = pos; break; } // after leading quote in range filter
-					if( c == '\'' ){ state = 14; posToken = pos; break; } // after leading single quote in range filter
-					if( c == ',' ) break; // ignore commas at the beginning of range
-					if( Character.isDigit( c ) ){
-						posToken = pos;
-						sbNumber.append( 'c' );
-						state = 11; // in range directive number
-						break;
-					}
-					if( Character.isWhitespace( c ) ) break; // ignore whitespace
-					sError = "unrecognized character '" + c + " in range filter";
-					state = 0;
-					break;
-				case 5: // after test directive
-					if( Character.isWhitespace( c ) ) break; // ignore whitespace
-					if( Character.isDigit( c ) ){
-						sbNumber.append( 'c' );
-						state = 15; // in range directive number
-						break;
-					}
-					sError = "unexpected character '" + c + "' found after 'test' directive at " + posToken + ", expected number of errors allowed";
-					state = 0;
-					break;
-				case 6: // in informational label
-					if( c == ':' ) state = 1; // begin at start again, label is complete
-					break;
-				case 7: // after cell directive
-				case 8: // after selection directive
-					state = 1; // begin at start again
-					break;
-				case 10: //  in expression
-					sbExpression.append( c );
-					break;
-				case 11: // in range directive number, begin
-					if( Character.isWhitespace( c ) || c == '-' || c == ',' || c == ']' ){
-						String sNumber = sbNumber.toString();
-						try {
-							int iNumber = Integer.parseInt( sNumber );
-							if( iNumber < 0 ){
-								sError = "range restriction at " + posToken + " is negative";
-								state = 0;
-							} else {
-								actFilters1[xDimension]++;
-								aiFilterBegin[xDimension][actFilters1[xDimension]] = iNumber;
-								if( c == '-' ){
-									state = 17; // after hyphen in  range restriction with begin
-								} else if( c == ',' ) {
-									aiFilterEnd[xDimension][actFilters1[xDimension]] = iNumber;
-									state = 4; // at beginning of range directive 
-								} else if( c == ']' ) {
-									aiFilterEnd[xDimension][actFilters1[xDimension]] = iNumber;
-									state = 3; // before directive 
-								} else {
-									state = 16; // after begin filter in range restriction
-								}
-							}
-						} catch( Throwable t ) {
-							sError = "unable to interpret " + sNumber + " as a positive integer";
-							state = 0;
-						}
-						sbNumber.setLength( 0 ); // reset the buffer
-						break;
-					}
-					if( Character.isDigit( c ) ){ sbNumber.append( 'c' ); break; }
-					sError = "unexpected character '" + c + "' found in number in range restriction at " + posToken + ", expected a digit or space or a hyphen";
-					state = 0;
-					break;
-				case 12: // after leading hyphen in range directive
-					if( Character.isWhitespace( c ) ) break; // ignore whitespace
-					if( c == ',' ){ state = 4; break; }// ignore blank restriction
-					if( c == ']' ){ state = 3; break; } // blank range restriction, after range directive dimension
-					if( Character.isDigit( c ) ){
-						actFilters1[xDimension]++;
-						aiFilterBegin[xDimension][actFilters1[xDimension]] = -1; // the begin restriction is unconstrained
-						sbNumber.append( 'c' );
-						state = 18; // in range directive number after hyphen
-						break;
-					}
-					sError = "unexpected character '" + c + "' found after 'test' directive at " + posToken + ", expected number of errors allowed";
-					state = 0;
-					break;
-				case 13: // after leading quote in range filter
-				case 14: // after leading single quote in range filter
-					if( (c == '"' && state == 13) || (c == '\'' && state == 14) ){
-						// named column TODO
-						state = 4;
-						break;
-					}
-					sbNumber.append( c );
-					break;
-				case 15: // in number of test errors
-					if( Character.isWhitespace( c ) || c == ';' ){
-						String sNumber = sbNumber.toString();
-						try {
-							int iNumber = Integer.parseInt( sNumber );
-							if( iNumber < 0 ){
-								sError = "specified number of test errors at " + posToken + " is negative " + sNumber;
-								state = 0;
-							} else {
-								iTestErrorCount = iNumber;
-								if( c == ';' ){
-									state = 10; // in expression
-								} else {
-									state = 3; // after begin filter in range restriction
-								}
-							}
-						} catch( Throwable t ) {
-							sError = "unable to interpret " + sNumber + " as a positive integer";
-							state = 0;
-						}
-						sbNumber.setLength( 0 ); // reset the buffer
-						break;
-					}
-					if( Character.isDigit( c ) ){ sbNumber.append( 'c' ); break; }
-					sError = "unexpected character '" + c + "' found in number for test errors at " + posToken + ", expected a digit or space or a semicolon";
-					state = 0;
-					break;
-				case 16: // after whitespace after begin filter in range restriction
-					if( Character.isWhitespace( c ) ) break; // ignore more whitespace
-					if( c == ',' || c == ']' ){
-						aiFilterEnd[xDimension][actFilters1[xDimension]] = aiFilterBegin[xDimension][actFilters1[xDimension]]; // the end restriction is same as the begin restriction
-						if( c == ',' ){ 
-							state = 4;
-						} else {
-							state = 3;
-						}
-						break; }
-					if( c == '-' ){
-						state = 17;
-						break;
-					}
-					sError = "unexpected character '" + c + "' found after range restriction at " + posToken + ", multiple restrictions must be separated by commas";
-					state = 0;
-					break;
-				case 17: // after hyphen in  range restriction with a begin
-					if( Character.isWhitespace( c ) ) break; // ignore whitespace
-					if( c == ',' || c == ']' ){
-						aiFilterEnd[xDimension][actFilters1[xDimension]] = -1; // the end restriction is unconstrained
-						if( c == ']' ){ 
-							state = 3; 
-						} else {
-							state = 4;
-						}
-						break;
-					}
-					if( Character.isDigit( c ) ){
-						sbNumber.append( 'c' );
-						state = 18; // in range directive number after hyphen
-						break;
-					}
-					sError = "unexpected character '" + c + "' found after hyphen in range restriction at " + posToken;
-					state = 0;
-					break;
-				case 18: // in number after range directive hyphen (end)
-					if( Character.isWhitespace( c ) || c == ',' || c == ']' ){
-						String sNumber = sbNumber.toString();
-						try {
-							int iNumber = Integer.parseInt( sNumber );
-							if( iNumber < 0 ){
-								sError = "end range restriction at " + posToken + " is negative";
-								state = 0;
-							} else {
-								aiFilterEnd[xDimension][actFilters1[xDimension]] = iNumber;
-								if( c == ',' ) {
-									state = 4; // at beginning of range directive 
-								} else if( c == ']' ) {
-									state = 3; // before directive 
-								} else {
-									state = 19; // after end filter in range restriction
-								}
-							}
-						} catch( Throwable t ) {
-							sError = "unable to interpret " + sNumber + " as a positive integer";
-							state = 0;
-						}
-						sbNumber.setLength( 0 ); // reset the buffer
-						break;
-					}
-					if( Character.isDigit( c ) ){ sbNumber.append( 'c' ); break; }
-					sError = "unexpected character '" + c + "' found in number in end range restriction at " + posToken + ", expected a digit or space or a bracket";
-					state = 0;
-					break;
-				case 19: // after end constraint (whitespace) in range restriction
-					if( Character.isWhitespace( c ) ) break; // ignore whitespace
-					if( c == ',' ){ state = 4; break; }
-					if( c == ']' ){ state = 3; break; }
-					sError = "unexpected character '" + c + "' found after end constraint at " + posToken + ", expected comma or end bracket";
-					state = 0;
-					break;
-				default:
-					sError = "internal error, undefined state " + state;
-					state = 0;
-					break;
-			}
-			if( state == 0 ){ // error occurred
-				ApplicationController.vShowError( "Error executing one-liner '" + sExpression + "' at position " + pos + ": " + sError );
-				return;
-			}
-		}
-		// check here for valid end state
-	}
+	}	
 	
 //		int[] actFilters1 = new int[10]; // the number of filters for this particular dimension
 //		int[][] aiFilterBegin = new int[10][100]; // the begin of the filtered range, -1 means no contraint 

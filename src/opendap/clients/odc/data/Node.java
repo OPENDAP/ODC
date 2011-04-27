@@ -30,6 +30,8 @@ import opendap.dap.DUInt16;
 import opendap.dap.DUInt32;
 import opendap.dap.PrimitiveVector;
 
+import  org.python.core.PyObject;
+
 public abstract class Node extends DefaultMutableTreeNode {   // functions as both the root node and a structure node
 	private Model_Dataset_Local modelParent;
 	private opendap.dap.BaseType mBaseType; // null only in the case of the root node
@@ -52,7 +54,7 @@ public abstract class Node extends DefaultMutableTreeNode {   // functions as bo
 	void setModel( Model_Dataset_Local parent ){
 		modelParent = parent;
 	}
-	Model_VariableView _getView(){ return _view; }
+	public Model_VariableView _getView(){ return _view; }
 	opendap.dap.BaseType getBaseType(){ return mBaseType; }
 	abstract DAP_VARIABLE getType();
 	void setBaseType( opendap.dap.BaseType bt ){
@@ -514,19 +516,50 @@ class Node_Array extends Node {
 		int column_count = aiDimensionLengths[_view.dim_column];
 		return column_count;
 	}
-	int _getValueIndex( int x, int y ){ // calculates index of value according to view, zero-based
+	int _getValueIndex( int row, int column ){ // calculates index of value according to view, zero-based
 		int iColumnSize = _view.dim_column == 0 || _view.dim_column > getDimensionLengths()[0] ? 0 : getDimensionLengths()[_view.dim_column];
-		return x + y * iColumnSize;
+		return column + row * iColumnSize;
+	}
+	int _getValueIndex( int[] axDim ){ // calculates index of value according to exact set of dimensional indices
+		return 0;
 	}
 	String _getValueString_selected(){
 		return _getValueString( _view.cursor_row, _view.cursor_column );
 	}
-	String _getValueString( int x, int y ){
-		int xValue = _getValueIndex( x, y );
+	String _getValueString( int row, int column ){
+		int xValue = _getValueIndex( row, column );
 		opendap.dap.PrimitiveVector pv = getPrimitiveVector();
 		Object oValues = pv.getInternalStorage();
 		int[] aiValues = (int[])oValues;
 		return Integer.toString( aiValues[xValue] );
+	}
+	Object _getValueObject( int index ){
+		opendap.dap.PrimitiveVector pv = getPrimitiveVector();
+		Object oValues = pv.getInternalStorage();
+		switch( _getValueType() ){
+			case Byte:
+			case Int16:
+				short[] ashValues = (short[])oValues;
+				return new Short( ashValues[index] ); 
+			case Int32:
+			case UInt16:
+				int[] aiValues = (int[])oValues;
+				return new Integer( aiValues[index] ); 
+			case UInt32:
+				long[] anValues = (long[])oValues;
+				return new Long( anValues[index] ); 
+			case Float32:
+				float[] afValues = (float[])oValues;
+				return new Float( afValues[index] ); 
+			case Float64:
+				double[] adValues = (double[])oValues;
+				return new Double( adValues[index] ); 
+			case String:
+				String[] asValues = (String[])oValues;
+				return asValues[index]; 
+			default:
+				return null;
+		}
 	}
 	public boolean _deleteSelectedValue( StringBuffer sbError ){
 		return _deleteValue( _getValueIndex( _view.cursor_row, _view.cursor_column ), sbError );  
@@ -629,6 +662,50 @@ class Node_Array extends Node {
 			return true;
 		} catch( NumberFormatException ex ) {
 			sbError.append( "new value '" + sNewValue + "' could not be interpeted as a " + _getValueType() );
+			return false;
+		}
+	}
+	public boolean _setValue( PyObject oNewValue, int index, StringBuffer sbError ){
+		try {
+			opendap.dap.PrimitiveVector pv = getPrimitiveVector();
+			Object oValues = pv.getInternalStorage();
+			switch( _getValueType() ){
+				case Byte:
+				case Int16:
+					short[] ashValues = (short[])oValues;
+					ashValues[index] = ((Short)oNewValue.__tojava__(Short.class)).shortValue(); 
+					break;
+				case Int32:
+				case UInt16:
+					int[] aiValues = (int[])oValues;
+					aiValues[index] = ((Integer)oNewValue.__tojava__(Integer.class)).intValue(); 
+					break;
+				case UInt32:
+					long[] anValues = (long[])oValues;
+					anValues[index] = ((Long)oNewValue.__tojava__(Long.class)).longValue(); 
+					break;
+				case Float32:
+					float[] afValues = (float[])oValues;
+					afValues[index] = ((Float)oNewValue.__tojava__(Float.class)).floatValue(); 
+					break;
+				case Float64:
+					double[] adValues = (double[])oValues;
+					adValues[index] = ((Double)oNewValue.__tojava__(Double.class)).doubleValue(); 
+					break;
+				case String:
+					String[] asValues = (String[])oValues;
+					asValues[index] = (String)oNewValue.__tojava__(String.class); 
+					break;
+				default:
+					sbError.append( "unknown DAP type" );
+					return false;
+			}
+			return true;
+		} catch( NumberFormatException ex ) {
+			sbError.append( "new value '" + oNewValue + "' could not be interpeted as a " + _getValueType() );
+			return false;
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, sbError );
 			return false;
 		}
 	}
