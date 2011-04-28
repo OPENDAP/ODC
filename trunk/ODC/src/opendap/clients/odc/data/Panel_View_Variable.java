@@ -19,6 +19,7 @@ import javax.swing.border.Border;
 import javax.swing.border.SoftBevelBorder;
 
 import opendap.clients.odc.ApplicationController;
+import opendap.clients.odc.Utility;
 import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.DAP.DAP_VARIABLE;
 
@@ -86,28 +87,26 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		panel.jcbArray_exp_text.addItemListener(
 			new java.awt.event.ItemListener(){
 				public void itemStateChanged( ItemEvent event ){
-					System.out.println( "item state changed exp text" );
+//					System.out.println( "item state changed exp text" );
 //					if( mParent.mzAddingItemToList ) return; // item is being programmatically added
-					if( event.getStateChange() == ItemEvent.SELECTED ){
-					System.out.println( "...selected" );
-					} else if( event.getStateChange() == ItemEvent.DESELECTED ){
-					System.out.println( "...deselected" );
-					} else if( event.getStateChange() == ItemEvent.ITEM_FIRST ){
-					System.out.println( "...first" );
-					} else if( event.getStateChange() == ItemEvent.ITEM_LAST ){
-					System.out.println( "...last" );
+//					if( event.getStateChange() == ItemEvent.SELECTED ){
+//					System.out.println( "...selected" );
+//					} else if( event.getStateChange() == ItemEvent.DESELECTED ){
+//					System.out.println( "...deselected" );
+//					} else if( event.getStateChange() == ItemEvent.ITEM_FIRST ){
+//					System.out.println( "...first" );
+//					} else if( event.getStateChange() == ItemEvent.ITEM_LAST ){
+//					System.out.println( "...last" );
 //						Model_Dataset modelSelected = (Model_Dataset)event.getItem();
 //						mParent._vActivate( modelSelected );
-					}
+//					}
 				}
 			}
 		);
 		panel.jcbArray_exp_text.addActionListener(
 			new java.awt.event.ActionListener(){
 				public void actionPerformed( ActionEvent e ){
-					System.out.println( "action performed: " + e.getActionCommand() );					
-					if( "comboBoxEdited".equals( e.getActionCommand() ) ){
-					}
+//					System.out.println( "action performed: " + e.getActionCommand() );					
             }});
 		/**
 	      Enter             execute the one liner
@@ -225,7 +224,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 					if( panel._setSelectedValue( panel.jtfArray_value.getText(), panel.sbError_local ) ){
 						panel.panelArray_View._vDrawImage( panel.nodeActive );
 					} else {
-						panel.jtfArray_value.setText( panel.nodeActive._getValueString_selected() );
+						panel.jtfArray_value.setText( panel.nodeActive._getValueString_cursor() );
 					}
 				}
 			}
@@ -300,7 +299,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		int pxExpressionEditor_x = pxValueEditor_x + pxValueEditor_width + 2;
 		labelExp.setBounds( pxExpressionEditor_x, posSelection_y, pxExpValue_width, 22 );
 		int posJTFExp_x = pxExpressionEditor_x + pxExpValue_width;
-		int pxRangeModeCombo_width = 75;
+		int pxRangeModeCombo_width = 100;
 		int pxRightHandMargin = 6;
 		int pxJTFexp_width = this.getWidth() - posJTFExp_x - pxRangeModeCombo_width - pxRightHandMargin;
 		jcbArray_exp_text.setBounds( posJTFExp_x, posSelection_y, pxJTFexp_width, 25 );
@@ -540,7 +539,17 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		if( nodeActive._view.selectionLR_row < 0 ) nodeActive._view.selectionLR_row = 0;
 		panelArray_View._vDrawImage( nodeActive );
 	}
-
+	
+	void _selectRangeBySize( int xRow, int xColumn, int ctRows, int ctColumns ){
+		nodeActive._view.selectionUL_row = xRow;
+		nodeActive._view.selectionUL_column = xColumn;
+		nodeActive._view.selectionLR_row = xRow + ctRows - 1;
+		nodeActive._view.selectionLR_column = xColumn + ctColumns - 1;
+		if( nodeActive._view.selectionLR_column < 0 ) nodeActive._view.selectionLR_column = 0;
+		if( nodeActive._view.selectionLR_row < 0 ) nodeActive._view.selectionLR_row = 0;
+		panelArray_View._vDrawImage( nodeActive );
+	}
+	
 	void _selectRange( int xRow1, int xColumn1, int xRow2, int xColumn2 ){
 		if( xRow1 < xRow2 ){
 			nodeActive._view.selectionUL_row = xRow1;
@@ -759,6 +768,99 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		}
 		panelArray_View._vDrawImage( nodeActive );
 		return;
+	}
+
+	void _copy(){
+		java.awt.datatransfer.Clipboard clipboard = getToolkit().getSystemClipboard ();
+		String sClipContent = nodeActive._getValueString_selection();
+		java.awt.datatransfer.StringSelection ssContent = new java.awt.datatransfer.StringSelection( sClipContent );  
+		clipboard.setContents( ssContent, ssContent );
+		ApplicationController.vShowStatus_NoCacheWithTime( nodeActive._getSelectionSize() + " cells copied to clipboard" );
+	}
+	
+	void _paste(){
+		String[][] asData = Utility.getClipboardStringArray();
+		pasteData( asData );
+	}
+
+	// will expand the size of the array to accomodate additional data
+	void _pasteExpand(){
+		String[][] asData = Utility.getClipboardStringArray();
+		if( asData == null ) return;
+		int ctRows = asData.length;
+		int ctColumns = asData[0].length;
+		Node_Array array = (Node_Array)nodeActive;
+		StringBuffer sbError = new StringBuffer();
+		if( array._view.cursor_row + ctRows > array._getRowCount() ){
+			int xDimension1 = array._view.dim_row;
+			int ctRows_expanded = array._view.cursor_row + ctRows;
+			if( ! array._setDimensionSize( xDimension1, ctRows_expanded, sbError ) ){
+				ApplicationController.vShowError( "Error resizing dimension " + xDimension1 + " to " + ctRows_expanded + ": " + sbError );
+			}
+		}
+		if( array._view.cursor_column + ctColumns > array._getColumnCount() ){
+			int xDimension1 = array._view.dim_column;
+			int ctColumns_expanded = array._view.cursor_column + ctColumns;
+			if( ! array._setDimensionSize( xDimension1, ctColumns_expanded, sbError ) ){
+				ApplicationController.vShowError( "Error resizing dimension " + xDimension1 + " to " + ctColumns_expanded + ": " + sbError );
+			}
+		}
+		pasteData( asData );
+	}
+
+	// pastes data at 0,0 changes size of dimensions to match the pasted data
+	void _pasteOverwrite(){
+		String[][] asData = Utility.getClipboardStringArray();
+		if( asData == null ) return;
+		int ctRows = asData.length;
+		int ctColumns = asData[0].length;
+		Node_Array array = (Node_Array)nodeActive;
+		StringBuffer sbError = new StringBuffer();
+		if( ctRows != array._getRowCount() ){
+			int xDimension1 = array._view.dim_row;
+			if( ! array._setDimensionSize( xDimension1, ctRows, sbError ) ){
+				ApplicationController.vShowError( "Error resizing dimension " + xDimension1 + " to " + ctRows + ": " + sbError );
+			}
+		}
+		if( ctColumns != array._getColumnCount() ){
+			int xDimension1 = array._view.dim_column;
+			if( ! array._setDimensionSize( xDimension1, ctColumns, sbError ) ){
+				ApplicationController.vShowError( "Error resizing dimension " + xDimension1 + " to " + ctColumns + ": " + sbError );
+			}
+		}
+		_setCursor( 0, 0 );
+		pasteData( asData );
+	}
+	
+	private void pasteData( String[][] asData ){
+		Node_Array array = (Node_Array)nodeActive;
+		int ctCellsModified = 0;
+		StringBuffer sbError = new StringBuffer();
+		int ctErrors = 0;
+		String sError = null;
+		for( int xRow = 0; xRow < asData.length; xRow++ ){
+			int xRow_paste_offset = nodeActive._view.cursor_row + xRow;
+			if( xRow_paste_offset >= nodeActive._getRowCount() ) continue;
+			for( int xColumn = 0; xColumn < asData[xRow].length; xColumn++ ){
+				int xColumn_paste_offset = nodeActive._view.cursor_column + xColumn;
+				if( xColumn_paste_offset >= nodeActive._getColumnCount() ) continue;
+				int index = array._getValueIndex( xRow_paste_offset, xColumn_paste_offset );
+				if( array._setValue( asData[xRow][xColumn], index, sbError ) ){
+					ctCellsModified++;
+				} else {
+					array._setError( index );
+					if( ctErrors == 0 ) sError = sbError.toString();
+					sbError.setLength( 0 );
+					ctErrors++;
+				}
+			}
+		}
+		if( ctErrors > 0 ){
+			ApplicationController.vShowError( ctErrors + " errors pasting data: " + sError );
+		} else {
+			ApplicationController.vShowStatus_NoCacheWithTime( "cells pasted to array: " + nodeActive._getSelectionSize() );
+		}
+		_selectRangeBySize( nodeActive._view.cursor_row, nodeActive._view.cursor_column, asData.length, asData[0].length );
 	}
 	
 	public boolean _isShowingSelectionCoordinates(){ return mzShowingSelectionCoordinates; } 
@@ -1068,6 +1170,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		sExpression_macroed = Utility_String.sReplaceString( sExpression_macroed, "$1", "_dim1" );
 		sExpression_macroed = Utility_String.sReplaceString( sExpression_macroed, "$2", "_dim2" );
 		opendap.clients.odc.Interpreter interpreter = ApplicationController.getInstance().getInterpreter();
+		org.python.core.PyCode pycodeExpression = interpreter.getInterpeter().compile( sExpression_macroed ); // the expression must be precompiled for performance reasons
 		StringBuffer sbError = new StringBuffer( 256 );
 		opendap.clients.odc.data.Node_Array array = (opendap.clients.odc.data.Node_Array)node;
 		if( sMode.equals( "Value" ) || sMode.equals( "Command" ) || zFilterCursor ){
@@ -1077,16 +1180,28 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 				ApplicationController.vShowError( "failed to set current cell value (row " + array._view.cursor_row + ", column " + array._view.cursor_column + "): " + sbError );
 				return;
 			}
-			PyObject pyobject = interpreter.zEval( sExpression_macroed, sbError );
+			PyObject pyobject = interpreter.zEval( pycodeExpression, sExpression_macroed, sbError );
 			if( pyobject == null ){
 				ApplicationController.vShowError( "failed to set eval cell value (row " + array._view.cursor_row + ", column " + array._view.cursor_column + ") with expression " +  sExpression_macroed + ": " + sbError );
 				return;
 			}
-			if( sMode.equals( "Value" ) ){ 
+			if( sMode.equals( "Value" ) ){
+				jtfArray_value.requestFocus();
 				jtfArray_value.setText( pyobject.toString() );
 				jtfArray_value.selectAll();
 			} else if( sMode.equals( "Command" ) ){
-				ApplicationController.vShowStatus( pyobject.toString() );
+				String sCommand = "print " + sExpression_macroed;
+				interpreter.vEnterCommand( sCommand );
+//				try {
+//					ApplicationController.getInstance().getTextViewerOS().write( sCommand.getBytes() );
+//					if( ! interpreter.zExecute( sCommand, sbError ) ){
+//						ApplicationController.vShowError( "error executing command at (row " + array._view.cursor_row + ", column " + array._view.cursor_column + ") with expression " +  sExpression_macroed + ": " + sbError );
+//						return;
+//					}
+//				} catch( Throwable t ) {
+//					ApplicationController.vShowError( "error sending command to text viewer at (row " + array._view.cursor_row + ", column " + array._view.cursor_column + ") with expression " +  sExpression_macroed + ": " + sbError );
+//					return;
+//				}
 			} else {
 				if( ! array._setValue( pyobject, index, sbError ) ){
 					ApplicationController.vShowError( "failed to set current cell value (row " + array._view.cursor_row + ", column " + array._view.cursor_column + "): " + sbError );
@@ -1141,7 +1256,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 						ApplicationController.vShowError( "failed to set current cell value (row " + row + ", column " + column + "): " + sbError );
 						return;
 					}
-					PyObject pyobject = interpreter.zEval( sExpression_macroed, sbError );
+					PyObject pyobject = interpreter.zEval( pycodeExpression, sExpression_macroed, sbError );
 					if( pyobject == null ){
 						ApplicationController.vShowError( "failed to set eval cell value (row " + row + ", column " + column + ") with expression " +  sExpression_macroed + ": " + sbError );
 						return;
@@ -1160,7 +1275,6 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 				ApplicationController.vShowError( "range filters not implemented for All mode" );
 				return;
 			} else { // no range filter, process every cell in the dataset
-long time = System.currentTimeMillis();				
 				int ctDim = array._getDimensionCount();
 				int[] aiDimLengths = array._getDimensionLengths1();
 				int[] axDim = new int[ctDim + 1];
@@ -1174,33 +1288,22 @@ long time = System.currentTimeMillis();
 					}
 				}
 				while( true ){
-long timed = (System.currentTimeMillis() - time);					
-if( timed > 100 ) System.out.println( "1: " + timed );
-time = System.currentTimeMillis();
 					if( xValue == ctValues ) break; // done
 					Object oCurrentCellValue = array._getValueObject( xValue );
 					if( ! interpreter.zSet( "_value0", oCurrentCellValue, sbError ) ){
 						ApplicationController.vShowError( "failed to set current cell value (index " + xValue + "): " + sbError );
 						return;
 					}
-timed = (System.currentTimeMillis() - time);					
-if( timed > 100 ) System.out.println( "2: " + timed );
-time = System.currentTimeMillis();
-					PyObject pyobject = interpreter.zEval( sExpression_macroed, sbError );
+//					PyObject pyobject = interpreter.zEval( sExpression_macroed, sbError ); // don't do this, compilation causes massive object creation/collection
+					PyObject pyobject = interpreter.zEval( pycodeExpression, sExpression_macroed, sbError );
 					if( pyobject == null ){
 						ApplicationController.vShowError( "failed to eval expression (index " + xValue + ") with expression " +  sExpression_macroed + ": " + sbError );
 						return;
 					}
-timed = (System.currentTimeMillis() - time);					
-if( timed > 100 ) System.out.println( "3: " + timed );
-time = System.currentTimeMillis();
 					if( ! array._setValue( pyobject, xValue, sbError ) ){
 						ApplicationController.vShowError( "failed to set cell value (index " + xValue + "): " + sbError );
 						return;
 					}
-timed = (System.currentTimeMillis() - time);					
-if( timed > 100 ) System.out.println( "4: " + timed );
-time = System.currentTimeMillis();
 					while( true ){
 						axDim[xDim]++;
 						if( zHasDims ){ // need to track dims
@@ -1220,9 +1323,6 @@ time = System.currentTimeMillis();
 							xDim--;
 						} else break;
 					}
-timed = (System.currentTimeMillis() - time);					
-if( timed > 100 ) System.out.println( "5: " + timed );
-time = System.currentTimeMillis();
 					xDim = ctDim;
 					xValue++;
 				}

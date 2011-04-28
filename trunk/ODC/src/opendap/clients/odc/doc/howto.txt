@@ -1,0 +1,11 @@
+#Introduction
+(howto file revised 28 April 2011)
+
+This How-To resource explains how to do common tasks step by step. For in-depth help reference information see the Help tab.
+
+#Create a Dataset Using Paste
+
+One of the fastest ways to create a new dataset is to use a paste (Ctrl+V) action.
+
+http://www.cpc.ncep.noaa.gov/products/analysis_monitoring/cdus/prcp_temp_tables/wctyprcp.txt
+

@@ -224,8 +224,7 @@ public class Model_ExpressionHistory extends AbstractListModel implements Mutabl
 			ApplicationController.vShowError( "internal error, attempt to set dataset list to null" );
 			return;
 		}
-		if( miSelectedItem0 == -1 ){
-			System.out.println( "nothing selected" );
+		if( miSelectedItem0 == -1 ){ // nothing selected
 			return;
 		}
 		String sExpressionSelected = msExpressions0[miSelectedItem0];

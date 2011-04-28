@@ -424,6 +424,22 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 					parent._selectAll();
 				}
 				break;
+			case KeyEvent.VK_C:
+				if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) != 0 ){
+					parent._copy();
+				}
+				break;
+			case KeyEvent.VK_V:
+				if( (iModifiersEx & KeyEvent.CTRL_DOWN_MASK) != 0 ){
+					if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) == 0 ){
+						parent._paste();
+					} else {
+						parent._pasteExpand();
+					}
+				} else if( (iModifiersEx & KeyEvent.ALT_DOWN_MASK) != 0 ){
+					parent._pasteOverwrite();
+				}
+				break;
 			case KeyEvent.VK_SPACE:
 				if( (iModifiersEx & KeyEvent.SHIFT_DOWN_MASK) != 0 ){
 					parent._selectActiveRows();

@@ -359,6 +359,19 @@ ScanForStartOfMatch:
 			return -1;
 		}
 	}
+	
+	public static String[][] parseTabSeparatedString( String s ){
+		if( s == null ) return null;
+		if( s.trim().length() == 0 ) return null;
+		String[] asRows = s.split( "\\r?\\n" );
+		String[][] asData = new String[asRows.length][];
+		for( int xRow = 0; xRow < asRows.length; xRow++ ){
+			String sRow = asRows[xRow];
+			String[] asColumns = sRow.split( "\t" );
+			asData[xRow] = asColumns;
+		}
+		return asData;
+	}
 
 	public static boolean isNumeric(String s){
 		try {

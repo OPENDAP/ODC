@@ -545,8 +545,23 @@ class Node_Array extends Node {
 			index += java.lang.Math.pow( aiDimLengths1[xDimension], xDimension - 1 ) * axDim1[ctDimensions - xDimension + 1];
 		return index;
 	}
-	String _getValueString_selected(){
+	String _getValueString_cursor(){
 		return _getValueString( _view.cursor_row, _view.cursor_column );
+	}
+	String _getValueString_selection(){
+		StringBuffer sb = new StringBuffer();
+		for( int xRow = _view.selectionUL_row; xRow <= _view.selectionLR_row; xRow++ ){
+			sb.append( _getValueString( xRow, _view.selectionUL_column ) ); 
+			for( int xColumn = _view.selectionUL_column + 1; xColumn <= _view.selectionLR_column; xColumn++ ){
+				sb.append( '\t' );
+				sb.append( _getValueString( xRow, xColumn ) ); 
+			}
+			sb.append( '\n' );
+		}
+		return sb.toString();
+	}
+	int _getSelectionSize(){
+		return (_view.selectionLR_row - _view.selectionUL_row + 1) * (_view.selectionLR_column - _view.selectionUL_column + 1);  
 	}
 	String _getValueString( int row, int column ){
 		int xValue = _getValueIndex( row, column );
@@ -687,6 +702,51 @@ class Node_Array extends Node {
 			return false;
 		}
 	}
+	public void _setError( int index ){
+		try {
+			opendap.dap.PrimitiveVector pv = _getPrimitiveVector();
+			Object oValues = pv.getInternalStorage();
+			switch( _getValueType() ){
+				case Byte:
+					short[] ashValues_byte = (short[])oValues;
+					ashValues_byte[index] = 0xFF;
+					break;
+				case Int16:
+					short[] ashValues_short = (short[])oValues;
+					ashValues_short[index] = Short.MIN_VALUE; 
+					break;
+				case Int32:
+					int[] aiValues_int32 = (int[])oValues;
+					aiValues_int32[index] = Integer.MIN_VALUE; 
+				case UInt16:
+					int[] aiValues_uint16 = (int[])oValues;
+					aiValues_uint16[index] = 0xFFFF; 
+					break;
+				case UInt32:
+					long[] anValues = (long[])oValues;
+					anValues[index] = 0xFFFFFFFF; 
+					break;
+				case Float32:
+					float[] afValues = (float[])oValues;
+					afValues[index] = Float.NaN; 
+					break;
+				case Float64:
+					double[] adValues = (double[])oValues;
+					adValues[index] = Double.NaN; 
+					break;
+				case String:
+					String[] asValues = (String[])oValues;
+					asValues[index] = "#ERROR#"; 
+					break;
+				default:
+					return;
+			}
+			return;
+		} catch( Throwable t ) {
+			ApplicationController.getInstance().vUnexpectedError( t, "while attempting to set array value to error" );
+			return;
+		}
+	}	
 	public boolean _setValue( PyObject oNewValue, int index, StringBuffer sbError ){
 		try {
 			opendap.dap.PrimitiveVector pv = _getPrimitiveVector();

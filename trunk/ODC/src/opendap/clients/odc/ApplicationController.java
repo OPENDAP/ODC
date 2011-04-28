@@ -519,6 +519,11 @@ public class ApplicationController {
 		ApplicationController.getInstance().getAppFrame().vShowStatus(sStatusMessage);
 	}
 
+	public static void vShowStatus_NoCacheWithTime( String sStatusMessage ){
+		String sNow = Utility.now( "HH:mm:ss " );
+		ApplicationController.getInstance().getAppFrame().vShowStatus( sNow + sStatusMessage );
+	}
+	
 	public static void vShowStatus_NoCache_Append( String sStatusMessage ){
 		ApplicationController.getInstance().getAppFrame().vAppendStatus(sStatusMessage);
 	}

@@ -1199,6 +1199,30 @@ public class Utility {
 	public static float difference( float v1, float v2 ){ return v1 - v2 > 0 ? v1 - v2 : v2 - v1; }
 	public static int difference( int v1, int v2 ){ return v1 - v2 > 0 ? v1 - v2 : v2 - v1; }
 	public static long difference( long v1, long v2 ){ return v1 - v2 > 0 ? v1 - v2 : v2 - v1; }
+	
+	// "yyyy.MM.dd G 'at' hh:mm:ss z"
+	public static String now( String sFormat ){
+		Calendar calendar = Calendar.getInstance();
+		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat( sFormat );
+		return sdf.format( calendar.getTime() );
+	}
+	
+	public static String[][] getClipboardStringArray(){
+		java.awt.datatransfer.Clipboard clipboard = java.awt.Toolkit.getDefaultToolkit().getSystemClipboard ();
+		Object o = null;
+		try {
+			o = clipboard.getContents( ApplicationController.getInstance() ).getTransferData( java.awt.datatransfer.DataFlavor.stringFlavor );
+			if( o == null ){
+				ApplicationController.vShowStatus_NoCacheWithTime( "clipboard is empty" );
+				return null;
+			}
+		} catch( Throwable t ) {
+			ApplicationController.vShowError( "clipboard data type is unsupported: " + t );
+			return null;
+		}
+		String sClipContent = (String)o;
+		return Utility_String.parseTabSeparatedString( sClipContent );
+	}
 
 }
 
