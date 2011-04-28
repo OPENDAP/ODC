@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Interpreter
  * Description:  Python interpreter capability
- * Copyright:    Copyright (c) 2007-9
+ * Copyright:    Copyright (c) 2007-11
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.06
+ * @version      3.07
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,7 @@ import opendap.dap.DStructure;
 import org.python.util.PythonInterpreter;
 import org.python.core.Py;
 import org.python.core.PyObject;
+import org.python.core.PyCode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -135,6 +136,36 @@ public class Interpreter {
 		return true;
 	}
 
+	public PyObject zEval( PyCode code, String sExp, StringBuffer sbError ){
+		if( code == null ){
+			sbError.append( "null code object to eval" );
+			return null;
+		}
+		if( mInterpreter == null ){
+			sbError.append("no Python interpreter exists for evaluation");
+			return null;
+		}
+		try {
+			long t1 = System.currentTimeMillis();
+			PyObject pyobject = mInterpreter.eval( code );
+			long t2 = System.currentTimeMillis();
+			if( t2 - t1 > 90 ){
+				System.out.println( "eval " + (t2-t1) + " " + sExp );
+			}
+			return pyobject;
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			sbError.append( "!python syntax error: " + parse_error );
+			return null;
+		} catch( org.python.core.PyException python_error ) {
+			sbError.append( "!python error: " + python_error );
+			return null;
+		} catch( Throwable t ) {
+			sbError.append( "interpreter error: " + t.getClass().getName() );
+			ApplicationController.vUnexpectedError( t, sbError );
+			return null;
+		}
+	}
+	
 	public PyObject zEval( String sExpression, StringBuffer sbError ){
 		if( sExpression == null ){
 			sbError.append( "null sExpression to eval" );
@@ -145,12 +176,7 @@ public class Interpreter {
 			return null;
 		}
 		try {
-			long t1 = System.currentTimeMillis();
 			PyObject pyobject = mInterpreter.eval( sExpression );
-			long t2 = System.currentTimeMillis();
-			if( t2 - t1 > 90 ){
-				System.out.println( "eval " + (t2-t1) + " " + sExpression );
-			}
 			return pyobject;
 		} catch( org.python.core.PySyntaxError parse_error ) {
 			sbError.append( "!python syntax error: " + parse_error );
@@ -188,7 +214,10 @@ public class Interpreter {
 			return false;
 		}
 	}
-	
+
+	public void vEnterCommand( String s ){
+		vWriteLine( ApplicationController.getInstance().getTextViewerOS(), s, msPrompt );
+	}
 	
 	public void vWritePrompt( java.io.OutputStream os ){
 		try {

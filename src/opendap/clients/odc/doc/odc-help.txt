@@ -833,7 +833,7 @@ The following editing actions are possible using a selection from the Dataset St
        (3) Click the "+" button. This will create a new variable with default characteristics
 		      as the last member of the selected structure.
 								
-	Paste data to creat a variable -
+	Paste data to create a variable -
 	   (1) Copy data from another source, such as a spreadsheet, or database program.
 	          To copy usually Ctrl+C is used, or a menu command from an "Edit" menu.
 	   (2) Select a structure variable (or the root structure) to contain the data.
@@ -903,6 +903,8 @@ From the above you can see that you can instantly create a two-dimensional datas
 Copy and paste in the Data Viewer only affects the currently selected variable. If you want to create a new variable with a paste, select a structure in the "Dataset Structure" tree view and paste there. See the topic Data Viewer - Dataset Structure for more information.
 
 Note that copied values are strings corresponding to the current view of the data. For example, if the data is Celsius and you are currently using an expression to view it in Farenheit, then the copied values will be the Farenheit values. Likewise, if you are formatting the view to include symbols or letters, those will be copied, just as they appear in the array view. If strings are truncated in the view due to cells being too small, then the full-sized value string is copied, not the truncated string. If you want to copy the actual data values, turn off the view by clearing the "Exp:" text box and pressing enter.
+
+When you paste data into the array view the data will always be forced into the type of the array. For example, if the array is of type Int32 then all the strings will be converted to integers. Any errors will cause the integer error value to be entered. If you want the ODC to attempt intelligent type recognition paste into the structure view, not the array view. See the topic "Data Viewer - Dataset Structure" for more information.
 
 #Data Viewer - Search and Replace
 
