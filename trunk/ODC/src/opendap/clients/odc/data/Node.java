@@ -517,8 +517,9 @@ class Node_Array extends Node {
 		return column_count;
 	}
 	int _getValueIndex( int row, int column ){ // calculates index of value according to view, zero-based
-		int iColumnSize = _view.dim_column == 0 || _view.dim_column > _getDimensionLengths1()[0] ? 0 : _getDimensionLengths1()[_view.dim_column];
-		return column + row * iColumnSize;
+		if( _getDimensionCount() == 1 ) if( _view.dim_row == 1 ) return row; else return column;
+		if( _getDimensionCount() == 2 ) if( _view.dim_row == 1 ) return column + row * _getDimensionLengths1()[2]; else return row + column * _getDimensionLengths1()[1];
+		else return 0; // TODO
 	}
 	private final int[] aiDimSelector = new int[10];
 	private final int[] aiDimSize = new int[10];

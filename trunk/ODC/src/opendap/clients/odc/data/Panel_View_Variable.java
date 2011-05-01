@@ -1321,6 +1321,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 								}
 							}
 							xDim--;
+							if( xDim == 0 ) break; // done
 						} else break;
 					}
 					xDim = ctDim;
