@@ -265,6 +265,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 		for( int xRow = xD1; xRow < ctRows; xRow++ ){
 			for( int xColumn = xD2; xColumn < ctColumns_shown; xColumn++ ){
 				int iValueIndex = node._getValueIndex( xRow, xColumn );
+System.out.format( "rendering value at %d %d %d: %d\n", xRow, xColumn, iValueIndex, aiValues[iValueIndex] ); 
 				String sValueText = Integer.toString( aiValues[iValueIndex] );
 				int iStringWidth = fmValue.stringWidth( sValueText );
 				int offsetX = pxCell_width - iStringWidth - pxRightInset;

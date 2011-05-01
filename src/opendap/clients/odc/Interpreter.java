@@ -146,12 +146,7 @@ public class Interpreter {
 			return null;
 		}
 		try {
-			long t1 = System.currentTimeMillis();
 			PyObject pyobject = mInterpreter.eval( code );
-			long t2 = System.currentTimeMillis();
-			if( t2 - t1 > 90 ){
-				System.out.println( "eval " + (t2-t1) + " " + sExp );
-			}
 			return pyobject;
 		} catch( org.python.core.PySyntaxError parse_error ) {
 			sbError.append( "!python syntax error: " + parse_error );

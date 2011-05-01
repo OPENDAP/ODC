@@ -35,6 +35,8 @@ import opendap.dap.*;
 import java.io.*;
 import java.util.Enumeration;
 
+import org.python.core.PyObject;
+
 public class DAP {
 
 	public final static int JAVA_TYPE_byte = 1;
@@ -1137,6 +1139,8 @@ public class DAP {
 			int ctValues;
 			int ctValues_new;
 			int ctDimensions = aiDimLengths[0];
+			int[] axDim = new int[ctDimensions + 1]; // used to traverse arrays
+			int xDim = ctDimensions;
 			switch( eDataType ){
 				case Byte:
 				case Int16:
@@ -1145,6 +1149,7 @@ public class DAP {
 					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
 					short[] ashValues_new = new short[ctValues_new];
 					eggData[0] = ashValues_new;
+					
 					break;
 				case UInt16:
 				case Int32:
@@ -1154,6 +1159,32 @@ public class DAP {
 					int[] aiValues_new = new int[ctValues_new];
 					System.out.format( "new size dap %d %d %d %d ", ctValues_new, ctValues, aiDimLengths[xDimension1], iNewDimLength );
 					eggData[0] = aiValues_new;
+
+					// copy old values into new value array
+					int xValue_old = 0; 
+					int xValue_new = 0;
+					while( true ){
+						if( xValue_old == ctValues || xValue_new == ctValues_new ) break; // done
+						aiValues_new[xValue_new] = aiValues[xValue_old];
+						while( true ){
+							boolean zOldInRange = true; // whether the address of the old value is in the range of the new array 
+							while( true ){
+								axDim[xDim]++;
+								if( xDim == xDimension1 && axDim[xDim] >= xDimension1 ) zOldInRange = false; 
+								if( axDim[xDim] >= aiDimLengths[xDim] ){
+									if( xDim == xDimension1 && axDim[xDim] < xDimension1 ){ // in this case the new array is larger in this dimension
+										xValue_new += (xDimension1 - axDim[xDim]); //...and we need to skip over the values not in the old array 
+									}
+		                            axDim[xDim] = 0;
+									xDim--;
+								} else break;
+							}
+							xDim = ctDimensions;
+							xValue_old++;
+							if( zOldInRange ) break;
+						}
+						xValue_new++;
+					}
 					break;
 				case UInt32:
 					long[] anValues = (long[])eggData[0];
