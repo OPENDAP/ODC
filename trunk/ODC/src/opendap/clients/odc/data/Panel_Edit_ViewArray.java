@@ -99,7 +99,7 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 	int pxColumnHeader_height = pxCell_height;  
 	public void _vDrawImage( Node_Array node ){
 		nodeActive = node;
-		Model_VariableView view = node._getView();
+		Model_ArrayView view = node._getView();
 		int xOrigin_row = view.origin_row;
 		int xOrigin_column = view.origin_column;
 
@@ -264,8 +264,8 @@ public class Panel_Edit_ViewArray extends JPanel implements ComponentListener, M
 		int ctColumns_shown = ctColumns == 0 ? 1 : ctColumns;
 		for( int xRow = xD1; xRow < ctRows; xRow++ ){
 			for( int xColumn = xD2; xColumn < ctColumns_shown; xColumn++ ){
-				int iValueIndex = node._getValueIndex( xRow, xColumn );
-System.out.format( "rendering value at %d %d %d: %d\n", xRow, xColumn, iValueIndex, aiValues[iValueIndex] ); 
+				int iValueIndex = node._view.getIndex( xRow, xColumn );
+//System.out.format( "rendering value at %d %d %d: %d\n", xRow, xColumn, iValueIndex, aiValues[iValueIndex] ); 
 				String sValueText = Integer.toString( aiValues[iValueIndex] );
 				int iStringWidth = fmValue.stringWidth( sValueText );
 				int offsetX = pxCell_width - iStringWidth - pxRightInset;

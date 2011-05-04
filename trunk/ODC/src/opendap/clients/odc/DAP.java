@@ -1141,82 +1141,114 @@ public class DAP {
 			int ctDimensions = aiDimLengths[0];
 			int[] axDim = new int[ctDimensions + 1]; // used to traverse arrays
 			int xDim = ctDimensions;
+			short[] ashValues = null; short[] ashValues_new = null;
+			int[] aiValues = null; int[] aiValues_new = null;
+			long[] anValues = null; long[] anValues_new = null;
+			float[] afValues = null; float[] afValues_new = null;
+			double[] adValues = null; double[] adValues_new = null;
+			String[] asValues = null; String[] asValues_new = null;
 			switch( eDataType ){
 				case Byte:
 				case Int16:
-					short[] ashValues = (short[])eggData[0];
+					ashValues = (short[])eggData[0];
 					ctValues = ashValues.length;
 					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
-					short[] ashValues_new = new short[ctValues_new];
+					ashValues_new = new short[ctValues_new];
 					eggData[0] = ashValues_new;
 					
 					break;
 				case UInt16:
 				case Int32:
-					int[] aiValues = (int[])eggData[0];
+					aiValues = (int[])eggData[0];
 					ctValues = aiValues.length;
 					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
-					int[] aiValues_new = new int[ctValues_new];
+					aiValues_new = new int[ctValues_new];
 					System.out.format( "new size dap %d %d %d %d ", ctValues_new, ctValues, aiDimLengths[xDimension1], iNewDimLength );
 					eggData[0] = aiValues_new;
-
-					// copy old values into new value array
-					int xValue_old = 0; 
-					int xValue_new = 0;
-					while( true ){
-						if( xValue_old == ctValues || xValue_new == ctValues_new ) break; // done
-						aiValues_new[xValue_new] = aiValues[xValue_old];
-						while( true ){
-							boolean zOldInRange = true; // whether the address of the old value is in the range of the new array 
-							while( true ){
-								axDim[xDim]++;
-								if( xDim == xDimension1 && axDim[xDim] >= xDimension1 ) zOldInRange = false; 
-								if( axDim[xDim] >= aiDimLengths[xDim] ){
-									if( xDim == xDimension1 && axDim[xDim] < xDimension1 ){ // in this case the new array is larger in this dimension
-										xValue_new += (xDimension1 - axDim[xDim]); //...and we need to skip over the values not in the old array 
-									}
-		                            axDim[xDim] = 0;
-									xDim--;
-								} else break;
-							}
-							xDim = ctDimensions;
-							xValue_old++;
-							if( zOldInRange ) break;
-						}
-						xValue_new++;
-					}
 					break;
 				case UInt32:
-					long[] anValues = (long[])eggData[0];
+					anValues = (long[])eggData[0];
 					ctValues = anValues.length;
 					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
-					long[] anValues_new = new long[ctValues_new];
+					anValues_new = new long[ctValues_new];
 					eggData[0] = anValues_new;
 					break;
 				case Float32:
-					float[] afValues = (float[])eggData[0];
+					afValues = (float[])eggData[0];
 					ctValues = afValues.length;
 					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
-					float[] afValues_new = new float[ctValues_new];
+					afValues_new = new float[ctValues_new];
 					eggData[0] = afValues_new;
 					break;
 				case Float64:
-					double[] adValues = (double[])eggData[0];
+					adValues = (double[])eggData[0];
 					ctValues = adValues.length;
 					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
-					double[] adValues_new = new double[ctValues_new];
+					adValues_new = new double[ctValues_new];
 					eggData[0] = adValues_new;
 					break;
 				case String:
-					String[] asValues = (String[])eggData[0];
+					asValues = (String[])eggData[0];
 					ctValues = asValues.length;
 					ctValues_new = ctValues / aiDimLengths[xDimension1] * iNewDimLength;
-					String[] asValues_new = new String[ctValues_new];
+					asValues_new = new String[ctValues_new];
 					eggData[0] = asValues_new;
 					break;
 				default:
 					sbError.append("unknown array data type: " + eDataType);
 					return false;
+			}
+
+			// copy old values into new value array
+			int iOldDimLength = aiDimLengths[xDimension1]; 
+			aiDimLengths[xDimension1] = iNewDimLength;
+			int xValue_old = 0; 
+			int xValue_new = 0;
+			while( true ){
+				if( xValue_old == ctValues || xValue_new == ctValues_new ) break; // done
+				switch( eDataType ){
+					case Byte:
+					case Int16:
+						ashValues_new[xValue_new] = ashValues[xValue_old];
+						break;
+					case UInt16:
+					case Int32:
+						aiValues_new[xValue_new] = aiValues[xValue_old];
+						break;
+					case UInt32:
+						anValues_new[xValue_new] = anValues[xValue_old];
+						break;
+					case Float32:
+						afValues_new[xValue_new] = afValues[xValue_old];
+						break;
+					case Float64:
+						adValues_new[xValue_new] = adValues[xValue_old];
+						break;
+					case String:
+						asValues_new[xValue_new] = asValues[xValue_old];
+						break;
+					default:
+						sbError.append("unknown array data type: " + eDataType);
+						return false;
+				}
+				while( true ){
+					boolean zOldInRange = true; // whether the address of the old value is in the range of the new array 
+					while( true ){
+						axDim[xDim]++;
+						if( xDim == xDimension1 && axDim[xDim] >= iOldDimLength ) zOldInRange = false; 
+						if( axDim[xDim] >= aiDimLengths[xDim] || !zOldInRange ){
+							if( xDim == xDimension1 && axDim[xDim] < iNewDimLength ){ // in this case the new array is larger in this dimension
+								xValue_new += (iNewDimLength - axDim[xDim]); //...and we need to skip over the values not in the old array 
+							}
+                            axDim[xDim] = 0;
+							xDim--;
+						} else break;
+					}
+					xDim = ctDimensions;
+					if( zOldInRange ) break;
+				}
+				xValue_old++;
+				xValue_new++;
 			}
 			return true;
 		} catch(Exception ex) {

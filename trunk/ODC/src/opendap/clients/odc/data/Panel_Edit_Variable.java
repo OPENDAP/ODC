@@ -256,7 +256,7 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 		int ctDimension = nodeActive._getDimensionCount();
 		for( ; xDimension1 <= ctDimension; xDimension1++ ){
 			listDimensionNameJTF.get( xDimension1 - 1 ).setText( nodeActive._getDimensionName( xDimension1 ) );
-			listDimensionSizeJTF.get( xDimension1 - 1 ).setText( Integer.toString( nodeActive._getDimensionSize( xDimension1 ) ) );
+			listDimensionSizeJTF.get( xDimension1 - 1 ).setText( Integer.toString( nodeActive._getDimensionLength( xDimension1 ) ) );
 			listDimensionDelete.get( xDimension1 - 1 ).setVisible( ctDimension > 1 );
 			listDimensionUp.get( xDimension1 - 1 ).setVisible( xDimension1 > 1 );
 			listDimensionDown.get( xDimension1 - 1 ).setVisible( xDimension1 < ctDimension );
@@ -340,7 +340,7 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 				new java.awt.event.ActionListener(){
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
 						String sNewSize = jtfDimensionSize.getText();
-						if( ! sNewSize.equals( nodeActive._getDimensionSize( xDimension_final1 ) ) ) setDimensionSize( xDimension_final1, sNewSize );
+						if( ! sNewSize.equals( nodeActive._getDimensionLength( xDimension_final1 ) ) ) setDimensionSize( xDimension_final1, sNewSize );
 					}
 				}
 			);
