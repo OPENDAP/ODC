@@ -553,17 +553,17 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 	void _selectRange( int xRow1, int xColumn1, int xRow2, int xColumn2 ){
 		if( xRow1 < xRow2 ){
 			nodeActive._view.selectionUL_row = xRow1;
-			nodeActive._view.selectionLR_row = xRow2;
+			nodeActive._view.selectionLR_row = xRow2 >= nodeActive._getRowCount() ? nodeActive._getRowCount() - 1 : xRow2;
 		} else {
 			nodeActive._view.selectionUL_row = xRow2;
-			nodeActive._view.selectionLR_row = xRow1;
+			nodeActive._view.selectionLR_row = xRow1 >= nodeActive._getRowCount() ? nodeActive._getRowCount() - 1 : xRow1;
 		}
 		if( xColumn1 < xColumn2 ){
 			nodeActive._view.selectionUL_column = xColumn1;
-			nodeActive._view.selectionLR_column = xColumn2;
+			nodeActive._view.selectionLR_column = xColumn2 >= nodeActive._getColumnCount() ? nodeActive._getColumnCount() - 1 : xColumn2;
 		} else {
 			nodeActive._view.selectionUL_column = xColumn2;
-			nodeActive._view.selectionLR_column = xColumn1;
+			nodeActive._view.selectionLR_column = xColumn1 >= nodeActive._getColumnCount() ? nodeActive._getColumnCount() - 1 : xColumn1;
 		}
 		panelArray_View._vDrawImage( nodeActive );
 	}
@@ -580,12 +580,12 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		if( xRow1 < xRow2 ){
 			nodeActive._view.selectionUL_row = xRow1;
 			nodeActive._view.selectionUL_column = 0;
-			nodeActive._view.selectionLR_row = xRow2;
+			nodeActive._view.selectionLR_row = xRow2 >= nodeActive._getRowCount() ? nodeActive._getRowCount() - 1 : xRow2;
 			nodeActive._view.selectionLR_column = nodeActive._getColumnCount() - 1;
 		} else {
 			nodeActive._view.selectionUL_row = xRow2;
 			nodeActive._view.selectionUL_column = 0;
-			nodeActive._view.selectionLR_row = xRow1;
+			nodeActive._view.selectionLR_row = xRow1 >= nodeActive._getRowCount() ? nodeActive._getRowCount() - 1 : xRow1;
 			nodeActive._view.selectionLR_column = nodeActive._getColumnCount() - 1;
 		}
 		if( nodeActive._view.selectionLR_column < 0 ) nodeActive._view.selectionLR_column = 0; 
@@ -597,12 +597,12 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 			nodeActive._view.selectionUL_row = 0;
 			nodeActive._view.selectionUL_column = xColumn1;
 			nodeActive._view.selectionLR_row = nodeActive._getRowCount() - 1;
-			nodeActive._view.selectionLR_column = xColumn2;
+			nodeActive._view.selectionLR_column = xColumn2 >= nodeActive._getColumnCount() ? nodeActive._getColumnCount() - 1 : xColumn2;
 		} else {
 			nodeActive._view.selectionUL_row = 0;
 			nodeActive._view.selectionUL_column = xColumn2;
 			nodeActive._view.selectionLR_row = nodeActive._getRowCount() - 1;
-			nodeActive._view.selectionLR_column = xColumn1;
+			nodeActive._view.selectionLR_column = xColumn1 >= nodeActive._getColumnCount() ? nodeActive._getColumnCount() - 1 : xColumn1;
 		}
 		if( nodeActive._view.selectionLR_row < 0 ) nodeActive._view.selectionLR_row = 0;
 		panelArray_View._vDrawImage( nodeActive );
@@ -676,23 +676,18 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 
 	void _selectExtendPageDown(){
 		if( nodeActive._view.selectionLR_row > nodeActive._view.cursor_row || nodeActive._view.selectionLR_row == nodeActive._view.selectionUL_row ){
-			System.out.println("2");
 			nodeActive._view.selectionLR_row += panelArray_View.iPageSize_row;
 		} else {
-			System.out.println("3");
 			nodeActive._view.selectionUL_row += panelArray_View.iPageSize_row;
 			if( nodeActive._view.selectionUL_row > nodeActive._view.cursor_row ){
-				System.out.println("3.5");
 				nodeActive._view.selectionLR_row = nodeActive._view.selectionUL_row - nodeActive._view.cursor_row;
 				nodeActive._view.cursor_row = nodeActive._view.cursor_row;
 			}
 		}
 		if( nodeActive._view.selectionLR_row >= nodeActive._getRowCount() ){
-			System.out.println("4");
 			nodeActive._view.selectionLR_row = nodeActive._getRowCount() - 1;
 		}
 		if( nodeActive._view.selectionLR_row > panelArray_View.xLastFullRow ){
-			System.out.println("5");
 			nodeActive._view.origin_row = nodeActive._view.selectionLR_row - panelArray_View.iPageSize_row + 1; // when extending the selection, the extended region must always be in view 
 		}
 		panelArray_View._vDrawImage( nodeActive );
@@ -792,14 +787,14 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		Node_Array array = (Node_Array)nodeActive;
 		StringBuffer sbError = new StringBuffer();
 		if( array._view.cursor_row + ctRows > array._getRowCount() ){
-			int xDimension1 = array._view.dim_row;
+			int xDimension1 = array._view.getDimRow();
 			int ctRows_expanded = array._view.cursor_row + ctRows;
 			if( ! array._setDimensionSize( xDimension1, ctRows_expanded, sbError ) ){
 				ApplicationController.vShowError( "Error resizing dimension " + xDimension1 + " to " + ctRows_expanded + ": " + sbError );
 			}
 		}
 		if( array._view.cursor_column + ctColumns > array._getColumnCount() ){
-			int xDimension1 = array._view.dim_column;
+			int xDimension1 = array._view.getDimColumn();
 			int ctColumns_expanded = array._view.cursor_column + ctColumns;
 			if( ! array._setDimensionSize( xDimension1, ctColumns_expanded, sbError ) ){
 				ApplicationController.vShowError( "Error resizing dimension " + xDimension1 + " to " + ctColumns_expanded + ": " + sbError );
@@ -817,13 +812,13 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		Node_Array array = (Node_Array)nodeActive;
 		StringBuffer sbError = new StringBuffer();
 		if( ctRows != array._getRowCount() ){
-			int xDimension1 = array._view.dim_row;
+			int xDimension1 = array._view.getDimRow();
 			if( ! array._setDimensionSize( xDimension1, ctRows, sbError ) ){
 				ApplicationController.vShowError( "Error resizing dimension " + xDimension1 + " to " + ctRows + ": " + sbError );
 			}
 		}
 		if( ctColumns != array._getColumnCount() ){
-			int xDimension1 = array._view.dim_column;
+			int xDimension1 = array._view.getDimColumn();
 			if( ! array._setDimensionSize( xDimension1, ctColumns, sbError ) ){
 				ApplicationController.vShowError( "Error resizing dimension " + xDimension1 + " to " + ctColumns + ": " + sbError );
 			}
@@ -844,7 +839,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 			for( int xColumn = 0; xColumn < asData[xRow].length; xColumn++ ){
 				int xColumn_paste_offset = nodeActive._view.cursor_column + xColumn;
 				if( xColumn_paste_offset >= nodeActive._getColumnCount() ) continue;
-				int index = array._getValueIndex( xRow_paste_offset, xColumn_paste_offset );
+				int index = array._view.getIndex( xRow_paste_offset, xColumn_paste_offset );
 				if( array._setValue( asData[xRow][xColumn], index, sbError ) ){
 					ctCellsModified++;
 				} else {
@@ -1174,7 +1169,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 		StringBuffer sbError = new StringBuffer( 256 );
 		opendap.clients.odc.data.Node_Array array = (opendap.clients.odc.data.Node_Array)node;
 		if( sMode.equals( "Value" ) || sMode.equals( "Command" ) || zFilterCursor ){
-			int index = array._getValueIndex_Cursor();
+			int index = array._view.getIndexCursor();
 			Object oCurrentCellValue = array._getValueObject( index );
 			if( ! interpreter.zSet( "_value0", oCurrentCellValue, sbError ) ){
 				ApplicationController.vShowError( "failed to set current cell value (row " + array._view.cursor_row + ", column " + array._view.cursor_column + "): " + sbError );
@@ -1210,8 +1205,8 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 				panelArray_View._vDrawImage( nodeActive );
 			}
 		} else if( sMode.equals( "Selection" ) || zFilterSelection ){
-			int xDimRow = node._view.dim_row;
-			int xDimColumn = node._view.dim_column;
+			int xDimRow = array._view.getDimRow();
+			int xDimColumn = array._view.getDimColumn();
 			for( int row = array._view.selectionUL_row; row <= array._view.selectionLR_row; row++ ){
 				if( ! interpreter.zSet( "_dim1", new Integer( row ), sbError ) ){
 					ApplicationController.vShowError( "failed to set current row value (" + row + "): " + sbError );
@@ -1250,7 +1245,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 						}
 						if( ! zIncludeColumn ) continue; // column does not meet filter criteria
 					}
-					int index = array._getValueIndex( row, column );
+					int index = array._view.getIndex( row, column );
 					Object oCurrentCellValue = array._getValueObject( index );
 					if( ! interpreter.zSet( "_value0", oCurrentCellValue, sbError ) ){
 						ApplicationController.vShowError( "failed to set current cell value (row " + row + ", column " + column + "): " + sbError );

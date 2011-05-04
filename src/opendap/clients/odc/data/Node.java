@@ -39,7 +39,6 @@ public abstract class Node extends DefaultMutableTreeNode {   // functions as bo
 	private boolean mzTerminal = false; // == terminal node / used instead of isLeaf because isLeaf controls default icon
 	DAP_VARIABLE eVariableType = null;
 	private String msName = "[undefined]";
-	protected transient Model_VariableView _view = new Model_VariableView();
 	AttributeTable attributes;
 	Node nodeParent;
 	ArrayList<Node> subnodes;
@@ -54,7 +53,6 @@ public abstract class Node extends DefaultMutableTreeNode {   // functions as bo
 	void setModel( Model_Dataset_Local parent ){
 		modelParent = parent;
 	}
-	public Model_VariableView _getView(){ return _view; }
 	opendap.dap.BaseType getBaseType(){ return mBaseType; }
 	abstract DAP_VARIABLE getType();
 	void setBaseType( opendap.dap.BaseType bt ){
@@ -483,6 +481,7 @@ class Node_Sequence extends Node {
 }
 
 class Node_Array extends Node {
+	public transient Model_ArrayView _view;
 	public static String DEFAULT_ArrayName = "array";	
 	public static String DEFAULT_DimensionName = "dim";
 	public static int DEFAULT_DimensionSize = 100;
@@ -490,83 +489,38 @@ class Node_Array extends Node {
 	protected Node_Array( DArray bt ){
 		super( bt );
 		darray = bt;
+		_view = new Model_ArrayView( this._getDimensionLengths1() );
 	}
 	DAP_VARIABLE getType(){ return DAP.DAP_VARIABLE.Array; }
 	DAP_TYPE eDataType;
 	ArrayList<DArrayDimension> listDimensions = new ArrayList<DArrayDimension>();
 	PrimitiveVector _getPrimitiveVector(){ return darray.getPrimitiveVector(); }
-	int _getValueCount(){ return darray.getLength(); }
-	int _getByteSize(){ return darray.getLength() * DAP.getDataSize( _getValueType() ); }
-	int _getDimensionCount(){ return darray.numDimensions(); }
-	int _getDimensionSize( int xDimension1 ){
+	public Model_ArrayView _getView(){ return _view; }
+	public int _getValueCount(){ return darray.getLength(); }
+	public int _getByteSize(){ return darray.getLength() * DAP.getDataSize( _getValueType() ); }
+	public int _getDimensionCount(){ return darray.numDimensions(); }
+	public int _getDimensionLength( int xDimension1 ){
 		try {
 			return darray.getDimension( xDimension1 - 1 ).getSize(); 
 		} catch( Throwable t ) {
 			return 0;
 		}
 	}
-	int _getRowCount(){ // calculates row count according to view
+	public int _getRowCount(){ // calculates row count according to view
 		int[] aiDimensionLengths = _getDimensionLengths1();
-		if( _view.dim_row == 0 || _view.dim_row > aiDimensionLengths[0] ) return 0; 
-		return _getDimensionLengths1()[_view.dim_row];
+		if( _view.getDimRow() == 0 || _view.getDimRow() > aiDimensionLengths[0] ) return 0; 
+		return _getDimensionLengths1()[_view.getDimRow()];
 	}
-	int _getColumnCount(){ // calculates row count according to view
+	public int _getColumnCount(){ // calculates row count according to view
 		int[] aiDimensionLengths = _getDimensionLengths1();
-		if( _view.dim_column == 0 || _view.dim_column > aiDimensionLengths[0] ) return 0;
-		int column_count = aiDimensionLengths[_view.dim_column];
+		if( _view.getDimColumn() == 0 || _view.getDimColumn() > aiDimensionLengths[0] ) return 0;
+		int column_count = aiDimensionLengths[_view.getDimColumn()];
 		return column_count;
 	}
-	int _getValueIndex( int row, int column ){ // calculates index of value according to view, zero-based
-		switch( _getDimensionCount() ){
-			case 1: if( _view.dim_row == 1 ) return row; else return column;
-			case 2: if( _view.dim_row == 1 ) return column + row * _getDimensionLengths1()[2]; else return row + column * _getDimensionLengths1()[1];
-			case 3: 
-				if( _view.dim_row == 1 ){
-					if( _view.dim_column == 2 ){
-					} else {
-					}
-				} else if( _view.dim_row == 2 ){
-					if( _view.dim_column == 1 ){
-					} else {
-					}
-				} else { // dim row is 3
-					if( _view.dim_column == 1 ){
-					} else {
-					}
-				}
-			default:
-				return 0; // TODO
-		}
-	}
-	private final int[] aiDimSelector = new int[10];
-	private final int[] aiDimSize = new int[10];
-	public int _getValueIndex_Cursor(){  // returns the value index of the view cursor
-		int xDimRow = _view.dim_row;
-		int xDimColumn = _view.dim_column;
-		aiDimSelector[0] = _getDimensionCount();
-		for( int xDimension = 1; xDimension <= aiDimSelector[0]; xDimension++ ){
-			if( xDimension == xDimRow ){
-				aiDimSelector[xDimension] = _view.cursor_row;
-			} else if( xDimension == xDimColumn ){
-				aiDimSelector[xDimension] = _view.cursor_column;
-			} else {
-				aiDimSelector[xDimension] = _view.page[xDimension];
-			}
-		}
-		return _getValueIndex( aiDimSelector );  
-	}
-	int _getValueIndex( int[] axDim1 ){ // calculates index of value according to exact set of dimensional indices
-		int index = 0;
-		int[] aiDimLengths1 = _getDimensionLengths1();
-		int ctDimensions = aiDimSelector[0];
-		for( int xDimension = 1; xDimension <= ctDimensions ; xDimension++ )
-			index += java.lang.Math.pow( aiDimLengths1[xDimension], xDimension - 1 ) * axDim1[ctDimensions - xDimension + 1];
-		return index;
-	}
-	String _getValueString_cursor(){
+	public String _getValueString_cursor(){
 		return _getValueString( _view.cursor_row, _view.cursor_column );
 	}
-	String _getValueString_selection(){
+	public String _getValueString_selection(){
 		StringBuffer sb = new StringBuffer();
 		for( int xRow = _view.selectionUL_row; xRow <= _view.selectionLR_row; xRow++ ){
 			sb.append( _getValueString( xRow, _view.selectionUL_column ) ); 
@@ -578,17 +532,17 @@ class Node_Array extends Node {
 		}
 		return sb.toString();
 	}
-	int _getSelectionSize(){
+	public int _getSelectionSize(){
 		return (_view.selectionLR_row - _view.selectionUL_row + 1) * (_view.selectionLR_column - _view.selectionUL_column + 1);  
 	}
-	String _getValueString( int row, int column ){
-		int xValue = _getValueIndex( row, column );
+	public String _getValueString( int row, int column ){
+		int xValue = _view.getIndex( row, column );
 		opendap.dap.PrimitiveVector pv = _getPrimitiveVector();
 		Object oValues = pv.getInternalStorage();
 		int[] aiValues = (int[])oValues;
 		return Integer.toString( aiValues[xValue] );
 	}
-	Object _getValueObject( int index ){
+	public Object _getValueObject( int index ){
 		opendap.dap.PrimitiveVector pv = _getPrimitiveVector();
 		Object oValues = pv.getInternalStorage();
 		switch( _getValueType() ){
@@ -617,12 +571,12 @@ class Node_Array extends Node {
 		}
 	}
 	public boolean _deleteSelectedValue( StringBuffer sbError ){
-		return _deleteValue( _getValueIndex( _view.cursor_row, _view.cursor_column ), sbError );  
+		return _deleteValue( _view.getIndexCursor(), sbError );  
 	}
 	public boolean _deleteAllSelectedValues( StringBuffer sbError ){  // TODO process errors
 		for( int xRow = _view.selectionUL_row; xRow <= _view.selectionLR_row; xRow++ ){ 
 			for( int xColumn = _view.selectionUL_column; xColumn <= _view.selectionLR_column; xColumn++ ){
-				_deleteValue( _getValueIndex( xRow, xColumn ), sbError );
+				_deleteValue( _view.getIndex( xRow, xColumn ), sbError );
 			}
 		}
 		return true;
@@ -669,12 +623,12 @@ class Node_Array extends Node {
 		}
 	}
 	public boolean _setSelectedValue( String sNewValue, StringBuffer sbError ){
-		return _setValue( sNewValue, _getValueIndex( _view.cursor_row, _view.cursor_column ), sbError );  
+		return _setValue( sNewValue, _view.getIndexCursor(), sbError );  
 	}
 	public boolean _setAllSelectedValues( String sNewValue, StringBuffer sbError ){  // TODO process errors
 		for( int xRow = _view.selectionUL_row; xRow <= _view.selectionLR_row; xRow++ ){ 
 			for( int xColumn = _view.selectionUL_column; xColumn <= _view.selectionLR_column; xColumn++ ){
-				_setValue( sNewValue, _getValueIndex( xRow, xColumn ), sbError );
+				_setValue( sNewValue, _view.getIndex( xRow, xColumn ), sbError );
 			}
 		}
 		return true;
@@ -850,6 +804,7 @@ class Node_Array extends Node {
 			sbError.insert( 0, "dimension size " + iDimensionSize + ": " );
 			return false;
 		}
+		_view.setDimLengths( _getDimensionLengths1() );
 		return true;
 	}
 	boolean _setDimensionName( int xDimension1, String sNewName, StringBuffer sbError ){
@@ -867,7 +822,7 @@ class Node_Array extends Node {
 		int[] aiDimensionLengths = new int[ctDimension + 1];
 		aiDimensionLengths[0] = ctDimension;
 		for( int xDimension1 = 1; xDimension1 <= ctDimension; xDimension1++ ){
-			aiDimensionLengths[xDimension1] = _getDimensionSize( xDimension1 );
+			aiDimensionLengths[xDimension1] = _getDimensionLength( xDimension1 );
 		}
 		return aiDimensionLengths;
 	}
@@ -892,6 +847,7 @@ class Node_Array extends Node {
 				return false;
 			}
 			dim.setSize( iNewSize );
+			_view.setDimLengths( _getDimensionLengths1() );
 			return true;
 		} catch( Throwable t ) {
 			ApplicationController.vUnexpectedError( t, sbError );
