@@ -30,6 +30,9 @@ import  org.python.core.PyObject;
 // on click/double click events
 // right click to resize stuff
 // be able to record and store presentation info in class below
+
+// contains Panel_Edit_ViewArray and a command panel
+
 public class Panel_View_Variable extends JPanel implements java.awt.event.ComponentListener, java.awt.event.FocusListener {
 	private Model_ExpressionHistory mOneLiners;
 	JPanel panelArray_Command;
@@ -1334,6 +1337,3 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 	}
 }
 
-// stores information about how the dataset should be viewed (column widths etc)
-class Model_DatasetView {
-}

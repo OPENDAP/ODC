@@ -17,13 +17,15 @@ import opendap.dap.BaseType;
 
 // Panel_View_Data
 // see Panel_Edit_Container for parent
-// TOP:    Panel_Edit_Dataset   (editing controls, like move up/down)
+// TOP MIDDLE:    Panel_Edit_Dataset   (editing controls, like move up/down)
 // MIDDLE: Panel_Edit_Variable  (editing of an individual variable)
+// RIGHT:  Panel_Edit_Value  (editing of an individual value)
 
 public class Panel_Define_Dataset extends JPanel {
 	private Panel_View_Data mParent;
 	private Panel_Edit_Dataset mEditingControls;
 	private Panel_Edit_Variable mVariableEditingPanel;
+	private Panel_Edit_Value mValueEditingPanel;
 	private Dimension dimMinimum = new Dimension( 100, 80);
 //	private Dimension dimPreferred = new Dimension( 200, 300 );
 	public Dimension getMinimumSize(){
@@ -39,17 +41,46 @@ public class Panel_Define_Dataset extends JPanel {
 				sbError.insert( 0, "failed to create variable editing panel: " );
 				return false;
 			};					
+			mValueEditingPanel = Panel_Edit_Value._create( this, structure_view, sbError );
+			if( mValueEditingPanel == null  ){
+				sbError.insert( 0, "failed to create value editing panel: " );
+				return false;
+			};					
 
 			Border borderEtched = BorderFactory.createEtchedBorder();
 
-			// set up panel
-			setMinimumSize( dimMinimum );
+			// set up variable panel
+			JPanel panelVariable = new JPanel();
+			panelVariable.getInsets().top = 0;
+			panelVariable.getInsets().bottom = 0;
+			panelVariable.getInsets().left = 0;
+			panelVariable.getInsets().right = 0;
+			panelVariable.setMinimumSize( dimMinimum );
 //			setPreferredSize( dimPreferred );
-			setBorder( BorderFactory.createTitledBorder(borderEtched, "Define Variable", TitledBorder.RIGHT, TitledBorder.TOP) );
-			setLayout( new BorderLayout() );
-			add( mEditingControls, BorderLayout.NORTH );
-			add( mVariableEditingPanel, BorderLayout.CENTER );
+			panelVariable.setBorder( BorderFactory.createTitledBorder(borderEtched, "Edit Variable", TitledBorder.RIGHT, TitledBorder.TOP) );
+			panelVariable.setLayout( new BorderLayout() );
+			panelVariable.add( mEditingControls, BorderLayout.NORTH );
+			panelVariable.add( mVariableEditingPanel, BorderLayout.CENTER );
+			
+			// set up value panel
+			JPanel panelValue = new JPanel();
+			panelValue.setMinimumSize( dimMinimum );
+			panelValue.getInsets().top = 0;
+			panelValue.getInsets().bottom = 0;
+			panelValue.getInsets().left = 0;
+			panelValue.getInsets().right = 0;
+			panelValue.setBorder( BorderFactory.createTitledBorder(borderEtched, "Edit Value", TitledBorder.RIGHT, TitledBorder.TOP) );
+			panelValue.add( mValueEditingPanel, BorderLayout.CENTER );
 
+			// configure main panel
+			add( panelVariable, BorderLayout.CENTER );
+			add( panelValue, BorderLayout.EAST );
+			
+			getInsets().top = 0;
+			getInsets().bottom = 0;
+			getInsets().left = 0;
+			getInsets().right = 0;
+			
 //			JLabel jlabelVariableName = new JLabel( "Name:" );
 //			jlabelVariableName.setAlignmentX( JLabel.RIGHT_ALIGNMENT );
 //			jlabelVariableName.setBounds( 10, 10, 40, 15 );

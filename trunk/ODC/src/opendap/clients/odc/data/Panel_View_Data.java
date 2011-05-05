@@ -81,7 +81,7 @@ import java.util.ArrayList;
  * Panel below (South):
  * 
  *   Panel_VarView (North)
- *   Panel_Edit_ViewArray  (South)
+ *   Panel_View_Variable (South) (contains Panel_Edit_ViewArray)
  */
 
 public class Panel_View_Data extends JPanel implements IControlPanel {

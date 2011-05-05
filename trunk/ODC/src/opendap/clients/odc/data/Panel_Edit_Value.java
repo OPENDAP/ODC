@@ -32,50 +32,53 @@ import opendap.dap.test.dap_test;
 // see Panel_View_Data for layout
 // parent: Panel_Define_Dataset
 
-public class Panel_Edit_Variable extends JPanel {
+public class Panel_Edit_Value extends JPanel {
 	private Panel_Define_Dataset mParent;
-	private Node nodeActive = null;
-	private Panel_Edit_VariableEditor mActiveEditor;
-	private Panel_Edit_Variable_root editRoot;
-	private Panel_Edit_Variable_Array editArray;
-	private Panel_Edit_Variable_Grid editGrid;
-	private Panel_Edit_Variable_Sequence editSequence;
-	private Panel_Edit_Variable_Structure editStructure;
-	private Panel_Edit_Variable_Primitive editPrimitive;
-	private Panel_Edit_Variable(){};
-	static Panel_Edit_Variable _create( Panel_Define_Dataset parent, Panel_Edit_ViewStructure view, StringBuffer sbError ){
-		Panel_Edit_Variable panel = new Panel_Edit_Variable();
+	private Value valueActive = null;
+	private Panel_Edit_ValueEditor mActiveEditor;
+	private JPanel edit_blank;
+	private Panel_Edit_Value_Byte editByte;
+	private Panel_Edit_Value_Short editShort;
+	private Panel_Edit_Value_Integer editInteger;
+	private Panel_Edit_Value_Float editFloat;
+	private Panel_Edit_Value_Double editDouble;
+	private Panel_Edit_Value_String editString;
+	private Panel_Edit_Value(){};
+	static Panel_Edit_Value _create( Panel_Define_Dataset parent, Panel_Edit_ViewStructure view, StringBuffer sbError ){
+		Panel_Edit_Value panel = new Panel_Edit_Value();
 		try {
 			panel.mParent = parent;
 			panel.setLayout( new java.awt.BorderLayout() );
-			panel.editRoot = new Panel_Edit_Variable_root();
-			if( ! panel.editRoot._zInitialize( view, sbError ) ){
-				sbError.insert( 0, "error initializing root editor: " );
+			panel.edit_blank = new JPanel();
+			panel.edit_blank.add( new JLabel( "No Value Selected" ) );
+			panel.editByte = new Panel_Edit_Value_Byte();
+			if( ! panel.editByte._zInitialize( view, sbError ) ){
+				sbError.insert( 0, "error initializing byte editor: " );
 				return null;
 			}
-			panel.editArray = new Panel_Edit_Variable_Array();
-			if( ! panel.editArray._zInitialize( view, sbError ) ){
-				sbError.insert( 0, "error initializing array editor: " );
+			panel.editShort = new Panel_Edit_Value_Short();
+			if( ! panel.editShort._zInitialize( view, sbError ) ){
+				sbError.insert( 0, "error initializing short editor: " );
 				return null;
 			}
-			panel.editGrid = new Panel_Edit_Variable_Grid();
-			if( ! panel.editGrid._zInitialize( view, sbError ) ){
-				sbError.insert( 0, "error initializing grid editor: " );
+			panel.editInteger = new Panel_Edit_Value_Integer();
+			if( ! panel.editInteger._zInitialize( view, sbError ) ){
+				sbError.insert( 0, "error initializing integer editor: " );
 				return null;
 			}
-			panel.editSequence = new Panel_Edit_Variable_Sequence();
-			if( ! panel.editSequence._zInitialize( view, sbError ) ){
-				sbError.insert( 0, "error initializing structure editor: " );
+			panel.editFloat = new Panel_Edit_Value_Float();
+			if( ! panel.editFloat._zInitialize( view, sbError ) ){
+				sbError.insert( 0, "error initializing float editor: " );
 				return null;
 			}
-			panel.editStructure = new Panel_Edit_Variable_Structure();
-			if( ! panel.editStructure._zInitialize( view, sbError ) ){
-				sbError.insert( 0, "error initializing structure editor: " );
+			panel.editDouble = new Panel_Edit_Value_Double();
+			if( ! panel.editDouble._zInitialize( view, sbError ) ){
+				sbError.insert( 0, "error initializing double editor: " );
 				return null;
 			}
-			panel.editPrimitive = new Panel_Edit_Variable_Primitive();
-			if( ! panel.editPrimitive._zInitialize( view, sbError ) ){
-				sbError.insert( 0, "error initializing primitive editor: " );
+			panel.editString = new Panel_Edit_Value_String();
+			if( ! panel.editString._zInitialize( view, sbError ) ){
+				sbError.insert( 0, "error initializing string editor: " );
 				return null;
 			}
 			return panel;
@@ -84,53 +87,34 @@ public class Panel_Edit_Variable extends JPanel {
 			return null;
 		}
 	}
-	public void _showVariable( Node node ){
-		if( mActiveEditor != null || node == null ){
+	public void _showValue( Value value ){
+		if( mActiveEditor != null || value == null ){
 			mActiveEditor._clear();
 			remove( mActiveEditor );
+			add( edit_blank );
 		}
-		nodeActive = node;
-		if( nodeActive.isRoot() ){
-			mActiveEditor = editRoot;
-		} else {
-			BaseType bt = nodeActive.getBaseType();
-			switch( DAP.getType( bt ) ){
-				case Array:
-					mActiveEditor = editArray;
-					break;
-				case Grid:
-					mActiveEditor = editGrid;
-					break;
-				case Sequence:
-					mActiveEditor = editSequence;
-					break;
-				case Structure:
-					mActiveEditor = editStructure;
-					break;
-				case Byte:
-				case Int16:
-				case UInt16:
-				case Int32:
-				case UInt32:
-				case Float32:
-				case Float64:
-				case String:
-					mActiveEditor = editPrimitive;
-					System.out.println( "showing primitive editor" );
-					break;
-				default:
-					mActiveEditor = null; // should not happen
-					ApplicationController.vShowError_NoModal( "internal error, unknown/unsupported data type to edit: " + bt.getTypeName() );
-					return;
-			}
+		valueActive = value;
+		switch( value.getType() ){
+			case Byte: mActiveEditor = editByte; break;
+			case Int16: mActiveEditor = editShort; break;
+			case UInt16: mActiveEditor = editShort; break;
+			case Int32: mActiveEditor = editInteger; break;
+			case UInt32: mActiveEditor = editInteger; break;
+			case Float32: mActiveEditor = editFloat; break;
+			case Float64: mActiveEditor = editDouble; break;
+			case String: mActiveEditor = editString; break;
+			default:
+				mActiveEditor = null; // should not happen
+				ApplicationController.vShowError_NoModal( "internal error, unknown/unsupported value type to edit: " + value.getType() );
+				return;
 		}
 		add( mActiveEditor, BorderLayout.CENTER );
-		mActiveEditor._show( node );
+		mActiveEditor._show( value );
 	}
 }
 
-abstract class Panel_Edit_VariableEditor extends JPanel {
-	private Node node_active = null;
+abstract class Panel_Edit_ValueEditor extends JPanel {
+	private Value valueActive = null;
 	protected Panel_Edit_ViewStructure view;
 	protected JLabel labelName = new JLabel( "Name:" );
 	protected JLabel labelName_Long = new JLabel( "Long Name:" );
@@ -156,7 +140,7 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 				new java.awt.event.FocusAdapter(){
 					public void focusLost(java.awt.event.FocusEvent evt) {
 						String sNewName = jtfName.getText();
-						if( ! sNewName.equals( jtfName.getName() ) ) _setName( sNewName, view );
+//						if( ! sNewName.equals( jtfName.getName() ) ) _setName( sNewName, view );
 					}
 				}
 			);
@@ -164,7 +148,7 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 				new java.awt.event.ActionListener(){
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
 						String sNewName = jtfName.getText();
-						if( ! sNewName.equals( jtfName.getName() ) ) _setName( sNewName, view );
+//						if( ! sNewName.equals( jtfName.getName() ) ) _setName( sNewName, view );
 					}
 				}
 			);
@@ -176,51 +160,26 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 		}
 	}
 	void _clear(){ // release all references
-		node_active = null;
+		valueActive = null;
 	}
-	void _show( Node node ){ // activate the node for editing
-		if( node == null ){ // blank screen
+	void _show( Value value ){ // activate the node for editing
+		if( value == null ){ // blank screen
 			jtfName.setText( "" );
 			displayName_Long.setText( "" );
 			labelName_Encoded.setText( "" );
-		} else if( node.isRoot() ) {
-			opendap.dap.DataDDS ddds = view._getModel().mSourceModel.getData();
-			if( ddds == null ){
-				jtfName.setText( "" );
-				displayName_Long.setText( "" );
-				labelName_Encoded.setText( "" );
-			} else {
-				jtfName.setText( ddds.getClearName() );
-				displayName_Long.setText( ddds.getLongName() );
-				labelName_Encoded.setText( ddds.getName() );
-			}
 		} else {
-			BaseType bt = node.getBaseType();
-			jtfName.setText( bt.getClearName() );
-			displayName_Long.setText( bt.getLongName() );
-			labelName_Encoded.setText( bt.getName() );
+			DAP.DAP_TYPE type = value.getType();
+//			jtfName.setText( bt.getClearName() );
+//			displayName_Long.setText( bt.getLongName() );
+//			labelName_Encoded.setText( bt.getName() );
 		}
-		node_active = node;
-	}
-	void _setName( String sNewName, Panel_Edit_ViewStructure view ){
-		try {
-			if( node_active == null ){ // blank screen
-				ApplicationController.vShowWarning( "unable to set name, no model is active" );
-			} else {
-				StringBuffer sbError = new StringBuffer();
-				if( ! node_active._setName( sNewName, sbError ) ){
-					ApplicationController.vShowError( "Failed to set name to [" + sNewName + "]: " + sbError.toString() );
-				}
-			}
-		} catch( Throwable t ) {
-			ApplicationController.vUnexpectedError( t, "Error changing dimension name: " + t );
-		}
+		valueActive = value;
 	}
 }
 
-class Panel_Edit_Variable_root extends Panel_Edit_VariableEditor {
-	void _show( Node node ){ // will be null
-		super._show( node );
+class Panel_Edit_Value_Byte extends Panel_Edit_ValueEditor {
+	void _show( Value value ){
+		super._show( value );
 	}
 	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
@@ -228,8 +187,8 @@ class Panel_Edit_Variable_root extends Panel_Edit_VariableEditor {
 	}
 }
 
-class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
-	private Node_Array nodeActive = null;
+class Panel_Edit_Value_Short extends Panel_Edit_ValueEditor {
+	private Node_Array valueActive = null;
 	public static final int MAX_DIMENSIONS = 10;
 	public static final int INDENT = 10;
 	public static final int LABEL_MARGIN = 4;
@@ -248,16 +207,15 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 	private ArrayList<JButton> listDimensionDelete = new ArrayList<JButton>(); 
 	private ArrayList<JButton> listDimensionUp = new ArrayList<JButton>(); 
 	private ArrayList<JButton> listDimensionDown = new ArrayList<JButton>(); 
-	void _show( Node node ){
-		super._show( node );
-		nodeActive = (Node_Array)node;
-		labelValueCount_value.setText( Integer.toString( nodeActive._getValueCount() ) );
-		jcbType.setSelectedItem( DAP.getTypeEnumByName( nodeActive._getValueTypeString() ) );
+	void _show( Value value ){
+		super._show( value );
+		labelValueCount_value.setText( Integer.toString( valueActive._getValueCount() ) );
+		jcbType.setSelectedItem( DAP.getTypeEnumByName( valueActive._getValueTypeString() ) );
 		int xDimension1 = 1;
-		int ctDimension = nodeActive._getDimensionCount();
+		int ctDimension = valueActive._getDimensionCount();
 		for( ; xDimension1 <= ctDimension; xDimension1++ ){
-			listDimensionNameJTF.get( xDimension1 - 1 ).setText( nodeActive._getDimensionName( xDimension1 ) );
-			listDimensionSizeJTF.get( xDimension1 - 1 ).setText( Integer.toString( nodeActive._getDimensionLength( xDimension1 ) ) );
+			listDimensionNameJTF.get( xDimension1 - 1 ).setText( valueActive._getDimensionName( xDimension1 ) );
+			listDimensionSizeJTF.get( xDimension1 - 1 ).setText( Integer.toString( valueActive._getDimensionLength( xDimension1 ) ) );
 			listDimensionDelete.get( xDimension1 - 1 ).setVisible( ctDimension > 1 );
 			listDimensionUp.get( xDimension1 - 1 ).setVisible( xDimension1 > 1 );
 			listDimensionDown.get( xDimension1 - 1 ).setVisible( xDimension1 < ctDimension );
@@ -266,7 +224,7 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 		for( ; xDimension1 <= MAX_DIMENSIONS; xDimension1++ ){
 			listDimensionPanel.get( xDimension1 - 1).setVisible( false );
 		}
-		view._getVariableView()._show( node );
+//		view._getVariableView()._show( value );
 	}
 	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
@@ -325,8 +283,6 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 			jtfDimensionName.addActionListener(       // occurs if user clicks enter key
 				new java.awt.event.ActionListener(){
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						String sNewName = jtfDimensionName.getText();
-						if( ! sNewName.equals( nodeActive.getName() ) ) setDimensionName( xDimension_final1, sNewName );
 					}
 				}
 			);
@@ -340,15 +296,13 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 			jtfDimensionSize.addActionListener(       // occurs if user clicks enter key
 				new java.awt.event.ActionListener(){
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						String sNewSize = jtfDimensionSize.getText();
-						if( ! sNewSize.equals( nodeActive._getDimensionLength( xDimension_final1 ) ) ) setDimensionSize( xDimension_final1, sNewSize );
 					}
 				}
 			);
 			buttonDelete.addActionListener( 
 				new java.awt.event.ActionListener(){
 					public void actionPerformed( java.awt.event.ActionEvent evt ){
-						JOptionPane.showMessageDialog( Panel_Edit_Variable_Array.this, "not implemented" );
+						JOptionPane.showMessageDialog( Panel_Edit_Value_Short.this, "not implemented" );
 					}
 				}
 			);
@@ -356,87 +310,45 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 		buttonAddDimension.addActionListener( 
 			new java.awt.event.ActionListener(){
 				public void actionPerformed( java.awt.event.ActionEvent evt ){
-					addDimension();
 				}
 			}
 		);
 		return true;
 	}
-	void addDimension(){
-		StringBuffer sbError = new StringBuffer( 256 );
-		if( nodeActive._addDimension(sbError) ){
-			_show( nodeActive );
-		} else {
-			ApplicationController.vShowError( "Error adding new dimension: " + sbError );
-		}
-	}
-	void setDimensionName( int xDimension1, String sNewName ){
-		StringBuffer sbError = new StringBuffer( 256 );
-		if( nodeActive._setDimensionName( xDimension1, sNewName, sbError ) ){
-			ApplicationController.vShowStatus( "Changed dimension " + xDimension1 + " name to " + sNewName );
-		} else {
-			ApplicationController.vShowError( "Error changing dimension name: " + sbError );
-		}
-		_show( nodeActive );
-		System.out.println( "showed active" );
-	}
-	void setDimensionSize( int xDimension1, String sNewSize ){
-		try {
-			int iNewSize = Integer.parseInt( sNewSize );
-			StringBuffer sbError = new StringBuffer( 256 );
-			if( nodeActive._setDimensionSize( xDimension1, iNewSize, sbError ) ){
-				ApplicationController.vShowStatus( "Changed dimension " + xDimension1 + " size to " + iNewSize );
-			} else {
-				ApplicationController.vShowError( "Error changing size of dimension " + xDimension1 + ": " + sbError );
-			}
-			_show( nodeActive ); 
-		} catch( NumberFormatException e ) {
-			ApplicationController.vShowError( "New size: " + sNewSize + " could not be interpreted as an integer." );			
-		} catch( Throwable t ) {
-			ApplicationController.vShowError( "Error changing size of dimension " + xDimension1 + ": " + t );
-		}
-		_show( nodeActive );
-	}
 }
-class Panel_Edit_Variable_Grid extends Panel_Edit_VariableEditor {
-	void _show( Node node ){
-		super._show( node );
+class Panel_Edit_Value_Integer extends Panel_Edit_ValueEditor {
+	void _show( Value value ){
+		super._show( value );
 	}
 	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
 		return true;
 	}
 }
-class Panel_Edit_Variable_Sequence extends Panel_Edit_VariableEditor {
-	void _show( Node node ){
-		super._show( node );
+class Panel_Edit_Value_Float extends Panel_Edit_ValueEditor {
+	void _show( Value value ){
+		super._show( value );
 	}
 	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
 		return true;
 	}
 }
-class Panel_Edit_Variable_Structure extends Panel_Edit_VariableEditor {
-	void _show( Node node ){
-		super._show( node );
+class Panel_Edit_Value_Double extends Panel_Edit_ValueEditor {
+	void _show( Value value ){
+		super._show( value );
 	}
 	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
 		return true;
 	}
 }
-class Panel_Edit_Variable_Primitive extends Panel_Edit_VariableEditor {
-	private JLabel labelType = new JLabel( "Type:" );
-	private JComboBox jcbType;
-	void _show( Node node ){
-		super._show( node );
-		jcbType.setSelectedItem( DAP.getTypeEnumByName( node.getBaseType().getTypeName() ) );
+class Panel_Edit_Value_String extends Panel_Edit_ValueEditor {
+	void _show( Value value ){
+		super._show( value );
 	}
 	boolean _zInitialize( Panel_Edit_ViewStructure structure_view, StringBuffer sbError ){
 		super._zInitialize( structure_view, sbError );
-		Class<?> class_DAP_TYPE = DAP.DAP_TYPE.class;
-		jcbType = new JComboBox( class_DAP_TYPE.getEnumConstants() ) ;
-		layout.add( labelType, jcbType );  
 		return true;
 	}
 }
