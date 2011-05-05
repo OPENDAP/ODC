@@ -22,6 +22,7 @@ import opendap.clients.odc.DAP;
 import opendap.clients.odc.gui.Resources;
 
 // see Panel_Edit_Container for UI guide
+// this is the action bar for variable editing
 // this panel is used by Panel_Define_Dataset
 
 public class Panel_Edit_Dataset extends JPanel {
