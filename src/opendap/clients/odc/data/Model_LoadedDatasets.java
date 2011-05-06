@@ -1,5 +1,7 @@
 package opendap.clients.odc.data;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.MutableComboBoxModel;
 import javax.swing.AbstractListModel;
@@ -7,6 +9,7 @@ import javax.swing.event.ListDataListener;
 import javax.swing.event.ListDataEvent;
 
 import opendap.clients.odc.ApplicationController;
+import opendap.clients.odc.plot.Panel_View_Plot;
 
 /** The application controller maintains this object */
 
@@ -46,6 +49,14 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 		return true;
 	}
 
+	public Model_Dataset _get( int iIndex0 ){
+		if( iIndex0 < 0 || iIndex0 >= mctDatasets ){
+			ApplicationController.vShowWarning("attempt to get non-existent dataset element " + iIndex0);
+			return null;
+		}
+		return maDatasets0[iIndex0];
+	}
+	
 	void addDataset( Model_Dataset url ){
 		if( url == null ){
 			ApplicationController.vShowError("(Model_LoadedDataset) internal error, attempt to add null dataset");

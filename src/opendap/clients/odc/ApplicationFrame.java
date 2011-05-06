@@ -458,10 +458,6 @@ public class ApplicationFrame extends JFrame {
 		return panelTableView.getOutputStream(sbError);
 	}
 
-	public boolean zAddDataToPlotter_Invoked( Model_Dataset url, StringBuffer sbError ){
-		return panelPlotter.zAddData_Invoked(url, sbError);
-	}
-
 	public Panel_View_Variable getVariableViewer(){ return this.panelDataView.panelVarView; }
 	
 	public Panel_View_Image getImageViewer(){ return this.panelImageView; }

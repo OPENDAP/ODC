@@ -33,6 +33,7 @@ package opendap.clients.odc.plot;
 
 import opendap.dap.*;
 import opendap.clients.odc.*;
+import opendap.clients.odc.data.Model_LoadedDatasets;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.gui.Resources;
 import opendap.clients.odc.gui.Styles;
@@ -61,18 +62,13 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	JRadioButton jrbFromSelectedURL;
 	final JList jlistSelectedURLs = new JList();
 	final JList jlistPlottableExpressions = new JList();
-	final DefaultListModel lmSelectedURLs = new DefaultListModel();
+//	final DefaultListModel lmSelectedURLs = new DefaultListModel();
 	final static DataParameters mDataParameters = new DataParameters();
-
-	ArrayList<Model_Dataset> listPlotterData = new ArrayList<Model_Dataset>();
 
 	final static String[] asOutputOptions = {"Preview Pane", "External Window", "New Window", "Full Screen", "Print", "File (PNG)", "Thumbnails"};
 
 	final private JButton buttonPlot = new JButton("Plot to");
 	final private JButton buttonSelectAll = new JButton("Select All");
-	final private JButton buttonUnload = new JButton("Unload");
-	final private JButton buttonFileSave = new JButton("File Save...");
-	final private JButton buttonFileLoad = new JButton("File Load...");
 	final private JButton buttonInfo = new JButton("Info...");
 	final private JPanel panelZoom = new JPanel();
 	final private JComboBox jcbOutputOptions = new JComboBox(asOutputOptions);
@@ -83,7 +79,6 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	final private JButton buttonEvaluate = new JButton("Evaluate");
 	final private JButton buttonFileSaveExpression = new JButton("Save...");
 	final private JButton buttonFileLoadExpression = new JButton("Load...");
-
 
 	private int mPlotType = Output_ToPlot.PLOT_TYPE_Pseudocolor; // default
 
@@ -102,8 +97,6 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	public final static Panel_View_Plot getInstance(){ return thisInstance; }
-
-	public final static ArrayList<Model_Dataset> getData(){ return getInstance().listPlotterData; }
 
 	public static JPanel getTN_Controls(){
 		return thisInstance.panelTN_Controls;
@@ -169,9 +162,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	public boolean zInitialize(StringBuffer sbError){
-
 		try {
-
 			javax.swing.border.Border borderStandard = BorderFactory.createEtchedBorder();
 			this.setBorder(borderStandard);
 
@@ -381,9 +372,10 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		vPlot( urlToPlot, eOutputOption );
 	}
 
-	void vPlot(Model_Dataset urlToPlot, int eOutput){
-		for( int xListItem = 0; xListItem < lmSelectedURLs.getSize(); xListItem++ ){
-			Model_Dataset urlCurrent = (Model_Dataset)lmSelectedURLs.get(xListItem);
+	void vPlot( Model_Dataset urlToPlot, int eOutput ){
+		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
+		for( int xListItem = 0; xListItem < modelLoadedDatasets.getSize(); xListItem++ ){
+			Model_Dataset urlCurrent = (Model_Dataset)modelLoadedDatasets.getElementAt(xListItem);
 			if( urlCurrent == urlToPlot ){
 				vActivateListItem(xListItem);
 				zPlot(eOutput);
@@ -498,11 +490,6 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		this.mjpanelDatasets.setVisible(z);
 	}
 
-	// this method must be invoked on the event thread
-	public boolean zAddData_Invoked( Model_Dataset url, StringBuffer sbError ){
-		return this.source_Add(url, sbError);
-	}
-
 	void setPlottingEnabled( boolean z ){
 		this.buttonPlot.setEnabled(z);
 	}
@@ -545,40 +532,6 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 					} catch(Exception ex) {
 						ApplicationController.vUnexpectedError(ex, "while selecting all plotting datasets");
 					}
-			    }
-			}
-		);
-		buttonUnload.addActionListener(
-			new ActionListener(){
-	    		public void actionPerformed(ActionEvent event) {
-					int xURL_0;
-					try {
-						xURL_0 = jlistSelectedURLs.getSelectedIndex();
-						if( xURL_0 < 0 ){
-							ApplicationController.vShowWarning("nothing selected");
-							return;
-						}
-						Panel_View_Plot.this.source_Unload(xURL_0);
-						return;
-					} catch(Exception ex) {
-						StringBuffer sbError = new StringBuffer(80);
-						ApplicationController.vUnexpectedError(ex, sbError);
-						ApplicationController.vShowError("Unexpected error unloading item: " + sbError);
-					}
-			    }
-			}
-		);
-		buttonFileSave.addActionListener(
-			new ActionListener(){
-	    		public void actionPerformed(ActionEvent event) {
-					vSaveSelectedListing();
-			    }
-			}
-		);
-		buttonFileLoad.addActionListener(
-			new ActionListener(){
-	    		public void actionPerformed(ActionEvent event) {
-					vFileLoad();
 			    }
 			}
 		);
@@ -637,9 +590,9 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		);
 
 		javax.swing.ButtonGroup bgSelectorOptions = new ButtonGroup();
-		bgSelectorOptions.add(jrbFromTable);
-		bgSelectorOptions.add(jrbFromSelectedURL);
-		jlistSelectedURLs.setModel(lmSelectedURLs);
+		bgSelectorOptions.add( jrbFromTable );
+		bgSelectorOptions.add( jrbFromSelectedURL );
+		jlistSelectedURLs.setModel( ApplicationController.getInstance().getDatasets() );
 
 		// dataset panel
 		mjpanelDatasets = new JPanel();
@@ -657,14 +610,8 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		gbc.gridx = 0;
 		mjpanelDatasets.add( buttonSelectAll, gbc );
 		gbc.gridx = 1;
-		mjpanelDatasets.add( buttonUnload, gbc );
-		gbc.gridx = 2;
-		mjpanelDatasets.add( buttonFileSave, gbc );
-		gbc.gridx = 3;
-		mjpanelDatasets.add( buttonFileLoad, gbc );
-		gbc.gridx = 4;
 		mjpanelDatasets.add( buttonInfo, gbc );
-		gbc.gridx = 5;
+		gbc.gridx = 2;
 		mjpanelDatasets.add( Box.createHorizontalGlue(), gbc );
 		gbc.gridx = 0; gbc.gridy = 3;
 		mjpanelDatasets.add( Box.createVerticalStrut(4), gbc );
@@ -692,14 +639,6 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		gbc.gridx = 0; gbc.gridy = 3;
 		mjpanelExpressions.add( Box.createVerticalStrut(4), gbc );
 
-		if( ConfigurationManager.getInstance().getProperty_DISPLAY_AllowPlotterFiles() ){
-			buttonFileSave.setVisible(true);
-			buttonFileLoad.setVisible(true);
-		} else {
-			buttonFileSave.setVisible(false);
-			buttonFileLoad.setVisible(false);
-		}
-
 // not in use currently
 //		JPanel jpanelInstructions = new JPanel();
 //		JLabel jlabelInstructions = new JLabel("here are the instructions");
@@ -712,28 +651,28 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	void vActivateLastListItem(){
-		int ctItems = listPlotterData.size();
+		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
+		int ctItems = modelLoadedDatasets.getSize();
 		if( ctItems > 0 ){
 			vActivateListItem(ctItems - 1);
 		}
 	}
 
 	void vActivateListItem( int xItem_0 ){
-		if( xItem_0 < 0 || xItem_0 >= listPlotterData.size() ){
-			buttonUnload.setEnabled(false);
-			buttonFileSave.setEnabled(false);
+		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
+		int ctItems = modelLoadedDatasets.getSize();
+		if( xItem_0 < 0 || xItem_0 >= ctItems ){
 			buttonInfo.setEnabled(false);
 		}
-		buttonUnload.setEnabled(true);
-		buttonFileSave.setEnabled(true);
 		buttonInfo.setEnabled(true);
 		if( !jrbFromSelectedURL.isSelected() ) jrbFromSelectedURL.setSelected(true);
 		jlistSelectedURLs.setSelectedIndex(xItem_0);
 		vSetDataToDefinition(xItem_0);
 	}
 
-	void vSetDataToDefinition(int xDataset_0){
-		final Model_Dataset url = Panel_View_Plot.this.listPlotterData.get(xDataset_0);
+	void vSetDataToDefinition( int xDataset_0 ){
+		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
+		final Model_Dataset url = modelLoadedDatasets._get( xDataset_0 );		
 		int ePlotType = getPlotType();
 		mDefinitionPanel.setData(url, Panel_Definition.VARIABLE_MODE_DDS, ePlotType);
 		Plot_Definition pd = mDefinitionPanel.getActivePlottingDefinition();
@@ -741,113 +680,15 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		pd.setColorSpecification(Panel_View_Plot.getPanel_ColorSpecification().getColorSpecification());
 	}
 
-	void vSetDataToExpression(int xDataset_0){
+	void vSetDataToExpression( int xDataset_0 ){
 		// TODO
-		final Model_Dataset url = (Model_Dataset)Panel_View_Plot.this.listPlotterData.get(xDataset_0);
+		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
+		final Model_Dataset url = modelLoadedDatasets._get( xDataset_0 );		
 		int ePlotType = getPlotType();
 		mDefinitionPanel.setData(url, Panel_Definition.VARIABLE_MODE_DDS, ePlotType);
 		Plot_Definition pd = mDefinitionPanel.getActivePlottingDefinition();
 		if( pd == null ) return;
 		pd.setColorSpecification(Panel_View_Plot.getPanel_ColorSpecification().getColorSpecification());
-	}
-
-	void vSaveSelectedListing(){
-		int xURL_0;
-		try {
-			xURL_0 = jlistSelectedURLs.getSelectedIndex();
-			if( xURL_0 < 0 ){
-				ApplicationController.vShowWarning("nothing selected");
-				return;
-			}
-			final Model_Dataset url = (Model_Dataset)Panel_View_Plot.this.listPlotterData.get(xURL_0);
-			String sTitle = url.getTitle();
-			DataConnectorFile dcf = new DataConnectorFile();
-			dcf.setTitle(url.getTitle());
-			dcf.setURL(url);
-			dcf.setData(url.getData());
-
-			// ask user for desired location
-			String sCacheDirectory = ConfigurationManager.getInstance().getProperty_DIR_DataCache();
-			StringBuffer sbError = new StringBuffer();
-			File fileCacheDirectory = Utility.fileEstablishDirectory( sCacheDirectory, sbError );
-			if (jfc == null) jfc = new JFileChooser();
-			if( fileCacheDirectory == null ){
-				// not established
-			} else {
-				jfc.setCurrentDirectory(fileCacheDirectory);
-			}
-			String sSuggestedFileName = Utility.sFriendlyFileName(sTitle) + ConfigurationManager.EXTENSION_Data;
-			jfc.setSelectedFile(new File(sSuggestedFileName));
-			int iState = jfc.showDialog(Panel_View_Plot.this, "Select Save Location");
-			File file = jfc.getSelectedFile();
-			if (file == null || iState != JFileChooser.APPROVE_OPTION) return; // user cancel
-
-			// try to save this directory as the new data cache directory
-			File fileNewCacheDirectory = file.getParentFile();
-			if( fileCacheDirectory != null ) if( !fileCacheDirectory.equals(fileNewCacheDirectory) ){
-				String sNewCacheDirectory = fileNewCacheDirectory.getCanonicalPath();
-				ConfigurationManager.getInstance().setOption(ConfigurationManager.PROPERTY_DIR_DataCache, sNewCacheDirectory );
-			}
-
-			// save DCF
-			String sPath = file.getPath();
-			FileOutputStream fos = new FileOutputStream(file);
-			ObjectOutputStream oos = new ObjectOutputStream(fos);
-			try {
-				oos.writeObject(dcf);
-			} catch(Exception ex) {
-				ApplicationController.vShowError("Failed to serialize object to file [" + sPath + "]: " + ex);
-			} finally {
-				try {
-					if(fos!=null) fos.close();
-				} catch(Exception ex) {}
-			}
-		} catch(Exception ex) {
-			StringBuffer sbError = new StringBuffer(80);
-			ApplicationController.vUnexpectedError(ex, sbError);
-			ApplicationController.vShowError("Unexpected error unloading item: " + sbError);
-		}
-	}
-
-	void vFileLoad(){
-		try {
-
-			// determine file path
-			String sCacheDirectory = ConfigurationManager.getInstance().getProperty_DIR_DataCache();
-			StringBuffer sbError = new StringBuffer();
-			File fileCacheDirectory = Utility.fileEstablishDirectory( sCacheDirectory, sbError );
-			if (jfc == null) jfc = new JFileChooser();
-			if( fileCacheDirectory != null ) jfc.setCurrentDirectory(fileCacheDirectory);
-			int iState = jfc.showDialog(Panel_View_Plot.this, "Load");
-			File file = jfc.getSelectedFile();
-			if (iState != JFileChooser.APPROVE_OPTION)	return;
-			if (file == null) return;
-
-			// load serialized object
-			Object o = Utility.oLoadObject(file, sbError);
-			if( o == null ){
-				ApplicationController.vShowError("Error loading Data DDS from file: " + sbError);
-				return;
-			}
-			if( o instanceof opendap.clients.odc.plot.DataConnectorFile ){
-				DataConnectorFile dcf = (DataConnectorFile)o;
-				Model_Dataset url = dcf.getURL();
-				url.setData(dcf.getData());
-				if( Panel_View_Plot.this.source_Add(url, sbError) ){
-					ApplicationController.vShowStatus("File loaded to plotter: " + url);
-				} else {
-					ApplicationController.vShowError("Error adding file as plotting source: " + sbError);
-				}
-			} else {
-				ApplicationController.vShowError("Object in file " + file.getPath() + " is of type " +  o.getClass().getName() + " not a loadable type");
-				return;
-			}
-
-		} catch(Exception ex) {
-			StringBuffer sbError = new StringBuffer(80);
-			ApplicationController.vUnexpectedError(ex, sbError);
-			ApplicationController.vShowError("Unexpected error loading item: " + sbError);
-		}
 	}
 
 	public static int getPlotType(){
@@ -877,47 +718,15 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		return null;
 	}
 	StringBuffer sbItem = new StringBuffer(80);
-	boolean source_Add( Model_Dataset url, StringBuffer sbError ){
-		try {
-			if( url == null ){ sbError.append("no source supplied"); return false; }
-			if( url.getData() == null ){ sbError.append("source has no data"); return false; }
-			listPlotterData.add(url);
-			lmSelectedURLs.addElement(url);
-			Panel_View_Plot.this.vActivateLastListItem(); // activate this item that was just added
-			return true;
-		} catch(Exception ex) {
-			sbError.append("System error adding plot source: " + ex);
-			ApplicationController.vUnexpectedError(ex, sbError);
-			return false;
-		}
-	}
-	void source_Unload( int xURL_0 ){
-		try {
-			if( xURL_0 >= this.listPlotterData.size() ){
-				ApplicationController.vShowError("system error; url index outside loaded range");
-			} else {
-				Model_Dataset urlEntry = (Model_Dataset)listPlotterData.get(xURL_0);
-				DataDDS ddds = urlEntry.getData();
-				lmSelectedURLs.removeElement(urlEntry);
-				listPlotterData.remove(xURL_0);
-				if (ddds == mDefinitionPanel.getDataDDS()) mDefinitionPanel.vClear();
-				Runtime.getRuntime().gc();
-				Thread.yield();
-			}
-		} catch(Exception ex) {
-			StringBuffer sbError = new StringBuffer("Unexpected error unloading: ");
-			ApplicationController.vUnexpectedError( ex, sbError );
-			ApplicationController.vShowError(sbError.toString());
-		}
-	}
 	void source_Info( int xURL_0 ){
 		try {
-			// DataDDS ddds = null;
-			if( xURL_0 >= this.listPlotterData.size() || xURL_0 < 0){
+			Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
+			final Model_Dataset url = modelLoadedDatasets._get( xURL_0 );		
+			if( xURL_0 >= modelLoadedDatasets.getSize() || xURL_0 < 0){
 				ApplicationController.vShowError("system error; url index outside loaded range");
 				return;
 			}
-			Model_Dataset urlEntry = (Model_Dataset)listPlotterData.get(xURL_0);
+			Model_Dataset urlEntry = modelLoadedDatasets._get(xURL_0);
 			StringBuffer sbInfo = new StringBuffer(120);
 			sbInfo.append(urlEntry.getTitle());
 			sbInfo.append("\n");

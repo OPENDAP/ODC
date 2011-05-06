@@ -42,15 +42,17 @@ import java.util.*;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.dap.*;
 
+// TODO
+// This class is obsolete, functionality assumed by the data viewer.
+// Pillage for useful subroutines and then delete.
+
 public class Panel_View_Table extends JPanel implements IControlPanel {
 
     public Panel_View_Table() {
-ApplicationController.getInstance().vShowStartupMessage("table constructor start");
 		maData0 = new String[1][1];
 		mCurrentRow = 0; // always next one past existing info
 		mjtfCount_Rows = new JTextField(4);
 		mjtfCount_Cols = new JTextField(4);
-ApplicationController.getInstance().vShowStartupMessage("table constructor end");
 	}
 
 	private JTable mjtDisplay;
@@ -555,11 +557,11 @@ ApplicationController.getInstance().vShowStartupMessage("table constructor end")
 			new Runnable(){
 				public void run(){
 					StringBuffer sbAddError = new StringBuffer(80);
-					if( ApplicationController.getInstance().getAppFrame().zAddDataToPlotter_Invoked( url, sbAddError ) ){
-					   // ok
-					} else {
-						ApplicationController.vShowError("Failed to add data URL to plotter: " + sbAddError);
-					}
+//					if( ApplicationController.getInstance().getAppFrame().zAddDataToPlotter_Invoked( url, sbAddError ) ){
+//					   // ok
+//					} else {
+//						ApplicationController.vShowError("Failed to add data URL to plotter: " + sbAddError);
+//					}
 				}
 			}
 		);

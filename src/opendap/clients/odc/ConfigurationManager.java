@@ -118,7 +118,6 @@ public class ConfigurationManager {
 	public static final String PROPERTY_DISPLAY_ShowStandardOut = "display.ShowStandardOut";
 	public static final String PROPERTY_DISPLAY_ShowPopupCancel = "display.ShowPopupCancel";
 	public static final String PROPERTY_DISPLAY_ShowViewTab = "display.ShowViewTab";
-	public static final String PROPERTY_DISPLAY_AllowPlotterFiles = "display.AllowPlotterFiles";
 	public static final String PROPERTY_DISPLAY_ShowErrorPopups = "display.ShowErrorPopups";
 	public static final String PROPERTY_DISPLAY_MarginBottom = "display.MarginBottom";
 	public static final String PROPERTY_DISPLAY_MarginRight = "display.MarginRight";
@@ -380,7 +379,6 @@ public class ConfigurationManager {
 		mlistProperties.add( PROPERTY_DISPLAY_ShowStandardOut );
 		mlistProperties.add( PROPERTY_DISPLAY_ShowPopupCancel );
 		mlistProperties.add( PROPERTY_DISPLAY_ShowViewTab );
-		mlistProperties.add( PROPERTY_DISPLAY_AllowPlotterFiles );
 		mlistProperties.add( PROPERTY_DISPLAY_ShowErrorPopups );
 		mlistProperties.add( PROPERTY_DISPLAY_MarginBottom );
 		mlistProperties.add( PROPERTY_DISPLAY_MarginRight );
@@ -446,14 +444,6 @@ public class ConfigurationManager {
 		String s = getInstance().getOption(PROPERTY_DISPLAY_ShowViewTab);
 		if( s == null ){
 			return true; // default
-		}
-		if( s.toUpperCase().startsWith("Y") || s.toUpperCase().equals("TRUE") ) return true;
-		return false;
-	}
-	public boolean getProperty_DISPLAY_AllowPlotterFiles(){
-		String s = getInstance().getOption(PROPERTY_DISPLAY_AllowPlotterFiles);
-		if( s == null ){
-			return false; // default
 		}
 		if( s.toUpperCase().startsWith("Y") || s.toUpperCase().equals("TRUE") ) return true;
 		return false;
@@ -988,7 +978,6 @@ public class ConfigurationManager {
 		sb.append(PROPERTY_DISPLAY_ShowPopupCancel + " = " + (this.getProperty_DISPLAY_ShowPopupCancel() ? "Yes" : "No") + "\n" );
 		sb.append(PROPERTY_DISPLAY_ShowViewTab + " = " + (this.getProperty_DISPLAY_ShowViewTab() ? "Yes" : "No") + "\n" );
 		sb.append(PROPERTY_DISPLAY_ShowErrorPopups + " = " + (this.getProperty_DISPLAY_ShowErrorPopups() ? "Yes" : "No") + "\n" );
-		sb.append(PROPERTY_DISPLAY_AllowPlotterFiles + " = " + (this.getProperty_DISPLAY_AllowPlotterFiles() ? "Yes" : "No") + "\n" );
 		sb.append(PROPERTY_LOGGING_ShowHeaders + " = " + (this.getProperty_LOGGING_ShowHeaders() ? "Yes" : "No") + "\n" );
 		sb.append(PROPERTY_LOGGING_ReportMetrics + " = " + (this.getProperty_LOGGING_ReportMetrics() ? "Yes" : "No") + "\n" );
 		sb.append(PROPERTY_OUTPUT_DodsFormat + " = " + OutputProfile.sFormatDescription(this.getProperty_OUTPUT_DodsFormat()) + " [ASCII, Formatted, Raw, DODS]"+ "\n");
@@ -1054,7 +1043,6 @@ public class ConfigurationManager {
 			mProperties.setProperty( PROPERTY_DISPLAY_ShowPopupCancel, "Yes");
 			mProperties.setProperty( PROPERTY_DISPLAY_ShowViewTab, "Yes");
 			mProperties.setProperty( PROPERTY_DISPLAY_ShowErrorPopups, "Yes");
-			mProperties.setProperty( PROPERTY_DISPLAY_AllowPlotterFiles, "No");
 			mProperties.setProperty( PROPERTY_OUTPUT_DodsFormat, "ASCII");
 			mProperties.setProperty( PROPERTY_MAX_DirectoryCount, "100");
 			mProperties.setProperty( PROPERTY_MAX_DirectoryFiles, "10000");

@@ -1,6 +1,13 @@
 package opendap.clients.odc;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+
+import javax.swing.JFileChooser;
+
+import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.plot.Panel_View_Plot;
 
 public class SavableImplementation implements ISavable {
 	
@@ -136,4 +143,106 @@ public class SavableImplementation implements ISavable {
 	public void _makeDirty(){ mzDirty = true; }
 	public void _makeClean(){ mzDirty = false; }
 
+// old file loading routine
+//	void vFileLoad(){
+//		try {
+//
+//			// determine file path
+//			String sCacheDirectory = ConfigurationManager.getInstance().getProperty_DIR_DataCache();
+//			StringBuffer sbError = new StringBuffer();
+//			File fileCacheDirectory = Utility.fileEstablishDirectory( sCacheDirectory, sbError );
+//			if (jfc == null) jfc = new JFileChooser();
+//			if( fileCacheDirectory != null ) jfc.setCurrentDirectory(fileCacheDirectory);
+//			int iState = jfc.showDialog(Panel_View_Plot.this, "Load");
+//			File file = jfc.getSelectedFile();
+//			if (iState != JFileChooser.APPROVE_OPTION)	return;
+//			if (file == null) return;
+//
+//			// load serialized object
+//			Object o = Utility.oLoadObject(file, sbError);
+//			if( o == null ){
+//				ApplicationController.vShowError("Error loading Data DDS from file: " + sbError);
+//				return;
+//			}
+//			if( o instanceof opendap.clients.odc.plot.DataConnectorFile ){
+//				DataConnectorFile dcf = (DataConnectorFile)o;
+//				Model_Dataset url = dcf.getURL();
+//				url.setData(dcf.getData());
+//				if( Panel_View_Plot.this.source_Add(url, sbError) ){
+//					ApplicationController.vShowStatus("File loaded to plotter: " + url);
+//				} else {
+//					ApplicationController.vShowError("Error adding file as plotting source: " + sbError);
+//				}
+//			} else {
+//				ApplicationController.vShowError("Object in file " + file.getPath() + " is of type " +  o.getClass().getName() + " not a loadable type");
+//				return;
+//			}
+//
+//		} catch(Exception ex) {
+//			StringBuffer sbError = new StringBuffer(80);
+//			ApplicationController.vUnexpectedError(ex, sbError);
+//			ApplicationController.vShowError("Unexpected error loading item: " + sbError);
+//		}
+//	}
+
+// old file save routine
+//	void vSaveSelectedListing(){
+//		int xURL_0;
+//		try {
+//			xURL_0 = jlistSelectedURLs.getSelectedIndex();
+//			if( xURL_0 < 0 ){
+//				ApplicationController.vShowWarning("nothing selected");
+//				return;
+//			}
+//			final Model_Dataset url = (Model_Dataset)Panel_View_Plot.this.listPlotterData.get(xURL_0);
+//			String sTitle = url.getTitle();
+//			DataConnectorFile dcf = new DataConnectorFile();
+//			dcf.setTitle(url.getTitle());
+//			dcf.setURL(url);
+//			dcf.setData(url.getData());
+//
+//			// ask user for desired location
+//			String sCacheDirectory = ConfigurationManager.getInstance().getProperty_DIR_DataCache();
+//			StringBuffer sbError = new StringBuffer();
+//			File fileCacheDirectory = Utility.fileEstablishDirectory( sCacheDirectory, sbError );
+//			if (jfc == null) jfc = new JFileChooser();
+//			if( fileCacheDirectory == null ){
+//				// not established
+//			} else {
+//				jfc.setCurrentDirectory(fileCacheDirectory);
+//			}
+//			String sSuggestedFileName = Utility.sFriendlyFileName(sTitle) + ConfigurationManager.EXTENSION_Data;
+//			jfc.setSelectedFile(new File(sSuggestedFileName));
+//			int iState = jfc.showDialog(Panel_View_Plot.this, "Select Save Location");
+//			File file = jfc.getSelectedFile();
+//			if (file == null || iState != JFileChooser.APPROVE_OPTION) return; // user cancel
+//
+//			// try to save this directory as the new data cache directory
+//			File fileNewCacheDirectory = file.getParentFile();
+//			if( fileCacheDirectory != null ) if( !fileCacheDirectory.equals(fileNewCacheDirectory) ){
+//				String sNewCacheDirectory = fileNewCacheDirectory.getCanonicalPath();
+//				ConfigurationManager.getInstance().setOption(ConfigurationManager.PROPERTY_DIR_DataCache, sNewCacheDirectory );
+//			}
+//
+//			// save DCF
+//			String sPath = file.getPath();
+//			FileOutputStream fos = new FileOutputStream(file);
+//			ObjectOutputStream oos = new ObjectOutputStream(fos);
+//			try {
+//				oos.writeObject(dcf);
+//			} catch(Exception ex) {
+//				ApplicationController.vShowError("Failed to serialize object to file [" + sPath + "]: " + ex);
+//			} finally {
+//				try {
+//					if(fos!=null) fos.close();
+//				} catch(Exception ex) {}
+//			}
+//		} catch(Exception ex) {
+//			StringBuffer sbError = new StringBuffer(80);
+//			ApplicationController.vUnexpectedError(ex, sbError);
+//			ApplicationController.vShowError("Unexpected error unloading item: " + sbError);
+//		}
+//	}
+
+	
 }
