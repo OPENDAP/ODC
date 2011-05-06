@@ -1379,7 +1379,8 @@ public class OutputEngine implements ByteCounter {
 	}
 
 	private boolean zAddToPlotter_Invoked( Model_Dataset url, StringBuffer sbError ){
-		return ApplicationController.getInstance().getAppFrame().zAddDataToPlotter_Invoked( url, sbError );
+		ApplicationController.getInstance().getDatasets().addDataset( url );
+		return true;
 	}
 
 	private void loadURLToPlotter( final Model_Dataset url, final javax.swing.JButton jbuttonActivator, java.awt.event.ActionListener action, final Continuation_DoCancel con){
