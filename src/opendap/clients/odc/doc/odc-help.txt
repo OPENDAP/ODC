@@ -477,17 +477,19 @@ Image       - you will be prompted for a file name and location and the plot wil
 
 #Plotting - Scaling
 
-The scale tab has controls that allow you to define margins and scale for your plot. The scale is the relationship between data points and screen pixels. For example in a 1 to 1 scale there would be one data point for each pixel. In other words if you were plotting a 200 x 300 array in a pseudocolor plot the plot area would be 200 x 300 pixels in size on both and the printer. You can change the scale by setting the zoom factor which has the following meaning:
+The scale tab has controls that allow you to define margins and scale for your plot. The scale is the relationship between data points and screen pixels. For example in a 1 to 1 scale there would be one data point for each pixel. In other words if you were plotting a 200 x 300 array in a pseudocolor plot the plot area would be 200 x 300 pixels in size on both the screen and the printer. You can change the scale by setting the zoom factor which has the following meaning:
 
  Max   - try to fill output area
   %    - make proportional, for example 50% means 2 data points per pixel
 Custom - set the size to the exact dimensions shown
 
-Note that for a 2D plot the axes are drawn in the margins so your margins must accomodate any axes or other annotations you want to include.
+The scale may be applied to the plot area, the square region where the data is being drawn, or to the canvas, ie, to the entire window. The "margins" refer to the distance between the edge of the canvas and the edge of the plot area. All decorations, like axes, legends, titles, etc, must be able to fit in the margin or they will not be rendered.
 
-When you are using Max or % zoom factors the custom area will show current size of the output. You can specify either "Canvas" mode to set a width for the entire image including the margins, or for just the plot area.
+For a 2D plot the axes are drawn in the margins so your margins must accomodate any axes or other annotations you want to include.
 
-The nominal resolution of most computer screens is 72 pixels per inch. Whatever your screen resolution is will appear by default in the Resolution text box. You can specify a higher resolution using the "Resolution" text box. This is useful if you are generating output for a printer or for printing. For example, for raster line art "Science" magazine prefers a resolution of 1200 dpi, so you would enter that as your output resolution if you were preparing a pseudocolor for that journal. Note that if you display a high-res image on the screen it will be gigantic.
+When you are using Max or % zoom factors the custom area fields will show current size of the output. You can specify either "Canvas" mode to set a width for the entire image including the margins, or for just the plot area.
+
+As of 2011 the nominal resolution of most computer screens is 96 pixels per inch. Older systems (pre-2007) may have a 72 dpi resolution. Whatever your screen resolution is will appear by default in the Resolution text box. You can specify a higher resolution using the "Resolution" text box. This is useful if you are generating output for a printer or for printing. For example, for raster line art "Science" magazine prefers a resolution of 1200 dpi, so you would enter that as your output resolution if you were preparing a pseudocolor for that journal. Note that if you display a high-res image on the screen it will be gigantic.
 
 #Plotting - Histograms
 

@@ -3,9 +3,40 @@
 
 This How-To resource explains how to do common tasks step by step. For in-depth help reference information see the Help tab.
 
+Control tabs are referred to using a slash format. For example, "View/Data" means click the "View" tab (top row), then click the "Data" tab (a subtab of View).
+
 #Create a Dataset Using Paste
 
 One of the fastest ways to create a new dataset is to use a paste (Ctrl+V) action.
 
 http://www.cpc.ncep.noaa.gov/products/analysis_monitoring/cdus/prcp_temp_tables/wctyprcp.txt
+
+#How to Create and Plot Data
+
+Here is a simple example of creating and plotting a simple data set.
+
+1. Go to View/Data
+2. Click the "New" dataset button
+      - a new dataset named "Dataset" will appear in the combo box to the left of the button
+	  - the new dataset is empty, its root is named "data" and can be seen in the "Dataset Structure" panel
+	  - the root structure ("data") is automatically selected when the new dataset is created
+3. Find the "Edit Variable" panel in the middle or mid-right of the screen
+4. Verify that the variable type selector next to the blue "+" button is set to "Array"
+5. Click the blue plus button "+"
+	  - a new array is created with one dimension of 100 elements
+	  - the array is of the type integer by default
+	  - the values of the array are visible in the array viewer at the bottom of the screen
+6. Click the "New" dimension button in the array editor
+	  - a new dimension is added
+7. Go to the command bar of the array editor, field "exp:", type "$1+$2" (without quotes) and press enter
+	  - new values appear in the array
+	  - this expression tells the editor to make each cell the sum of its index values (row=$1 and column=$2)
+8. Go to View/Plotter
+9. Click "Dataset" in the data selector at the top left of the screen
+10. Verify that the plot type is "Pseudocolor"
+11. Click the "Plot to" button
+	  - a rainbow-like plot will appear
+	  
+	  
+
 

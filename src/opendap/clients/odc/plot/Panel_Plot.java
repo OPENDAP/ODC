@@ -266,7 +266,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			int pxPlotTop  = mpxMargin_Top;
 
 			if( axisVertical != null ){
-				if( !axisVertical.zDetermineScaleInterval(pxPlotHeight, fontAxisTicks, true, mbi.createGraphics(), false, 0, 0, false, sbError) ){
+				if( !axisVertical.zDetermineScaleInterval(pxPlotHeight, fontAxisTicks, true, g2, false, 0, 0, false, sbError) ){
 					ApplicationController.vShowError("Failed to generate vertical axis: " + sbError);
 				}
 				if( axisVertical.mpxTick_MajorInterval == 0 ){
@@ -278,7 +278,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 				masTickLabels_vertical = axisVertical.getScaleLabels1();
 			}
 			if( axisHorizontal != null ){
-				if( !axisHorizontal.zDetermineScaleInterval(pxPlotWidth, fontAxisTicks, false, mbi.createGraphics(), false, 0, 0, false, sbError) ){
+				if( !axisHorizontal.zDetermineScaleInterval(pxPlotWidth, fontAxisTicks, false, g2, false, 0, 0, false, sbError) ){
 					ApplicationController.vShowError("Failed to generate vertical axis: " + sbError);
 				}
 				if( axisHorizontal.mpxTick_MajorInterval == 0 ){

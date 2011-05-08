@@ -38,6 +38,7 @@ import javax.swing.event.*;
 // on this panel see the Panel_Variables class.
 
 public class Panel_Definition extends JPanel {
+	final static long serialVersionUID = 1;
 
 	public final static int VARIABLE_MODE_DDS = 1;
 	public final static int VARIABLE_MODE_Table = 2;
@@ -225,6 +226,7 @@ public class Panel_Definition extends JPanel {
 }
 
 class Panel_VariableTab extends JPanel {
+	final static long serialVersionUID = 1;
 	private Panel_Definition mParent;
 	private Plot_Definition mPlottingDefinition_active = null;
 	private PlottingDefinition_DataDDS mDefinition_DataDDS;
