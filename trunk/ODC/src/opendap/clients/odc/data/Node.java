@@ -18,6 +18,7 @@ import opendap.dap.DArray;
 import opendap.dap.DArrayDimension;
 import opendap.dap.DByte;
 import opendap.dap.DDS;
+import opendap.dap.DataDDS;
 import opendap.dap.DFloat32;
 import opendap.dap.DFloat64;
 import opendap.dap.DGrid;
@@ -364,6 +365,10 @@ public abstract class Node extends DefaultMutableTreeNode {   // functions as bo
 	}
 	
 	Node createDefaultMember( DAP_VARIABLE variable_type, StringBuffer sbError ){
+		if( getType() != DAP_VARIABLE.Structure ){
+			sbError.append( "internal error, attempt to add variable to a " + getType() + ", variables can only be added to structures" );
+			return null;
+		}
 		
 		// determine how many elements of this type already exist in the structure to determine index number
 		int iIndexNumber = 1;
@@ -411,7 +416,15 @@ public abstract class Node extends DefaultMutableTreeNode {   // functions as bo
 			sbError.insert( 0, "failed to create new node: " );
 			return null;
 		}
-		new_bt.setParent( getBaseType() );
+		BaseType btParent = getBaseType();
+		if( btParent == null ){ // adding to root
+			DataDDS data_dds = this.modelParent.mSourceModel.getData();
+			data_dds.addVariable( new_bt );
+		} else {
+			DStructure structureParent = (DStructure)btParent;
+			structureParent.addVariable( new_bt );
+		}
+		new_bt.setParent( btParent );
 		subnodes.add( new_node );
 		modelParent.insertNodeInto( new_node, this, this.getChildCount() ); // add new member at end
 		return new_node;

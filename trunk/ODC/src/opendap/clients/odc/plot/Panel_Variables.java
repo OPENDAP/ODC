@@ -64,6 +64,8 @@ public class Panel_Variables extends JPanel {
 		if( ddds == null ){
 			sbError.append("no data DDS provided");
 			return false;
+		} else {
+			System.out.println( "showing data dds: " + ddds );			
 		}
 
 		// if the data DDS already loaded into the selector matches the supplied one in

@@ -73,11 +73,17 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 		}
 		DataDDS data_dds = model.getData();
 		DDS dds = model.getDDS_Full();
-		if( data_dds == null && dds == null ){
-			sbError.append( "no data or dds supplied, invalid mode" );
-			return null;
+		Node nodeRoot;
+		if( data_dds == null ){
+			if ( dds == null ){
+				sbError.append( "no data or dds supplied, invalid mode" );
+				return null;
+			} else { // create root from DDS
+				 nodeRoot = Node.createRoot( dds, sbError);
+			}
+		} else { // create root from DataDDS
+			 nodeRoot = Node.createRoot( data_dds, sbError);
 		}
-		Node nodeRoot = Node.createRoot( dds, sbError);
 		if( nodeRoot == null ){
 			sbError.insert( 0, "failed to create root node: " );
 			return null;

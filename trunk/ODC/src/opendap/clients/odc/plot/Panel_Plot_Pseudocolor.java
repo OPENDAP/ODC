@@ -107,10 +107,10 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 
 			if( pxStartX + pxPlotWidth > mbi.getWidth() || pxStartY + pxPlotHeight > mbi.getHeight() ){
 				if( mzTraceErrorOnce ){
-					ApplicationController.vShowError("Internal error, invalid plotting dimensions. startx: " + pxStartX + " + plot width: " + pxPlotWidth + " > buffer width: " + mbi.getWidth() + " or starty: " + pxStartY + " plot height: " + pxPlotHeight + " > buffer height: " + mbi.getHeight() );
+					ApplicationController.vShowError("Internal error, invalid plotting dimensions. startx: " + pxStartX + " + plot width: " + pxPlotWidth + " > buffer width: " + mbi.getWidth() + " or starty: " + pxStartY + " + plot height: " + pxPlotHeight + " > buffer height: " + mbi.getHeight() );
 		    		mzTraceErrorOnce = false;
 				}
-				g2.drawString("Unexpected error generating plot (see errors)", 10, 25);
+				g2.drawString("Error generating plot", 10, 25);
 			} else {
 				mbi.setRGB(pxStartX, pxStartY, pxPlotWidth, pxPlotHeight, maiRGBArray, pxOffset, pxScanlineStride);
 			}
