@@ -231,12 +231,13 @@ public class ApplicationController {
 			int ctLAF = alafInfo.length + 1;
 			int xLAF = 0;
 			String sLF = javax.swing.UIManager.getSystemLookAndFeelClassName(); // default is system LAF
+			if( sLF != null ){
+				javax.swing.UIManager.setLookAndFeel(sLF);
+				vShowStatus("Set look and feel to platform: " + sLF);
+				return;
+			}
 			while( true ){
-				if( xLAF >= ctLAF ){
-					javax.swing.UIManager.setLookAndFeel(sLF);
-					vShowStatus("Set look and feel to platform: " + sLF);
-					break;
-				}
+				if( xLAF == ctLAF ) break;
 				// System.out.println( ": " + alafInfo[xLAF] );
 		        if( "Nimbus".equals( alafInfo[xLAF].getName() ) ){
 		            sLF = alafInfo[xLAF].getClassName();
@@ -370,7 +371,7 @@ public class ApplicationController {
 								g.setColor(java.awt.Color.white);
 								g.drawString( "Version " + msAppVersion, 10, 14 );
 								g.setClip(0, 15, labelSplash.getWidth(), 30);
-								labelSplash.paint(g);
+								labelSplash.paintComponents(g);
 								g.setFont(fontSplashScreen);
 								g.setColor(java.awt.Color.white);
 								g.drawString( sMessage, 11, 28 );

@@ -337,7 +337,6 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			vSetupSourceSelector();
 
 			if( mjpanelDatasets == null ){ sbError.append("dataset panel does not exist"); return false; }
-			if( panelCommand == null ){ sbError.append("command panel does not exist"); return false; }
 			if( mDefinitionPanel == null ){ sbError.append("definition panel does not exist"); return false; }
 
 			JPanel jpanelNorth = new JPanel();
@@ -721,7 +720,6 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	void source_Info( int xURL_0 ){
 		try {
 			Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
-			final Model_Dataset url = modelLoadedDatasets._get( xURL_0 );		
 			if( xURL_0 >= modelLoadedDatasets.getSize() || xURL_0 < 0){
 				ApplicationController.vShowError("system error; url index outside loaded range");
 				return;
@@ -730,13 +728,9 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			StringBuffer sbInfo = new StringBuffer(120);
 			sbInfo.append(urlEntry.getTitle());
 			sbInfo.append("\n");
-			if( urlEntry == null ){
-				sbInfo.append("[no url available]\n");
-			} else {
-				sbInfo.append(urlEntry);
-				sbInfo.append("\n\n");
-				sbInfo.append(urlEntry.getInfo());
-			}
+			sbInfo.append(urlEntry);
+			sbInfo.append("\n\n");
+			sbInfo.append(urlEntry.getInfo());
 			JFrame frame = new JFrame();
 			Resources.iconAdd(frame);
 			frame.setTitle("Dataset Info for " + urlEntry.getTitle());

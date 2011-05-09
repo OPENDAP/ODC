@@ -167,6 +167,7 @@ public class Panel_Definition extends JPanel {
 	boolean zSetting = false;
 	void setData( Model_Dataset urlEntry, int eMODE, int ePlotType ){
 		if( zSetting ){ // reentrant
+			System.err.println( "internal error, setData in Panel_Definition is re-entrant" );
 			Thread.dumpStack();
 			return;
 		}
