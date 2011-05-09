@@ -21,6 +21,7 @@ import opendap.clients.odc.DAP;
 import opendap.clients.odc.FormLayout;
 import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.gui.Resources;
+import opendap.clients.odc.gui.Styles;
 import opendap.dap.BaseType;
 import opendap.dap.DArray;
 import opendap.dap.DArrayDimension;
@@ -132,6 +133,8 @@ public class Panel_Edit_Variable extends JPanel {
 abstract class Panel_Edit_VariableEditor extends JPanel {
 	private Node node_active = null;
 	protected Panel_Edit_ViewStructure view;
+	protected JLabel labelType = new JLabel( "Type:" );
+	protected JLabel labelType_value = new JLabel( "" );
 	protected JLabel labelName = new JLabel( "Name:" );
 	protected JLabel labelName_Long = new JLabel( "Long Name:" );
 	protected JLabel displayName_Long = new JLabel();  // long name is not editable (automatically determined by dataset structure)
@@ -144,11 +147,13 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 			this.view = structure_view;
 			jtfName.setPreferredSize( new Dimension( 200, 28 ) );
 			labelName_Encoded.setPreferredSize( new Dimension( 200, 20 ) );
+			labelType_value.setFont( Styles.fontFixed12 );
 			
 			layout = new FormLayout( this );
 			setLayout( layout );
 			layout.setMargin( 4, 4 );
 			layout.add( labelName, jtfName );
+			layout.add( labelType, labelType_value );
 			layout.add( labelName_Long, displayName_Long );
 			layout.add( labelName_Clear, labelName_Encoded );
 			
@@ -183,6 +188,7 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 			jtfName.setText( "" );
 			displayName_Long.setText( "" );
 			labelName_Encoded.setText( "" );
+			labelType_value.setText( "" );
 		} else if( node.isRoot() ) {
 			opendap.dap.DataDDS ddds = view._getModel().mSourceModel.getData();
 			if( ddds == null ){
@@ -194,11 +200,13 @@ abstract class Panel_Edit_VariableEditor extends JPanel {
 				displayName_Long.setText( ddds.getLongName() );
 				labelName_Encoded.setText( ddds.getName() );
 			}
+			labelType_value.setText( "Structure (root node)" );
 		} else {
 			BaseType bt = node.getBaseType();
 			jtfName.setText( bt.getClearName() );
 			displayName_Long.setText( bt.getLongName() );
 			labelName_Encoded.setText( bt.getName() );
+			labelType_value.setText( DAP.getType_String( bt ) );
 		}
 		node_active = node;
 	}
@@ -283,6 +291,7 @@ class Panel_Edit_Variable_Array extends Panel_Edit_VariableEditor {
 		listDimensionDown.clear();
 		Dimension dimName_preferred = new Dimension( 120, 25 );
 		Dimension dimSize_preferred = new Dimension( 50, 25 );
+		labelValueCount_value.setFont( Styles.fontFixed12 );
 		for( int xDimension1 = 1; xDimension1 <= MAX_DIMENSIONS; xDimension1++ ){
 			final JPanel panelDimensionEditor = new JPanel();
 			final JTextField jtfDimensionName = new JTextField();

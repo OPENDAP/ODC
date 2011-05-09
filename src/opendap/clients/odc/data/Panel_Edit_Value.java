@@ -36,7 +36,7 @@ public class Panel_Edit_Value extends JPanel {
 	private Panel_Define_Dataset mParent;
 	private Value valueActive = null;
 	private Panel_Edit_ValueEditor mActiveEditor;
-	private JPanel edit_blank;
+	private Panel_Edit_Value_blank edit_blank;
 	private Panel_Edit_Value_Byte editByte;
 	private Panel_Edit_Value_Short editShort;
 	private Panel_Edit_Value_Integer editInteger;
@@ -49,8 +49,7 @@ public class Panel_Edit_Value extends JPanel {
 		try {
 			panel.mParent = parent;
 			panel.setLayout( new java.awt.BorderLayout() );
-			panel.edit_blank = new JPanel();
-			panel.edit_blank.add( new JLabel( "No Value Selected" ) );
+			panel.edit_blank = new Panel_Edit_Value_blank();
 			panel.editByte = new Panel_Edit_Value_Byte();
 			if( ! panel.editByte._zInitialize( view, sbError ) ){
 				sbError.insert( 0, "error initializing byte editor: " );
@@ -81,6 +80,7 @@ public class Panel_Edit_Value extends JPanel {
 				sbError.insert( 0, "error initializing string editor: " );
 				return null;
 			}
+			panel.add( panel.edit_blank, BorderLayout.CENTER );
 			return panel;
 		} catch( Exception ex ) {
 			ApplicationController.vUnexpectedError( ex, sbError );
@@ -174,6 +174,19 @@ abstract class Panel_Edit_ValueEditor extends JPanel {
 //			labelName_Encoded.setText( bt.getName() );
 		}
 		valueActive = value;
+	}
+}
+
+class Panel_Edit_Value_blank extends JPanel {
+	Panel_Edit_Value_blank(){
+		setLayout( new java.awt.BorderLayout() );
+		JPanel panelLabel = new JPanel();
+		panelLabel.setLayout( new javax.swing.BoxLayout( panelLabel, BoxLayout.LINE_AXIS ) );
+		JLabel label = new JLabel( "No Value Selected" );
+		panelLabel.add( javax.swing.Box.createHorizontalStrut( 10 ) );
+		panelLabel.add( label );
+		panelLabel.add( javax.swing.Box.createHorizontalStrut( 10 ) );
+		add( panelLabel, BorderLayout.CENTER );
 	}
 }
 

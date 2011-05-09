@@ -11,9 +11,7 @@ One of the fastest ways to create a new dataset is to use a paste (Ctrl+V) actio
 
 http://www.cpc.ncep.noaa.gov/products/analysis_monitoring/cdus/prcp_temp_tables/wctyprcp.txt
 
-#How to Create and Plot Data
-
-Here is a simple example of creating and plotting a simple data set.
+#How to Create a Two-Dimensional Array
 
 1. Go to View/Data
 2. Click the "New" dataset button
@@ -28,15 +26,35 @@ Here is a simple example of creating and plotting a simple data set.
 	  - the values of the array are visible in the array viewer at the bottom of the screen
 6. Click the "New" dimension button in the array editor
 	  - a new dimension is added
-7. Go to the command bar of the array editor, field "exp:", type "$1+$2" (without quotes) and press enter
+
+#How to Create and Plot Data
+
+Here is a simple example of creating and plotting a simple data set.
+
+1. Create a two-dimensional array (see How To)
+2. Go to the command bar of the array editor, field "exp:", type "$1+$2" (without quotes) and press enter
 	  - new values appear in the array
 	  - this expression tells the editor to make each cell the sum of its index values (row=$1 and column=$2)
-8. Go to View/Plotter
-9. Click "Dataset" in the data selector at the top left of the screen
-10. Verify that the plot type is "Pseudocolor"
-11. Click the "Plot to" button
+3. Go to View/Plotter
+4. Click "Dataset" in the data selector at the top left of the screen
+5. Verify that the plot type is "Pseudocolor"
+6. Click the "Plot to" button
 	  - a rainbow-like plot will appear
 	  
+#How to Populate an Array with Random Numbers
+
+1. Go to View/Command
+2. Issue the command "import random"
+      - this is necessary to give us access to random number generation in Python
+	  - the data editor and command window share the same Python interpreter
+	  - you can view the methods in the random module by using the command "print dir(random)"
+3. Go to View/Data
+4. Create an array (see How To Create a Two-Dimensional Array)
+5. Go to the command bar of the array editor, field "exp:", type "random.randrange(1,50)" (without quotes) and press enter
+	  - new random values between 1 and 50 appear in the array
+
+
+
 	  
 
 
