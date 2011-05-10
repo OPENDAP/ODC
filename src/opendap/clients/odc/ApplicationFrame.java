@@ -429,7 +429,7 @@ public class ApplicationFrame extends JFrame {
 				public void run(){
 					jtpMain.setSelectedIndex(2); // activate the view tab
 					jtpView.setSelectedIndex(4); // activate the plotting tab
-					Panel_View_Plot.getPanel_Definition().vActivateVariableSelector();
+					Panel_View_Plot.getPanel_Definition()._vActivateVariableSelector();
 				}
 			}
 		);

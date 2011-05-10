@@ -43,9 +43,6 @@ public abstract class Node extends DefaultMutableTreeNode {   // functions as bo
 	AttributeTable attributes;
 	Node nodeParent;
 	ArrayList<Node> subnodes;
-	private Node(){ // not a valid constructor
-		super();
-	}
 	protected Node( opendap.dap.BaseType bt ){
 		super();
 		setBaseType( bt );
@@ -148,7 +145,7 @@ public abstract class Node extends DefaultMutableTreeNode {   // functions as bo
 			BaseType bt = (BaseType)oVariable;
 			Node node = Node.create( nodeRoot, bt, sbError ); 
 			if( node == null  ){
-				sbError.insert( 0, "error loading root variable " + xVariable + " " + bt.getClearName() );
+				sbError.insert( 0, "error loading root variable " + xVariable + " " + bt.getClearName() + ": " );
 				return null;
 			}
 			nodeRoot.subnodes.add( node );

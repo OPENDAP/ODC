@@ -165,7 +165,7 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot( final PlottingData pdat, Plot_Definition def, final int eOutputOption, final StringBuffer sbError){
+	static boolean zPlot( final Model_Dataset model, final PlottingData pdat, Plot_Definition def, final int eOutputOption, final StringBuffer sbError){
 		final int ePlotType = def.getPlotType();
 		if( def == null ){
 			sbError.append("internal error, no plotting definition");
@@ -210,8 +210,7 @@ public class Output_ToPlot {
 				}
 			}
 
-			final Model_Dataset url = def.getURL();
-			String sCaption = url.getTitle();
+			String sCaption = model.getTitle();
 
 			final VariableInfo varAxisX = pdat.getAxis_X();
 			final VariableInfo varAxisY = pdat.getAxis_Y();
@@ -226,7 +225,7 @@ public class Output_ToPlot {
 
 			boolean zResult;
 			if( ePlotType == PLOT_TYPE_XY ){ // all variables on same plot
-				return zPlot_XY(ps, url, sCaption, pdat, varAxisX, varAxisY, po, eOutputOption, ps, cs, plot_text, sbError);
+				return zPlot_XY(ps, model, sCaption, pdat, varAxisX, varAxisY, po, eOutputOption, ps, cs, plot_text, sbError);
 			} else { // each variable goes on a different plot
 				for( int xVariable = 1; xVariable <= ctVariable; xVariable++ ){
 					PlottingVariable pv1 = pdat.getVariable1(xVariable);
@@ -234,13 +233,13 @@ public class Output_ToPlot {
 					if( ctVariable > 1 && eOutputOption == Output_ToPlot.FORMAT_Thumbnail) sCaption = pv1.getSliceCaption();
 					switch(ePlotType){
 						case PLOT_TYPE_Histogram:
-							zResult = zPlot_Histogram(url, sCaption, pv1, po, eOutputOption, ps, plot_text, xVariable, ctVariable, sbError);
+							zResult = zPlot_Histogram(model, sCaption, pv1, po, eOutputOption, ps, plot_text, xVariable, ctVariable, sbError);
 							break;
 						case PLOT_TYPE_Pseudocolor:
-							zResult = zPlot_PseudoColor(url, sCaption, pv1, varAxisX, varAxisY, po, eOutputOption, ps, cs, plot_text, xVariable, ctVariable, sbError);
+							zResult = zPlot_PseudoColor(model, sCaption, pv1, varAxisX, varAxisY, po, eOutputOption, ps, cs, plot_text, xVariable, ctVariable, sbError);
 							break;
 						case PLOT_TYPE_Vector:
-							zResult = zPlot_Vector(url, sCaption, pv1, pv2, varAxisX, varAxisY, po, eOutputOption, ps, cs, plot_text, xVariable, ctVariable, sbError);
+							zResult = zPlot_Vector(model, sCaption, pv1, pv2, varAxisX, varAxisY, po, eOutputOption, ps, cs, plot_text, xVariable, ctVariable, sbError);
 							break;
 						default:
 							sbError.append("unknown plot type " + ePlotType);

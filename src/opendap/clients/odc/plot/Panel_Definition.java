@@ -40,19 +40,13 @@ import javax.swing.event.*;
 public class Panel_Definition extends JPanel {
 	final static long serialVersionUID = 1;
 
-	public final static int VARIABLE_MODE_DDS = 1;
-	public final static int VARIABLE_MODE_Table = 2;
-
 	private final static int PANEL_INDEX_Variables = 0;
 	private final static int PANEL_INDEX_Preview = 5;
 	private final static int PANEL_INDEX_Thumbnails = 6;
 
 	private Panel_View_Plot mParent;
 
-
-	private Plot_Definition mPlottingDefinition = null;
-	private PlottingDefinition_DataDDS mDefinition_DDDS;
-	private PlottingDefinition_Table mDefinition_Table;
+	Model_Dataset modelActive = null;
 
 	private final Panel_VariableTab mpanelVariables = new Panel_VariableTab();
 	private final JTabbedPane mjtpPlotDefinition = new JTabbedPane();
@@ -81,9 +75,7 @@ public class Panel_Definition extends JPanel {
 		}
 		mParent = parent;
 
-	    mDefinition_Table = null; // new PlottingDefinition_Table();  *** not implemented currently ***
-		mDefinition_DDDS = new PlottingDefinition_DataDDS();
-		if( !mpanelVariables.zInitialize(this, mDefinition_DDDS, mDefinition_Table, sbError) ){
+		if( !mpanelVariables.zInitialize( this, sbError) ){
 			sbError.insert(0, "Failed to initialize variable panel: ");
 			return false;
 		}
@@ -122,50 +114,42 @@ public class Panel_Definition extends JPanel {
 	}
 
 	Plot_Definition getActivePlottingDefinition(){
-		return mPlottingDefinition;
+		if( modelActive == null ) return null;
+		return modelActive.getPlotDefinition();
 	}
 
-	DataDDS getDataDDS(){
-		if( mDefinition_DDDS == null ){
-		    return null;
-		} else {
-		    return mDefinition_DDDS.getDataDDS();
-		}
-	}
-
-	public void vActivateVariableSelector(){
+	public void _vActivateVariableSelector(){
 		mjtpPlotDefinition.setSelectedIndex(PANEL_INDEX_Variables);
 		Panel_View_Plot.getTN_Controls().setVisible(false);
 	}
 
-	public void vActivatePreview(){
+	public void _vActivatePreview(){
 		mjtpPlotDefinition.setSelectedIndex(PANEL_INDEX_Preview);
 		Panel_View_Plot.getTN_Controls().setVisible(false);
 		mjtpPlotDefinition.invalidate();
 		this.validate();
 	}
 
-	public void vActivateThumbnails(){
+	public void _vActivateThumbnails(){
 		mjtpPlotDefinition.setSelectedIndex(PANEL_INDEX_Thumbnails);
 		Panel_View_Plot.getTN_Controls().setVisible(true);
 		mjtpPlotDefinition.invalidate();
 		this.validate();
 	}
 
-	void vClear(){
-		setData(null, 0, 0);
+	void _vClear(){
+		setModel( null, 0 );
 	}
 
-	void setPlotType( int ePlotType ){
-		if( mPlottingDefinition != null ){
-			Model_Dataset url = mPlottingDefinition.getURL();
-			mPlottingDefinition.setPlotType( ePlotType );
-			mpanelVariables.vShowDDDSForm(ePlotType, url);
+	void _setPlotType( int ePlotType ){
+		if( modelActive != null ){
+			modelActive.getPlotDefinition().setPlotType( ePlotType );
+			mpanelVariables.vShowDDDSForm( ePlotType, modelActive );
 		}
 	}
 
 	boolean zSetting = false;
-	void setData( Model_Dataset urlEntry, int eMODE, int ePlotType ){
+	void setModel( Model_Dataset model, int ePlotType ){
 		if( zSetting ){ // reentrant
 			System.err.println( "internal error, setData in Panel_Definition is re-entrant" );
 			Thread.dumpStack();
@@ -173,27 +157,22 @@ public class Panel_Definition extends JPanel {
 		}
 		zSetting = true;
 		try {
-			if( urlEntry == null ){
+			if( model == null ){
 				mParent.setPlottingEnabled( false );
 				mpanelScale._setScale( null );
 				mpanelText.setPlotText( null );
 				mpanelOptions.setPlotOptions( null );
 				mpanelVariables.vClear();
 			} else {
-				if( eMODE == VARIABLE_MODE_Table ){
-					mPlottingDefinition = mDefinition_Table;
-					mpanelVariables.vShowTableForm();
-				} else {
-					mPlottingDefinition = mDefinition_DDDS;
-					mpanelOptions.setPlotOptions(mPlottingDefinition.getOptions()); // must be done before cs is set
-					mpanelScale._setScale(mPlottingDefinition.getScale());
-					mpanelText.setPlotText(mPlottingDefinition.getText());
-					mParent.setPlottingEnabled( true );
-					mPlottingDefinition.setPlotType( ePlotType );
-					mPlottingDefinition.setURL( urlEntry );
-					mpanelVariables.vShowDDDSForm(ePlotType, urlEntry);
-					vRefresh();
-				}
+				modelActive = model;
+				Plot_Definition pd = model.getPlotDefinition();
+				mpanelOptions.setPlotOptions( pd.getOptions()); // must be done before cs is set
+				mpanelScale._setScale( pd.getScale());
+				mpanelText.setPlotText( pd.getText());
+				mParent.setPlottingEnabled( true );
+				pd.setPlotType( ePlotType );
+				mpanelVariables.vShowDDDSForm( ePlotType, model );
+				vRefresh();
 			}
 		} finally {
 			zSetting = false;
@@ -229,17 +208,15 @@ public class Panel_Definition extends JPanel {
 class Panel_VariableTab extends JPanel {
 	final static long serialVersionUID = 1;
 	private Panel_Definition mParent;
-	private Plot_Definition mPlottingDefinition_active = null;
-	private PlottingDefinition_DataDDS mDefinition_DataDDS;
-	private PlottingDefinition_Table mDefinition_Table;
+//	private Plot_Definition mPlottingDefinition_active = null;
+//	private PlottingDefinition_DataDDS mDefinition_DataDDS;
+//	private PlottingDefinition_Table mDefinition_Table;
 	private Panel_Variables mpanelVariableSelector;
 	private JPanel mpanelMessage;
 	private JLabel mlabelMessagePanelText;
 	Panel_VariableTab(){}
-	boolean zInitialize( Panel_Definition parent, PlottingDefinition_DataDDS definition_DataDDS, PlottingDefinition_Table definition_Table, StringBuffer sbError ){
+	boolean zInitialize( Panel_Definition parent, StringBuffer sbError ){
 		mParent = parent;
-	    mDefinition_Table = definition_Table;
-		mDefinition_DataDDS = definition_DataDDS;
 		setLayout(new BorderLayout());
 
 		// message panel
@@ -259,51 +236,37 @@ class Panel_VariableTab extends JPanel {
 
 		return true;
 	}
-	PlottingData getDataset( StringBuffer sbError ){
-		if( mPlottingDefinition_active == null ){
-			sbError.append("no definition active");
-			return null;
-		}
-		if( mPlottingDefinition_active == mDefinition_DataDDS ){
-			VariableDataset variable_dataset = mpanelVariableSelector.getDataset( sbError );
-			if( variable_dataset == null ) return null;
-			return getNormalizedPlottingData( variable_dataset, sbError );
-		} else {
-			sbError.append("table definitions not supported");
-			return null;
-		}
+	PlottingData getPlottingData( StringBuffer sbError ){
+		VariableDataset variable_dataset = mpanelVariableSelector.getDataset( sbError );
+		if( variable_dataset == null ) return null;
+		return getNormalizedPlottingData( variable_dataset, sbError );
 	}
 
 	void vClear(){
-		setActiveDefinition( null );
-		this.removeAll();
-		this.revalidate();
+		mParent.modelActive = null;
+		removeAll();
+		revalidate();
 	}
 	void vShowMessage( String sMessage ){
-		setActiveDefinition( null );
-		this.removeAll();
+		mParent.modelActive = null;
+		removeAll();
 		mlabelMessagePanelText.setText(sMessage);
-		this.add(mpanelMessage, BorderLayout.CENTER);
-		this.revalidate();
+		add(mpanelMessage, BorderLayout.CENTER);
+		revalidate();
 	}
-	void vShowTableForm(){
-		setActiveDefinition( null );
-		vShowMessage("Table view not supported");
-	}
-	void vShowDDDSForm(int ePlotType, Model_Dataset url){
-		setActiveDefinition( null );
-		if( url == null ){
-			removeAll();  // todo
+	void vShowDDDSForm( int ePlotType, Model_Dataset model ){
+		if( model == null ){
+			removeAll();  // TODO
 			return;
 		}
-		DataDDS ddds = url.getData();
-		DAS das = url.getDAS();
+		DataDDS ddds = model.getData();
+		DAS das = model.getDAS();
 		StringBuffer sbError = new StringBuffer(80);
 		try {
-			if (mpanelVariableSelector.zShowDataDDS(ePlotType, ddds, das, mParent.getPanel_PlotOptions().getPlotOptions(), sbError)) {
-				setActiveDefinition( mDefinition_DataDDS );
+			if( mpanelVariableSelector.zShowDataDDS( ePlotType, ddds, das, mParent.getPanel_PlotOptions().getPlotOptions(), sbError) ){
 				removeAll();
 				add(mpanelVariableSelector, BorderLayout.CENTER);
+				mParent._vActivateVariableSelector();
 			} else if( sbError.length() == 0 ){
 				vShowMessage("Data set has no valid variables for this plot type");
 			} else {
@@ -316,10 +279,6 @@ class Panel_VariableTab extends JPanel {
 			vShowMessage("Error showing data DDS form: " + sbError);
 		}
 		revalidate();
-	}
-
-	private void setActiveDefinition( Plot_Definition pd ){
-		mPlottingDefinition_active = pd;
 	}
 
 	// note that when we do the data transformations here the tranform is done

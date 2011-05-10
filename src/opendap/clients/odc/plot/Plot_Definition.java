@@ -22,28 +22,15 @@
 
 package opendap.clients.odc.plot;
 
-import opendap.dap.*;
-import opendap.clients.odc.*;
 import opendap.clients.odc.data.Model_Dataset;
-import opendap.clients.odc.gui.Styles;
 
-import java.util.*;
-
-// used by table definition todo
-import javax.swing.JPanel;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-
-public abstract class Plot_Definition {
+public class Plot_Definition {
 	private String msPlotID;
-	abstract void vGenerateText();
 	final private PlotText mText = new PlotText();
 	final private PlotScale mScale = new PlotScale();
 	final private PlotOptions mOptions = new PlotOptions();
 	private ColorSpecification mColorSpecification;
 	private int mePlotType;
-	private String msMissingValues = null;
 	int getPlotType(){ return mePlotType; }
 	PlotText getText(){ return mText; }
 	PlotScale getScale(){ return mScale; }
@@ -56,63 +43,24 @@ public abstract class Plot_Definition {
 	String getPlotID(){ return msPlotID; }
 	void setPlotID(String s){ msPlotID = s; }
 	void setDimensionalType( int TYPE ){}
-	Model_Dataset mURL = null;
-	Model_Dataset getURL(){ return mURL; }
-	void setURL( Model_Dataset url ){ mURL = url; }
+	
+//	void vGenerateText(){
+//		getText().removeAll();
+//		String sTitle = mddds.getLongName();
+//		if( sTitle == null ) sTitle = mddds.getName();
+//		if( sTitle == null ) sTitle = getPlotID();
+//		PlotTextItem item = getText().getNew(TEXT_ID_Title);
+//		item.setExpression(sTitle);
+//		item.setFont(Styles.fontSansSerif18);
+//		PlotLayout layout = item.getPlotLayout();
+//		layout.setObject(PlotLayout.OBJECT_Plot);
+//		layout.setOrientation(PlotLayout.ORIENT_TopMiddle);
+//		layout.setAlignment(PlotLayout.ORIENT_BottomMiddle);
+//		layout.setOffsetVertical(-15);
+//	}
+	
 }
 
-class PlottingDefinition_DataDDS extends Plot_Definition {
-	public final static String TEXT_ID_Title = "Title";
-	DataDDS mddds;
-	DAS mdas;
-	PlottingDefinition_DataDDS(){}
-	DataDDS getDataDDS(){
-		return mddds;
-	}
-	boolean zSetDataDDS( int ePlotType, Model_Dataset url, StringBuffer sbError ){
-		try {
-			Panel_VariableTab panel_variables = Panel_View_Plot.getPanel_VariableTab();
-			if( panel_variables == null ){
-				sbError.append("internal error, variable panel missing");
-				return false;
-			} else {
-				if( url == null ){
-					panel_variables.vShowMessage("(no data set selected)");
-				} else {
-					mddds = url.getData();
-					mdas = url.getDAS();
-					vGenerateText();
-					panel_variables.vShowDDDSForm(ePlotType, url);
-				}
-				return true;
-			}
-		} catch(Exception ex) {
-			ApplicationController.vUnexpectedError(ex, sbError);
-			return false;
-		}
-	}
-	void vGenerateText(){
-		getText().removeAll();
-		String sTitle = mddds.getLongName();
-		if( sTitle == null ) sTitle = mddds.getName();
-		if( sTitle == null ) sTitle = getPlotID();
-		PlotTextItem item = getText().getNew(TEXT_ID_Title);
-		item.setExpression(sTitle);
-		item.setFont(Styles.fontSansSerif18);
-		PlotLayout layout = item.getPlotLayout();
-		layout.setObject(PlotLayout.OBJECT_Plot);
-		layout.setOrientation(PlotLayout.ORIENT_TopMiddle);
-		layout.setAlignment(PlotLayout.ORIENT_BottomMiddle);
-		layout.setOffsetVertical(-15);
-	}
-}
-
-class PlottingDefinition_Table extends Plot_Definition {
-	// empty stub see below
-	void vGenerateText(){}
-	// moved this function to Panel_Variables
-//	PlottingData getDataset( StringBuffer sbError ){ return null; }
-}
 /** not implemented for 2.38
 class PlottingDefinition_Table extends PlottingDefinition {
 	int eDimensionalType;
