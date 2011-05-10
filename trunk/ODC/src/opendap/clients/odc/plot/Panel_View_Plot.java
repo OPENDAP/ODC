@@ -46,8 +46,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
-import java.io.*;
-import java.util.*;
 
 public class Panel_View_Plot extends JPanel implements IControlPanel {
 
@@ -103,27 +101,15 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	public static PreviewPane getPreviewPane(){
-		if( thisInstance.getActivePlottingDefinition() == null ){
-		    return null;
-		} else {
-			return thisInstance.mDefinitionPanel.getPreviewPane();
-		}
+		return thisInstance.mDefinitionPanel.getPreviewPane();
 	}
 
 	public static Panel_VariableTab getPanel_VariableTab(){
-		if( thisInstance.getActivePlottingDefinition() == null ){
-		    return null;
-		} else {
-			return thisInstance.mDefinitionPanel.getPanel_Variables();
-		}
+		return thisInstance.mDefinitionPanel.getPanel_Variables();
 	}
 
 	public static Panel_PlotScale getPanel_PlotScale(){
-		if( thisInstance.getActivePlottingDefinition() == null ){
-		    return null;
-		} else {
-			return thisInstance.mDefinitionPanel.getPanel_PlotScale();
-		}
+		return thisInstance.mDefinitionPanel.getPanel_PlotScale();
 	}
 
 	public static Panel_PlotAxes getPanel_PlotAxes(){
@@ -193,7 +179,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 						} else if( sPlotType.equals("Histogram") ){
 							setPlotType( Output_ToPlot.PLOT_TYPE_Histogram );
 						}
-						Panel_View_Plot.getPanel_Definition().vActivateVariableSelector();
+						Panel_View_Plot.getPanel_Definition()._vActivateVariableSelector();
 					}
 				}
 			);
@@ -349,7 +335,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			this.add(mDefinitionPanel, BorderLayout.CENTER);
 			// this.add(jpanelInstructions, BorderLayout.SOUTH); // leave out the instructions for now
 
-			mDefinitionPanel.vClear();
+			mDefinitionPanel._vClear();
 
 			setPlotType(Output_ToPlot.PLOT_TYPE_Pseudocolor);
 
@@ -416,8 +402,8 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 					return false;
 				}
 				if( zMultiplot ){
-					if( eOutputOption == Output_ToPlot.FORMAT_PreviewPane ) Panel_View_Plot.getInstance().mDefinitionPanel.vActivatePreview();
-					if( eOutputOption == Output_ToPlot.FORMAT_Thumbnail ) Panel_View_Plot.getInstance().mDefinitionPanel.vActivateThumbnails();
+					if( eOutputOption == Output_ToPlot.FORMAT_PreviewPane ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivatePreview();
+					if( eOutputOption == Output_ToPlot.FORMAT_Thumbnail ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivateThumbnails();
 					vActivateListItem(aiSelected[0]);
 					final int miMultiplotDelay = po.getValue_int(PlotOptions.OPTION_MultiplotDelay);
 					final Activity activityMultiplot = new Activity();
@@ -428,13 +414,14 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 							for( int xSelection = 0; xSelection < ctSelections; xSelection++ ){
 								vActivateListItem(aiSelected[xSelection]);
 								Thread.yield(); // allow swing events to occur after activation
-								PlottingData pdat = Panel_View_Plot.getPanel_VariableTab().getDataset( sbError );
+								Model_Dataset model = Panel_View_Plot.getPanel_Definition().modelActive;
+								final PlottingData pdat = Panel_View_Plot.getPanel_VariableTab().getPlottingData( sbError );
 								if( pdat == null ){
 									ApplicationController.vShowError_NoModal("Error plotting selection " + (xSelection+1) + " of " + ctSelections + ": " + sbError);
 									sbError.setLength(0);
 									continue;
 								}
-								if( Output_ToPlot.zPlot(pdat, defActive, eOutputOption, sbError) ){
+								if( Output_ToPlot.zPlot( model, pdat, defActive, eOutputOption, sbError) ){
 									try {
 										Thread.sleep(100); // Thread.yield(); // allow screen updates to occur between plots
 									} catch(Exception ex) {}
@@ -456,7 +443,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 					};
 					activityMultiplot.vDoActivity(null, null, con, null);
 				} else { // if there is only one selection then this happens, must still plot in thread because multislice can do screen updates
-					final PlottingData pdat = Panel_View_Plot.getPanel_VariableTab().getDataset(sbError);
+					final PlottingData pdat = Panel_View_Plot.getPanel_VariableTab().getPlottingData(sbError);
 					if( pdat == null ){
 						ApplicationController.vShowError("Invalid data selection or error acquiring data: " + sbError);
 						return false;
@@ -464,9 +451,10 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 						final Activity activitySinglePlot = new Activity();
 						Continuation_DoCancel con = new Continuation_DoCancel(){
 							public void Do(){
-								if( Output_ToPlot.zPlot(pdat, defActive, eOutputOption, sbError) ){
-									if( eOutputOption == Output_ToPlot.FORMAT_PreviewPane ) Panel_View_Plot.getInstance().mDefinitionPanel.vActivatePreview();
-									if( eOutputOption == Output_ToPlot.FORMAT_Thumbnail ) Panel_View_Plot.getInstance().mDefinitionPanel.vActivateThumbnails();
+								Model_Dataset model = Panel_View_Plot.getPanel_Definition().modelActive;
+								if( Output_ToPlot.zPlot( model, pdat, defActive, eOutputOption, sbError) ){
+									if( eOutputOption == Output_ToPlot.FORMAT_PreviewPane ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivatePreview();
+									if( eOutputOption == Output_ToPlot.FORMAT_Thumbnail ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivateThumbnails();
 								} else {
 									ApplicationController.vShowError("Plotting error: " + sbError);
 								}
@@ -671,12 +659,12 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 
 	void vSetDataToDefinition( int xDataset_0 ){
 		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
-		final Model_Dataset url = modelLoadedDatasets._get( xDataset_0 );		
+		final Model_Dataset model = modelLoadedDatasets._get( xDataset_0 );		
 		int ePlotType = getPlotType();
-		mDefinitionPanel.setData(url, Panel_Definition.VARIABLE_MODE_DDS, ePlotType);
+		mDefinitionPanel.setModel( model, ePlotType );
 		Plot_Definition pd = mDefinitionPanel.getActivePlottingDefinition();
 		if( pd == null ) return;
-		pd.setColorSpecification(Panel_View_Plot.getPanel_ColorSpecification().getColorSpecification());
+		pd.setColorSpecification( Panel_View_Plot.getPanel_ColorSpecification().getColorSpecification() );
 	}
 
 	void vSetDataToExpression( int xDataset_0 ){
@@ -684,7 +672,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
 		final Model_Dataset url = modelLoadedDatasets._get( xDataset_0 );		
 		int ePlotType = getPlotType();
-		mDefinitionPanel.setData(url, Panel_Definition.VARIABLE_MODE_DDS, ePlotType);
+		mDefinitionPanel.setModel( url, ePlotType );
 		Plot_Definition pd = mDefinitionPanel.getActivePlottingDefinition();
 		if( pd == null ) return;
 		pd.setColorSpecification(Panel_View_Plot.getPanel_ColorSpecification().getColorSpecification());
@@ -698,7 +686,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
     void setPlotType( int eTYPE ){
 		if( eTYPE == mPlotType ) return; // no change
         mPlotType = eTYPE;
-		mDefinitionPanel.setPlotType( eTYPE );
+		mDefinitionPanel._setPlotType( eTYPE );
     }
 
 	Plot_Definition getActivePlottingDefinition(){

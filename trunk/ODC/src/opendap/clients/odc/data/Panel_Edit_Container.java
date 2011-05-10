@@ -73,7 +73,7 @@ public class Panel_Edit_Container extends JPanel {
 			case Model_Dataset.TYPE_Data:
 				Model_Dataset_Local tree = model.getDataTree( sbError );
 				if( tree == null ){
-					sbError.insert( 0, "failed to get data tree for model" );
+					sbError.insert( 0, "failed to get data tree for model: " );
 					return false;
 				}
 				removeAll();

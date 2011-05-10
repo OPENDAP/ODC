@@ -371,7 +371,7 @@ public class ApplicationController {
 								g.setColor(java.awt.Color.white);
 								g.drawString( "Version " + msAppVersion, 10, 14 );
 								g.setClip(0, 15, labelSplash.getWidth(), 30);
-								labelSplash.paintComponents(g);
+								labelSplash.paint(g);
 								g.setFont(fontSplashScreen);
 								g.setColor(java.awt.Color.white);
 								g.drawString( sMessage, 11, 28 );
