@@ -44,7 +44,9 @@ public class PlotScale {
 		Pixels,
 		Inches_Tenths,
 		Inches_Eighths,
-		Centimeters
+		Centimeters,
+		Picas,             // 1/6"
+		Points             // 1/12 of a Pica
 	};
 	
 	public static enum SCALE_MODE {
@@ -64,7 +66,7 @@ public class PlotScale {
 		Zoom400,
 		Custom
 	}
-	final static String[] AS_Units = { "pixels", "inches", "1/8\"", "cm" };
+	final static String[] AS_Units = { "pixels", "inches", "1/8\"", "picas (1/6\")", "points (1/72\")" };
 	final static String[] AS_ScaleMode = { "canvas", "plot area", "output", "zoom" };
 	final static String[] AS_ZoomFactor = { "Max", "50%","75%","100%","200%","300%","400%", "Custom" };
 	final static int[] AI_ZoomFactor = { 0, 50, 75, 100, 200, 300, 400, 0 };
@@ -460,6 +462,10 @@ public class PlotScale {
 				return (int)(f*dpiOutput/8.0f);
 			case Centimeters:
 				return (int)(f*(dpiOutput/2.54f));
+			case Picas:
+				return (int)(f*(dpiOutput/6.0f));
+			case Points:
+				return (int)(f*(dpiOutput/72.0f));
 			case Pixels:
 			default:
 				return (int)f;
@@ -473,6 +479,10 @@ public class PlotScale {
 				return (float)pixels/(dpiOutput/8.0f);
 			case Centimeters:
 				return (float)pixels/(dpiOutput/2.54f);
+			case Picas:
+				return (float)pixels/(dpiOutput/6.0f);
+			case Points:
+				return (float)pixels/(dpiOutput/72.0f);
 			case Pixels:
 			default:
 				return (float)pixels;
