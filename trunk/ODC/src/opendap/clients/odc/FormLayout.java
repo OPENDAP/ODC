@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * <p>Title: Form Layout</p>
  * <p>Description: lays out swing components in a form-like manner</p>
- * <p>Copyright: Copyright (c) 2004-8</p>
+ * <p>Copyright: Copyright (c) 2004-11</p>
  * <p>Company: OPeNDAP.org</p>
  * @author John Chamberlain
- * @version 3.00
+ * @version 3.07
  */
 
 /**
@@ -73,23 +73,27 @@ package opendap.clients.odc;
  *  applies to the width dimension.
  *
  *  Alignment: the FormLayout ignores alignment settings on the elements themselves. You must use the
- *  FormLayout's setAlignment method. Alignment comes in two basic flavors:
- *     - element (none, left, center or right)
- *     - column (none, left, center, right, label, control)
- *  You can either set alignment by column or by element. Element alignment must be left, center or right.
- *  Only columns can be label or control aligned. Label alignment means every label in the column will
+ *  FormLayout's setAlignment method. Alignment comes in four basic flavors:
+ *     - label (top, center, bottom)
+ *     - element vertical (none, left, center or right)
+ *     - element horizontal (none, left, center or right)
+ *     - column (left, center, right, label, control)
+ *  You can either set alignment by column or by element. Element alignment can be none, left, center or right.
+ *  You can also adjust the label aligntment to be at the top, center (default) or bottom of the control.
+ *  If element alignment is 'none' (the default), then the element will follow the column alignment.
+ *  Columns can be label (the default) or control aligned. Label alignment means every label in the column will
  *  be right-aligned. Control alignment means every control in the column will be left-aligned. The difference
  *  between the two is that if the column is label-aligned then if separations are different on different
  *  rows then the controls will be indented (not lined up), and vice versa.  Element alignment overrides
  *  column alignment so if an element has its own alignment it will ignore the boundaries of the column.
  *
- *  EXAMPLE: columns 1 and 3 are label-aligned and element D (in column 2) is center-aligned. Elements H
- *  and I are left-aligned and J is right-aligned:
+ *  EXAMPLE: columns 1 and 3 are label-aligned and element D (in column 2) is center-aligned. 
+ *  Column 4 is control-aligned. Elements H and I are left-aligned and J is right-aligned:
  *
- *        AAA: AAAAAAA                         BBB: BBBBBBBB
- *       CCCC: CCCCCCCCCCCC    DDD:DDDDDD       EE: EEEEEEEEEEEEE
- *         FF: FFFFF                        GGGGGG: GGGGGG
- *    HHH: HHHHHHHHHHHHHHHHHHHHH II: IIIIIIIIII       JJJJ: JJJJJ
+ *        AAA: AAAAAAA                              BBB: BBBBBBBB         KKKK:   KKKKKKKKK
+ *       CCCC: CCCCCCCCCCCC       DDD: DDDDDD        EE: EEEEEEEEEEEEE    LL:     LLLLLL
+ *         FF: FFFFF                             GGGGGG: GGGGGG           MMMMMM: MMMMMM
+ *    HHH: HHHHHHHHHHHHHHHHHHHHH II: IIIIIIIIII                                 JJJJ: JJJJJ
  *
  *  Columns: when ordering elements you can assign their columns. If a column is not assigned or is the same
  *  as another element in the same row then the element will be layed out in the next available column. For example,
@@ -97,7 +101,7 @@ package opendap.clients.odc;
  *  that is the next available column, but if none of the elements were assigned to a column then element D's
  *  center alignment would be ignored and it would appear in column 2 with B and G. Element E would then be in
  *  column 3 by itself. If there is no element in a column that column is ignored.
- *
+ *  
  *  Note that column alignments can only be done for the first thousand columns.
  *
  *  Filling and Columns:  If a column is aligned then all elements in that column will by default stay within
@@ -153,24 +157,41 @@ public class FormLayout implements LayoutManager2 {
 	final private static boolean DEBUG = false;
 	
 	/** custom formatting (all one-based arrays) */
-	public static final int ALIGNMENT_None = 0;
-	public static final int ALIGNMENT_Left = 1;
-	public static final int ALIGNMENT_Center = 2;
-	public static final int ALIGNMENT_Right = 3;
-	public static final int ALIGNMENT_Label = 4;
-	public static final int ALIGNMENT_Control = 5;
+	public static enum LabelAlignment {
+		Top,
+		Center,  // the default
+		Bottom 
+	};
+	public static enum ElementAlignment {
+		None,         // no alignment for columns prevents columns from being lined up
+		LeftTop,      // controls default to left/top
+		Center,       // the horizontal alignment of all elements defaults to center
+		RightBottom   // labels default to right/bottom
+	};
+	public static enum ColumnAlignment {
+		None,    // no alignment for columns prevents columns from being lined up
+		Label,   // the default
+		Control,
+		Left,
+		Center,
+		Right
+	};
 	public static final int USE_DEFAULT = -1;
 	public int DEFAULT_SPACING_indent = 0;
 	public int DEFAULT_SPACING_separation = 3;
 	public int DEFAULT_SPACING_trailing = 8;
 	public int DEFAULT_SPACING_above = 0;
 	public int DEFAULT_SPACING_below = 6;
+	public int DEFAULT_ALIGNMENT_indent = 0;
+	public LabelAlignment DEFAULT_ALIGNMENT_Label = LabelAlignment.Center;
+	public ElementAlignment DEFAULT_ALIGNMENT_Element_Horizontal = ElementAlignment.None;
+	public ElementAlignment DEFAULT_ALIGNMENT_Element_Vertical = ElementAlignment.LeftTop;
 	public int MARGIN_left = 0;
 	public int MARGIN_right = 0;
 	public int MARGIN_top = 0;
 	public int MARGIN_bottom = 0;
 	public ArrayList<FormElement> listDefinedElements = new ArrayList<FormElement>();
-	int[] maiColumnAlignment = new int[1000]; // each index is a column
+	ColumnAlignment[] maeColumnAlignment = new ColumnAlignment[1000]; // each index is a column
 	boolean mzGlobalFill = false;
 	FormElement mVerticalFill = null;
 
@@ -403,7 +424,7 @@ if( DEBUG) System.out.println("global fill, alignments are ignored");
 if( DEBUG) System.out.println("determining column minimum widths out of " + ctColumns + " colummns");
 			for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
 if( DEBUG) System.out.println("column " + xColumn);
-				if( maiColumnAlignment[xColumn] == ALIGNMENT_None ){
+				if( maeColumnAlignment[xColumn] == ColumnAlignment.None ){
 					apxColumnMinimumWidth[xColumn] = 0;
 				} else {
 					for( int xRow = 1; xRow <= ctRows; xRow++ ){
@@ -733,15 +754,63 @@ if( DEBUG) System.out.format( "margin top left: %d %d\n", MARGIN_top, MARGIN_lef
 			for( int xColumn = 1; xColumn <= ctColumns; xColumn++ ){
 				FormElement element = aMapping[xColumn][xRow];
 				if( element == null ) continue;
-				if( element.componentLabel != null ){
-					element.iBounds_label_x = px_x + element.miSpacing_indent;
-					element.iBounds_label_y = px_y + element.miSpacing_line_above;
-if( DEBUG) System.out.format( "label x y: %d (%d + %d) %d (%d + %d) width: %d\n", element.iBounds_label_x, px_x, element.miSpacing_indent, element.iBounds_label_y, px_y, element.miSpacing_line_above, element.iBounds_label_width );
-					px_x += element.miSpacing_indent + element.iBounds_label_width + element.miSpacing_separation;
-				}
-				if( element.componentControl != null ){
+
+				// first the control-y is done because the label alignment is relative to this
+				if( element.componentControl == null ){ // in this case the label will be relative to the row height, not the control height
 					element.iBounds_control_y = px_y + element.miSpacing_line_above;
+					element.iBounds_control_height = apxHeight_row[xRow] - element.miSpacing_line_above - element.miSpacing_line_below;
+				} else {
+					int px_y_alignment_adjustment = 0;
+					switch( element.meAlignmentVertical ){
+						case None:
+						case LeftTop:
+							break;
+						case Center:
+							px_y_alignment_adjustment = (apxHeight_row[xRow] - element.iBounds_control_height)/2;
+							break;
+						case RightBottom:
+							px_y_alignment_adjustment = apxHeight_row[xRow] - element.iBounds_control_height;
+							break;
+					}
+					element.iBounds_control_y = px_y + element.miSpacing_line_above + px_y_alignment_adjustment;
+				}
+
+				// determine the alignment adjustment for the element based on the column alignment
+				int px_x_alignment_adjustment = 0;
+				switch( element.meAlignmentHorizontal ){
+					case None: // obeys column alignment
+						// TODO
+						break;
+					case LeftTop:
+						break;
+					case Center:
+//						px_x_alignment_adjustment = ;
+						break;
+					case RightBottom:
+						px_x_alignment_adjustment = px_x += apxHeight_row[xRow] - element.iBounds_control_height;
+						break;
+				}				
+				
+				// label positioning
+				if( element.componentLabel != null ){
+					element.iBounds_label_x = px_x + element.miSpacing_indent + px_x_alignment_adjustment;
+					px_x += element.miSpacing_indent + element.iBounds_label_width + element.miSpacing_separation;
+					switch( element.meAlignmentLabel ){
+						case Top:
+							element.iBounds_label_y = element.iBounds_control_y;
+						case Center:
+							element.iBounds_label_y = element.iBounds_control_y + element.iBounds_control_height / 2 - element.iBounds_label_height / 2;
+							break;
+						case Bottom:
+							element.iBounds_label_y = element.iBounds_control_y + element.iBounds_control_height - element.iBounds_label_height;
+							break;
+					}
+				}
+				
+				// control-x positioning
+				if( element.componentControl != null ){
 					element.iBounds_control_x = px_x;
+if( DEBUG) System.out.format( "label x y: %d (%d + %d) %d (%d + %d) width: %d\n", element.iBounds_label_x, px_x, element.miSpacing_indent, element.iBounds_label_y, px_y, element.miSpacing_line_above, element.iBounds_label_width );
 if( DEBUG) System.out.println("control x y: " + element.iBounds_control_x + " " + element.iBounds_control_y );
 					px_x += element.iBounds_control_width + element.miSpacing_trailing;
 				}
@@ -1002,16 +1071,20 @@ if( DEBUG) System.out.println("returning preferred size: " + dimPreferred );
 		if( weight < 0 ) weight = weight * -1;
 		element.miWeighting = weight ;
 	}
-	public void setAlignment( Component component, int ALIGNMENT ){
+	public void setAlignmentHorizontal( Component component, ElementAlignment ALIGNMENT ){
 		FormElement element = getFormElement( component );
-		if( element == null || ALIGNMENT < 0 || ALIGNMENT > 5 ) return;
-		element.miAlignment = ALIGNMENT ;
+		if( element == null ) return;
+		element.meAlignmentHorizontal = ALIGNMENT ;
 	}
-	public void setAlignment( int ALIGNMENT ){ setAlignment( 1, ALIGNMENT); }
-	public void setAlignment( int column, int ALIGNMENT ){
+	public void setAlignmentVertical( Component component, ElementAlignment ALIGNMENT ){
+		FormElement element = getFormElement( component );
+		if( element == null ) return;
+		element.meAlignmentVertical = ALIGNMENT ;
+	}
+	public void setColumnAlignment( ColumnAlignment ALIGNMENT ){ setColumnAlignment( 1, ALIGNMENT); }
+	public void setColumnAlignment( int column, ColumnAlignment ALIGNMENT ){
 		if( column < 1 || column > 999 ) return; // cannot have more than 999 columns
-		if( ALIGNMENT < 0 || ALIGNMENT > 5 ) return;
-		maiColumnAlignment[column] = ALIGNMENT;
+		maeColumnAlignment[column] = ALIGNMENT;
 	}
 
 	/** not used */
@@ -1047,13 +1120,6 @@ if( DEBUG) System.out.println("returning preferred size: " + dimPreferred );
 }
 
 class FormElement {
-//	int[] maiSpacing_indent = new int[100];
-//	int[] maiSpacing_separation = new int[100];
-//	int[] maiSpacing_trailing = new int[100];
-//	int[] maiSpacing_line = new int[100];
-//	int[] maiWeighting = new int[100];
-//	boolean[] mazFill = new boolean[100];
-//	int[] maiAlignment = new int[100]; // each index is an element
 	Component componentLabel = null;
 	Component componentControl = null;
 	int miRow;
@@ -1064,7 +1130,9 @@ class FormElement {
 	int miSpacing_line_above; // pixels above element
 	int miSpacing_line_below; // pixels below element
 	int miWeighting;
-	int miAlignment;
+	FormLayout.LabelAlignment meAlignmentLabel;
+	FormLayout.ElementAlignment meAlignmentVertical;
+	FormLayout.ElementAlignment meAlignmentHorizontal;
 	boolean mzFill = false;
 	boolean mzSpacer = false; // spacer elements are used where there would be a blank space in the grid
 
@@ -1088,6 +1156,9 @@ class FormElement {
 		miSpacing_trailing = layout.DEFAULT_SPACING_trailing;
 		miSpacing_line_above = layout.DEFAULT_SPACING_above;
 		miSpacing_line_below = layout.DEFAULT_SPACING_below;
+		meAlignmentLabel = layout.DEFAULT_ALIGNMENT_Label;
+		meAlignmentVertical = layout.DEFAULT_ALIGNMENT_Element_Vertical;
+		meAlignmentHorizontal = layout.DEFAULT_ALIGNMENT_Element_Horizontal;
 	}
 }
 

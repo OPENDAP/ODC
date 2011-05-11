@@ -26,7 +26,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.IControlPanel;
 import opendap.clients.odc.Interpreter;
-import opendap.clients.odc.geo.Utility;
+//import opendap.clients.odc.geo.Utility;
 import opendap.clients.odc.gui.Styles;
 import opendap.clients.odc.Panel_View_Text_Editor;
 import opendap.clients.odc.SavableImplementation;
@@ -344,7 +344,7 @@ class Model_DataView {
 					return;
 				}
 			} catch( Throwable t ) {
-				Utility.vUnexpectedError( t, sbError );
+				ApplicationController.vUnexpectedError( t, sbError );
 			}
 		}
 	}

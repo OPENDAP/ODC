@@ -66,9 +66,9 @@ public class ApplicationController {
 	private InterprocessServer server;
 	private CommandListener command;
 	private Interpreter interpreter;
-	private opendap.clients.odc.geo.Geodesy geodesy;
+//	private opendap.clients.odc.geo.Geodesy geodesy;
 
-	public final opendap.clients.odc.geo.Geodesy getGeodesy(){ return geodesy; }
+//	public final opendap.clients.odc.geo.Geodesy getGeodesy(){ return geodesy; }
 
 	private OutputEngine mOutputEngine;
 	public final OutputEngine getOutputEngine(){ return mOutputEngine; }
