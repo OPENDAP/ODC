@@ -333,16 +333,14 @@ If the dataset's attribute information contains an attribute for the selected va
 
 You can plot Python expressions by loading or creating expressions in the data editor (View / Data). When an expression data type is selected the plotter's variable panel will automatically show the settings for configuring the plotting of the expression. Three types of expression plotting are supported:
 
-Cartesian   (example: 2*x [y assumed] or 2*y [x assumed])
+Cartesian   (example: y=2*x)
 
-Polar       (example: 5*sin(theta) [r assumed])
+Polar       (example: r=5*sin(theta))
 
-Parametric  (example: 2*sin(t) [x assumed]
-                      3*cos(t) [y assumed] )
+Parametric  (example: x=2*sin(t)
+                      y=3*cos(t) )
 
-In every case you should only enter the expression, not the L-value, ie do not write y = 2*x for example, just write 2*x. The L-value determination is configured in the variable definition panel.
-
-When the expression is plotted the ODC substitutes numeric values for "substitution tokens" which are specified in the variable definition panel. By default the substition tokens are "x", "y", "z", "theta" and "t". If you are using these letters already in your expression you will need to change substition token to something distinctive like $t. Note that the ODC is smart and if it sees "$x" or "$t" in your expression it will automatically use $-sign tokens instead of plain tokens.
+When the expression is plotted the ODC substitutes numeric values for "substitution tokens" which are specified in the variable definition panel. By default the substition tokens are "x", "theta" and "t". If you are using these letters already in your expression you will need to change substition token to be dollar-sign-prefixed ($x, $y, $z, $r, $t, and $theta) or underscore-prefixed (_x, _y, _z, _r, _t, and _theta). Underscore prefixing is the internal coding standard to which all expressions get converted before final evaluation. Note that the ODC is smart and if it sees "$x" or "$t" in your expression it will automatically use $-sign tokens instead of plain tokens.
 
 For Cartesian expressions you select the L-value with the radio button and enter substition tokens for the other variable (or variables if it is 3D). You can do multiple expressions at the same time by entering them each on their own line. The ODC will plot them at the same time. This is useful, for example, when plotting quadratic equations that have a +/- alternative.
 
