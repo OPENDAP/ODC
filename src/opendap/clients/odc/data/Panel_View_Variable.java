@@ -1178,7 +1178,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 				ApplicationController.vShowError( "failed to set current cell value (row " + array._view.cursor_row + ", column " + array._view.cursor_column + "): " + sbError );
 				return;
 			}
-			PyObject pyobject = interpreter.zEval( pycodeExpression, sExpression_macroed, sbError );
+			PyObject pyobject = interpreter.zEval( pycodeExpression, sbError );
 			if( pyobject == null ){
 				ApplicationController.vShowError( "failed to set eval cell value (row " + array._view.cursor_row + ", column " + array._view.cursor_column + ") with expression " +  sExpression_macroed + ": " + sbError );
 				return;

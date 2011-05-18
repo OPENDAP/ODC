@@ -344,9 +344,15 @@ When the expression is plotted the ODC substitutes numeric values for "substitut
 
 For Cartesian expressions you select the L-value with the radio button and enter substition tokens for the other variable (or variables if it is 3D). You can do multiple expressions at the same time by entering them each on their own line. The ODC will plot them at the same time. This is useful, for example, when plotting quadratic equations that have a +/- alternative.
 
-For Polar expressions you provide an expression in terms of theta (the angle) and the plotter uses the value of the expression as the radius.
+For Polar expressions you provide an expression in terms of theta (the angle) and the plotter uses the value of the expression as the radius. Note that a polar plot is a special case of a parametric plot where the parameter has a fixed range of 0 to 2pi radians (0 to 360 degrees).
 
-For Parametric expressions you provide multiple expressions in terms of a parameter, by default "t" or "$t". The L-values are determined by the index number in the L-value column of the variable definition panel OR by a comment designator in the expression of the form "# X" in the text of the expression.
+For Parametric expressions you provide multiple expressions in terms of a parameter, by default "t" or "$t". The L-values are determined by the index number in the L-value column of the variable definition panel OR by a comment designator in the expression of the form "# X" in the text of the expression. To set the range and step of a parametric plot set the variables "t_range_begin", "t_range_end" and "t_increment":
+
+t_range_begin = 0
+t_range_end = 1
+t_increment = 0.001
+
+The default ranges are 0 and 1 as shown above. The default increment is the range divided by the number of pixels in the width of the plot area. For example, if the plot area is 1000 pixels wide and begin is 0 and the end is 1 then the increment will be (1 - 0) / 1000 = 0.001.
 
 *** Continuous versus Point Plots ***
 
