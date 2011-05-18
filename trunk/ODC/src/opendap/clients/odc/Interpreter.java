@@ -136,7 +136,7 @@ public class Interpreter {
 		return true;
 	}
 
-	public PyObject zEval( PyCode code, String sExp, StringBuffer sbError ){
+	public PyObject zEval( PyCode code, StringBuffer sbError ){
 		if( code == null ){
 			sbError.append( "null code object to eval" );
 			return null;
@@ -210,6 +210,56 @@ public class Interpreter {
 		}
 	}
 
+	public double get( String sVariableName, StringBuffer sbError ){
+		if( sVariableName == null ){
+			sbError.append( "null variable name" );
+			return Double.NEGATIVE_INFINITY;
+		}
+		if( mInterpreter == null ){
+			sbError.append("no Python interpreter exists for set");
+			return Double.NEGATIVE_INFINITY;
+		}
+		try {
+			PyObject object = mInterpreter.get( sVariableName );
+			return object.asDouble();
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			sbError.append( "!python syntax error: " + parse_error );
+			return Double.NEGATIVE_INFINITY;
+		} catch( org.python.core.PyException python_error ) {
+			sbError.append( "!python error: " + python_error );
+			return Double.NEGATIVE_INFINITY;
+		} catch( Throwable t ) {
+			sbError.append( "interpreter error: " + t.getClass().getName() );
+			ApplicationController.vUnexpectedError( t, sbError );
+			return Double.NEGATIVE_INFINITY;
+		}
+	}
+
+	public PyObject getInteger( String sVariableName, StringBuffer sbError ){
+		if( sVariableName == null ){
+			sbError.append( "null variable name" );
+			return null;
+		}
+		if( mInterpreter == null ){
+			sbError.append("no Python interpreter exists for set");
+			return null;
+		}
+		try {
+			PyObject object = mInterpreter.get( sVariableName );
+			return object;
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			sbError.append( "!python syntax error: " + parse_error );
+			return null;
+		} catch( org.python.core.PyException python_error ) {
+			sbError.append( "!python error: " + python_error );
+			return null;
+		} catch( Throwable t ) {
+			sbError.append( "interpreter error: " + t.getClass().getName() );
+			ApplicationController.vUnexpectedError( t, sbError );
+			return null;
+		}
+	}
+	
 	public void vEnterCommand( String s ){
 		vWriteLine( ApplicationController.getInstance().getTextViewerOS(), s, msPrompt );
 	}
