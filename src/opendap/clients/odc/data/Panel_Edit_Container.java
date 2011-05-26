@@ -70,7 +70,7 @@ public class Panel_Edit_Container extends JPanel {
 			return false;
 		}
 		switch( model.getType() ){
-			case Model_Dataset.TYPE_Data:
+			case Data:
 				Model_Dataset_Local tree = model.getDataTree( sbError );
 				if( tree == null ){
 					sbError.insert( 0, "failed to get data tree for model: " );
@@ -81,7 +81,7 @@ public class Panel_Edit_Container extends JPanel {
 				add( mDefineData, BorderLayout.EAST );
 				mEditStructure._setModel( tree );
 				break;
-			case Model_Dataset.TYPE_Expression:
+			case PlottableExpression:
 				if( mEditExpression._setModel( model, sbError ) ){
 					removeAll();
 					add( mEditExpression, BorderLayout.CENTER );
@@ -91,7 +91,7 @@ public class Panel_Edit_Container extends JPanel {
 					return false;
 				}
 				break;
-			case Model_Dataset.TYPE_Stream:
+			case Stream:
 				if( mEditStream._zInitialize(  mDefineStream, sbError ) ){
 					removeAll();
 					add( mEditStream, BorderLayout.CENTER );

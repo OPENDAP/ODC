@@ -38,6 +38,7 @@ import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.OpendapConnection;
 import opendap.clients.odc.Panel_Select_Favorites;
 import opendap.clients.odc.Panel_Select_Recent;
+import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
 import opendap.dap.*;
 import java.awt.event.*;
 
@@ -476,9 +477,9 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 				for(int i=0;i<madodsurlSelected.length;i++) {
 					sleep(500); // reduces the priority of this thread
 					if( madodsurlSelected[i].getDigest() != 0 ) continue;
-					int iURLType = madodsurlSelected[i].getType();
+					DATASET_TYPE eURLType = madodsurlSelected[i].getType();
 					String sBaseURL = madodsurlSelected[i].getBaseURL();
-					if( iURLType  == Model_Dataset.TYPE_Directory ){
+					if( eURLType  == DATASET_TYPE.Directory ){
 						sBaseURL = ApplicationController.getInstance().getRetrieveModel().sFetchDirectoryTree_GetFirstFile( sBaseURL, null );
 						if( sBaseURL == null ){
 							madodsurlSelected[i].setUnreachable(true, "could not find file in directory tree");

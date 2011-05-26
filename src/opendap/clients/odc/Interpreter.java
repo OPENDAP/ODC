@@ -32,6 +32,7 @@ package opendap.clients.odc;
 /////////////////////////////////////////////////////////////////////////////
 
 import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.data.Model_PlottableExpression;
 import opendap.dap.DArray;
 import opendap.dap.DGrid;
 import opendap.dap.DStructure;
@@ -282,26 +283,30 @@ public class Interpreter {
 		}
 	}	
 	
+	
+	
+	public Model_PlottableExpression generatePlottableExpression( String sScriptText, StringBuffer sbBuffer ){
+		Model_PlottableExpression model = new Model_PlottableExpression();
+		return model;
+	}
+	
 //		int[] actFilters1 = new int[10]; // the number of filters for this particular dimension
 //		int[][] aiFilterBegin = new int[10][100]; // the begin of the filtered range, -1 means no contraint 
 //		int[][] aiFilterEnd = new int[10][100]; // the begin of the filtered range, -1 means no contraint 
 
 	/** see help text for details on the rules for generation of the data set
 	 *  @return null on error */
-	public Model_Dataset generateDatasetFromExpression( String sExpressionText, StringBuffer sbError ){
-		
-		if( sExpressionText == null || sExpressionText.trim().length() == 0 ){
-			sbError.append( "expression text is blank" );
-			return null;
-		}
-		ArrayList<String> listLines = Utility.zLoadLines( sExpressionText, sbError );
-		if( listLines == null ){
-			sbError.insert( 0, "failed to parse expression into lines of text: " );
-			return null;
-		}
+	public Model_Dataset generateDatasetFromScript( String sScriptText, StringBuffer sbError ){
 		streamTrace = ApplicationController.getInstance().getTextViewerOS();		
+		Script script = Script.create( sScriptText, streamTrace, sbError );
+		if( script == null ){
+			sbError.insert( 0, "failed to parse script: " );
+			return null;
+		}
+		return generateDatasetFromScript( script, sbError );
+	}
 
-		HashMap<String,String> hmExp = new HashMap<String,String>();
+	public Model_Dataset generateDatasetFromScript( Script script, StringBuffer sbError ){
 		
 		//***** DEFAULTS *********************************************************
 		Object DEFAULT_value = null;
@@ -319,40 +324,31 @@ public class Interpreter {
 		String DEFAULT_name_3 = null;
 		String DEFAULT_name_4 = null;
 		int DEFAULT_index_dimensions = 1;
-		boolean DEFAULT_allow_errors = false;
-		boolean DEFAULT_trace = false;
 
 		//***********************************************************
 		// Simple Array/Grid Generation
 		//***********************************************************
-		boolean allow_errors = DEFAULT_allow_errors;
-		boolean trace = DEFAULT_trace;
-		int trace_1_begin = 0;
-		int trace_1_end = 0;
-		int trace_2_begin = 0;
-		int trace_2_end = 0;
-		int trace_3_begin = 0;
-		int trace_3_end = 0;
-		int trace_4_begin = 0;
-		int trace_4_end = 0;
+		boolean allow_errors = script.getAllowErrors();
+		boolean trace = script.getTrace();
+		int trace_1_begin = script.trace_1_begin;
+		int trace_1_end = script.trace_1_end;
+		int trace_2_begin = script.trace_2_begin;
+		int trace_2_end = script.trace_2_end;
+		int trace_3_begin = script.trace_3_begin;
+		int trace_3_end = script.trace_3_end;
+		int trace_4_begin = script.trace_4_begin;
+		int trace_4_end = script.trace_4_end;
 
 		String value_RValue = null;
 		DAP.DAP_TYPE type = DAP.DAP_TYPE.Float64;
-		int[] size1 = new int[5]; // 1-based
 		DAP.DAP_TYPE[][] index_type = new DAP.DAP_TYPE [5][4];  // variable dimension (1-based), index dimension (0 = primary)
 		String sValueName = "value";
 		String[][] name = new String[5][4];  // variable dimension (1-based), index dimension (0 = primary)
 
-		ArrayList<String> listGlobals = new ArrayList<String>();
-		ArrayList<String> listPreIndexVariables = new ArrayList<String>();
-		ArrayList<String> listPreValueVariables = new ArrayList<String>();
-		String sLine_allow_errors = null;
-		String sLine_trace = null;
-
 		//***********************************************************
 		// Initialization
 		//***********************************************************
-		size1[1] = 100;
+		script.size1[1] = 100;
 		for( int xVariable = 1; xVariable <= 4; xVariable++ )  // 0 not used
 			for( int xIndex = 0; xIndex <= 3; xIndex++ )
 				index_type[xVariable][xIndex] = DAP.DAP_TYPE.Float64;
@@ -370,117 +366,9 @@ public class Interpreter {
 		//***********************************************************
 		// RValues
 		//***********************************************************
-		String sRValue_trace = null; // this RValue is treated specially because of a non-standard syntax
-		String[] asKeyword = {
-			"value", "type", "name", "allow_errors",
-			"size_1", "size_2", "size_3", "size_4",
-			"name_1", "name_2", "name_3", "name_4",
-			"index_1", "index_2", "index_3", "index_4",
-			"index_1_1_name", "index_1_2_name", "index_1_3_name",  
-			"index_2_1_name", "index_2_2_name", "index_2_3_name",  
-			"index_3_1_name", "index_3_2_name", "index_3_3_name",  
-			"index_4_1_name", "index_4_2_name", "index_4_3_name", 
-			"index_1_1_type", "index_1_2_type", "index_1_3_type",  
-			"index_2_1_type", "index_2_2_type", "index_2_3_type",  
-			"index_3_1_type", "index_3_2_type", "index_3_3_type",  
-			"index_4_1_type", "index_4_2_type", "index_4_3_type", 
-			"index_1_1", "index_1_2", "index_1_3",  
-			"index_2_1", "index_2_2", "index_2_3",  
-			"index_3_1", "index_3_2", "index_3_3",  
-			"index_4_1", "index_4_2", "index_4_3"
-		};
-		for( int xKeyword = 0; xKeyword < asKeyword.length; xKeyword++ ){
-			hmExp.put( asKeyword[xKeyword], null );
-		}
 
-		// process lines in the expression set
-		for( int xLine = 1; xLine <= listLines.size(); xLine++ ){
-			String sLine = listLines.get( xLine - 1 );
-			if( sLine == null || sLine.trim().length() == 0 ) continue;
-			sLine = sLine.trim();
-			if( sLine.charAt( 0 ) == '#' ) continue; // comment
-			int posEquals = sLine.indexOf( '=' );
-			if( posEquals == -1 ){  // no equals sign
-				if( sLine.startsWith( "trace" ) ){
-					trace = true;
-					sLine_trace = sLine;
-					sRValue_trace = sLine.substring( "trace".length() ).trim();
-				}
-				continue;
-			}
-			String sLValue = sLine.substring( 0, posEquals ).trim();
-			String sRValue = sLine.substring( posEquals + 1 ).trim();
-			if( trace ){
-				trace( "" ); // get off of command prompt
-				try {
-					String sMessage = String.format( "line %d L-value: [%s] R-value: [%s]\n", xLine, sLValue, sRValue );
-					trace( sMessage );
-				} catch( Throwable t ){}
-			}
-			if( ! zIsValidPythonIdentifier( sLValue, sbError ) ){
-				sbError.insert( 0, "Identifier \"" + sLValue + "\" used as an L-value in line " + xLine + " is invalid: " );
-				return null;
-			}
-			if( sLValue.startsWith( "__" ) ){
-				listGlobals.add( sLine );
-			} else if( sLValue.startsWith( "_" ) ){
-				listPreIndexVariables.add( sLine );
-			} else if( hmExp.containsKey( sLValue ) ){
-				hmExp.put( sLValue, sRValue );
-			} else {
-				listPreValueVariables.add( sLine );
-			}
-		}
-		
-		// determine whether to trace
-		if( sLine_trace == null && !trace ){
-			// do not trace
-		} else {
-			trace = true;
-		}
-		
-		// determine whether to allow errors
-		try {
-			String sRValue_allow_errors = hmExp.get( "allow_errors" );
-			if( sRValue_allow_errors == null ){
-				// do nothing, use default value
-			} else if( sRValue_allow_errors.equalsIgnoreCase( "true" ) ){
-				allow_errors = true;
-				if( trace )	trace( "allow_errors set to true" );
-			} else if( sRValue_allow_errors.equalsIgnoreCase( "false" ) ){
-				allow_errors = false;
-				if( trace )	trace( "allow_errors set to false" );
-			} else {
-				try {
-					mInterpreter.exec( sLine_allow_errors );
-					PyObject po_allow_errors = mInterpreter.get( "allow_errors" );
-					allow_errors = Py.py2boolean( po_allow_errors );
-					if( trace )	trace( "allow_errors ( " + sLine_allow_errors + " ) evaluated to " + allow_errors );
-				} catch( org.python.core.PySyntaxError parse_error ) {
-					sbError.append( "Python syntax error processing allow_errors setting: " + parse_error );
-					return null;
-				} catch( org.python.core.PyException python_error ) {
-					String sMessage = "Python error processing allow_errors setting: " + python_error;
-					if( trace )	trace( sMessage );
-					sbError.append( sMessage );
-					return null;
-				} catch( Throwable t ) {
-					String sMessage = "unexpected error while evaluating allow_errors parameter (" + sLine_allow_errors + "): " + Utility.errorExtractLine( t );
-					if( trace ){
-						trace( sMessage );
-					}
-					sbError.append( sMessage );
-					ApplicationController.vUnexpectedError( t, sbError );
-					return null;
-				}
-			}
-		} catch( Throwable t ) {
-			ApplicationController.vUnexpectedError( t, "while determining whether to allow errors" );
-			return null;
-		}
-		
 		// obtain the RValue of the value
-		value_RValue = hmExp.get( "value" );
+		value_RValue = script.get( "value" );
 		if( value_RValue == null ){
 			sbError.append( "no \"value\" parameter supplied; this parameter is required to define the values of the data array" );
 			return null;
@@ -488,8 +376,8 @@ public class Interpreter {
 		
 		// (1) All unrecognized variables beginning with "__" (globals) are evaluated.
 		try {
-			for( int xGlobal = 1; xGlobal <= listGlobals.size(); xGlobal++ ){
-				String sGlobal = listGlobals.get( xGlobal - 1 );
+			for( int xGlobal = 1; xGlobal <= script.listGlobals.size(); xGlobal++ ){
+				String sGlobal = script.listGlobals.get( xGlobal - 1 );
 				try {
 					mInterpreter.exec( sGlobal );
 					if( trace ){
@@ -539,7 +427,7 @@ public class Interpreter {
 		// (2) The configuration values (type, name, and index_dimensions) are evaluated first in that order.
 
 		// determine the type of data
-		String sExp_ValueType = hmExp.get( "type" );
+		String sExp_ValueType = script.get( "type" );
 		if( sExp_ValueType == null ){
 			// default will be used 
 		} else {
@@ -563,7 +451,7 @@ public class Interpreter {
 		}		
 
 		// determine the name of the value array
-		String sExp_ValueName = hmExp.get( "name" ); 
+		String sExp_ValueName = script.get( "name" ); 
 		if( sExp_ValueName == null ){
 			// default will be used 
 		} else {
@@ -583,17 +471,17 @@ public class Interpreter {
 		// determine and validate the dimension count of the index vectors
 		boolean[] azMultidimensionalIndex1 = new boolean[4]; // 1-based
 		for( int xDim = 1; xDim <= 4; xDim++ ){
-			if( hmExp.get( "index_" + xDim + "_3" ) != null ){
+			if( script.get( "index_" + xDim + "_3" ) != null ){
 				index_vectors[xDim] = 3;
 				azMultidimensionalIndex1[xDim] = true;
-			} else if( hmExp.get( "index_" + xDim + "_2" ) != null ){
+			} else if( script.get( "index_" + xDim + "_2" ) != null ){
 				index_vectors[xDim] = 2;
 				azMultidimensionalIndex1[xDim] = true;
-			} else if( hmExp.get( "index_" + xDim + "_1" ) != null ){
+			} else if( script.get( "index_" + xDim + "_1" ) != null ){
 				index_vectors[xDim] = 1;
 				azMultidimensionalIndex1[xDim] = true;
 			}
-			if( hmExp.get( "index_" + xDim ) != null ){
+			if( script.get( "index_" + xDim ) != null ){
 				if( azMultidimensionalIndex1[xDim] ){
 					sbError.append( "indexing conflict, both multidimensional and unidimensional indices are defined for dimension " + xDim );
 					return null;
@@ -605,7 +493,7 @@ public class Interpreter {
 		// evaluate the dimensional names
 		for( int xDim = 1; xDim <= 4; xDim++ ){
 			String sVarName = "name_" + xDim;
-			String sExp_VarName = hmExp.get( sVarName ); 
+			String sExp_VarName = script.get( sVarName ); 
 			if( sExp_VarName == null ){
 				// default will be used 
 			} else {
@@ -627,7 +515,7 @@ public class Interpreter {
 		for( int xDim = 1; xDim <= 4; xDim++ ){
 			for( int xVector = 1; xVector <= 3; xVector++ ){
 				String sVarName = "index_" + xDim + "_" + xVector + "_name";
-				String sExp_VarName = hmExp.get( sVarName ); 
+				String sExp_VarName = script.get( sVarName ); 
 				if( sExp_VarName == null ){
 					// default will be used 
 				} else {
@@ -650,53 +538,31 @@ public class Interpreter {
 		for( int xDim = 1; xDim <= 4; xDim++ ){
 			for( int xVector = 0; xVector <= 3; xVector++ ){
 				index_LValue[xDim][xVector] = xVector == 0 ? "index_" + xDim : "index_" + xDim + "_" + xVector;
-				index_RValue[xDim][xVector] = hmExp.get( index_LValue[xDim][xVector] ); 
+				index_RValue[xDim][xVector] = script.get( index_LValue[xDim][xVector] ); 
 			}
 		}		
 
-		// (3) The size variables are evaluated to determine the dimensions of the value array.
-		int ctDimensions = 0;
-		for( int xDim = 1; xDim <= 4; xDim++ ){
-			String sSizeIdentifier = "size_" + xDim;
-			String sSizeIdentifier_value = hmExp.get( sSizeIdentifier ); 
-			if( sSizeIdentifier_value == null ){
-				// then default will be used
-			} else {
-				int iEvaluatedSize = evaluatePythonRValue_DimSize( sSizeIdentifier_value, xDim, streamTrace, trace, sbError );
-				if( iEvaluatedSize == -1 ) return null;
-				if( iEvaluatedSize == 0 ) { 
-					if( xDim == 1 ){
-						sbError.append( "dimension 1 evaluated to 0; must be 1 or greater" );
-						return null;
-					}
-					break; // rest of sizes will be zero
-				}
-				ctDimensions++;
-				size1[xDim] = iEvaluatedSize;
-			}
-		}
-
 		// make sure we have enough memory
-		int iTotalSize = size1[1];
-		if( size1[2] > 0 ){
-			if( Integer.MAX_VALUE / size1[2] > iTotalSize ){
-				sbError.append( "dimensional sizes (" + size1[1] + " and " + size1[2] + ") result in an oversized array" );
+		int iTotalSize = script.size1[1];
+		if( script.size1[2] > 0 ){
+			if( Integer.MAX_VALUE / script.size1[2] > iTotalSize ){
+				sbError.append( "dimensional sizes (" + script.size1[1] + " and " + script.size1[2] + ") result in an oversized array" );
 				return null;
 			} else {
-				iTotalSize *= size1[2];
-				if( size1[3] > 0 ){
-					if( Integer.MAX_VALUE / size1[3] > iTotalSize ){
-						sbError.append( "dimensional sizes (" + size1[1] + " and " + size1[2] + " and " + size1[3] + ") result in an oversized array" );
+				iTotalSize *= script.size1[2];
+				if( script.size1[3] > 0 ){
+					if( Integer.MAX_VALUE / script.size1[3] > iTotalSize ){
+						sbError.append( "dimensional sizes (" + script.size1[1] + " and " + script.size1[2] + " and " + script.size1[3] + ") result in an oversized array" );
 						return null;
 					} else {
-						iTotalSize *= size1[3];
-						if( size1[4] > 0 ){
-							if( Integer.MAX_VALUE / size1[4] > iTotalSize ){
-								sbError.append( "dimensional sizes (" + size1[1] + " and " + size1[2] + " and " + size1[3] + " and " + size1[4] + ") result in an oversized array" );
+						iTotalSize *= script.size1[3];
+						if( script.size1[4] > 0 ){
+							if( Integer.MAX_VALUE / script.size1[4] > iTotalSize ){
+								sbError.append( "dimensional sizes (" + script.size1[1] + " and " + script.size1[2] + " and " + script.size1[3] + " and " + script.size1[4] + ") result in an oversized array" );
 								return null;
 							}
 						} else {
-							iTotalSize *= size1[4];
+							iTotalSize *= script.size1[4];
 						}
 					}
 				}
@@ -708,95 +574,19 @@ public class Interpreter {
 		}
 		
 		// allocate the data array
-		PyPrimitiveVector pvValue = new PyPrimitiveVector( type, size1[1], size1[2], size1[3], size1[4] ); // dimension (1-based) x vector (0-based) 
+		PyPrimitiveVector pvValue = new PyPrimitiveVector( type, script.size1[1], script.size1[2], script.size1[3], script.size1[4] ); // dimension (1-based) x vector (0-based) 
 		
 		// allocate the primary dimensional indices
 		PyPrimitiveVector[][] pvIndex = new PyPrimitiveVector[5][4]; // dimension (1-based) x vector (0-based) 
-		for( int xDim = 1; xDim <= ctDimensions; xDim++ ){
+		for( int xDim = 1; xDim <= script.ctDimensions; xDim++ ){
 			int ctVectors = azMultidimensionalIndex1[xDim] ? index_vectors[xDim] : 1;
 			for( int xVector = 1; xVector <= ctVectors; xVector++ ){
 				DAP.DAP_TYPE eTYPE = azMultidimensionalIndex1[xDim] ? index_type[xDim][xVector] : index_type[xDim][0];
 				int xVectorIndex = azMultidimensionalIndex1[xDim] ? xVector : 0;
-				pvIndex[xDim][xVectorIndex] = new PyPrimitiveVector( eTYPE, size1[xDim], 0, 0, 0 );
+				pvIndex[xDim][xVectorIndex] = new PyPrimitiveVector( eTYPE, script.size1[xDim], 0, 0, 0 );
 			}
 		}	
 
-		// evaluate the trace intervals
-		try {
-			if( trace ){
-				if( sRValue_trace != null && sRValue_trace.length() > 0 ){
-					String[] asTrace = Utility_String.splitCommaWhiteSpace( sRValue_trace );
-					int ctTrace = asTrace.length; 
-					if( ctTrace != ctDimensions ){
-						trace( "trace parameter (" + sRValue_trace + ") parsed to have " + ctTrace + " entries, but there are " + ctDimensions + ". If trace parameters are used they must match the number of dimensions. Tracing will now be turned off." );
-						trace = false;
-					} else {
-						for( int xTraceParameter = 1; xTraceParameter <= ctTrace; xTraceParameter++ ){
-							String sParameter = asTrace[xTraceParameter - 1];
-							String[] asTraceRange = Utility_String.split( sParameter, ':' );
-							if( asTraceRange.length > 2 ){
-								trace( "trace parameter " + xTraceParameter + " (" + sParameter + ") parsed to have " + asTraceRange.length + " entries, but only 1 or 2 were expected. Trace parameters must be either 0-based numbers or ranges of index values, e.g., \"23:45\". Tracing will now be turned off." );
-								trace = false;
-								break;
-							}
-							int iParameter_begin = Utility_String.parseInteger_nonnegative( asTraceRange[0] );
-							if( iParameter_begin == -1 ){
-								trace( "trace parameter " + xTraceParameter + " (" + asTraceRange[0] + ") did not parse to a non-negative integer. Tracing will now be turned off." );
-								trace = false;
-								break;
-							}
-							int iParameter_end;
-							if( asTraceRange.length == 2 ){
-								iParameter_end = Utility_String.parseInteger_nonnegative( asTraceRange[1] );
-								if( iParameter_begin == -1 ){
-									trace( "trace parameter " + xTraceParameter + ", end part (" + asTraceRange[1] + ") did not parse to a non-negative integer. Tracing will now be turned off." );
-									trace = false;
-									break;
-								}
-							} else {
-								iParameter_end = iParameter_begin; 
-							}
-							if( iParameter_end < iParameter_begin ){
-								trace( "trace parameter " + xTraceParameter + " (" + sParameter+ ") is invalid because the begin value ( " + iParameter_begin + " ) is greater than the end value ( " + iParameter_end + " ). Tracing will now be turned off." );
-								trace = false;
-								break;
-							}
-							switch( xTraceParameter ){
-								case 1:
-									trace_1_begin = iParameter_begin;
-									trace_1_end = iParameter_end;
-									break;
-								case 2:
-									trace_2_begin = iParameter_begin;
-									trace_2_end = iParameter_end;
-									break;
-								case 3:
-									trace_3_begin = iParameter_begin;
-									trace_3_end = iParameter_end;
-									break;
-								case 4:
-									trace_4_begin = iParameter_begin;
-									trace_4_end = iParameter_end;
-									break;
-							}
-						}
-					}
-				} else { // trace every value
-					trace_1_begin = 0;
-					trace_1_end = size1[1] - 1; if( trace_1_end < 0 ) trace_1_end = 0;
-					trace_2_begin = 0;
-					trace_2_end = size1[2] - 1; if( trace_2_end < 0 ) trace_2_end = 0;
-					trace_3_begin = 0;
-					trace_3_end = size1[3] - 1; if( trace_3_end < 0 ) trace_3_end = 0;
-					trace_4_begin = 0;
-					trace_4_end = size1[4] - 1; if( trace_4_end < 0 ) trace_4_end = 0;
-				}
-			}
-		} catch( Throwable t ) {
-			ApplicationController.vUnexpectedError( t, "while evaluating trace parameters" );
-			return null;
-		}
-		
 		// (4) The internal index values are looped.
 //		ArrayList<String> listPreValueVariables = new ArrayList<String>();
 		int x1 = 0;
@@ -804,7 +594,7 @@ public class Interpreter {
 		int x3 = 0;
 		int x4 = 0;
 		while( true ){
-			if( x1 > size1[1] || x2 > size1[2] || x3 > size1[3] || x4 > size1[4] ) break; // done
+			if( x1 > script.size1[1] || x2 > script.size1[2] || x3 > script.size1[3] || x4 > script.size1[4] ) break; // done
 			boolean zTraceLoop =
 				trace 	&& x1 >= trace_1_begin && x1 <= trace_1_end  
 						&& x2 >= trace_2_begin && x2 <= trace_2_end 
@@ -812,8 +602,8 @@ public class Interpreter {
 						&& x4 >= trace_4_begin && x4 <= trace_4_end;
 
 			// (5) All unrecognized variables beginning with "_" are evaluated after macro substitution.
-			for( int xPreIndexExp = 1; xPreIndexExp <= listPreIndexVariables.size(); xPreIndexExp++ ){
-				String sPreIndexExp = listPreIndexVariables.get( xPreIndexExp - 1 );
+			for( int xPreIndexExp = 1; xPreIndexExp <= script.listPreIndexVariables.size(); xPreIndexExp++ ){
+				String sPreIndexExp = script.listPreIndexVariables.get( xPreIndexExp - 1 );
 				if( sPreIndexExp == null ){
 					sbError.append( String.format( "internal error on loop %d %d %d %d, pre-index expression %d was unexpectedly null", x1, x2, x3, x4, xPreIndexExp) );
 					return null;
@@ -837,7 +627,7 @@ public class Interpreter {
 			}
 
 			// (6) The index variables are evaluated.
-			for( int xDim = 1; xDim <= ctDimensions; xDim++ ){
+			for( int xDim = 1; xDim <= script.ctDimensions; xDim++ ){
 				int ctVectors = index_vectors[xDim]; // if there are no indices for this dim then this will be 0 and looping will continue
 				for( int xVector = 1; xVector <= ctVectors; xVector++ ){
 					int xIndex = azMultidimensionalIndex1[xDim] ? xVector : 0;
@@ -900,8 +690,8 @@ public class Interpreter {
 			}
 
 			// (7) All unrecognized variables not beginning with "_" are evaluated after macro substitution.
-			for( int xPreValueExp = 1; xPreValueExp <= listPreValueVariables.size(); xPreValueExp++ ){
-				String sPreValueExp = listPreValueVariables.get( xPreValueExp - 1 );
+			for( int xPreValueExp = 1; xPreValueExp <= script.listPreValueVariables.size(); xPreValueExp++ ){
+				String sPreValueExp = script.listPreValueVariables.get( xPreValueExp - 1 );
 				if( sPreValueExp == null ){
 					sbError.append( String.format( "internal error on loop %d %d %d %d, pre-value expression %d was unexpectedly null", x1, x2, x3, x4, xPreValueExp ) );
 					return null;
@@ -973,13 +763,13 @@ public class Interpreter {
 
 			// (9) The process increments counters and loops to step (3), and continuing until the value matrix is full.
 			x1++;
-			if( x1 == size1[1] ){
+			if( x1 == script.size1[1] ){
 				x1 = 0;
 				x2++;
-				if( x2 == size1[2] ){
+				if( x2 == script.size1[2] ){
 					x2 = 0;
 					x3++;
-					if( x3 == size1[3] ){
+					if( x3 == script.size1[3] ){
 						x3 = 0;
 						x4++;
 					}}}
@@ -1006,14 +796,14 @@ public class Interpreter {
 			boolean zIndexPresent = false;
 			int iSizeOfValueArray = 1;
 			for( int xDim = 1; xDim <= 4; xDim++ ){
-				if( size1[xDim] == 0 ) break;
+				if( script.size1[xDim] == 0 ) break;
 				String sDimensionName = name[xDim][0];
 				if( sDimensionName == null ){
-					darray.appendDim( size1[xDim] );
+					darray.appendDim( script.size1[xDim] );
 				} else {
-					darray.appendDim( size1[xDim], sDimensionName, false );
+					darray.appendDim( script.size1[xDim], sDimensionName, false );
 				}
-				iSizeOfValueArray *= size1[xDim]; 
+				iSizeOfValueArray *= script.size1[xDim]; 
 				if( index_vectors[xDim] > 0 ) zIndexPresent = true; 
 			}			
 			
@@ -1029,7 +819,7 @@ public class Interpreter {
 				dgrid = factory.newDGrid();
 				dgrid.addVariable( darray, DGrid.ARRAY );
 				for( int xDim = 1; xDim <= 4; xDim++ ){
-					if( size1[xDim] == 0 ) break;
+					if( script.size1[xDim] == 0 ) break;
 					String sDimensionName = name[xDim][0];
 					if( index_vectors[xDim] == 1 ){ // simple index vector
 						DAP.DAP_TYPE daptypeDim = index_type[xDim][0];
@@ -1084,16 +874,6 @@ public class Interpreter {
 			streamTrace.write( '\n' );
 		} catch( Throwable t ) {}
 	}
-	
-	final private static String[] aPythonReservedWords = {
-		"and", "assert", "break", "class", "continue",
-		"def", "del", "elif", "else", "except",
-		"exec", "finally", "for", "from", "global",
-		"if", "import", "in", "is", "lambda",
-		"not", "or", "pass", "print", "raise",
-		"return", "try", "while", "float", "int",
-		"string"
-	};
 	
 	private DArray createDArray( opendap.dap.BaseTypeFactory factory, String sName, DAP.DAP_TYPE type, Object oInternalStorage, StringBuffer sbError ){
 		try {
@@ -1158,32 +938,6 @@ public class Interpreter {
 		return sExp_after_macro;
 	}
 	
-	private boolean zIsValidPythonIdentifier( String sIdentifier, StringBuffer sbError ){
-		if( sIdentifier == null || sIdentifier.trim().length() == 0 ){
-			sbError.append( "identifier is blank" );
-			return false;
-		}
-		if( Character.isDigit( sIdentifier.charAt(0) ) ){
-			sbError.append( "begins with a digit" );
-			return false;
-		}
-		if( ! Character.isLetter( sIdentifier.charAt(0) ) ){
-			sbError.append( "does not begin with a letter" );
-			return false;
-		}
-		for( int xChar = 0; xChar < sIdentifier.length(); xChar++ ){
-			char c = sIdentifier.charAt( xChar );
-			if( Character.isLetterOrDigit( c ) || c == '_' || c == '.' ) continue;
-			sbError.append( "invalid character at position " + (xChar + 1) + ": " + c );
-			return false;
-		}
-		if( Utility_Array.arrayHasMember( aPythonReservedWords, sIdentifier ) ){
-			sbError.append( "is a reserved word in Python" );
-			return false;
-		}
-		return true;
-	}
-
 	private int evaluatePythonRValue_DimCount( String sRValue, int iDimNumber, java.io.OutputStream streamTrace, boolean zTrace, StringBuffer sbError ){
 		try {
 			PyObject po_IndexDimensionCount = mInterpreter.eval( sRValue );
@@ -1215,45 +969,6 @@ public class Interpreter {
 			return -1;
 		} catch( Throwable t ) {
 			String sMessage = "error while processing index_" + iDimNumber + "_dimensions setting (" + sRValue + "): " + Utility.errorExtractLine( t );
-			if( zTrace ){
-				trace( sMessage );
-			}
-			sbError.append( sMessage );
-			return -1;
-		}
-	}
-
-	private int evaluatePythonRValue_DimSize( String sRValue, int iDimNumber, java.io.OutputStream streamTrace, boolean zTrace, StringBuffer sbError ){
-		try {
-			PyObject po_DimensionSize = mInterpreter.eval( sRValue );
-			int iDimensionSize_conversion = Py.py2int( po_DimensionSize );
-			if( iDimensionSize_conversion < 0 ){
-				String sMessage = "dimension size expression (" + sRValue + ") for dimension " + iDimNumber + " did not evaluate to a non-negative integer (" + iDimensionSize_conversion + ")";
-				if( zTrace ){
-					trace( sMessage );
-				}
-				sbError.append( sMessage );
-				return -1;
-			} else {
-				trace( "Size for dimension " + iDimNumber + " ( size_" + iDimNumber + " ) evaluated to " + iDimensionSize_conversion );
-				return iDimensionSize_conversion;
-			}
-		} catch( org.python.core.PySyntaxError parse_error ) {
-			String sMessage = "Python syntax error while evaluating size_" + iDimNumber + " setting (" + sRValue + "): " + parse_error;
-			if( zTrace ){
-				trace( sMessage );
-			}
-			sbError.append( sMessage );
-			return -1;
-		} catch( org.python.core.PyException python_error ) {
-			String sMessage = "Python error evaluating size_" + iDimNumber + " setting (" + sRValue + "): " + python_error;
-			if( zTrace ){
-				trace( sMessage );
-			}
-			sbError.append( sMessage );
-			return -1;
-		} catch( Throwable t ) {
-			String sMessage = "error while processing size_" + iDimNumber + " setting (" + sRValue + "): " + Utility.errorExtractLine( t );
 			if( zTrace ){
 				trace( sMessage );
 			}
@@ -1714,3 +1429,351 @@ class PyPrimitiveVector {
 	}
 }
 
+class Script {
+	final public static boolean DEFAULT_allow_errors = false;
+	final public static boolean DEFAULT_trace = false;
+	private boolean zAllowErrors = DEFAULT_allow_errors;
+	private boolean zTrace = DEFAULT_trace;
+	private String sScriptText;
+	private String sLine_trace;
+	private String sRValue_trace;
+	private java.io.OutputStream streamTrace;
+	int[] size1 = new int[5]; // 1-based
+	private HashMap<String,String> hmExp = new HashMap<String,String>();
+	ArrayList<String> listGlobals = new ArrayList<String>();
+	ArrayList<String> listPreIndexVariables = new ArrayList<String>();
+	ArrayList<String> listPreValueVariables = new ArrayList<String>();
+	int ctDimensions = 0;
+	int trace_1_begin = 0;
+	int trace_1_end = 0;
+	int trace_2_begin = 0;
+	int trace_2_end = 0;
+	int trace_3_begin = 0;
+	int trace_3_end = 0;
+	int trace_4_begin = 0;
+	int trace_4_end = 0;
+	private Script(){
+		String[] asKeyword = {
+			"value", "type", "name", "allow_errors",
+			"size_1", "size_2", "size_3", "size_4",
+			"name_1", "name_2", "name_3", "name_4",
+			"index_1", "index_2", "index_3", "index_4",
+			"index_1_1_name", "index_1_2_name", "index_1_3_name",  
+			"index_2_1_name", "index_2_2_name", "index_2_3_name",  
+			"index_3_1_name", "index_3_2_name", "index_3_3_name",  
+			"index_4_1_name", "index_4_2_name", "index_4_3_name", 
+			"index_1_1_type", "index_1_2_type", "index_1_3_type",  
+			"index_2_1_type", "index_2_2_type", "index_2_3_type",  
+			"index_3_1_type", "index_3_2_type", "index_3_3_type",  
+			"index_4_1_type", "index_4_2_type", "index_4_3_type", 
+			"index_1_1", "index_1_2", "index_1_3",  
+			"index_2_1", "index_2_2", "index_2_3",  
+			"index_3_1", "index_3_2", "index_3_3",  
+			"index_4_1", "index_4_2", "index_4_3"
+		};
+		for( int xKeyword = 0; xKeyword < asKeyword.length; xKeyword++ ){
+			hmExp.put( asKeyword[xKeyword], null );
+		}		
+	}
+	
+	public String get( String sKey ){ return hmExp.get( sKey ); }
+	
+	public boolean getAllowErrors(){ return zAllowErrors; }
+	public boolean getTrace(){ return zTrace; }
+	public static Script create( String sScriptText, java.io.OutputStream streamTrace, StringBuffer sbError ){
+		Script script = new Script();
+		script.sScriptText = sScriptText;
+		script.streamTrace = streamTrace;
+		if( ! script.initialize( sbError ) ){
+			sbError.insert( 0, "failed to initialize script: " );
+			return null;
+		}
+		return script;
+	}
+	
+	private boolean initialize( StringBuffer sbError ){
+		if( sScriptText == null || sScriptText.trim().length() == 0 ){
+			sbError.append( "expression text is blank" );
+			return false;
+		}
+		ArrayList<String> listLines = Utility.zLoadLines( sScriptText, sbError );
+		if( listLines == null ){
+			sbError.insert( 0, "failed to parse script into lines of text: " );
+			return false;
+		}
+		
+		String sLine_allow_errors = null;
+		String sLine_trace = null;
+		String sRValue_trace = null; // this RValue is treated specially because of a non-standard syntax
+		
+		// process lines in the expression set
+		for( int xLine = 1; xLine <= listLines.size(); xLine++ ){
+			String sLine = listLines.get( xLine - 1 );
+			if( sLine == null || sLine.trim().length() == 0 ) continue;
+			sLine = sLine.trim();
+			if( sLine.charAt( 0 ) == '#' ) continue; // comment
+			int posEquals = sLine.indexOf( '=' );
+			if( posEquals == -1 ){  // no equals sign
+				if( sLine.startsWith( "trace" ) ){
+					zTrace = true;
+					sLine_trace = sLine;
+					sRValue_trace = sLine.substring( "trace".length() ).trim();
+				}
+				continue;
+			}
+			String sLValue = sLine.substring( 0, posEquals ).trim();
+			String sRValue = sLine.substring( posEquals + 1 ).trim();
+			if( zTrace ){
+				trace( "" ); // get off of command prompt
+				try {
+					String sMessage = String.format( "line %d L-value: [%s] R-value: [%s]\n", xLine, sLValue, sRValue );
+					trace( sMessage );
+				} catch( Throwable t ){}
+			}
+			if( ! zIsValidPythonIdentifier( sLValue, sbError ) ){
+				sbError.insert( 0, "Identifier \"" + sLValue + "\" used as an L-value in line " + xLine + " is invalid: " );
+				return false;
+			}
+			if( sLValue.startsWith( "__" ) ){
+				listGlobals.add( sLine );
+			} else if( sLValue.startsWith( "_" ) ){
+				listPreIndexVariables.add( sLine );
+			} else if( hmExp.containsKey( sLValue ) ){
+				hmExp.put( sLValue, sRValue );
+			} else {
+				listPreValueVariables.add( sLine );
+			}
+		}
+		
+		// determine whether to trace
+		if( sLine_trace == null || !zTrace  ){
+			// do not trace
+		} else {
+			zTrace = true;
+		}
+
+		// The size variables are evaluated to determine the dimensions of the value array.
+		for( int xDim = 1; xDim <= 4; xDim++ ){
+			String sSizeIdentifier = "size_" + xDim;
+			String sSizeIdentifier_value = hmExp.get( sSizeIdentifier ); 
+			if( sSizeIdentifier_value == null ){
+				// then default will be used
+			} else {
+				int iEvaluatedSize = evaluatePythonRValue_DimSize( sSizeIdentifier_value, xDim, streamTrace, zTrace, sbError );
+				if( iEvaluatedSize == -1 ) return false;
+				if( iEvaluatedSize == 0 ) { 
+					if( xDim == 1 ){
+						sbError.append( "dimension 1 evaluated to 0; must be 1 or greater" );
+						return false;
+					}
+					break; // rest of sizes will be zero
+				}
+				ctDimensions++;
+				size1[xDim] = iEvaluatedSize;
+			}
+		}
+
+		// evaluate the trace intervals
+		try {
+			if( zTrace ){
+				if( sRValue_trace != null && sRValue_trace.length() > 0 ){
+					String[] asTrace = Utility_String.splitCommaWhiteSpace( sRValue_trace );
+					int ctTrace = asTrace.length; 
+					if( ctTrace != ctDimensions ){
+						trace( "trace parameter (" + sRValue_trace + ") parsed to have " + ctTrace + " entries, but there are " + ctDimensions + ". If trace parameters are used they must match the number of dimensions. Tracing will now be turned off." );
+						zTrace = false;
+					} else {
+						for( int xTraceParameter = 1; xTraceParameter <= ctTrace; xTraceParameter++ ){
+							String sParameter = asTrace[xTraceParameter - 1];
+							String[] asTraceRange = Utility_String.split( sParameter, ':' );
+							if( asTraceRange.length > 2 ){
+								trace( "trace parameter " + xTraceParameter + " (" + sParameter + ") parsed to have " + asTraceRange.length + " entries, but only 1 or 2 were expected. Trace parameters must be either 0-based numbers or ranges of index values, e.g., \"23:45\". Tracing will now be turned off." );
+								zTrace = false;
+								break;
+							}
+							int iParameter_begin = Utility_String.parseInteger_nonnegative( asTraceRange[0] );
+							if( iParameter_begin == -1 ){
+								trace( "trace parameter " + xTraceParameter + " (" + asTraceRange[0] + ") did not parse to a non-negative integer. Tracing will now be turned off." );
+								zTrace = false;
+								break;
+							}
+							int iParameter_end;
+							if( asTraceRange.length == 2 ){
+								iParameter_end = Utility_String.parseInteger_nonnegative( asTraceRange[1] );
+								if( iParameter_begin == -1 ){
+									trace( "trace parameter " + xTraceParameter + ", end part (" + asTraceRange[1] + ") did not parse to a non-negative integer. Tracing will now be turned off." );
+									zTrace = false;
+									break;
+								}
+							} else {
+								iParameter_end = iParameter_begin; 
+							}
+							if( iParameter_end < iParameter_begin ){
+								trace( "trace parameter " + xTraceParameter + " (" + sParameter+ ") is invalid because the begin value ( " + iParameter_begin + " ) is greater than the end value ( " + iParameter_end + " ). Tracing will now be turned off." );
+								zTrace = false;
+								break;
+							}
+							switch( xTraceParameter ){
+								case 1:
+									trace_1_begin = iParameter_begin;
+									trace_1_end = iParameter_end;
+									break;
+								case 2:
+									trace_2_begin = iParameter_begin;
+									trace_2_end = iParameter_end;
+									break;
+								case 3:
+									trace_3_begin = iParameter_begin;
+									trace_3_end = iParameter_end;
+									break;
+								case 4:
+									trace_4_begin = iParameter_begin;
+									trace_4_end = iParameter_end;
+									break;
+							}
+						}
+					}
+				} else { // trace every value
+					trace_1_begin = 0;
+					trace_1_end = size1[1] - 1; if( trace_1_end < 0 ) trace_1_end = 0;
+					trace_2_begin = 0;
+					trace_2_end = size1[2] - 1; if( trace_2_end < 0 ) trace_2_end = 0;
+					trace_3_begin = 0;
+					trace_3_end = size1[3] - 1; if( trace_3_end < 0 ) trace_3_end = 0;
+					trace_4_begin = 0;
+					trace_4_end = size1[4] - 1; if( trace_4_end < 0 ) trace_4_end = 0;
+				}
+			}
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, sbError );
+			return false;
+		}
+		
+		// determine whether to allow errors
+		try {
+			String sRValue_allow_errors = hmExp.get( "allow_errors" );
+			if( sRValue_allow_errors == null ){
+				// do nothing, use default value
+			} else if( sRValue_allow_errors.equalsIgnoreCase( "true" ) ){
+				zAllowErrors = true;
+				if( zTrace )	trace( "allow_errors set to true" );
+			} else if( sRValue_allow_errors.equalsIgnoreCase( "false" ) ){
+				zAllowErrors = false;
+				if( zTrace )	trace( "allow_errors set to false" );
+			} else {
+				try {
+					PythonInterpreter interpreter = ApplicationController.getInstance().getInterpreter().getInterpeter();
+					interpreter.exec( sLine_allow_errors );
+					PyObject po_allow_errors = interpreter.get( "allow_errors" );
+					zAllowErrors = Py.py2boolean( po_allow_errors );
+					if( zTrace )	trace( "allow_errors ( " + sLine_allow_errors + " ) evaluated to " + zAllowErrors );
+				} catch( org.python.core.PySyntaxError parse_error ) {
+					sbError.append( "Python syntax error processing allow_errors setting: " + parse_error );
+					return false;
+				} catch( org.python.core.PyException python_error ) {
+					String sMessage = "Python error processing allow_errors setting: " + python_error;
+					if( zTrace )	trace( sMessage );
+					sbError.append( sMessage );
+					return false;
+				} catch( Throwable t ) {
+					String sMessage = "unexpected error while evaluating allow_errors parameter (" + sLine_allow_errors + "): " + Utility.errorExtractLine( t );
+					if( zTrace ){
+						trace( sMessage );
+					}
+					sbError.append( sMessage );
+					ApplicationController.vUnexpectedError( t, sbError );
+					return false;
+				}
+			}
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while determining whether to allow errors" );
+			return false;
+		}
+		
+		return true;
+	}
+	final private void trace( String sMessage ){
+		try {
+			streamTrace.write( sMessage.getBytes() );
+			streamTrace.write( '\n' );
+		} catch( Throwable t ) {}
+	}
+	
+	final private static String[] aPythonReservedWords = {
+		"and", "assert", "break", "class", "continue",
+		"def", "del", "elif", "else", "except",
+		"exec", "finally", "for", "from", "global",
+		"if", "import", "in", "is", "lambda",
+		"not", "or", "pass", "print", "raise",
+		"return", "try", "while", "float", "int",
+		"string"
+	};
+		
+	final private boolean zIsValidPythonIdentifier( String sIdentifier, StringBuffer sbError ){
+		if( sIdentifier == null || sIdentifier.trim().length() == 0 ){
+			sbError.append( "identifier is blank" );
+			return false;
+		}
+		if( Character.isDigit( sIdentifier.charAt(0) ) ){
+			sbError.append( "begins with a digit" );
+			return false;
+		}
+		if( ! Character.isLetter( sIdentifier.charAt(0) ) ){
+			sbError.append( "does not begin with a letter" );
+			return false;
+		}
+		for( int xChar = 0; xChar < sIdentifier.length(); xChar++ ){
+			char c = sIdentifier.charAt( xChar );
+			if( Character.isLetterOrDigit( c ) || c == '_' || c == '.' ) continue;
+			sbError.append( "invalid character at position " + (xChar + 1) + ": " + c );
+			return false;
+		}
+		if( Utility_Array.arrayHasMember( aPythonReservedWords, sIdentifier ) ){
+			sbError.append( "is a reserved word in Python" );
+			return false;
+		}
+		return true;
+	}
+
+	private int evaluatePythonRValue_DimSize( String sRValue, int iDimNumber, java.io.OutputStream streamTrace, boolean zTrace, StringBuffer sbError ){
+		try {
+			PythonInterpreter interpreter = ApplicationController.getInstance().getInterpreter().getInterpeter();
+			PyObject po_DimensionSize = interpreter.eval( sRValue );
+			int iDimensionSize_conversion = Py.py2int( po_DimensionSize );
+			if( iDimensionSize_conversion < 0 ){
+				String sMessage = "dimension size expression (" + sRValue + ") for dimension " + iDimNumber + " did not evaluate to a non-negative integer (" + iDimensionSize_conversion + ")";
+				if( zTrace ){
+					trace( sMessage );
+				}
+				sbError.append( sMessage );
+				return -1;
+			} else {
+				trace( "Size for dimension " + iDimNumber + " ( size_" + iDimNumber + " ) evaluated to " + iDimensionSize_conversion );
+				return iDimensionSize_conversion;
+			}
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			String sMessage = "Python syntax error while evaluating size_" + iDimNumber + " setting (" + sRValue + "): " + parse_error;
+			if( zTrace ){
+				trace( sMessage );
+			}
+			sbError.append( sMessage );
+			return -1;
+		} catch( org.python.core.PyException python_error ) {
+			String sMessage = "Python error evaluating size_" + iDimNumber + " setting (" + sRValue + "): " + python_error;
+			if( zTrace ){
+				trace( sMessage );
+			}
+			sbError.append( sMessage );
+			return -1;
+		} catch( Throwable t ) {
+			String sMessage = "error while processing size_" + iDimNumber + " setting (" + sRValue + "): " + Utility.errorExtractLine( t );
+			if( zTrace ){
+				trace( sMessage );
+			}
+			sbError.append( sMessage );
+			return -1;
+		}
+	}
+	
+}
+	

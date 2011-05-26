@@ -34,6 +34,7 @@ import opendap.clients.odc.IO;
 import opendap.clients.odc.OpendapConnection;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.Utility_String;
+import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
 
 public class Model_Retrieve {
 
@@ -56,21 +57,21 @@ public class Model_Retrieve {
 	public Panel_Retrieve getRetrievePanel(){ return retrieve_panel; }
 
 	public void vShowURL( Model_Dataset url, Activity activity ){
-		if( url.getType() == Model_Dataset.TYPE_Data ){
+		if( url.getType() == DATASET_TYPE.Data ){
 			vShowConstraintEditor( url, activity );
 			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Data();
-		} else if( url.getType() == Model_Dataset.TYPE_Directory ){
+		} else if( url.getType() == DATASET_TYPE.Directory ){
 			vShowDirectory( url, activity );
-		} else if( url.getType() == Model_Dataset.TYPE_Catalog ){
+		} else if( url.getType() == DATASET_TYPE.Catalog ){
 			vShowMessage( "[catalogs not currently supported]" );
-		} else if( url.getType() == Model_Dataset.TYPE_HTML ||
-				   url.getType() == Model_Dataset.TYPE_Text
+		} else if( url.getType() == DATASET_TYPE.HTML ||
+				   url.getType() == DATASET_TYPE.Text
 				  ){
 			vShowContent(url);
-		} else if( url.getType() == Model_Dataset.TYPE_Image ){
+		} else if( url.getType() == DATASET_TYPE.Image ){
 			vShowMessage( "URL is image, output to image viewer to see" );
 			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Image();
-		} else if( url.getType() == Model_Dataset.TYPE_Binary ){
+		} else if( url.getType() == DATASET_TYPE.Binary ){
 			vShowMessage( "URL seems to be a binary file of unknown type" );
 			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Blank();
 		} else {
@@ -220,7 +221,7 @@ public class Model_Retrieve {
 	// starts a thread
 	final private void vUpdateStructure( final Model_Dataset url, final Continuation_SuccessFailure con, Activity preexisting_activity ){
 		if( url == null ){ con.Failure("internal error, URL was missing"); return; }
-		if( url.getType() != Model_Dataset.TYPE_Data ){ con.Failure("internal error, URL was not of the data type"); return; }
+		if( url.getType() != DATASET_TYPE.Data ){ con.Failure("internal error, URL was not of the data type"); return; }
 		final Activity activity = preexisting_activity == null ? new Activity() : preexisting_activity;
 		final String sMessage = "Updating data URL: " + url.getTitle();
 		final OpendapConnection connection = new OpendapConnection();
@@ -266,7 +267,7 @@ public class Model_Retrieve {
 						// get DAS
 						activity.vUpdateStatus("getting DAS");
 						das = connection.getDAS(sBaseURL, sCE, activity, sbError);
-						if( das == null && url.getType() == Model_Dataset.TYPE_Catalog ){
+						if( das == null && url.getType() == DATASET_TYPE.Catalog ){
 							ApplicationController.vShowError("Connection returned no DAS for catalog " + sBaseURL + ": " + sbError);
 							return;
 						}
@@ -297,7 +298,7 @@ public class Model_Retrieve {
 	// starts a thread
 	final private void vUpdateDirectory( final Model_Dataset url, final Continuation_SuccessFailure con, Activity preexisting_activity ){
 		if( url == null ){ con.Failure("internal error, URL was missing"); return; }
-		if( url.getType() != Model_Dataset.TYPE_Directory ){ con.Failure("internal error, URL was not of the directory type"); return; }
+		if( url.getType() != DATASET_TYPE.Directory ){ con.Failure("internal error, URL was not of the directory type"); return; }
 		final Activity activity = preexisting_activity == null ? new Activity() : preexisting_activity;
 		final String sMessage = "Updating directory root for: " + url.getTitle();
 		Continuation_DoCancel conUpdate = new Continuation_DoCancel(){
@@ -422,9 +423,9 @@ public class Model_Retrieve {
 			return;
 		}
 		StringBuffer sbError = new StringBuffer(80);
-		int eURLtype = url.getType();
+		DATASET_TYPE eURLtype = url.getType();
 		switch( eURLtype ){
-			case( Model_Dataset.TYPE_Data ):
+			case Data :
 				ApplicationController.vShowStatus("Getting data info for " + url.getTitle() + "...");
 				String sBaseURL = url.getBaseURL();
 				if( url.getDDS_Text() == null ){

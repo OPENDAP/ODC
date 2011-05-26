@@ -24,6 +24,7 @@ package opendap.clients.odc.data;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
+import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
 import opendap.clients.odc.IControlPanel;
 import opendap.clients.odc.Interpreter;
 //import opendap.clients.odc.geo.Utility;
@@ -144,7 +145,7 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 		}
 		StringBuffer sbError = new StringBuffer( 250 );
 		switch( modelDataset.getType() ){
-			case Model_Dataset.TYPE_Data:
+			case Data:
 				if( _zSetModel( modelDataset, sbError ) ){
 					// ApplicationController.vShowStatus( "activated dataset model: " + modelDataset.getTitle() );
 				} else {
@@ -153,7 +154,7 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 				}
 				modelDataView.modelActive = modelDataset;
 				break;
-			case Model_Dataset.TYPE_Expression:
+			case PlottableExpression:
 				if( _zSetModel( modelDataset, sbError ) ){
 					// ApplicationController.vShowStatus( "activated expression model: " + modelDataset.getTitle() );
 				} else {
@@ -260,9 +261,8 @@ class Model_DataView {
 		try {
 			ctNewDatasets++;
 			String sName = "expression" + ctNewDatasets;
-			opendap.dap.DDS dds = new opendap.dap.DDS( sName );
 			StringBuffer sbError = new StringBuffer( 256 );
-			Model_Dataset model = Model_Dataset.createExpression( dds, sbError );
+			Model_Dataset model = Model_Dataset.createExpression( sbError );
 			if( model == null ){
 				ApplicationController.vShowError( "(Panel_View_Data) failed to create expression model from blank DDS: " + sbError.toString() );
 				return;
@@ -351,13 +351,13 @@ class Model_DataView {
 	void action_GenerateDatasetFromExpression(){
 		if( modelActive == null ){
 			ApplicationController.vShowStatus_NoCache( "no expression selected for generation" );
-		} else if( modelActive.getType() != Model_Dataset.TYPE_Expression ){
+		} else if( modelActive.getType() != DATASET_TYPE.DataScript ){
 			ApplicationController.vShowStatus_NoCache( "selected dataset is not an expression" );
 		} else {
 			StringBuffer sbError = new StringBuffer( 256 );
 			String sExpressionText = this.modelActive.getExpression_Text();
 			Interpreter interpreter = ApplicationController.getInstance().getInterpreter();
-			Model_Dataset generated_dataset = interpreter.generateDatasetFromExpression( sExpressionText, sbError );
+			Model_Dataset generated_dataset = interpreter.generateDatasetFromScript( sExpressionText, sbError );
 			if( generated_dataset == null ){
 				ApplicationController.vShowError( "Failed to generate dataset from expression " + this.modelActive.getTitle() + ": " + sbError );
 				return;
@@ -666,7 +666,7 @@ class Panel_Edit_Expression extends JPanel {
 			sbError.append( "model has no DDS" );
 			return false;
 		}
-		if( model.getType() != Model_Dataset.TYPE_Expression ){
+		if( model.getType() != DATASET_TYPE.PlottableExpression ){
 			sbError.append( "supplied model is not an expression" );
 			return false;
 		}
@@ -719,7 +719,7 @@ class Panel_Edit_Stream extends JPanel {
 	}
 	Model_Dataset _getModel(){ return mModel; }
 	boolean _setModel( Model_Dataset model, StringBuffer sbError ){
-		if( model.getType() != Model_Dataset.TYPE_Stream ){
+		if( model.getType() != DATASET_TYPE.Stream ){
 			sbError.append( "supplied model is not a stream" );
 			return false;
 		}

@@ -158,51 +158,51 @@ return null;
 		if( aurlSelected == null ) return null;
 		int ctDataURLs = 0;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Data || aurlSelected[xURL].getType() == Model_Dataset.TYPE_Image )
-			    ctDataURLs++;
+//			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Data || aurlSelected[xURL].getType() == Model_Dataset.TYPE_Image )
+//			    ctDataURLs++;
 		}
 		int ctDirectoryURLs = 0;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Directory ){
-				Model_DirectoryTree tree = aurlSelected[xURL].getDirectoryTree();
-                if( tree == null ) continue;
-				DirectoryTreeNode nodeRoot = (DirectoryTreeNode)tree.getRoot();
-				ctDirectoryURLs += getSubSelectedURLs_RecursiveCount(nodeRoot);
-				String sDirTitle = aurlSelected[xURL].getTitle();
-				String sBaseURL = aurlSelected[xURL].getBaseURL();
-				String sCE = aurlSelected[xURL].getConstraintExpression_Encoded();
-				Model_Dataset[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE); // TODO problem here, unused variable
-			}
+//			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Directory ){
+//				Model_DirectoryTree tree = aurlSelected[xURL].getDirectoryTree();
+//                if( tree == null ) continue;
+//				DirectoryTreeNode nodeRoot = (DirectoryTreeNode)tree.getRoot();
+//				ctDirectoryURLs += getSubSelectedURLs_RecursiveCount(nodeRoot);
+//				String sDirTitle = aurlSelected[xURL].getTitle();
+//				String sBaseURL = aurlSelected[xURL].getBaseURL();
+//				String sCE = aurlSelected[xURL].getConstraintExpression_Encoded();
+//				Model_Dataset[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE); // TODO problem here, unused variable
+//			}
 		}
 		Model_Dataset[] aurlCumulative = new Model_Dataset[ctDataURLs + ctDirectoryURLs];
 		int xDataURL = -1;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Data  || aurlSelected[xURL].getType() == Model_Dataset.TYPE_Image ){
-				xDataURL++;
-				aurlCumulative[xDataURL] = aurlSelected[xURL];
-			}
+//			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Data  || aurlSelected[xURL].getType() == Model_Dataset.TYPE_Image ){
+//				xDataURL++;
+//				aurlCumulative[xDataURL] = aurlSelected[xURL];
+//			}
 		}
 		int xDirectoryURL = -1;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Directory ){
-				Model_DirectoryTree tree = aurlSelected[xURL].getDirectoryTree();
-                if( tree == null ) continue;
-				DirectoryTreeNode nodeRoot = (DirectoryTreeNode)tree.getRoot();
-				String sDirTitle = aurlSelected[xURL].getTitle();
-				String sBaseURL = aurlSelected[xURL].getBaseURL();
-				String sCE = aurlSelected[xURL].getConstraintExpression_Encoded();
-				Model_Dataset[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
-				if( aDirectoryURLs == null ) continue;
-				for( int xCurrentDirectory = 0; xCurrentDirectory < aDirectoryURLs.length; xCurrentDirectory++ ){
-					xDirectoryURL++;
-                    int xCumulative = (xDataURL+1) + xDirectoryURL;
-                    if( xCumulative >= aurlCumulative.length ){
-                        ApplicationController.vShowError("internal error; inconsistent selection tree count");
-                        break;
-                    }
-					aurlCumulative[xCumulative] = aDirectoryURLs[xDirectoryURL];
-				}
-			}
+//			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Directory ){
+//				Model_DirectoryTree tree = aurlSelected[xURL].getDirectoryTree();
+//                if( tree == null ) continue;
+//				DirectoryTreeNode nodeRoot = (DirectoryTreeNode)tree.getRoot();
+//				String sDirTitle = aurlSelected[xURL].getTitle();
+//				String sBaseURL = aurlSelected[xURL].getBaseURL();
+//				String sCE = aurlSelected[xURL].getConstraintExpression_Encoded();
+//				Model_Dataset[] aDirectoryURLs = getSubSelectedURLs_Recursive(sDirTitle, sBaseURL, nodeRoot, sCE);
+//				if( aDirectoryURLs == null ) continue;
+//				for( int xCurrentDirectory = 0; xCurrentDirectory < aDirectoryURLs.length; xCurrentDirectory++ ){
+//					xDirectoryURL++;
+//                    int xCumulative = (xDataURL+1) + xDirectoryURL;
+//                    if( xCumulative >= aurlCumulative.length ){
+//                        ApplicationController.vShowError("internal error; inconsistent selection tree count");
+//                        break;
+//                    }
+//					aurlCumulative[xCumulative] = aDirectoryURLs[xDirectoryURL];
+//				}
+//			}
 		}
 		return aurlCumulative;
 	}

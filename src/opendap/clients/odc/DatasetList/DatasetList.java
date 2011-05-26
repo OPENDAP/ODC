@@ -2,6 +2,7 @@ package opendap.clients.odc.DatasetList;
 
 import opendap.clients.odc.*;
 import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
 import opendap.clients.odc.data.Model_Retrieve;
 import opendap.clients.odc.data.Model_URLList;
 import opendap.clients.odc.data.Panel_URLList;
@@ -252,7 +253,7 @@ public class DatasetList extends SearchInterface {
 			for( int iListIndex = 0; iListIndex < modelURLList.getSize(); iListIndex++ ){
 				if( modelURLList.get( iListIndex ) == urlFirst ){
 					panelList.vSelectIndex(iListIndex);
-					if( urlFirst.getType() == Model_Dataset.TYPE_Data )
+					if( urlFirst.getType() == DATASET_TYPE.Data )
 						ApplicationController.getInstance().getRetrieveModel().getRetrievePanel().vShowDirectory( false ); // data URLs do not have directories
 					ApplicationController.getInstance().getRetrieveModel().vShowURL( urlFirst, null );
 				}

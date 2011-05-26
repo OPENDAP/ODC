@@ -37,6 +37,7 @@ import javax.swing.table.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 
+import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
 import opendap.clients.odc.gui.Resources;
 
 // todo support deletes
@@ -214,13 +215,13 @@ public class DatasetListRenderer extends JLabel implements ListCellRenderer, Tab
 				}
 			}
 			g.setColor(getForeground());
-			if( this.mURL.getType() == Model_Dataset.TYPE_Directory ){
+			if( this.mURL.getType() == DATASET_TYPE.Directory ){
 				g.drawImage(imageIndicator_Directory, mCategoryX, mInsets.top, Color.white, null);
-			} else if( this.mURL.getType() == Model_Dataset.TYPE_Catalog ) {
+			} else if( this.mURL.getType() == DATASET_TYPE.Catalog ) {
 				g.drawImage(imageIndicator_Catalog, mCategoryX, mInsets.top, Color.white, null);
-			} else if( this.mURL.getType() == Model_Dataset.TYPE_Binary ) {
+			} else if( this.mURL.getType() == DATASET_TYPE.Binary ) {
 				g.drawImage(imageIndicator_Binary, mCategoryX, mInsets.top, Color.white, null);
-			} else if( this.mURL.getType() == Model_Dataset.TYPE_Image ) {
+			} else if( this.mURL.getType() == DATASET_TYPE.Image ) {
 				g.drawImage(imageIndicator_Image, mCategoryX, mInsets.top, Color.white, null);
 			} else {
 				g.drawImage(imageIndicator_Granule, mCategoryX, mInsets.top, Color.white, null);

@@ -331,7 +331,7 @@ If the dataset's attribute information contains an attribute for the selected va
 
 #Plotting Expressions
 
-You can plot Python expressions by loading or creating expressions in the data editor (View / Data). When an expression data type is selected the plotter's variable panel will automatically show the settings for configuring the plotting of the expression. Three types of expression plotting are supported:
+You can plot Python expressions by loading or creating expressions in the data editor (View / Data). Script files that contain a specification for a mathematical formula, or formulas, which can be plotted are called "plottable expressions". When an expression data type is selected the plotter's variable panel will automatically show the settings for configuring the plotting of the expression. Three types of expression plotting are supported:
 
 Cartesian   (example: y=2*x)
 
@@ -350,7 +350,7 @@ For Parametric expressions you provide multiple expressions in terms of a parame
 
 t_range_begin = 0
 t_range_end = 1
-t_increment = 0.001
+t_increment = 0.00s1
 
 The default ranges are 0 and 1 as shown above. The default increment is the range divided by the number of pixels in the width of the plot area. For example, if the plot area is 1000 pixels wide and begin is 0 and the end is 1 then the increment will be (1 - 0) / 1000 = 0.001.
 
@@ -360,9 +360,9 @@ If the plot is continuous it will be rendered as a series of line segments betwe
 
 *** Ranges and Steps ***
 
-You may need to specify ranges and steps for the plot so the ODC knows what values to calculate. For a cartesian plot you can leave the step blank and the ODC will automatically calculate a value appropriate for the resolution of the output area. For example, if you are plotting and expression with a y L-value to the preview pane and it has 400 pixels in the x-dimension for the specified range then 400 calculations will be done, one for each pixel along the x-axis. Using the automatic calculation for Cartesian expressions assures that you getting the best resolution and computing the fewest number of values necessary.
+You may need to specify ranges and steps for the plot so the ODC knows what values to calculate. For a cartesian plot you can leave the step blank and the ODC will automatically calculate a value appropriate for the resolution of the output area. For example, if you are plotting and expression with a y L-value to the preview pane and it has 400 pixels in the x-dimension for the specified range then 400 calculations will be done, one for each pixel along the x-axis. Using the automatic calculation for Cartesian expressions ensures that you getting the best resolution and computing the fewest number of values necessary.
 
-For Polar and Parametric expressions you need to specify both a range and a step value because it is difficult to determine the right step value automatically.
+For Parametric expressions you need to specify both a range and a step value because it is difficult to determine the right step value automatically.
 
 
 #Plotting Lines
@@ -977,7 +977,9 @@ In general, the operating principle of a one-liner is that you can modify existi
 
 Data Viewer scripts allow you to generate data using mathematical expressions and functions in the Python language. This can be useful in wide variety of ways. For example, using the scripting engine you can calculate a linear regression of a data set and then, using the layer capability of the plotter, overlay the regression line on a plot of the data. Scripts can be used for more mundane uses. For example, you might want to add a dimensional index numbers to a dataset that lacks them. You can also use scripts to modify existing data sets. For example, you can use the geodesic functions that are built into the ODC to perform transformations such as orthorectification on satellite data sets.
 
-There are three ways to use scripting: create a full script in the text editor or data viewer, create a mini-script in the Value Editor panel, or create a one-liner in the array view panel. This rest of this topics applies only to full-size or mini-scripts. For information on one-liners see the topic "Data Viewer - Expression One Liner".
+DON'T CONFUSE WITH PLOTTABLE EXPRESSIONS: Don't confuse data scripts with plottable scripts. A data script always defines the "value" (or $0) variable. A plottable script or expression (see topic "Plotting Expressions" above) defines cartesian or polar coordinates such as "x" or "y". If the ODC finds a "value" assignment it will treat the script as a data generator, if it finds a plottable coordinate it will treat the script as an formula expression, otherwise it will return an error when you try to run/plot the script. You can explicitly define the script type by using directives (see the topic "Script Directives"). For example, the directive "#!new" would cause the script to be treated as a data script.
+
+There are three ways to use data scripting: create a full script in the text editor or data viewer, create a mini-script in the Value Editor panel, or create a one-liner in the array view panel. This rest of this topics applies only to full-size or mini-scripts. For information on one-liners see the topic "Data Viewer - Expression One Liner".
 
 Scripts are stored as text files which are intended for use by the ODC's Python engine. The file is pre-processed, however, so its format is more restricted than a normal Python script file. At a minimum the file must define at least one output. For example, the statement
 
@@ -1018,6 +1020,7 @@ Script Directives (invalid for one-liners)
 #!modify          modify the currently active dataset
 #!modify_view     modify the active 2D array in the array view
 #!modify MyData   modify the dataset called "MyData"
+#!plot            generate data and plot it without saving the data
 
 General Directives (can be used in one-liners and scripts)
 
