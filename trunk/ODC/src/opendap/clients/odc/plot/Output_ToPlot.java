@@ -45,6 +45,7 @@ import java.awt.image.BufferedImage;
 import opendap.clients.odc.*;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.gui.Resources;
+import opendap.clients.odc.plot.Panel_Plot_Expression.PlottableExpressionType;
 import opendap.dap.*;
 
 /** The plot types have the following requirements:
@@ -225,7 +226,7 @@ public class Output_ToPlot {
 
 			boolean zResult;
 			if( ePlotType == PLOT_TYPE_XY ){ // all variables on same plot
-				return zPlot_XY(ps, model, sCaption, pdat, varAxisX, varAxisY, po, eOutputOption, ps, cs, plot_text, sbError);
+				return zPlot_XY( model, sCaption, pdat, varAxisX, varAxisY, po, eOutputOption, ps, cs, plot_text, sbError);
 			} else { // each variable goes on a different plot
 				for( int xVariable = 1; xVariable <= ctVariable; xVariable++ ){
 					PlottingVariable pv1 = pdat.getVariable1(xVariable);
@@ -266,7 +267,7 @@ public class Output_ToPlot {
 //     1 x/y/slice       n slices
 //       n slices        n slices    (number of slices must match for both variables)
 
-	static boolean zPlot_XY( PlotScale scale, Model_Dataset model, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
+	static boolean zPlot_XY( Model_Dataset model, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
 		try {
 
 			// initialize panel
@@ -386,7 +387,7 @@ public class Output_ToPlot {
 			}
 
 			// set data (will generate the line points)
-			if( !panelPL.setLineData(scale, listSeries_Y, listSeries_X, listCaptions_X, listCaptions_Y, DAP.DATA_TYPE_Float64, sCaption_axis_Y, sCaption_axis_X, sbError) ){
+			if( !panelPL.setLineData( ps, listSeries_Y, listSeries_X, listCaptions_X, listCaptions_Y, DAP.DATA_TYPE_Float64, sCaption_axis_Y, sCaption_axis_X, sbError) ){
 				sbError.insert(0, "Error setting line data: ");
 				return false;
 			}
@@ -399,6 +400,41 @@ public class Output_ToPlot {
 		}
 	}
 
+//     Independent      Dependent
+//       none            1 x/y      lines only (scatter plots must have 2 variables)
+//       none            slices     lines only (scatter plots must have 2 variables)
+//     1 x/y/slice     1 y/x/slice
+//     1 x/y/slice       n slices
+//       n slices        n slices    (number of slices must match for both variables)
+
+	static boolean zPlot_Expression( Model_Dataset model, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
+		try {
+
+			// initialize panel
+			Panel_Plot_Expression panelPE = new Panel_Plot_Expression( ps, null, sCaption );
+			panelPE.setColors(cs);
+			panelPE.setOptions(po);
+			panelPE.setText(pt);
+
+			// set script (will parse script and compile sub-expressions)
+			String sScript = model.getExpression_Text();
+			if( sScript == null ){
+				sbError.append( "model had no script" );
+				return false;
+			}
+			if( ! panelPE.setExpression( sScript, sbError ) ){
+				sbError.insert(0, "Error setting expression: ");
+				return false;
+			}
+
+			return zPlot( panelPE, model, eOutputOption, sbError );
+		} catch(Exception ex) {
+			sbError.append("While building line plot: ");
+			ApplicationController.vUnexpectedError(ex, sbError);
+			return false;
+		}
+	}
+	
 	static boolean zPlot_Histogram( Model_Dataset model, String sCaption, PlottingVariable pv, PlotOptions po, int eOutputOption, PlotScale ps, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
 

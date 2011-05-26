@@ -5,7 +5,7 @@ package opendap.clients.odc.data;
  * Description:  Methods to generate output
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.62
+ * @version      3.07
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ByteCounter;
 import opendap.clients.odc.Catalog;
 import opendap.clients.odc.Continuation_DoCancel;
+import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
 import opendap.clients.odc.IO;
 import opendap.clients.odc.OpendapConnection;
 import opendap.clients.odc.StreamForwarder;
@@ -74,7 +75,7 @@ public class OutputEngine implements ByteCounter {
 			}
 			int ctValidURLs = 0;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
-				if( aURLs[xURL].getType() == Model_Dataset.TYPE_Image ) ctValidURLs++;
+				if( aURLs[xURL].getType() == DATASET_TYPE.Image ) ctValidURLs++;
 			}
 			if( ctValidURLs < 1 ){
 				ApplicationController.vShowWarning("None of the selected URLs point to image files.");
@@ -84,7 +85,7 @@ public class OutputEngine implements ByteCounter {
 			String[] asTargetOption = new String[ctValidURLs];
 			int xImageURL = -1;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
-				if( aURLs[xURL].getType() == Model_Dataset.TYPE_Image ){
+				if( aURLs[xURL].getType() == DATASET_TYPE.Image ){
 					xImageURL++;
 					aImageURLs[xImageURL] = aURLs[xURL];
 					asTargetOption[xImageURL] = aURLs[xURL].getFileName();
@@ -116,8 +117,8 @@ public class OutputEngine implements ByteCounter {
 			}
 			int ctValidURLs = 0;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
-				int iTYPE = aURLs[xURL].getType();
-				if( iTYPE == Model_Dataset.TYPE_Data || iTYPE == Model_Dataset.TYPE_Text ) ctValidURLs++;
+				DATASET_TYPE eTYPE = aURLs[xURL].getType();
+				if( eTYPE == DATASET_TYPE.Data || eTYPE == DATASET_TYPE.Text ) ctValidURLs++;
 			}
 			if( ctValidURLs < 1 ){
 				ApplicationController.vShowWarning("None of the selected URLs point to OPeNDAP data (or text).");
@@ -127,8 +128,8 @@ public class OutputEngine implements ByteCounter {
 			String[] asTargetOption = new String[ctValidURLs];
 			int xDataURL = -1;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
-				int iTYPE = aURLs[xURL].getType();
-				if( iTYPE == Model_Dataset.TYPE_Data || iTYPE == Model_Dataset.TYPE_Text ){
+				DATASET_TYPE eTYPE = aURLs[xURL].getType();
+				if( eTYPE == DATASET_TYPE.Data || eTYPE == DATASET_TYPE.Text ){
 					xDataURL++;
 					aDataURLs[xDataURL] = aURLs[xURL];
 					asTargetOption[xDataURL] = null;
@@ -161,8 +162,8 @@ public class OutputEngine implements ByteCounter {
 			}
 			int ctValidURLs = 0;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
-				int iTYPE = aURLs[xURL].getType();
-				if( iTYPE == Model_Dataset.TYPE_Data || iTYPE == Model_Dataset.TYPE_Text ) ctValidURLs++;
+				DATASET_TYPE eTYPE = aURLs[xURL].getType();
+				if( eTYPE == DATASET_TYPE.Data || eTYPE == DATASET_TYPE.Text ) ctValidURLs++;
 			}
 			if( ctValidURLs < 1 ){
 				ApplicationController.vShowWarning("None of the selected URLs point to OPeNDAP data (or text) for table");
@@ -172,8 +173,8 @@ public class OutputEngine implements ByteCounter {
 			String[] asTargetOption = new String[ctValidURLs];
 			int xDataURL = -1;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
-				int iTYPE = aURLs[xURL].getType();
-				if( iTYPE == Model_Dataset.TYPE_Data || iTYPE == Model_Dataset.TYPE_Text ){
+				DATASET_TYPE eTYPE = aURLs[xURL].getType();
+				if( eTYPE == DATASET_TYPE.Data || eTYPE == DATASET_TYPE.Text ){
 					xDataURL++;
 					aDataURLs[xDataURL] = aURLs[xURL];
 					asTargetOption[xDataURL] = null;
@@ -212,18 +213,18 @@ public class OutputEngine implements ByteCounter {
 			int ctValidURLs = 0;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
 				String sLabel = aURLs[xURL].getBaseURL();
-				int iTYPE = aURLs[xURL].getType();
-				switch( iTYPE ){
-					case Model_Dataset.TYPE_Catalog :
+				DATASET_TYPE eTYPE = aURLs[xURL].getType();
+				switch( eTYPE ){
+					case Catalog :
 						ApplicationController.vShowWarning("Unable to save " + sLabel + ", catalog URLs not savable.");
 						break;
-					case Model_Dataset.TYPE_Directory :
+					case Directory :
 						ApplicationController.vShowWarning("Unable to save " + sLabel + ", directory URLs not savable.");
 						break;
-					case Model_Dataset.TYPE_HTML :
+					case HTML :
 						ApplicationController.vShowWarning("Unable to save " + sLabel + ", HTML URLs not savable.");
 						break;
-					case Model_Dataset.TYPE_Data :
+					case Data :
 						if( ((eFormat & OutputProfile.FORMAT_Data_ASCII_text) > 0 ||
 						     (eFormat & OutputProfile.FORMAT_Data_ASCII_records) > 0) ){
 							ctValidURLs++;
@@ -231,9 +232,9 @@ public class OutputEngine implements ByteCounter {
 							ApplicationController.vShowWarning("Unable to save " + sLabel + ", data URLs can only be saved as ASCII");
 						}
     					break;
-					case Model_Dataset.TYPE_Binary :
-					case Model_Dataset.TYPE_Image :
-					case Model_Dataset.TYPE_Text :
+					case Binary :
+					case Image :
+					case Text :
 					default :
 						if( (eFormat & OutputProfile.FORMAT_Data_Raw) > 0 ){
 							ctValidURLs++;
@@ -263,13 +264,13 @@ public class OutputEngine implements ByteCounter {
 			String[] asTargetOption = new String[ctValidURLs];
 			int xDataURL = -1;
 			for(int xURL = 0; xURL < ctSelectedURLs; xURL++ ){
-				int iTYPE = aURLs[xURL].getType();
-				switch( iTYPE ){
-					case Model_Dataset.TYPE_Catalog :
-					case Model_Dataset.TYPE_Directory :
-					case Model_Dataset.TYPE_HTML :
+				DATASET_TYPE eType = aURLs[xURL].getType();
+				switch( eType ){
+					case Catalog :
+					case Directory :
+					case HTML :
 						continue;
-					case Model_Dataset.TYPE_Data :
+					case Data :
 						if( ((eFormat & OutputProfile.FORMAT_Data_ASCII_text) > 0 ||
 						     (eFormat & OutputProfile.FORMAT_Data_ASCII_records) > 0) ){
 							xDataURL++;
@@ -284,9 +285,9 @@ public class OutputEngine implements ByteCounter {
 							}
 						}
 						break;
-					case Model_Dataset.TYPE_Binary :
-					case Model_Dataset.TYPE_Image :
-					case Model_Dataset.TYPE_Text :
+					case Binary :
+					case Image :
+					case Text :
 					default :
 						if( (eFormat & OutputProfile.FORMAT_Data_Raw) > 0 ){
 							ctValidURLs++;
@@ -335,8 +336,8 @@ public class OutputEngine implements ByteCounter {
 			}
 			int ctValidURLs = 0;
 			for (int xURL = 0; xURL < ctSelectedURLs; xURL++) {
-				int iTYPE = aURLs[xURL].getType();
-				if (iTYPE == Model_Dataset.TYPE_Data){
+				DATASET_TYPE eType = aURLs[xURL].getType();
+				if( eType == DATASET_TYPE.Data ){
 					ctValidURLs++;
 					listValidURLs.add( aURLs[xURL] );
 				}
@@ -434,7 +435,7 @@ public class OutputEngine implements ByteCounter {
 					if( url == null ) continue;
 					int iTarget = mOutputProfile.getTarget(xURL);
 					int iFormat = mOutputProfile.getFormat(xURL);
-					int iURLType = url.getType();
+					DATASET_TYPE eURLType = url.getType();
 					String sTargetOption = mOutputProfile.getTargetOption(xURL);
 					String sFormatDescription = OutputProfile.sFormatDescription(iFormat);
 					String sTargetDescription = OutputProfile.sTargetDescription(iTarget);
@@ -685,11 +686,11 @@ public class OutputEngine implements ByteCounter {
 			StringBuffer sbError = new StringBuffer(80);
 			try {
 				final byte[] abNewline = { '\n' };
-				int iType = url.getType();
-				if( iType == Model_Dataset.TYPE_Data || iType == Model_Dataset.TYPE_Directory ){
+				DATASET_TYPE eTYPE = url.getType();
+				if( eTYPE == DATASET_TYPE.Data || eTYPE == DATASET_TYPE.Directory ){
 					os.write(url.getFullURL().getBytes());
 					os.write(abNewline);
-				} else if( iType == Model_Dataset.TYPE_Catalog ){
+				} else if( eTYPE == DATASET_TYPE.Catalog ){
 					Catalog catalog = url.getCatalog();
 					Model_Dataset[] urlsCatalog = null;
 					if( catalog != null ) urlsCatalog = catalog.getURLs();
@@ -719,10 +720,10 @@ public class OutputEngine implements ByteCounter {
 		private void vOutput_Info(Model_Dataset url, OutputStream os){
 			StringBuffer sbError = new StringBuffer(80);
 			try {
-				int iType = url.getType();
+				DATASET_TYPE eTYPE = url.getType();
 				String sDDS = null;
 				String sDAS = null;
-				if( iType == Model_Dataset.TYPE_Data ){
+				if( eTYPE == DATASET_TYPE.Data ){
 					String sBaseURL = url.getBaseURL();
 //					sDDS = Utility.sFetchHttpString(sBaseURL + ".dds", sbError);
 //					sDAS = Utility.sFetchHttpString(sBaseURL + ".das", sbError);
@@ -734,7 +735,7 @@ public class OutputEngine implements ByteCounter {
 					os.write(sDDS.getBytes());
 					sDAS += "\n";
 					os.write(sDAS.getBytes());
-				} else if( iType == Model_Dataset.TYPE_Directory ){
+				} else if( eTYPE == DATASET_TYPE.Directory ){
 					String sDirectoryInfo;
 					Model_DirectoryTree dt = url.getDirectoryTree();
 					if( dt == null ){
@@ -744,7 +745,7 @@ public class OutputEngine implements ByteCounter {
 					}
 					sDirectoryInfo += "\n";
 					os.write(sDirectoryInfo.getBytes());
-				} else if( iType == Model_Dataset.TYPE_Catalog ){
+				} else if( eTYPE == DATASET_TYPE.Catalog ){
 					ApplicationController.vShowWarning("catalog info not supported");
 				}
 			} catch(Exception ex) {
@@ -755,7 +756,7 @@ public class OutputEngine implements ByteCounter {
 
 		private DataDDS getDataDDS(Model_Dataset url, Activity activity, StringBuffer sbError){
 			try {
-				if( url.getType() != Model_Dataset.TYPE_Data ){
+				if( url.getType() != DATASET_TYPE.Data ){
 					sbError.append("Currently data output is supported for data urls only; not catalogs or directories");
 					return null;
 				}
@@ -1397,8 +1398,8 @@ public class OutputEngine implements ByteCounter {
 				new Continuation_DoCancel(){
 				    public void Do(){
 						try {
-							int iURLType = url.getType();
-							if( iURLType != Model_Dataset.TYPE_Data ){
+							DATASET_TYPE eURLType = url.getType();
+							if( eURLType != DATASET_TYPE.Data ){
 								ApplicationController.vShowError("Cannot load; not a data URL");
 								return;
 							}

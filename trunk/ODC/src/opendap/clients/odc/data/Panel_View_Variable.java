@@ -1254,7 +1254,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 						ApplicationController.vShowError( "failed to set current cell value (row " + row + ", column " + column + "): " + sbError );
 						return;
 					}
-					PyObject pyobject = interpreter.zEval( pycodeExpression, sExpression_macroed, sbError );
+					PyObject pyobject = interpreter.zEval( pycodeExpression, sbError );
 					if( pyobject == null ){
 						ApplicationController.vShowError( "failed to set eval cell value (row " + row + ", column " + column + ") with expression " +  sExpression_macroed + ": " + sbError );
 						return;
@@ -1293,7 +1293,7 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 						return;
 					}
 //					PyObject pyobject = interpreter.zEval( sExpression_macroed, sbError ); // don't do this, compilation causes massive object creation/collection
-					PyObject pyobject = interpreter.zEval( pycodeExpression, sExpression_macroed, sbError );
+					PyObject pyobject = interpreter.zEval( pycodeExpression, sbError );
 					if( pyobject == null ){
 						ApplicationController.vShowError( "failed to eval expression (index " + xValue + ") with expression " +  sExpression_macroed + ": " + sbError );
 						return;

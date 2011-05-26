@@ -53,22 +53,36 @@ public class Model_Dataset implements java.io.Serializable {
 	// todo delete fav/recent files that have bad serialization
 	private static final long serialVersionUID = 2L;
 
-    public final static int TYPE_Data = 0;
-    public final static int TYPE_Definition = 1;
-    public final static int TYPE_Directory = 2;
-    public final static int TYPE_Catalog = 3;
-    public final static int TYPE_Image = 4;
-    public final static int TYPE_HTML = 5;
-    public final static int TYPE_Text = 6;
-    public final static int TYPE_Binary = 7;
-    public final static int TYPE_Expression = 8;
-    public final static int TYPE_Stream = 9;
+//	public final static int TYPE_Data = 0;
+//	public final static int TYPE_Definition = 1;
+//	public final static int TYPE_Directory = 2;
+//	public final static int TYPE_Catalog = 3;
+//	public final static int TYPE_Image = 4;
+//	public final static int TYPE_HTML = 5;
+//	public final static int TYPE_Text = 6;
+//	public final static int TYPE_Binary = 7;
+//	public final static int TYPE_Expression = 8;
+//	public final static int TYPE_Stream = 9;
+//    
+	public enum DATASET_TYPE {
+		Data,
+		Definition,
+		Directory,
+		Catalog,
+		Image,
+		HTML,
+		Text,
+		Binary,
+		PlottableExpression,
+		DataScript,
+		Stream
+    };
 
+    private DATASET_TYPE meType;
     private String msURL;
     private String msCE;
 	private String msSubDirectory; // with no leading slash
 	private String msDirectoryRegex;
-    private int miURLType;
     private String msTitle;
 	private int miDigest = 0;
 	private String msMIMEType;
@@ -77,7 +91,7 @@ public class Model_Dataset implements java.io.Serializable {
 	private String msDAS_Text;
 	private String msDDX_Text;
 	private String msInfo_Text;
-	private String msExpression_Text;
+	private String msScript_Text;
 
 	transient private boolean mzUnreachable = false;
 	transient private String msError; // if the site is unreachable
@@ -108,7 +122,7 @@ public class Model_Dataset implements java.io.Serializable {
     	Model_Dataset model = new Model_Dataset();
 		model.msURL = "";
 		model.msCE = "";
-		model.miURLType = TYPE_Data;
+		model.meType = DATASET_TYPE.Data;
 		model.msTitle = null;
 		model.msMIMEType = null;
 		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
@@ -133,7 +147,7 @@ public class Model_Dataset implements java.io.Serializable {
     	Model_Dataset model = new Model_Dataset();
 		model.msURL = sURL;
 		model.msCE = "";
-		model.miURLType = TYPE_Data;
+		model.meType = DATASET_TYPE.Data;
 		model.msTitle = null;
 		model.msMIMEType = null;
 		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
@@ -155,7 +169,7 @@ public class Model_Dataset implements java.io.Serializable {
     	Model_Dataset model = new Model_Dataset();
 		model.msURL = sURL;
 		model.msCE = "";
-		model.miURLType = TYPE_Directory;
+		model.meType = DATASET_TYPE.Directory;
 		model.msTitle = null;
 		model.msMIMEType = null;
 		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
@@ -165,35 +179,44 @@ public class Model_Dataset implements java.io.Serializable {
     /**
      * Create a new <code>Model_Dataset</code> of the data type.
      */
-    public final static Model_Dataset createExpression( final DDS dds, final StringBuffer sbError ){
-    	if( dds == null ){
-    		sbError.append( "no DDS" );
-    		return null;
-    	}
+    public final static Model_Dataset createExpression( final StringBuffer sbError ){
     	Model_Dataset model = new Model_Dataset();
+		model.meType = DATASET_TYPE.PlottableExpression;
+		model.msScript_Text = "";
 		model.msURL = "";
 		model.msCE = "";
-		model.miURLType = TYPE_Expression;
-		model.mDDS_Full = dds;
-		model.msDDS_Text = dds.getDDSText();
+		model.mDDS_Full = null;
+		model.msDDS_Text = null;
 		model.msTitle = null;
 		model.msMIMEType = null;
 		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
 		return model;
     }
 
-    /**
-     * Create a new <code>Model_Dataset</code> of the data type.
-     */
+    public final static Model_Dataset createDataScript( final StringBuffer sbError ){
+    	Model_Dataset model = new Model_Dataset();
+		model.meType = DATASET_TYPE.DataScript;
+		model.msScript_Text = "";
+		model.msURL = "";
+		model.msCE = "";
+		model.mDDS_Full = null;
+		model.msDDS_Text = null;
+		model.msTitle = null;
+		model.msMIMEType = null;
+		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
+		return model;
+    }
+    
     public final static Model_Dataset createDataDefinition( final DDS dds, final StringBuffer sbError ){
     	if( dds == null ){
     		sbError.append( "no DDS" );
     		return null;
     	}
     	Model_Dataset model = new Model_Dataset();
+		model.meType = DATASET_TYPE.Definition;
+		model.msScript_Text = "";
 		model.msURL = "";
 		model.msCE = "";
-		model.miURLType = TYPE_Definition;
 		model.mDDS_Full = dds;
 		model.msDDS_Text = dds.getDDSText();
 		model.msTitle = null;
@@ -207,9 +230,9 @@ public class Model_Dataset implements java.io.Serializable {
      */
     public final static Model_Dataset createImageFromURL( final String sURL, final StringBuffer sbError ){
     	Model_Dataset model = new Model_Dataset();
+		model.meType = DATASET_TYPE.Image;
 		model.msURL = "";
 		model.msCE = "";
-		model.miURLType = TYPE_Image;
 		model.msTitle = null;
 		model.msMIMEType = Utility.getMIMEtype( sURL );
 		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
@@ -227,7 +250,7 @@ public class Model_Dataset implements java.io.Serializable {
 		model.msCE = existing_model.msCE;
 		model.msSubDirectory = existing_model.msSubDirectory; // with no leading slash
 		model.msDirectoryRegex = existing_model.msDirectoryRegex;
-		model.miURLType = existing_model.miURLType;
+		model.meType = existing_model.meType;
 		model.msTitle = existing_model.msTitle;
 		model.miDigest = existing_model.miDigest;
 		model.msMIMEType = existing_model.msMIMEType;
@@ -235,7 +258,7 @@ public class Model_Dataset implements java.io.Serializable {
 		model.msDAS_Text= existing_model.msDAS_Text;
 		model.msDDX_Text= existing_model.msDDX_Text;
 		model.msInfo_Text= existing_model.msInfo_Text;
-		model.msExpression_Text= existing_model.msExpression_Text;
+		model.msScript_Text= existing_model.msScript_Text;
 		model.mDDS_Subset = existing_model.mDDS_Subset;
 		model.mDDS_Full = existing_model.mDDS_Full;
 		model.mDAS = existing_model.mDAS;
@@ -269,18 +292,20 @@ public class Model_Dataset implements java.io.Serializable {
 		if( msURL == null || dataset.msURL.length() == 0 ){
 			return false;
 		} else {
-			switch( miURLType ){
-				case Model_Dataset.TYPE_Data:
-				case Model_Dataset.TYPE_Directory:
-				case Model_Dataset.TYPE_Catalog:
-				case Model_Dataset.TYPE_HTML:
-				case Model_Dataset.TYPE_Text:
-				case Model_Dataset.TYPE_Binary:
-				case Model_Dataset.TYPE_Stream:
+			switch( meType ){
+				case Data:
+				case Definition:
+				case Directory:
+				case Catalog:
+				case HTML:
+				case Text:
+				case Binary:
+				case Stream:
 					if( !msURL.equalsIgnoreCase( dataset.msURL ) ) return false;
 					if( !msCE.equalsIgnoreCase( dataset.msCE ) ) return false;
 					return true;
-				case Model_Dataset.TYPE_Expression:
+				case PlottableExpression:
+				case DataScript:
 					 // consider two expressions to be distinct unless they are the same object
 				default:
 					return false;
@@ -294,13 +319,13 @@ public class Model_Dataset implements java.io.Serializable {
 		sbInfo.append("Full URL: " + this.getFullURL() + '\n');
 		sbInfo.append("URL type: " + this.getTypeString() + '\n' );
 		if( this.isUnreachable() ) sbInfo.append( "URL is unreachable: " + this.getError() + "\n" );
-		int iType = getType();
-		if( iType == Model_Dataset.TYPE_Data ){
+		DATASET_TYPE eType = getType();
+		if( eType == DATASET_TYPE.Data ){
 			if( this.getDDS_Text() != null ) sbInfo.append(this.getDDS_Text());
 			if( this.getDAS_Text() != null ) sbInfo.append(this.getDAS_Text());
 			if( this.getInfo_Text() != null ) sbInfo.append(this.getInfo_Text());
 		}
-		if( iType == Model_Dataset.TYPE_Directory ){
+		if( eType == DATASET_TYPE.Directory ){
 			if( this.getDirectoryRegex() != null ) sbInfo.append( this.getDirectoryRegex() + '\n' );
 			if( this.getDirectoryTree() == null ){
 				sbInfo.append("Directory tree not available");
@@ -308,11 +333,10 @@ public class Model_Dataset implements java.io.Serializable {
 				sbInfo.append( this.getDirectoryTree().getPrintout() );
 			}
 		}
-
-		if( iType == Model_Dataset.TYPE_Catalog ){
+		if( eType == DATASET_TYPE.Catalog ){
 			sbInfo.append("[Additional catalog info not supported]");
 		}
-		if( iType == Model_Dataset.TYPE_Image ){
+		if( eType == DATASET_TYPE.Image ){
 			sbInfo.append("[Additional image info not available]");
 		}
 		return sbInfo.toString();
@@ -389,10 +413,10 @@ public class Model_Dataset implements java.io.Serializable {
 
 	public String getInfo_Text(){ return msInfo_Text; }
 
-	public String getExpression_Text(){ return msExpression_Text; }
+	public String getExpression_Text(){ return msScript_Text; }
 	
 	public void setExpression_Text(String expression_text){
-		msExpression_Text = expression_text;
+		msScript_Text = expression_text;
 	}
 	
 	public String getFileName(){
@@ -487,7 +511,7 @@ public class Model_Dataset implements java.io.Serializable {
      * @return a complete Dods URL.
      */
     public String getFullURL() {
-		if( this.miURLType == TYPE_Directory && msSubDirectory != null){
+		if( this.meType == DATASET_TYPE.Directory && msSubDirectory != null){
 			return getFullURL(Utility.sConnectPaths(getBaseURL(), "/", getSubDirectory()));
 		} else {
 			return getFullURL(getBaseURL());
@@ -507,8 +531,8 @@ public class Model_Dataset implements java.io.Serializable {
      * Returns the type of the URL.
      * @return the type of the URL.
      */
-    public int getType() {
-		return miURLType;
+    public DATASET_TYPE getType() {
+		return meType;
     }
 
     /**
@@ -524,17 +548,7 @@ public class Model_Dataset implements java.io.Serializable {
      * @return the type of the URL.
      */
     public String getTypeString() {
-		switch(miURLType){
-			case Model_Dataset.TYPE_Data: return "Data";
-			case Model_Dataset.TYPE_Directory: return "Directory";
-			case Model_Dataset.TYPE_Catalog: return "Catalog";
-			case Model_Dataset.TYPE_HTML: return "HTML";
-			case Model_Dataset.TYPE_Text: return "Text";
-			case Model_Dataset.TYPE_Binary: return "Binary";
-			case Model_Dataset.TYPE_Expression: return "Expression";
-			case Model_Dataset.TYPE_Stream: return "Stream";
-			default: return "[unknown]";
-		}
+    	return meType.toString();
     }
 
     /**
@@ -578,16 +592,16 @@ public class Model_Dataset implements java.io.Serializable {
 	public Catalog getCatalog(){ return mCatalog; }
 
 	public String getExampleFile(){
-		int iType = this.getType();
-		if( iType == TYPE_Data || iType == TYPE_Image ){
+		DATASET_TYPE eType = getType();
+		if( eType == DATASET_TYPE.Data || eType == DATASET_TYPE.Image ){
 			return this.getFullURL();
-		} else if( iType == TYPE_Directory ){
+		} else if( eType == DATASET_TYPE.Directory ){
 			StringBuffer sbError = new StringBuffer(80);
 			String[] asFiles = this.getDirectoryFiles(sbError);
 			if( asFiles == null ) return null;
 			if( asFiles.length < 2 ) return null;
 			return asFiles[1];
-		} else if( iType == TYPE_Catalog ){
+		} else if( eType == DATASET_TYPE.Catalog ){
 			if( this.mCatalog == null ) return null;
 			return this.mCatalog.getExampleFileFullURL();
 		}
@@ -624,16 +638,6 @@ public class Model_Dataset implements java.io.Serializable {
 		mSavable._setFileDirectory( sNewDirectory );
     }    
     
-    /**
-     * Set the type of the URL.  Additionally, if no processor has been set,
-     * this function will set it to the default processor for type
-     * <code>type</type>.
-     * @param type The type of URL.
-     */
-    public void setType(int type) {
-		miURLType = type;
-    }
-
     /**
      * Set the base URL
      * @param dodsURL the base URL.
@@ -765,14 +769,14 @@ public class Model_Dataset implements java.io.Serializable {
 	
 	Model_Dataset_Local getDataTree( StringBuffer sbError ){
 		BaseType bt_root;
-		if( this.getType() == TYPE_Data ){
+		if( getType() == DATASET_TYPE.Data ){
 			DataDDS data = this.getData();
 			if( data == null ){
 				sbError.append( "internal error, model is defined as a DataDDS but there is no data structure present." );
 				return null;
 			}
 			bt_root = data;
-		} else if( this.getType() == TYPE_Definition ){
+		} else if( getType() == DATASET_TYPE.Definition ){
 			bt_root = this.getDDS_Full();
 			if( bt_root == null ){
 				sbError.append( "internal error, model is defined as a DDS but there is no structure present." );

@@ -3,10 +3,10 @@ package opendap.clients.odc.data;
 /**
  * Title:        Model_URLList
  * Description:  Models the list of URLs for displays such as Recent and Favorites
- * Copyright:    Copyright (c) 2002
+ * Copyright:    Copyright (c) 2002-2011
  * Company:      University of Rhode Island, Graduate School of Oceanography
  * @author       John Chamberlain
- * @version      2.59
+ * @version      3.07
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,7 @@ import opendap.clients.odc.OpendapConnection;
 import opendap.clients.odc.Panel_Select_Favorites;
 import opendap.clients.odc.Panel_Select_Recent;
 import opendap.clients.odc.Utility;
+import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
 import opendap.dap.*;
 
 public class Model_URLList extends javax.swing.DefaultListModel implements Model_Datasets {
@@ -413,9 +414,9 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 				for(int i=0;i<madodsurlSelected.length;i++) {
 					sleep(500); // reduces the priority of this thread
 					if( madodsurlSelected[i].getDigest() != 0 ) continue;
-					int iURLType = madodsurlSelected[i].getType();
+					DATASET_TYPE eURLType = madodsurlSelected[i].getType();
 					String sBaseURL = madodsurlSelected[i].getBaseURL();
-					if( iURLType  == Model_Dataset.TYPE_Directory ){
+					if( eURLType  == DATASET_TYPE.Directory ){
 						sBaseURL = ApplicationController.getInstance().getRetrieveModel().sFetchDirectoryTree_GetFirstFile( sBaseURL, null );
 						if( sBaseURL == null ){
 							madodsurlSelected[i].setUnreachable(true, "could not find file in directory tree");
@@ -461,12 +462,12 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		if( aurlSelected == null ) return null;
 		int ctDataURLs = 0;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Data || aurlSelected[xURL].getType() == Model_Dataset.TYPE_Image )
+			if( aurlSelected[xURL].getType() == DATASET_TYPE.Data || aurlSelected[xURL].getType() == DATASET_TYPE.Image )
 			    ctDataURLs++;
 		}
 		int ctDirectoryURLs = 0;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Directory ){
+			if( aurlSelected[xURL].getType() == DATASET_TYPE.Directory ){
 				Model_DirectoryTree tree = aurlSelected[xURL].getDirectoryTree();
                 if( tree == null ) continue;
 				DirectoryTreeNode nodeRoot = (DirectoryTreeNode)tree.getRoot();
@@ -480,14 +481,14 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		Model_Dataset[] aurlCumulative = new Model_Dataset[ctDataURLs + ctDirectoryURLs];
 		int xDataURL = -1;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Data  || aurlSelected[xURL].getType() == Model_Dataset.TYPE_Image ){
+			if( aurlSelected[xURL].getType() == DATASET_TYPE.Data  || aurlSelected[xURL].getType() == DATASET_TYPE.Image ){
 				xDataURL++;
 				aurlCumulative[xDataURL] = aurlSelected[xURL];
 			}
 		}
 		int xDirectoryURL = -1;
 		for( int xURL = 0; xURL < aurlSelected.length; xURL++ ){
-			if( aurlSelected[xURL].getType() == Model_Dataset.TYPE_Directory ){
+			if( aurlSelected[xURL].getType() == DATASET_TYPE.Directory ){
 				Model_DirectoryTree tree = aurlSelected[xURL].getDirectoryTree();
                 if( tree == null ) continue;
 				DirectoryTreeNode nodeRoot = (DirectoryTreeNode)tree.getRoot();

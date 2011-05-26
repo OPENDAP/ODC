@@ -104,7 +104,7 @@ public class Panel_URLList_JList extends Panel_URLList {
 								retrieve_model.vShowDDS( urlSelected, null );
 							}
 						} else {
-							if( urlSelected.getType() == Model_Dataset.TYPE_Data ){
+							if( urlSelected.getType() == opendap.clients.odc.data.Model_Dataset.DATASET_TYPE.Data ){
 								retrieve_model.getRetrievePanel().vShowDirectory( false );
 							}
 							retrieve_model.vShowURL( urlSelected, null );

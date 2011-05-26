@@ -27,8 +27,13 @@ public class Panel_Plot_Expression extends Panel_Plot {
 		super( scale, sID, sCaption );
 	}
 
-	public boolean setExpression( String sScript, PlottableExpressionType type, StringBuffer sbError ){
+	public boolean setExpression( String sScript, StringBuffer sbError ){
+		if( sScript == null ){
+			sbError.append( "script missing" );
+			return false;
+		}
 		PythonInterpreter interpreter = ApplicationController.getInstance().getInterpreter().getInterpeter();
+		PlottableExpressionType type;
 //		String sExpression_macroed = Utility_String.sReplaceString( msExpression, "_x", "_value0" );
 //	private org.python.core.PyCode pycodeExpression = interpreter.getInterpeter().compile( sExpression_macroed ); // the expression must be precompiled for performance reasons
 		return true;
@@ -41,28 +46,15 @@ public class Panel_Plot_Expression extends Panel_Plot {
 		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
 		switch( mePlottableExpressionType ){
 			case Cartesian:
+				vGenerateImage_Cartesian( g2, pxPlotWidth, pxPlotHeight );
+				break;
 			case Polar:
+				vGenerateImage_Polar( g2, pxPlotWidth, pxPlotHeight );
+				break;
 			case Parametric:
-				
+				vGenerateImage_Parametric( g2, pxPlotWidth, pxPlotHeight );
+				break;
 		}
-//		for( int xLine = 1; xLine <= mctLines; xLine++ ){
-//			g2.setColor(maColors1[xLine]);
-//			int[][] aiXsegments = mapxX1[xLine];
-//			int[][] aiYsegments = mapxY1[xLine];
-//			for( int xSegment = 1; xSegment < aiXsegments.length; xSegment++ ){
-//				int[] aiXcoordinates = aiXsegments[xSegment];
-//				int[] aiYcoordinates = aiYsegments[xSegment];
-//				if( mezShowLines ){
-//					g2.drawPolyline(aiXcoordinates, aiYcoordinates, aiXcoordinates.length);
-//				}
-//				if( mezShowPoints ){
-//					for( int xData = 0; xData < aiXcoordinates.length; xData++ ){
-//						g2.fillOval(aiXcoordinates[xData] - pxCircleOffset, aiYcoordinates[xData] - pxCircleOffset, miCircleSize, miCircleSize);
-//					}
-//				}
-//			}
-//		}
-
 	}
 
 	private double[] y_value_calculated;
