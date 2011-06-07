@@ -342,15 +342,25 @@ Parametric  (example: x=2*sin(t)
 
 When the expression is plotted the ODC substitutes numeric values for "substitution tokens" which are specified in the variable definition panel. By default the substition tokens are "x", "theta" and "t". If you are using these letters already in your expression you will need to change substition token to be dollar-sign-prefixed ($x, $y, $z, $r, $t, and $theta) or underscore-prefixed (_x, _y, _z, _r, _t, and _theta). Underscore prefixing is the internal coding standard to which all expressions get converted before final evaluation. Note that the ODC is smart and if it sees "$x" or "$t" in your expression it will automatically use $-sign tokens instead of plain tokens.
 
-For Cartesian expressions you select the L-value with the radio button and enter substition tokens for the other variable (or variables if it is 3D). You can do multiple expressions at the same time by entering them each on their own line. The ODC will plot them at the same time. This is useful, for example, when plotting quadratic equations that have a +/- alternative.
+The range of the expression is determined by the independent variable:
 
-For Polar expressions you provide an expression in terms of theta (the angle) and the plotter uses the value of the expression as the radius. Note that a polar plot is a special case of a parametric plot where the parameter has a fixed range of 0 to 2pi radians (0 to 360 degrees).
+x_range_begin = 0
+x_range_end = 1
+
+or
+
+theta_range_begin = 0
+theta_range_end = 0.25 * math.pi
+
+The dependent variable range can be set manually (eg y_range_end = 25) or, if absent, will be calculated automatically. If the ranges need to be calculated automatically then the plot calculation will occur twice, once to determine the ranges, then again to do the actual plot. The interval for Cartesian and polar plots is determined by the resolution of the output device. For example, if the output is the preview pane and the plot area in the preview pane is 600 pixels wide and the range is 0 to 1198 on the x-axis then there will be 600 calculations and x will be stepped by 2 for each one.
+
+For Polar expressions you provide an expression in terms of theta (the angle) and the plotter uses the value of the expression as the radius.
 
 For Parametric expressions you provide multiple expressions in terms of a parameter, by default "t" or "$t". The L-values are determined by the index number in the L-value column of the variable definition panel OR by a comment designator in the expression of the form "# X" in the text of the expression. To set the range and step of a parametric plot set the variables "t_range_begin", "t_range_end" and "t_increment":
 
 t_range_begin = 0
 t_range_end = 1
-t_increment = 0.00s1
+t_increment = 0.001
 
 The default ranges are 0 and 1 as shown above. The default increment is the range divided by the number of pixels in the width of the plot area. For example, if the plot area is 1000 pixels wide and begin is 0 and the end is 1 then the increment will be (1 - 0) / 1000 = 0.001.
 
