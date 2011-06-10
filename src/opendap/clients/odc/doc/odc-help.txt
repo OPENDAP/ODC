@@ -352,7 +352,7 @@ or
 theta_range_begin = 0
 theta_range_end = 0.25 * math.pi
 
-The dependent variable range can be set manually (eg y_range_end = 25) or, if absent, will be calculated automatically. If the ranges need to be calculated automatically then the plot calculation will occur twice, once to determine the ranges, then again to do the actual plot. The interval for Cartesian and polar plots is determined by the resolution of the output device. For example, if the output is the preview pane and the plot area in the preview pane is 600 pixels wide and the range is 0 to 1198 on the x-axis then there will be 600 calculations and x will be stepped by 2 for each one.
+The dependent variable range can be set manually (eg y_range_end = 25) or, if absent, will be calculated automatically. If the ranges need to be calculated automatically then the plot calculation will occur twice, once to determine the ranges, then again to do the actual plot. The interval for Cartesian and polar plots is determined by the resolution of the output device. For example, if the output is the preview pane and the plot area in the preview pane is 600 pixels wide and the range is 0 to 1198 on the x-axis then there will be 600 calculations and x will be stepped by 2 for each one. The default indepenent range is 0 to 100.
 
 For Polar expressions you provide an expression in terms of theta (the angle) and the plotter uses the value of the expression as the radius.
 

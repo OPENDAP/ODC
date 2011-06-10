@@ -357,7 +357,12 @@ class Model_DataView {
 			StringBuffer sbError = new StringBuffer( 256 );
 			String sExpressionText = this.modelActive.getExpression_Text();
 			Interpreter interpreter = ApplicationController.getInstance().getInterpreter();
-			Model_Dataset generated_dataset = interpreter.generateDatasetFromScript( sExpressionText, sbError );
+			Script script = interpreter.generateScriptFromText( sExpressionText, sbError );
+			if( script == null ){
+				ApplicationController.vShowError( "Failed to analyze script text " + this.modelActive.getTitle() + ": " + sbError );
+				return;
+			}
+			Model_Dataset generated_dataset = script.generateDataset( sbError );
 			if( generated_dataset == null ){
 				ApplicationController.vShowError( "Failed to generate dataset from expression " + this.modelActive.getTitle() + ": " + sbError );
 				return;
