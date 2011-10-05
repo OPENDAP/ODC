@@ -53,10 +53,10 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 
 	static boolean mzTraceErrorOnce = true;
 	StringBuffer msbError = new StringBuffer(80);
-	public void vGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
+	public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 		if( mbi == null ){
-			ApplicationController.vShowError("system error, no graphics buffer");
-			return;
+			sbError.append( "system error, no graphics buffer" );
+			return false;
 		}
 		if( pxPlotWidth < 10 || pxPlotHeight < 10 ){
 			ApplicationController.vShowWarning("invalid plot width / height " + pxPlotWidth + " / " + pxPlotHeight);
@@ -84,11 +84,11 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 
 		} catch( Throwable t ) {
 			if( mzTraceErrorOnce ){
-				ApplicationController.vUnexpectedError(t, "Failed to render RGB array");
+				sbError.append( "Failed to render RGB array" );
+				ApplicationController.vUnexpectedError( t, sbError  );
 				mzTraceErrorOnce = false;
 			}
-			g2.setColor(Color.BLACK);
-			g2.drawString("Unexpected error generating plot (see errors)", 10, 25);
+			return false;
 		}
 
 
@@ -96,9 +96,8 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 
 			// draw it to the buffer
 			if( maiRGBArray == null ){
-				g2.setColor(Color.BLACK);
-				g2.drawString("Internal error, graphic buffer does not exist", 10, 25);
-				return;
+				sbError.append( "Internal error, graphic buffer does not exist" );
+				return false;
 			}
 			int pxStartX = mpxMargin_Left;
 			int pxStartY = mpxMargin_Top;
@@ -107,14 +106,15 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 
 			if( pxStartX + pxPlotWidth > mbi.getWidth() || pxStartY + pxPlotHeight > mbi.getHeight() ){
 				if( mzTraceErrorOnce ){
-					ApplicationController.vShowError("Internal error, invalid plotting dimensions. startx: " + pxStartX + " + plot width: " + pxPlotWidth + " > buffer width: " + mbi.getWidth() + " or starty: " + pxStartY + " + plot height: " + pxPlotHeight + " > buffer height: " + mbi.getHeight() );
-		    		mzTraceErrorOnce = false;
+					mzTraceErrorOnce = false;
 				}
-				g2.drawString("Error generating plot", 10, 25);
+				sbError.append( "Internal error, invalid plotting dimensions. startx: " + pxStartX + " + plot width: " + pxPlotWidth + " > buffer width: " + mbi.getWidth() + " or starty: " + pxStartY + " + plot height: " + pxPlotHeight + " > buffer height: " + mbi.getHeight() );
+				return false;
 			} else {
 				mbi.setRGB(pxStartX, pxStartY, pxPlotWidth, pxPlotHeight, maiRGBArray, pxOffset, pxScanlineStride);
 			}
 
+			return true;
 //System.out.println(" mbi width: " + mbi.getWidth() + " height: " + mbi.getHeight());
 //System.out.println(" startx: " + pxStartX + " starty: " + pxStartY + " plot width: " + pxPlotWidth + " plot height: " + pxPlotHeight);
 //		    fyi pixel   = rgbArray[offset + (y-startY)*scansize + (x-startX)];
@@ -122,10 +122,11 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 //			g2.drawRect(pxStartX, pxStartY, pxPlotWidth - 1, pxPlotHeight - 1); // for debugging
 		} catch( Throwable t ) {
 			if( mzTraceErrorOnce ){
-				ApplicationController.vUnexpectedError(t, "Failed to generate plot");
+				sbError.append( "Failed to generate plot" );
+				ApplicationController.vUnexpectedError( t, sbError  );
+				mzTraceErrorOnce = false;
 			}
-			g2.setColor(Color.BLACK);
-			g2.drawString("Unexpected error generating plot (see errors)", 10, 25);
+			return false;
 		}
 	}
 

@@ -2,11 +2,9 @@ package opendap.clients.odc.data;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.util.Enumeration;
 import java.util.ArrayList;
 
 import javax.swing.Box;
-import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -19,16 +17,9 @@ import javax.swing.BoxLayout;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.DAP;
 import opendap.clients.odc.FormLayout;
-import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.gui.Resources;
 import opendap.clients.odc.gui.Styles;
 import opendap.dap.BaseType;
-import opendap.dap.DArray;
-import opendap.dap.DArrayDimension;
-import opendap.dap.DGrid;
-import opendap.dap.DSequence;
-import opendap.dap.DStructure;
-import opendap.dap.test.dap_test;
 
 // see Panel_View_Data for layout
 // parent: Panel_Define_Dataset

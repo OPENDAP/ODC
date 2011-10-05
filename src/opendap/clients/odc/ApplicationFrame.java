@@ -100,7 +100,7 @@ public class ApplicationFrame extends JFrame {
 					SwingUtilities.invokeLater( new Runnable() {
 						public void run() {
 							IControlPanel componentSelected = (IControlPanel)jtpMain.getSelectedComponent();
-							componentSelected.vSetFocus();
+							componentSelected._vSetFocus();
 						}
 					});
 				}
@@ -112,7 +112,7 @@ public class ApplicationFrame extends JFrame {
 					SwingUtilities.invokeLater( new Runnable() {
 						public void run() {
 							IControlPanel componentSelected = (IControlPanel)jtpView.getSelectedComponent();
-							componentSelected.vSetFocus();
+							componentSelected._vSetFocus();
 						}
 					});
 				}
@@ -124,7 +124,7 @@ public class ApplicationFrame extends JFrame {
 					SwingUtilities.invokeLater( new Runnable() {
 						public void run() {
 							IControlPanel componentSelected = (IControlPanel)jtpFeedback.getSelectedComponent();
-							componentSelected.vSetFocus();
+							componentSelected._vSetFocus();
 						}
 					});
 				}
@@ -459,6 +459,8 @@ public class ApplicationFrame extends JFrame {
 	}
 
 	public Panel_View_Variable getVariableViewer(){ return this.panelDataView.panelVarView; }
+
+	public Panel_View_Data getDataViewer(){ return this.panelDataView; }
 	
 	public Panel_View_Image getImageViewer(){ return this.panelImageView; }
 

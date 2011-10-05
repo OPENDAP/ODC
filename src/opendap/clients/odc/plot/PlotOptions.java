@@ -63,14 +63,14 @@ public class PlotOptions extends javax.swing.AbstractListModel {
 	boolean    option_legend_zDoBiasAdjustment = false;
 	double     option_legend_dBiasSlope = 1;
 	double     option_legend_dBiasIntercept = 0;
-	final PlotLayout option_legend_Layout = new PlotLayout( PlotLayout.DEFAULT_STYLE_Legend );
+	final PlotLayout option_legend_Layout = PlotLayout.create( PlotLayout.LayoutStyle.Legend );
 
 	// graphically defined values for scale
 	boolean    option_scale_zShow       = false;
 	int        option_scale_iXLength    = 0;
 	int        option_scale_iRealLength = 0;
 	String     option_scale_sLabel      = null;
-	final PlotLayout option_scale_Layout      = new PlotLayout( PlotLayout.DEFAULT_STYLE_Scale );
+	final PlotLayout option_scale_Layout      = PlotLayout.create( PlotLayout.LayoutStyle.Scale );
 
 	private ArrayList mlistText = new ArrayList(); // contains PlotOptionItems
 

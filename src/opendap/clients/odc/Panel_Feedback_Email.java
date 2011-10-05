@@ -131,7 +131,7 @@ public class Panel_Feedback_Email extends JPanel implements IControlPanel {
         }
 	}
 
-	public void vSetFocus(){
+	public void _vSetFocus(){
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				jtaDisplay.requestFocus();

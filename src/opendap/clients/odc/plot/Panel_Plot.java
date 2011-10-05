@@ -25,10 +25,10 @@ package opendap.clients.odc.plot;
 /**
  * Title:        Panel_Plot
  * Description:  Base class for plotting
- * Copyright:    Copyright (c) 2002-10
+ * Copyright:    Copyright (c) 2002-11
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.06
+ * @version      3.08
  */
 
 import opendap.clients.odc.ApplicationController;
@@ -36,6 +36,7 @@ import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.gui.Styles;
+import opendap.clients.odc.plot.Output_ToPlot.OutputTarget;
 
 import java.awt.event.*;
 import java.awt.*;
@@ -44,23 +45,17 @@ import java.awt.geom.AffineTransform;
 import java.awt.print.*;
 
 import javax.swing.*;
-
+import java.util.ArrayList;
 
 abstract class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotionListener, Scrollable {
 
 	public final static boolean DEBUG_Layout = false;
 
 	public final static double TwoPi = 2d * 3.14159d;
-	public final static String TEXT_ID_CaptionY = "CaptionY";
-	public final static String TEXT_ID_CaptionX = "CaptionX";
 	public final static String TEXT_ID_CaptionColorBar = "CaptionColorbar";
 
 	protected BufferedImage mbi = null;
 	protected boolean mzMode_FullScreen = false;
-
-	// scaling
-	protected int mpxAxisOffsetHeight = 0; // these offsets are mostly used for plotting line data
-	protected int mpxAxisOffsetWidth = 0;
 
 	// data
 	protected IPlottable mPlottable;
@@ -68,20 +63,11 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	protected int[] maiRGBArray = null;
 
 	protected ColorSpecification mColors = null;
-	protected GeoReference mGeoReference = null;
-
+	protected GeoReference mGeoReference = null;   // these two items should be combined
+	protected Model_Projection mProjection = null;
+	
 	// axes
-	protected PlotAxis axisVertical = null;
-	protected PlotAxis axisHorizontal = null;
-	protected String msAxisLabel_Vertical = null;
-	protected String msAxisLabel_Horizontal = null;
-	protected int mctTick_vertical, mctTick_horizontal;
-	protected int mpxTickOffset_vertical_lower;
-	protected int mpxTickOffset_vertical_upper;
-	protected int mpxTickOffset_horizontal_lower;
-	protected int mpxTickOffset_horizontal_upper;
-	protected String[] masTickLabels_vertical, masTickLabels_horizontal;
-	Font fontAxisTicks = Styles.fontFixed10;
+	protected PlotAxes axes = null;
 
 	// legend
 	protected int mpxLegend_X = 0;
@@ -94,6 +80,11 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	protected int mpxScale_Y = 0;
 	protected int mpxScale_Width = 0;
 	protected int mpxScale_Height = 0;
+	
+	protected int mpxMargin_Top = 70;
+	protected int mpxMargin_Bottom = 60;
+	protected int mpxMargin_Left = 50;
+	protected int mpxMargin_Right = 40;	
 
 	private static int miSessionCount = 0;
 	final private static String FORMAT_ID_date = "yyyyMMdd";
@@ -101,16 +92,16 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	private String msCaption = null;
 
 	abstract public String getDescriptor();
-	abstract public void vGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight );
+	abstract public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError );
 	abstract public boolean zCreateRGBArray(int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError);
-
+	
 	public static void main(String[] args) {
 		Frame frame = new Frame("Plot Demo");
 		frame.setSize( 600, 600 );
-		PlotScale scale = new PlotScale();
+		PlotScale scale = PlotScale.create();
 		String sID = "demo_id";
 		String sCaption = "demo plot";
-		scale.setOuputDimensions( new Dimension( 600, 600 ) );
+		scale.setOutputTarget( OutputTarget.NewWindow );
 		scale.setDataDimension( 600, 600 );
 		Panel_Plot_Surface demo_surface = new Panel_Plot_Surface( scale, sID, sCaption );
 		StringBuffer sbError = new StringBuffer();
@@ -183,7 +174,11 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		}
 		try {
 			// todo use black and white / color models for bw printers
-			vCreateImage( false );
+			StringBuffer sbError = new StringBuffer( 250 );
+			if( ! zCreateImage( false, sbError ) ){
+				ApplicationController.vShowError( "System error, unable to print, unable to create image: " + sbError.toString() );
+				return java.awt.print.Printable.NO_SUCH_PAGE;
+			}
 			((Graphics2D)g).drawImage(mbi, null, 0, 0); // flip image to printer
 			return java.awt.print.Printable.PAGE_EXISTS;
 		} catch(Exception ex) {
@@ -207,15 +202,14 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	public boolean zPlot( StringBuffer sbError ){
 		try {
 			boolean zFill = (this instanceof Panel_Plot_Histogram);
-			vCreateImage( zFill );
-			return true;
+			return zCreateImage( zFill, sbError );
 		} catch(Throwable ex) {
 			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
 
-	private void vCreateImage( boolean zFill ){
+	private boolean zCreateImage( boolean zFill, StringBuffer sbError ){
 
 		// standard scaled area
 		int pxCanvasWidth = mScale.getCanvas_Width();
@@ -223,6 +217,16 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		int pxPlotWidth = mScale.getPlot_Width();
 		int pxPlotHeight = mScale.getPlot_Height();
 
+		if( pxCanvasWidth == 0 || pxCanvasHeight == 0 ){
+			sbError.append( "invalid scale, canvas width/height cannot be <= 0" );
+			return false;
+		}
+
+		if( pxPlotWidth == 0 || pxPlotHeight == 0 ){
+			sbError.append( "invalid scale, plot width/height cannot be <= 0" );
+			return false;
+		}
+		
 		if( mOptions != null ){
 			mzBoxed = mOptions.getValue_boolean(PlotOptions.OPTION_Boxed);
 		}
@@ -249,54 +253,31 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		if( mbi == null ){
 			mbi = new BufferedImage( pxCanvasWidth, pxCanvasHeight, BufferedImage.TYPE_INT_ARGB );
 		}
-		vWriteImageBuffer(mbi, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
+		return zWriteImageBuffer( mbi, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError );
 	}
 
-	private void vWriteImageBuffer( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
+	private boolean zWriteImageBuffer( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 		if( bi == null ){
-			ApplicationController.vShowError("internal error, no buffer");
-			mbi.getGraphics().drawString("[error rendering plot, no buffer (out of memory?)]", 10, 30);
+			sbError.append( "internal error, no buffer (out of memory?)" );
+			return false;
 		} else {
-			StringBuffer sbError = new StringBuffer(80);
-
 			Graphics2D g2 = (Graphics2D)mbi.getGraphics();
 			g2.setColor(mcolorBackground);
 			g2.fillRect(0,0,pxCanvasWidth,pxCanvasHeight); // draw background
 			int pxPlotLeft = mpxMargin_Left;
 			int pxPlotTop  = mpxMargin_Top;
 
-			if( axisVertical != null ){
-				if( !axisVertical.zDetermineScaleInterval(pxPlotHeight, fontAxisTicks, true, g2, false, 0, 0, false, sbError) ){
-					ApplicationController.vShowError("Failed to generate vertical axis: " + sbError);
-				}
-				if( axisVertical.mpxTick_MajorInterval == 0 ){
-					ApplicationController.vShowError("Failed to generate vertical axis");
-				}
-				mpxTickOffset_vertical_lower = axisVertical.getOffset_LowerPX();
-				mpxTickOffset_vertical_upper = axisVertical.getOffset_UpperPX();
-				mctTick_vertical = axisVertical.getTickCount();
-				masTickLabels_vertical = axisVertical.getScaleLabels1();
-			}
-			if( axisHorizontal != null ){
-				if( !axisHorizontal.zDetermineScaleInterval(pxPlotWidth, fontAxisTicks, false, g2, false, 0, 0, false, sbError) ){
-					ApplicationController.vShowError("Failed to generate vertical axis: " + sbError);
-				}
-				if( axisHorizontal.mpxTick_MajorInterval == 0 ){
-					ApplicationController.vShowError("Failed to generate horizontal axis");
-				}
-				mpxTickOffset_horizontal_lower = axisHorizontal.getOffset_LowerPX();
-				mpxTickOffset_horizontal_upper = axisHorizontal.getOffset_UpperPX();
-				mctTick_horizontal = axisHorizontal.getTickCount();
-				masTickLabels_horizontal = axisHorizontal.getScaleLabels1();
-			}
-
 			g2.setClip(pxPlotLeft, pxPlotTop, pxPlotWidth, pxPlotHeight);
 			mpxPreferredWidth = pxCanvasWidth;
 			mpxPreferredHeight = pxCanvasHeight;
-			vGenerateImage( pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
+			if( ! zGenerateImage( pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError ) ){
+				sbError.insert( 0, "failed to generate image: " );
+				return false;
+			}
 			g2.setClip(0, 0, pxCanvasWidth, pxCanvasHeight);
-			 // todo regularize histograms
+			 // TODO regularize histograms
 			if( !(this instanceof Panel_Plot_Histogram) ) vDrawAnnotations(g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight);
+			return true;
 		}
 	}
 
@@ -305,18 +286,6 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		return maiRGBArray;
 	}
 
-	protected boolean mzHasAxes = true;
-	protected int mpxAxisThickness = 1; // todo need to make settable as well as others
-	protected int mpxGraphOffset = 0; // this is the offset between the y-axis and left/right edges of the graph
-	protected int mpxMargin_Top = 70;
-	protected int mpxMargin_Bottom = 60;
-	protected int mpxMargin_Left = 50;
-	protected int mpxMargin_Right = 40;
-	protected int mpxVerticalTick_LabelOffset = 2;
-	protected int mpxHorizontalTick_LabelOffset = 2;
-	protected int mpxTickMajorLength = 4;
-	protected int mpxTickMediumLength = 5;
-	protected int mpxTickMinorLength = 3;
 	protected boolean mzBoxed = true;
 	boolean getBoxed(){ return mzBoxed; }
 //	int getCanvasWidth(){ return this.mpxCanvasWidth; }
@@ -353,14 +322,6 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	private int mpxLegendWidth = 0;
 	private int mpxLegendKeyWidth = 10;
 
-	// Axes Management
-	void setAxisVertical( PlotAxis axis ){
-		axisVertical = axis;
-	}
-	void setAxisHorizontal( PlotAxis axis ){
-		axisHorizontal = axis;
-	}
-	
 	boolean setData( IPlottable plottable, StringBuffer sbError ){
 		if( plottable == null ){
 			sbError.append("internal error, no plottable data supplied");
@@ -403,9 +364,6 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 
 	// the order of the annotations is important because they can be positioned relative to each other
 	protected void vDrawAnnotations(Graphics2D g2, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
-
-		vGenerateText();
-
 		vDrawCoastline(g2, pxPlotWidth, pxPlotHeight);
 		vDrawBorders(g2, pxPlotWidth, pxPlotHeight);
 		vDrawAxes(g2, pxPlotWidth, pxPlotHeight);
@@ -414,77 +372,21 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		vDrawText(g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
 	}
 
-	private void vGenerateText(){
-		if( mOptions == null || mText == null ) return;  // need these structures to continue
-		mText.remove(TEXT_ID_CaptionY); // there may be a pre-existing, automatically generated caption
-		mText.remove(TEXT_ID_CaptionX); // there may be a pre-existing, automatically generated caption
-		mText.remove(TEXT_ID_CaptionColorBar); // there may be a pre-existing, automatically generated caption
-	    if( ! mOptions.getValue_boolean(PlotOptions.OPTION_GenerateAxisCaptions) ) return;
-
-		// it is kind of hokey to have this here but there is no other easy option
-		if( Panel_View_Plot.getPlotType() == Output_ToPlot.PLOT_TYPE_Histogram ) return;
-
-		// Vertical Axis
-		if( axisVertical == null ){
-		} else {
-			String sCaption = axisVertical.getCaption();
-			if( sCaption == null ){
-			} else {
-				PlotTextItem text = mText.getNew(TEXT_ID_CaptionY);
-				text.setExpression(sCaption);
-				Font font;
-				if( mpxAxis_Vertical_height > 100 ){
-					font = Styles.fontSansSerif12;
-				} else {
-					font = Styles.fontSansSerif10;
-				}
-				text.setFont(font);
-				PlotLayout layout = text.getPlotLayout();
-				layout.setObject(PlotLayout.OBJECT_AxisVertical);
-				layout.setOrientation(PlotLayout.ORIENT_LeftMiddle);
-				layout.setAlignment(PlotLayout.ORIENT_RightMiddle);
-				layout.setOffsetHorizontal(-10);
-				layout.setRotation(270);
-			}
-		}
-
-		// Horizontal Axis
-		if( axisHorizontal != null){
-			String sCaption = axisHorizontal.getCaption();
-			if( sCaption != null ){
-				PlotTextItem text = mText.getNew(TEXT_ID_CaptionX);
-				text.setExpression(sCaption);
-				Font font;
-				if( mpxAxis_Vertical_height > 100 ){
-					font = Styles.fontSansSerif12;
-				} else {
-					font = Styles.fontSansSerif10;
-				}
-				text.setFont(font);
-				PlotLayout layout = text.getPlotLayout();
-				layout.setObject(PlotLayout.OBJECT_AxisHorizontal);
-				layout.setOrientation(PlotLayout.ORIENT_BottomMiddle);
-				layout.setAlignment(PlotLayout.ORIENT_TopMiddle);
-				layout.setOffsetVertical(5);
-				layout.setRotation(0);
-			}
-		}
-
-	}
-
 	private void vDrawCoastline( Graphics2D g2, int pxPlotWidth, int pxPlotHeight ){
 		if( ! (this instanceof Panel_Plot_Pseudocolor) &&
 		    ! (this instanceof Panel_Plot_Vector) ) return;
 		if( mOptions != null ){
 			if( !mOptions.getValue_boolean(PlotOptions.OPTION_ShowCoastLine) ) return;
 		}
-		if( axisHorizontal == null || axisVertical == null ){
-			ApplicationController.vShowWarning("unable to draw coastline, no axes/geo reference");
+		if( mProjection == null ){
+			ApplicationController.vShowWarning("unable to draw coastline, no geographic projection defined");
 			return;
 		} else {
 			mGeoReference = new GeoReference();
 			StringBuffer sbError = new StringBuffer(80);
-			if( !mGeoReference.zInitialize(axisHorizontal.getValues1(), axisVertical.getValues1(), GeoReference.TYPE_IntegerG0, sbError) ){
+			double[] adLatitudeMapping = mProjection.getMapping_Latitude();
+			double[] adLongitudeMapping = mProjection.getMapping_Longitude();
+			if( ! mGeoReference.zInitialize( adLongitudeMapping, adLatitudeMapping, GeoReference.TYPE_IntegerG0, sbError) ){
 				ApplicationController.vShowWarning("unable to draw coastline: " + sbError);
 				return;
 			}
@@ -495,69 +397,17 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	}
 
 	protected void vDrawAxes( Graphics2D g2, int pxPlotWidth, int pxPlotHeight ){
-		g2.setFont(Styles.fontSansSerif10);
-		g2.setColor(Color.black);
-		FontMetrics mfontmetricsSansSerif10 = g2.getFontMetrics(Styles.fontSansSerif10);
-
-		// draw vertical axis
-		int pxTick_Left = mpxMargin_Left - mpxAxisThickness - mpxTickMajorLength;
-		mpxAxis_Horizontal_X = mpxMargin_Left;
-		mpxAxis_Horizontal_X -= mpxAxisThickness;
-		if( axisVertical == null ){
-			// draw nothing
-		} else {
-			mpxAxis_Vertical_Y = mpxMargin_Top;
-			mpxAxis_Vertical_width = mpxTickMajorLength + mpxAxisThickness;
-			mpxAxis_Vertical_height = pxPlotHeight; // + mpxAxisOffsetHeight;
-			int pxLabelLeft_min = mpxMargin_Left;
-			if( mpxMargin_Left >= mpxAxisThickness ){
-				g2.fillRect(mpxAxis_Horizontal_X, mpxMargin_Top, mpxAxisThickness, mpxAxis_Vertical_height);
-				int pxTickRight = pxTick_Left + mpxTickMajorLength - 1;
-				int iLabelHalfHeight = mfontmetricsSansSerif10.getAscent() / 2;
-				for( int xTick = 1; xTick <= mctTick_vertical; xTick++ ){
-					int pxTickHeight = (int)((xTick-1)*axisVertical.mpxTick_MajorInterval) + mpxTickOffset_vertical_lower;
-					int pxTickTop = mpxMargin_Top + (pxPlotHeight - pxTickHeight) - 1;
-					g2.drawLine(pxTick_Left, pxTickTop, pxTickRight, pxTickTop);
-					if( masTickLabels_vertical != null ){
-						String sTickLabel = masTickLabels_vertical[xTick];
-						int pxLabelLeft = pxTick_Left - mpxVerticalTick_LabelOffset - mfontmetricsSansSerif10.stringWidth(sTickLabel);
-						if( pxLabelLeft < pxLabelLeft_min ) pxLabelLeft_min = pxLabelLeft;
-						int pxLabelTop  = pxTickTop + iLabelHalfHeight - 1;
-						g2.drawString(sTickLabel, pxLabelLeft, pxLabelTop);
-					}
-				}
-
+		StringBuffer sbError = new StringBuffer();
+		ArrayList<PlotAxis> listAxes = axes._getList();
+		for( int xAxis = 1; xAxis <= listAxes.size(); xAxis++ ){
+			PlotAxis axis = listAxes.get( xAxis - 1 );
+			BufferedImage biAxis = axis.render( g2, mScale, sbError );
+			if( biAxis == null  ){
+				ApplicationController.vShowError_NoModal( "error rendering axis: " + sbError.toString() );
+				continue;
 			}
-			mpxAxis_Vertical_X = pxLabelLeft_min;  // this can only be determined after all the labels are calculated because it is dependent on the longest label
-		}
-
-		// draw x-axis (horizontal)
-		if( axisHorizontal == null ){
-			// draw nothing
-		} else {
-			int pxHorizontalLabelHeight = mfontmetricsSansSerif10.getHeight();
-			mpxAxis_Horizontal_Y = mpxMargin_Top + pxPlotHeight;
-			mpxAxis_Horizontal_width = pxPlotWidth + 2 * mpxAxisThickness;
-			mpxAxis_Horizontal_height = mpxAxisThickness + mpxTickMajorLength + mpxHorizontalTick_LabelOffset + pxHorizontalLabelHeight;
-			if( pxPlotWidth < 10 && axisHorizontal != null ) return; // abort - canvas too small
-			if( mpxAxisThickness <= mpxMargin_Bottom ){
-				g2.fillRect(mpxAxis_Horizontal_X, mpxAxis_Horizontal_Y, mpxAxis_Horizontal_width, mpxAxisThickness);
-				int pxTick_Top = mpxMargin_Top + pxPlotHeight + mpxAxisThickness;
-				int pxLabelTop  = pxTick_Top + mpxTickMajorLength + mpxHorizontalTick_LabelOffset + pxHorizontalLabelHeight;
-				double pxTickSpacing = axisHorizontal.mpxTick_MajorInterval;
-				for( int xTick = 1; xTick <= mctTick_horizontal; xTick++ ){
-					int pxTick_Width = (int)((xTick-1)*pxTickSpacing) + mpxTickOffset_horizontal_lower;
-					pxTick_Left = mpxMargin_Left + pxTick_Width;
-					g2.drawLine(pxTick_Left, pxTick_Top, pxTick_Left, pxTick_Top + mpxTickMajorLength);
-					if( masTickLabels_horizontal != null ){
-						String sTickLabel = masTickLabels_horizontal[xTick];
-						int iLabelHalfWidth = mfontmetricsSansSerif10.stringWidth(sTickLabel) / 2;
-						int pxLabelLeft = pxTick_Left - iLabelHalfWidth + 1; // for some reason the plus one makes it come out evenly // mpxMargin_Left - mpxTickMajorLength - mfontmetricsSansSerif10.stringWidth(sTickLabel) - mpxVerticalTick_LabelOffset;
-						g2.drawString(sTickLabel, pxLabelLeft, pxLabelTop);
-					}
-				}
-			}
-		}
+			// TODO compose buffer to canvas
+		}	
 	}
 
 // fyi drawing a filled box
@@ -570,19 +420,19 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	private void vDrawBorders( Graphics2D g2, int pxPlotWidth, int pxPlotHeight){
 		if( mzBoxed ){
 
-			int pxAxisLength_horizontal = pxPlotWidth + mpxAxisOffsetWidth;
-			int pxAxisLength_vertical = pxPlotHeight + mpxAxisOffsetHeight;
+			int pxAxisLength_horizontal = pxPlotWidth;
+			int pxAxisLength_vertical = pxPlotHeight;
 
-			int xBox      = mpxMargin_Left - mpxAxisThickness;
-			int yBox      = mpxMargin_Top - mpxAxisThickness;
-			int widthBox  = pxPlotWidth + mpxAxisOffsetWidth + mpxAxisThickness * 2;
-			int heightBox = pxPlotHeight + mpxAxisOffsetHeight + mpxAxisThickness * 2;
+			int xBox      = mpxMargin_Left;
+			int yBox      = mpxMargin_Top;
+			int widthBox  = pxPlotWidth;
+			int heightBox = pxPlotHeight;
 
 			g2.setColor(Color.black);
-			g2.fillRect(xBox, yBox, widthBox - 1, mpxAxisThickness); // top
-			g2.fillRect(xBox, yBox, mpxAxisThickness, heightBox - 1); // left
-			g2.fillRect(xBox + widthBox - 1, yBox, mpxAxisThickness, heightBox - 1); // right
-			g2.fillRect(xBox, yBox + heightBox - 1, widthBox - 1, mpxAxisThickness); // bottom
+			g2.fillRect(xBox, yBox, widthBox - 1, 1); // top
+			g2.fillRect(xBox, yBox, 1, heightBox - 1); // left
+			g2.fillRect(xBox + widthBox - 1, yBox, 1, heightBox - 1); // right
+			g2.fillRect(xBox, yBox + heightBox - 1, widthBox - 1, 1); // bottom
 		}
 	}
 
@@ -605,7 +455,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		int pxOffset_height = layout.getOffsetVertical();
 		int hObject, vObject, heightObject, widthObject;
 		switch( layout.getObject() ){
-			case PlotLayout.OBJECT_Canvas:
+			case Canvas:
 				if( iRotation == 90 || iRotation == 270 ){
 					iDefaultLength = pxCanvasHeight - 2 * pxOffset_height;
 				} else {
@@ -616,7 +466,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 				heightObject = pxCanvasHeight;
 				widthObject  = pxCanvasWidth;
 				break;
-			case PlotLayout.OBJECT_Plot:
+			case Plot:
 				if( iRotation == 90 || iRotation == 270 ){
 					iDefaultLength = pxPlotHeight - 2 * pxOffset_height;
 				} else {
@@ -627,7 +477,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 				heightObject = pxPlotHeight;
 				widthObject  = pxPlotWidth;
 				break;
-			case PlotLayout.OBJECT_AxisVertical:
+			case AxisVertical:
 				iDefaultLength = mpxAxis_Vertical_height - 2 * pxOffset_height;
 				hObject = mpxAxis_Vertical_X;
 				vObject = mpxAxis_Vertical_Y;
@@ -635,7 +485,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 				widthObject  = mpxAxis_Vertical_width;
 				break;
 			default:
-			case PlotLayout.OBJECT_AxisHorizontal:
+			case AxisHorizontal:
 				iDefaultLength = mpxAxis_Horizontal_width - 2 * pxOffset_width;
 				hObject = mpxAxis_Horizontal_X;
 				vObject = mpxAxis_Horizontal_Y;
@@ -706,214 +556,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	}
 
 	protected void vDrawLegend_Colorbar( Graphics2D g2, Font font, int iLength, int iRotation, PlotLayout layout, int hObject, int vObject, int widthObject, int heightObject ){
-		if( mColors == null ) return;
-		StringBuffer sbError = new StringBuffer(80);
-		FontMetrics fontmetrics = g2.getFontMetrics(font);
-		int ctRanges = mColors.getRangeCount();
-		if( ctRanges == 0 ) return;
-		int iSwatchLength = iLength / ctRanges;
-		int iSwatchThickness = 15; // constant for now
-		int pxSwatchHeight, pxSwatchWidth, pxColorBarWidth, pxColorBarHeight;
-		boolean zColorBarHorizontal;
-		boolean zColorsAscending;
-		switch( iRotation ){
-			default:
-			case 0:
-				pxSwatchWidth = iSwatchLength;
-				pxSwatchHeight = iSwatchThickness;
-				pxColorBarWidth = iLength;
-				pxColorBarHeight = iSwatchThickness;
-				zColorBarHorizontal = true;
-				zColorsAscending = true;    // colors go from left to right
-				break;
-			case 90:
-				pxSwatchWidth = iSwatchThickness;
-				pxSwatchHeight = iSwatchLength;
-				pxColorBarWidth = iSwatchThickness;
-				pxColorBarHeight = iLength;
-				zColorBarHorizontal = false;
-				zColorsAscending = false;    // colors go from top to bottom
-				break;
-			case 180:
-				pxSwatchHeight = iSwatchThickness;
-				pxSwatchWidth = iSwatchLength;
-				pxColorBarWidth = iLength;
-				pxColorBarHeight = iSwatchThickness;
-				zColorBarHorizontal = true;
-				zColorsAscending = false;    // colors go from right to left
-				break;
-			case 270:
-				pxSwatchWidth = iSwatchThickness;
-				pxSwatchHeight = iSwatchLength;
-				pxColorBarWidth = iSwatchThickness;
-				pxColorBarHeight = iLength;
-				zColorBarHorizontal = false;
-				zColorsAscending = true;    // colors go from bottom to top
-				break;
-		}
-
-		long nLocationPacked = layout.getLocation(pxColorBarWidth, pxColorBarHeight, hObject, vObject, widthObject, heightObject );
-
-
-		mpxLegend_X = (int)(nLocationPacked >> 32);
-		mpxLegend_Y = (int)(nLocationPacked & 0xFFFFFFFF);
-
-		int iLabelAscent = fontmetrics.getAscent();
-		int iLabelOffset = 2; // constant for now
-		int acrossColorBar = zColorBarHorizontal ? mpxLegend_Y : mpxLegend_X;
-		int alongColorBar = zColorBarHorizontal ? mpxLegend_X : mpxLegend_Y;
-		int acrossSwatch = acrossColorBar;
-		int acrossLabel = acrossSwatch + iSwatchThickness + iLabelOffset + iLabelAscent;
-		boolean zSwatchBorder = false;
-        int pxMaxLabelLength = 0;
-		for( int xRange = 1; xRange <= ctRanges; xRange++ ){
-			Image imageSwatch = mColors.imageMakeSwatch(xRange, pxSwatchWidth, pxSwatchHeight, zColorBarHorizontal, zColorsAscending, zSwatchBorder);
-			int alongSwatch;
-			if( (zColorsAscending && zColorBarHorizontal) || (!zColorsAscending && !zColorBarHorizontal) ){
-				alongSwatch = alongColorBar + (xRange - 1) * iSwatchLength;
-			} else {
-				alongSwatch = alongColorBar + (ctRanges - xRange) * iSwatchLength;
-			}
-			if( zColorBarHorizontal ){
-				g2.drawImage(imageSwatch, alongSwatch, acrossSwatch, pxSwatchWidth, pxSwatchHeight, null);
-			} else {
-				g2.drawImage(imageSwatch, acrossSwatch, alongSwatch, pxSwatchWidth, pxSwatchHeight, null);
-			}
-			String sFrom = mColors.getDataFromS(xRange);
-			String sTo   = mColors.getDataToS(xRange);
-			if( sFrom == null ) sFrom = "";
-			if( sTo == null ) sTo = "";
-			int pxAscent = iLabelAscent / 2;
-			int iLabelWidth = 0;
-			if( mColors.getColorFromHSB(xRange) == mColors.getColorToHSB(xRange) ){ // banded range
-				String sSwatchLabel = null;
-				if( sFrom.equals(sTo) ){
-					sSwatchLabel = sFrom;
-				} else {
-					sSwatchLabel = sFrom + " - " + sTo;
-				}
-				iLabelWidth = fontmetrics.stringWidth(sSwatchLabel);
-				System.out.println("label width is: " + iLabelWidth);
-				double dRotate = 0d;
-				int alongLabel;
-				if( (iLabelWidth + 6) < iSwatchLength ){ // make labels parallel to colorbar
-					if( zColorBarHorizontal ){
-						alongLabel = alongSwatch + (int)(0.5 * iSwatchLength);
-					} else {
-						dRotate = 270d;
-						alongLabel = alongSwatch + (int)(0.5 * (iSwatchLength - iLabelWidth)) - iLabelWidth; // adjust for rotation
-					}
-				} else { // make labels orthogonal to colorbar
-					alongLabel = alongSwatch + (int)(0.5 * (iSwatchLength + pxAscent) + 1);
-					if( zColorBarHorizontal ) dRotate = 90d;
-				}
-				if( dRotate != 0 ){
-					AffineTransform transform = AffineTransform.getRotateInstance(2d * 3.14159 * dRotate / 360d);
-					font = font.deriveFont(transform);
-				}
-	    		g2.setFont(font);
-                int pxSwatchLabelLength = fontmetrics.stringWidth(sSwatchLabel);
-                if( pxSwatchLabelLength > pxMaxLabelLength ) pxMaxLabelLength = pxSwatchLabelLength;
-				if( zColorBarHorizontal ){
-					g2.drawString(sSwatchLabel, alongLabel, acrossLabel);
-				} else {
-					g2.drawString(sSwatchLabel, acrossLabel - 5, alongLabel); // the -5 is because there is no tick
-				}
-			} else { // draw tick marks and labels
-				PlotAxis axisColorbar = new PlotAxis();
-				double dDataFrom = mColors.getDataFrom_double(xRange);
-				double dDataTo   = mColors.getDataTo_double(xRange);
-				axisColorbar.setRange(dDataFrom, dDataTo);
-				boolean zOrthogonalLabels = !zColorBarHorizontal;
-				boolean zDoBiasAdjustment = mOptions.option_legend_zDoBiasAdjustment;
-				double dSlope = mOptions.option_legend_dBiasSlope;
-				double dIntercept = mOptions.option_legend_dBiasIntercept;
-				if( axisColorbar.zDetermineScaleInterval(iSwatchLength, font, zOrthogonalLabels, g2, zDoBiasAdjustment, dSlope, dIntercept, false, sbError) ){
-					String[] asScaleLabels = axisColorbar.getScaleLabels1();
-					int pxLabelHeight = fontmetrics.getHeight();
-					int pxTickSize = 5;
-					int pxTickLabelOffset = 4; // should be two but for some reason not working
-					int pxTick_Across  = acrossSwatch + iSwatchThickness; // not used
-					int pxLabel_Across = pxTick_Across + pxTickSize + pxTickLabelOffset; // not used
-					int ctTick = axisColorbar.getTickCount();
-					int pxTickOffset = axisColorbar.getOffset_LowerPX();
-					double pxTickSpacing = axisColorbar.mpxTick_MajorInterval;
-					for( int xTick = 1; xTick <= ctTick; xTick++ ){
-						int pxTick_Along;
-						if( zColorsAscending ){
-							pxTick_Along = (int)((xTick-1)*pxTickSpacing) + pxTickOffset;
-						} else {
-							pxTick_Along = iSwatchLength - (int)((xTick-1)*pxTickSpacing) + pxTickOffset;
-						}
-						int x_tick, y_tick, pxLabelLeft, pxLabelTop;
-						String sTickLabel = asScaleLabels[xTick];
-						if( sTickLabel == null ) sTickLabel = "~";
-						iLabelWidth = fontmetrics.stringWidth(sTickLabel);
-						if( zColorBarHorizontal ){
-							x_tick = alongSwatch + pxTick_Along;
-							y_tick = acrossSwatch + iSwatchThickness;
-							g2.drawLine(x_tick, y_tick, x_tick, y_tick + pxTickSize);
-							pxLabelLeft = x_tick - iLabelWidth / 2 + 1; // don't know why this plus one seems to be needed
-							pxLabelTop = y_tick + pxTickSize + pxTickLabelOffset + pxAscent;
-						} else {
-							x_tick = acrossSwatch + iSwatchThickness;
-							y_tick = alongSwatch + iSwatchLength - pxTick_Along;
-							g2.drawLine(x_tick, y_tick, x_tick + pxTickSize , y_tick);
-							pxLabelLeft = x_tick + pxTickSize + pxTickLabelOffset;
-							pxLabelTop = y_tick + pxAscent / 2 + 1; // don't know why this plus one seems to be needed
-						}
-						g2.drawString(sTickLabel, pxLabelLeft, pxLabelTop);
-                        int pxTickLabelLength = fontmetrics.stringWidth(sTickLabel);
-                        if( pxTickLabelLength > pxMaxLabelLength ) pxMaxLabelLength = pxTickLabelLength;
-					}
-				} else {
-					ApplicationController.vShowError("Error setting up color bar ticks for range " + xRange +": " + sbError);
-				}
-			}
-		}
-	    mpxLegend_Width = pxSwatchWidth + (iRotation == 0 || iRotation == 180 ? 0 : pxMaxLabelLength + 5);
-	    mpxLegend_Height = pxSwatchHeight + (iRotation == 0 || iRotation == 180 ? pxMaxLabelLength + 5 : 0);
-
-		// Colorbar text
-		mText.remove(TEXT_ID_CaptionColorBar); // there may be a pre-existing, automatically generated caption
-		if( msLabel_Values != null ){
-			String sCaption = msLabel_Values + (msLabel_Units == null ? "" : msLabel_Units);
-			PlotTextItem text = mText.getNew(TEXT_ID_CaptionColorBar);
-			text.setExpression(sCaption);
-			if( mpxAxis_Vertical_height > 100 ){
-				font = Styles.fontSansSerif12;
-			} else {
-				font = Styles.fontSansSerif10;
-			}
-			text.setFont(font);
-			PlotLayout layoutText = text.getPlotLayout();
-			layoutText.setObject(PlotLayout.OBJECT_Legend);
-			switch( iRotation ){
-				default:
-				case 0:
-		    		layoutText.setOrientation(PlotLayout.ORIENT_BottomMiddle);
-	    	    	layoutText.setAlignment(PlotLayout.ORIENT_TopMiddle);
-        			layoutText.setOffsetVertical(10);
-					break;
-				case 90:
-		    		layoutText.setOrientation(PlotLayout.ORIENT_LeftMiddle);
-	    	    	layoutText.setAlignment(PlotLayout.ORIENT_RightMiddle);
-        			layoutText.setOffsetHorizontal(-10);
-					break;
-				case 180:
-		    		layoutText.setOrientation(PlotLayout.ORIENT_TopMiddle);
-	    	    	layoutText.setAlignment(PlotLayout.ORIENT_BottomMiddle);
-        			layoutText.setOffsetVertical(-10);
-					break;
-				case 270:
-		    		layoutText.setOrientation(PlotLayout.ORIENT_RightMiddle);
-	    	    	layoutText.setAlignment(PlotLayout.ORIENT_LeftMiddle);
-        			layoutText.setOffsetHorizontal(10);
-					break;
-			}
-			layoutText.setRotation(iRotation);
-		}
-
+		// TODO (see dead code file)
 	}
 
 	protected void vDrawScale( Graphics2D g2, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
@@ -954,26 +597,26 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		// determine the layout object dimensions
 		int hObject, vObject, heightObject, widthObject;
 		switch( layout.getObject() ){
-			case PlotLayout.OBJECT_Canvas:
+			case Canvas:
 				hObject = 0;
 				vObject = 0;
 				heightObject = pxCanvasHeight;
 				widthObject  = pxCanvasWidth;
 				break;
-			case PlotLayout.OBJECT_Plot:
+			case Plot:
 				hObject = mpxMargin_Left;
 				vObject = mpxMargin_Top;
 				heightObject = pxPlotHeight;
 				widthObject  = pxPlotWidth;
 				break;
-			case PlotLayout.OBJECT_AxisVertical:
+			case AxisVertical:
 				hObject = mpxAxis_Vertical_X;
 				vObject = mpxAxis_Vertical_Y;
 				heightObject = mpxAxis_Vertical_height;
 				widthObject  = mpxAxis_Vertical_width;
 				break;
 			default:
-			case PlotLayout.OBJECT_AxisHorizontal:
+			case AxisHorizontal:
 				hObject = mpxAxis_Horizontal_X;
 				vObject = mpxAxis_Horizontal_Y;
 				heightObject = mpxAxis_Horizontal_height;
@@ -1077,11 +720,11 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			PlotTextItem item = (PlotTextItem)mText.getElementAt(xTextItem);
 			PlotLayout layout = item.getPlotLayout();
 			if( layout == null ) continue; // hope this doesn't happen
-			Font font = item.getFont();
+			Font font = item.getStyle().getFont();
 			if( font == null ) font = Styles.fontSansSerifBold10;
-			Color color = item.getColor();
+			Color color = item.getStyle().getColor();
 			if( color == null ) if( this.getBackground() == Color.BLACK ) color = Color.WHITE; else color = Color.BLACK;
-			String sExpression = item.getExpression();
+			String sExpression = item.getString();
 			String sText = sExpression;
 			vDrawText( g2, sText, font, color, layout, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
 		}
@@ -1092,22 +735,22 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		int hObject, vObject, widthObject, heightObject;
 		switch( layout.getObject() ){
 			default:
-			case PlotLayout.OBJECT_Canvas:
+			case Canvas:
 				hObject = 0; vObject = 0; widthObject = pxCanvasWidth; heightObject = pxCanvasHeight;
 				break;
-			case PlotLayout.OBJECT_Plot:
-				hObject = mpxMargin_Left + this.mpxAxisOffsetWidth; vObject = mpxMargin_Top; widthObject = pxPlotWidth; heightObject = pxPlotHeight;
+			case Plot:
+				hObject = mpxMargin_Left; vObject = mpxMargin_Top; widthObject = pxPlotWidth; heightObject = pxPlotHeight;
 				break;
-			case PlotLayout.OBJECT_AxisHorizontal:
+			case AxisHorizontal:
 				hObject = mpxAxis_Horizontal_X; vObject = mpxAxis_Horizontal_Y; widthObject = mpxAxis_Horizontal_width; heightObject = mpxAxis_Horizontal_height;
 				break;
-			case PlotLayout.OBJECT_AxisVertical:
+			case AxisVertical:
 				hObject = mpxAxis_Vertical_X; vObject = mpxAxis_Vertical_Y; widthObject = mpxAxis_Vertical_width; heightObject = mpxAxis_Vertical_height;
 				break;
-			case PlotLayout.OBJECT_Legend:
+			case Legend:
 				hObject = mpxLegend_X; vObject = mpxLegend_Y; widthObject = mpxLegend_Width; heightObject = mpxLegend_Height;
 				break;
-			case PlotLayout.OBJECT_Scale:
+			case Scale:
 				hObject = mpxScale_X; vObject = mpxScale_Y; widthObject = mpxScale_Width; heightObject = mpxScale_Height;
 				break;
 		}

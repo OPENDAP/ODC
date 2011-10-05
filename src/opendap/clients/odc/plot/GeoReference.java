@@ -29,6 +29,7 @@ public class GeoReference {
 	public static final int TYPE_IntegerG0 = 1; // greenwich is at 0
 	public static final int TYPE_FloatG0 = 2; // greenwich is at 0
 	public static final int TYPE_MicroG0 = 3; // greenwich is at 0
+	private Model_Projection mProjection;
 	private boolean mzLinear;
 	private boolean mzReversed_longitude;
 	private boolean mzReversed_latitude;
@@ -45,6 +46,12 @@ public class GeoReference {
 
 	public GeoReference(){}
 
+	public boolean zInitialize( Model_Projection projection, StringBuffer sbError ){
+		mProjection = projection;
+		// TODO convert to linear?
+		return true;
+	}
+	
 	public boolean zInitialize( double[] adLongitudes1, double[] adLatitudes1, int eTYPE, StringBuffer sbError ){
 		mctLongitudes = adLongitudes1.length - 1;
 		mctLatitudes = adLatitudes1.length - 1;

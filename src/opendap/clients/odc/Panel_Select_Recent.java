@@ -124,7 +124,7 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
         }
 	}
 
-    public void vSetFocus(){    	
+    public void _vSetFocus(){    	
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				mListPanel.requestFocus();

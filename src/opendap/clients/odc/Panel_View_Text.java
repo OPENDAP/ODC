@@ -75,7 +75,7 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 					SwingUtilities.invokeLater( new Runnable() {
 						public void run() {
 							IControlPanel componentSelected = (IControlPanel)jtpEditors.getSelectedComponent();
-							if( componentSelected != null ) componentSelected.vSetFocus();
+							if( componentSelected != null ) componentSelected._vSetFocus();
 						}
 					});
 				}
@@ -161,11 +161,11 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
         }
     }
 
-	public void vSetFocus(){    	
+	public void _vSetFocus(){    	
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				IControlPanel componentSelected = (IControlPanel)jtpEditors.getSelectedComponent();
-				componentSelected.vSetFocus();				
+				componentSelected._vSetFocus();				
 			}
 		});
 	}
@@ -191,8 +191,8 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 			mctFilesOpened++;
 			if( sName == null ) sName = "" + mctFilesOpened + ".txt";
 			if( sDirectory == null ) sDirectory = ConfigurationManager.getInstance().getDefault_DIR_Scripts();
-			Panel_View_Text_Editor editorNew = new Panel_View_Text_Editor();
-			if( ! editorNew._zInitialize( this, sDirectory, sName, sContent, sbError ) ){
+			Panel_View_Text_Editor editorNew = Panel_View_Text_Editor._create( this, sDirectory, sName, sContent, sbError );
+			if( editorNew == null ){
 				ApplicationController.vShowError( "Error creating new editor window for directory: " + sDirectory + " file: " + sName + " " + sContent.length() + " bytes: " + sbError );
 				return;
 			}

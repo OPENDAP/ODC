@@ -44,9 +44,11 @@ public class PlotScale {
 		Pixels,
 		Inches_Tenths,
 		Inches_Eighths,
+		Inches_32nds,
+		Inches_Mils,       // 1/1000"
 		Centimeters,
 		Picas,             // 1/6"
-		Points             // 1/12 of a Pica
+		Points,            // 1/12 of a Pica
 	};
 	
 	public static enum SCALE_MODE {
@@ -66,13 +68,14 @@ public class PlotScale {
 		Zoom400,
 		Custom
 	}
-	final static String[] AS_Units = { "pixels", "inches", "1/8\"", "picas (1/6\")", "points (1/72\")" };
+	final static String[] AS_Units = { "pixels", "inches", "1/10\"", "1/8\"", "1/32\"", "mils\"", "picas (1/6\")", "points (1/72\")" };
 	final static String[] AS_ScaleMode = { "canvas", "plot area", "output", "zoom" };
 	final static String[] AS_ZoomFactor = { "Max", "50%","75%","100%","200%","300%","400%", "Custom" };
 	final static int[] AI_ZoomFactor = { 0, 50, 75, 100, 200, 300, 400, 0 };
 	public final static int PX_DEFAULT_MARGIN = 50;
 
 	// independent values
+	Output_ToPlot.OutputTarget meOutputOption;
 	int miDataWidth;  // the number of data elements in the x-dimension
 	int miDataHeight; // the number of data elements in the y-dimension
 	int dpiOutput;
@@ -98,17 +101,22 @@ public class PlotScale {
 	private float mfHeight_Canvas;
 	private float mfMarginLeft, mfMarginTop, mfMarginRight, mfMarginBottom;
 	
-	PlotScale(){ // set defaults
-		dpiOutput = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
-		miMarginLeft = 65;
-		miMarginTop = PX_DEFAULT_MARGIN;
-		miMarginRight = PX_DEFAULT_MARGIN;
-		miMarginBottom = PX_DEFAULT_MARGIN;
-		meMarginUnits = UNITS.Pixels;
-		miPixelsPerData = 1;
-		miDataPointsPerPixel = 1;
-		meScaleMode = SCALE_MODE.Zoom; // peter wants max to be the default
-	    meScaleUnits = UNITS.Pixels;
+	private PlotScale(){}
+	
+	public static final PlotScale create(){ // set defaults
+		PlotScale ps = new PlotScale();
+		ps.meOutputOption = Output_ToPlot.OutputTarget.PreviewPane;
+		ps.dpiOutput = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
+		ps.miMarginLeft = 65;
+		ps.miMarginTop = PX_DEFAULT_MARGIN;
+		ps.miMarginRight = PX_DEFAULT_MARGIN;
+		ps.miMarginBottom = PX_DEFAULT_MARGIN;
+		ps.meMarginUnits = UNITS.Pixels;
+		ps.miPixelsPerData = 1;
+		ps.miDataPointsPerPixel = 1;
+		ps.meScaleMode = SCALE_MODE.Zoom; // peter wants max to be the default
+	    ps.meScaleUnits = UNITS.Pixels;
+	    return ps;
 	}
 
 	/**************** GET ******************************/
@@ -151,11 +159,11 @@ public class PlotScale {
 
 	/**************** Active Accessors ************************/
 
-	void setOuputDimensions( Dimension dimOutput ){
-		this.dimOutput = dimOutput;
+	void setOutputTarget( Output_ToPlot.OutputTarget eOutputOption ){
+		meOutputOption = eOutputOption;
 		vCalculatePlotDimensions();
 	}
-	
+
 	void setOutputToScreenResolution(){
 		int dpiScreen = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
 		setOutputResolution( dpiScreen ); 
@@ -212,6 +220,13 @@ public class PlotScale {
 		mfMarginRight = getUnits( miMarginRight, meMarginUnits );
 	}
 
+	void setDimensions_CanvasPixels( int pxWidth, int pxHeight ){
+		setScaleMode( PlotScale.SCALE_MODE.Canvas );
+		miPixelWidth_Canvas = pxWidth;
+		miPixelHeight_Canvas = pxHeight;
+		vAdjustPlotAreaToCanvas();
+	}
+	
 	/** the pixel width for the canvas */
 	void setPixelWidth_Canvas( int i ){
 		if( ! ( meScaleMode == SCALE_MODE.Canvas) ){
@@ -457,9 +472,13 @@ public class PlotScale {
 	int getPixels( float f, UNITS eUnits ){
 		switch( eUnits ){
 			case Inches_Tenths:
-				return (int)(f*dpiOutput);
+				return (int)(f*dpiOutput/10.0f);
 			case Inches_Eighths:
 				return (int)(f*dpiOutput/8.0f);
+			case Inches_32nds:
+				return (int)(f*dpiOutput/32.0f);
+			case Inches_Mils:
+				return (int)(f*dpiOutput/1000.0f);
 			case Centimeters:
 				return (int)(f*(dpiOutput/2.54f));
 			case Picas:
@@ -474,9 +493,13 @@ public class PlotScale {
 	float getUnits( int pixels, UNITS eUnits ){
 		switch( eUnits ){
 			case Inches_Tenths:
-				return (float)pixels/(dpiOutput);
+				return (float)pixels/(dpiOutput/10.0f);
 			case Inches_Eighths:
 				return (float)pixels/(dpiOutput/8.0f);
+			case Inches_32nds:
+				return (float)pixels/(dpiOutput/32.0f);
+			case Inches_Mils:
+				return (float)pixels/(dpiOutput/1000.0f);
 			case Centimeters:
 				return (float)pixels/(dpiOutput/2.54f);
 			case Picas:
@@ -491,18 +514,17 @@ public class PlotScale {
 	
 	public int getOutputWidth(){
 		if( dimOutput != null ) return dimOutput.width;
-		int eOutputOption = Panel_View_Plot.getOutputOption();
-		switch( eOutputOption ){
-			case Output_ToPlot.FORMAT_ExternalWindow:
+		switch( meOutputOption ){
+			case ExternalWindow:
 				return Output_ToPlot.mPlotFrame.getWidth();
-			case Output_ToPlot.FORMAT_NewWindow:
+			case NewWindow:
 				return miDataWidth + (int)mfMarginLeft + (int)mfMarginRight;
-			case Output_ToPlot.FORMAT_FullScreen:
+			case FullScreen:
 				Dimension dimScreenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 				return (int)dimScreenSize.getWidth();
-			case Output_ToPlot.FORMAT_Print:
+			case Print:
 				return miDataWidth + (int)mfMarginLeft + (int)mfMarginRight; // cannot figure out this size ahead of time
-			case Output_ToPlot.FORMAT_PreviewPane:
+			case PreviewPane:
 				// Dimension dimView = Output_ToPlot.mPreviewScrollPane.getSize(); // does not work: .getViewport().getViewSize();
 				Dimension dimView = Panel_View_Plot.getPreviewPane().getSize();
 //				Dimension dimTabbed = Panel_View_Plot.getTabbedPane().getSize();
@@ -510,9 +532,12 @@ public class PlotScale {
 //				int iTabbedPaneWidth = (int)dimTabbed.getWidth();
 //System.out.println(" preview width: " + iPreviewPaneWidth + " tabbed pane width: " + iTabbedPaneWidth);
 				return iPreviewPaneWidth;
-			case Output_ToPlot.FORMAT_File_PNG:
+			case ExpressionPreview:
+				Dimension dimExpressionView = ApplicationController.getInstance().getAppFrame().getDataViewer()._getPreviewPane().getSize();
+				return (int)dimExpressionView.getWidth() - 3;
+			case File_PNG:
 				return miDataWidth + (int)mfMarginLeft + (int)mfMarginRight;
-			case Output_ToPlot.FORMAT_Thumbnail:
+			case Thumbnail:
 				return miDataWidth + (int)mfMarginLeft + (int)mfMarginRight;
 			default:
 				ApplicationController.vShowWarning("unknown output format to getOutputWidth");
@@ -522,24 +547,26 @@ public class PlotScale {
 
 	public int getOutputHeight(){
 		if( dimOutput != null ) return dimOutput.height;
-		int eOutputOption = Panel_View_Plot.getOutputOption();
-		switch( eOutputOption ){
-			case Output_ToPlot.FORMAT_ExternalWindow:
+		switch( meOutputOption ){
+			case ExternalWindow:
 				return Output_ToPlot.mPlotFrame.getHeight();
-			case Output_ToPlot.FORMAT_NewWindow:
+			case NewWindow:
 				return miDataHeight + (int)mfMarginTop + (int)mfMarginBottom;
-			case Output_ToPlot.FORMAT_FullScreen:
+			case FullScreen:
 				Dimension dimScreenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 				return (int)dimScreenSize.getHeight();
-			case Output_ToPlot.FORMAT_Print:
+			case Print:
 				return miDataHeight + (int)mfMarginTop + (int)mfMarginBottom; // cannot figure out this size ahead of time
-			case Output_ToPlot.FORMAT_PreviewPane:
+			case PreviewPane:
 				Dimension dimView = Panel_View_Plot.getPreviewPane().getSize();
 				int iPreviewPaneHeight = (int)dimView.getHeight();
 				return iPreviewPaneHeight;
-			case Output_ToPlot.FORMAT_File_PNG:
+			case ExpressionPreview:
+				Dimension dimExpressionView = ApplicationController.getInstance().getAppFrame().getDataViewer()._getPreviewPane().getSize();
+				return (int)dimExpressionView.getHeight() - 3;
+			case File_PNG:
 				return miDataHeight + (int)mfMarginTop + (int)mfMarginBottom; // cannot figure out this size ahead of time
-			case Output_ToPlot.FORMAT_Thumbnail:
+			case Thumbnail:
 				return miDataHeight + (int)mfMarginTop + (int)mfMarginBottom; // cannot figure out this size ahead of time
 			default:
 				ApplicationController.vShowWarning("unknown output format to getOutputHeight");

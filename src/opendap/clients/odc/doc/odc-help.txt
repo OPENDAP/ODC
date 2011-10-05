@@ -329,9 +329,13 @@ The "Missing" text box allows you to enter one or more "missing values" for the 
 
 If the dataset's attribute information contains an attribute for the selected variable that starts with the word "missing" those values will automatically be parsed and used as missing values. You can have the ODC attempt to calculate the missing values for you which it does by default if no missing values attribute was found. This calculation will double your data memory requirements temporarily and take time proportional to n*log(n) where n is the number of data elements. You can turn it off via an option setting.
 
+Plotting Objects and Overlap
+
+Within a given plot object, such as an axis, legend or scale, there should be no overlap of text or other items as long as the screen DPI option is set correctly (see Screen DPI Calibration). Plot objects can be overlapped, and in this case a text collision can occur. For example, label of the base point of the y-axis could overlap with the label of the base point of the x-axis. To avoid problems like this you may have to manually adjust the plot object location or use parameters like Omit Origin Label on an axis.
+
 #Plotting Expressions
 
-You can plot Python expressions by loading or creating expressions in the data editor (View / Data). Script files that contain a specification for a mathematical formula, or formulas, which can be plotted are called "plottable expressions". When an expression data type is selected the plotter's variable panel will automatically show the settings for configuring the plotting of the expression. Three types of expression plotting are supported:
+You can plot Python expressions by loading or creating expressions in the data editor (View / Data). Script files that contain a specification for a mathematical formula, or formulas, which can be plotted are called "plottable expressions". The difference between a data script (qv) and a plottable expression is that a datascript always has a "value=" or "$0=" line. When an expression data type is selected the plotter's variable panel will automatically show the settings for configuring the plotting of the expression. Three types of expression plotting are supported:
 
 Cartesian   (example: y=2*x)
 
@@ -352,7 +356,7 @@ or
 theta_range_begin = 0
 theta_range_end = 0.25 * math.pi
 
-The dependent variable range can be set manually (eg y_range_end = 25) or, if absent, will be calculated automatically. If the ranges need to be calculated automatically then the plot calculation will occur twice, once to determine the ranges, then again to do the actual plot. The interval for Cartesian and polar plots is determined by the resolution of the output device. For example, if the output is the preview pane and the plot area in the preview pane is 600 pixels wide and the range is 0 to 1198 on the x-axis then there will be 600 calculations and x will be stepped by 2 for each one. The default indepenent range is 0 to 100.
+The dependent variable range can be set manually (eg y_range_end = 25) or, if absent, will be calculated automatically. If the ranges need to be calculated automatically then the plot calculation will occur twice, once to determine the ranges, then again to do the actual plot. The interval for Cartesian and polar plots is determined by the resolution of the output device. For example, if the output is the preview pane and the plot area in the preview pane is 600 pixels wide and the range is 0 to 1198 on the x-axis then there will be 600 calculations and x will be stepped by 2 for each one. The default indepenent range is 0 to the number of pixels in the output area.
 
 For Polar expressions you provide an expression in terms of theta (the angle) and the plotter uses the value of the expression as the radius.
 
@@ -363,6 +367,13 @@ t_range_end = 1
 t_increment = 0.001
 
 The default ranges are 0 and 1 as shown above. The default increment is the range divided by the number of pixels in the width of the plot area. For example, if the plot area is 1000 pixels wide and begin is 0 and the end is 1 then the increment will be (1 - 0) / 1000 = 0.001.
+
+BEWARE SIDE EFFECTS: Be cautious about including anything in the expression for the dependent variable which would cause a side effect (such as setting a third variable). The reason for this is that the dependent variable expression is evaluated two or three times during plotting: once to determine the range of the dependent variable (if it is not specified explicitly), once to determine how many points need to be stored and to allocate memory, then finally to determine the point coordinates themselves.
+
+IMPORTS: If you need to make an import or other statement, place it in the script. Any line which does not contain an equals sign (=) will be exected once when the script is first compiled. For example,
+
+import math
+y=sin(x)
 
 *** Continuous versus Point Plots ***
 
@@ -397,6 +408,10 @@ For two-dimensional plot types (vector and pseudocolor) you can select what kind
 The reverse check box allows you to choose the order of the axis values, ascending or descending. Sometimes you may notice that when you select a variable or dataset the reverse default is checked. The reason for this is that the map vectors in the data for whatever reason are in descending order and the plotter has automatically chosen to reverse them for you. This will often be the case for older data that was originally designed to be outputted to a line printer where the graphical origin will be the top left instead of the bottom left.
 
 If you choose "indexed" for the axes then then plot will show the one-based index numbers data rows/columns. The usefulness of this is that sometimes you may wish to know exactly what row/column is containing certain data values.
+
+Axis Parameters:
+
+   Omit Origin/Endpoint Label - If selected then the origin/endpoint label will not be drawn. The renderer assumes you do not want any drawing at all beyond the coordinate origin/endpoint if these options are selected, so if some other element, such as another tick label or the axis label extends beyond the end of the axis then it will be cut off.
 
 #Plotting - Line and Scatter Plots from a table
 
@@ -503,7 +518,21 @@ For a 2D plot the axes are drawn in the margins so your margins must accomodate 
 
 When you are using Max or % zoom factors the custom area fields will show current size of the output. You can specify either "Canvas" mode to set a width for the entire image including the margins, or for just the plot area.
 
-As of 2011 the nominal resolution of most computer screens is 96 pixels per inch. Older systems (pre-2007) may have a 72 dpi resolution. Whatever your screen resolution is will appear by default in the Resolution text box. You can specify a higher resolution using the "Resolution" text box. This is useful if you are generating output for a printer or for printing. For example, for raster line art "Science" magazine prefers a resolution of 1200 dpi, so you would enter that as your output resolution if you were preparing a pseudocolor for that journal. Note that if you display a high-res image on the screen it will be gigantic.
+As of 2011 the nominal resolution of most computer screens is 96 pixels per inch and the actual resolution is 85 ppi. Older systems (pre-2007) may have a 72 dpi resolution. Whatever your screen resolution is will appear by default in the Resolution text box. You can specify a higher resolution using the "Resolution" text box. This is useful if you are generating output for a printer or for printing. For example, for raster line art "Science" magazine prefers a resolution of 1200 dpi, so you would enter that as your output resolution if you were preparing a pseudocolor for that journal. Note that if you display a high-res image on the screen it will be gigantic.
+
+*** Scale Units ***
+
+The following scale units are supported:
+
+		Pixels,
+		Inches_Tenths
+		Inches_Eighths
+		Inches_Mils        // 1/1000"
+		Centimeters
+		Picas              // 1/6"
+		Points             // 1/12 of a Pica
+
+If you are working with fine lines you may want to use mils. On an 85 ppi monitor 10 mils equates to 1 pixel, a hairline. The problem with specifying in pixels is that if you print and your printer has, say, a 1200 dpi resolution, the line will be thinner than the line on the screen and may be too thin. By working in mils you will get similar results on both the screen and on paper when generating fine lines.
 
 #Plotting - Histograms
 
@@ -720,6 +749,8 @@ As a simple example of using the interpreter go to the View / Command window and
 	print 2+2
 
 and press the Enter key. The console will respond with '4'. In a similar way you can type any valid Python expression.
+
+The interpreter remembers previous commands which you can access with the up-arrow. Pressing the up-arrow key will cycle through previous commands.
 
 Python is complex object-oriented language that you can find more information about at www.python.org. To find out about Jython go to www.jython.org.
 
@@ -974,7 +1005,8 @@ One-Liner Errors
                    By default a one-liner will always stop on an error before doing a modification (modes: All and Selection), and will output the string "#Error#" when doing a view-type evaluation( modes: Value, Command and View). If you double-click a cell that has an error display the cell will be re-evaluated and any error generated will be shown and logged. It is a good idea to do a #!test one-liner or use view mode before running an expression on All, because that will irreversibly overwrite the data.
 
 One-Liner Differences From Scripts
-                                    One-liners are evaluated in a different way than scripts and there are important differences between the two, mostly limitations on one-liners that scripts do not have. The main differences are as follows:
+                                    
+One-liners are evaluated in a different way than scripts and there are important differences between the two, mostly limitations on one-liners that scripts do not have. The main differences are as follows:
 									
 	- you cannot create a new dataset with a one-liner
 	- you cannot change the size, shape or type of the data

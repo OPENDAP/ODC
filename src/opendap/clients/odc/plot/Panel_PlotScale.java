@@ -33,7 +33,7 @@ class Panel_PlotScale extends JPanel {
 //			JDialog jd;
 //			JOptionPane jop;
 			Panel_PlotScale panelPlotScale = new Panel_PlotScale();
-			PlotScale plot_scale = new PlotScale();
+			PlotScale plot_scale = PlotScale.create();
 			plot_scale.setDataDimension( 1000, 900 );
 			panelPlotScale._setScale( plot_scale );
 			javax.swing.JFrame frame = new javax.swing.JFrame();
@@ -369,12 +369,6 @@ class Panel_PlotScale extends JPanel {
 	void _setScale( PlotScale scale ){
 		scaleActive = scale;
 		updatePanel();
-	}
-
-	void _changeDataDimension( int iNewWidth, int iNewHeight ){
-		if( scaleActive != null ){
-			scaleActive.setDataDimension( iNewWidth, iNewHeight );
-		}
 	}
 
 	private void vSetupListeners(){

@@ -32,8 +32,8 @@ package opendap.clients.odc;
 /////////////////////////////////////////////////////////////////////////////
 
 import opendap.clients.odc.data.Model_Dataset;
-import opendap.clients.odc.data.Model_PlottableExpression;
 import opendap.clients.odc.data.Script;
+import opendap.clients.odc.plot.Model_PlottableExpression;
 import opendap.dap.DArray;
 import opendap.dap.DGrid;
 import opendap.dap.DStructure;
@@ -188,6 +188,31 @@ public class Interpreter {
 		}
 	}
 	
+	public PyCode zCompile( String sExpression, StringBuffer sbError ){
+		if( sExpression == null ){
+			sbError.append( "null sExpression to compile" );
+			return null;
+		}
+		if( mInterpreter == null ){
+			sbError.append("no Python interpreter exists for compilation");
+			return null;
+		}
+		try {
+			PyCode code = mInterpreter.compile( sExpression );
+			return code;
+		} catch( org.python.core.PySyntaxError parse_error ) {
+			sbError.append( "!python syntax error: " + parse_error );
+			return null;
+		} catch( org.python.core.PyException python_error ) {
+			sbError.append( "!python error: " + python_error );
+			return null;
+		} catch( Throwable t ) {
+			sbError.append( "interpreter error: " + t.getClass().getName() );
+			ApplicationController.vUnexpectedError( t, sbError );
+			return null;
+		}
+	}
+
 	public boolean zSet( String sVariableName, Object oRValue, StringBuffer sbError ){
 		if( sVariableName == null ){
 			ApplicationController.vShowWarning( "null variable name to exec" );
@@ -212,6 +237,7 @@ public class Interpreter {
 		}
 	}
 
+	// returns NaN if the variable does not exist
 	public double get( String sVariableName, StringBuffer sbError ){
 		if( sVariableName == null ){
 			sbError.append( "null variable name" );
@@ -223,6 +249,7 @@ public class Interpreter {
 		}
 		try {
 			PyObject object = mInterpreter.get( sVariableName );
+			if( object == null ) return Double.NaN;
 			return object.asDouble();
 		} catch( org.python.core.PySyntaxError parse_error ) {
 			sbError.append( "!python syntax error: " + parse_error );

@@ -242,7 +242,7 @@ public class Panel_View_Table extends JPanel implements IControlPanel {
 		return true;
 	}
 
-	public void vSetFocus(){
+	public void _vSetFocus(){
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				mjtDisplay.requestFocus();

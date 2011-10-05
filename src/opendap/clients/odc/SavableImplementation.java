@@ -1,13 +1,8 @@
 package opendap.clients.odc;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-
-import javax.swing.JFileChooser;
-
 import opendap.clients.odc.data.Model_Dataset;
-import opendap.clients.odc.plot.Panel_View_Plot;
+import java.io.File;
+import java.util.ArrayList;
 
 public class SavableImplementation implements ISavable {
 	
@@ -38,9 +33,9 @@ public class SavableImplementation implements ISavable {
     
 	static javax.swing.JFileChooser mjfcOpen = null;
 	public Object _open(){
+		StringBuffer sbError = new StringBuffer(); 
 		try {
-			StringBuffer sbError = new StringBuffer( 250 );
-
+			
 			// ask user for desired location
 			if( mjfcOpen == null ){
 				mjfcOpen = new javax.swing.JFileChooser();
@@ -58,23 +53,75 @@ public class SavableImplementation implements ISavable {
 				ApplicationController.vShowStatus_NoCache( "file open cancelled" );
 				return null;
 			}
-			
-			// open the selected file
-			Object serializableContent = Utility.fileLoadIntoObject( file, sbError);
-			if( serializableContent == null ){
-				ApplicationController.vShowError( "Error opening file " + file + ": " + sbError );
-				return null;
+			Object o = _open( file, sbError );
+			if( o == null && sbError.length() > 0 ){
+				ApplicationController.vShowError( "Error opening file (" + file.getAbsolutePath() + "): " + sbError );
 			}
-			if( serializableContent.getClass() != mExpectedClass ){
-				ApplicationController.vShowError( "Content wrong type, received " + serializableContent.getClass() + ", expected " + mExpectedClass );
-				return null;
+			return o;
+		} catch(Exception ex) {
+			ApplicationController.vUnexpectedError( ex, sbError );
+			return null;
+		}
+	}
+			
+	public Object _open( File file, StringBuffer sbError ){
+		try {
+			
+			// characterize file
+			Object serializableContent = null;
+			if( Utility.zFileIsBinary( file ) ){
+			
+				// open the selected file as object
+				serializableContent = Utility.fileLoadIntoObject( file, sbError);
+				if( serializableContent == null ){
+					sbError.append( "Error opening file " + file + ": " + sbError );
+					return null;
+				}
+				if( serializableContent.getClass() != mExpectedClass ){
+					sbError.append( "Content wrong type, received " + serializableContent.getClass() + ", expected " + mExpectedClass );
+					return null;
+				}
+			} else { // open as script
+				String s = Utility.fileLoadIntoString( file, sbError );
+				if( s == null ){
+					sbError.insert( 0, "failed to load into string: " );
+					return null;
+				}
+				ArrayList<String> listLines = Utility.zLoadLines( s, sbError );
+				if( listLines == null ){
+					sbError.insert( 0, "failed to load lines: " );
+					return null;
+				}
+				boolean zIsDataScript = false;
+				for( int xLine = 0; xLine < listLines.size(); xLine++ ){
+					String sLine = listLines.get( xLine );
+					String s_no_spaces = Utility_String.sReplaceString( sLine, " ", "" );
+					String s_no_tabs = Utility_String.sReplaceString( s_no_spaces, "\t", "" );
+					String sLine_upper = s_no_tabs.toUpperCase();
+					if( sLine_upper.startsWith( "VALUE=" ) || sLine_upper.startsWith( "0$=" ) ){
+						zIsDataScript = true;
+						break;
+					}
+				}
+				Model_Dataset model;
+				if( zIsDataScript ){
+					model = Model_Dataset.createDataScript( sbError );
+				} else {
+					model = Model_Dataset.createExpression( sbError );
+				}
+				if( model == null ){
+					sbError.insert( 0, "failed to create model: " );
+					return null;
+				}
+				model.setExpression_Text( s );
+				serializableContent = model;
 			}
 			msFileDirectory = file.getParent();
 			msFileName = file.getName();
 			return serializableContent;
 			
 		} catch(Exception ex) {
-			ApplicationController.vUnexpectedError( ex, "while opening file" );
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return null;
 		}
 	}
@@ -91,8 +138,22 @@ public class SavableImplementation implements ISavable {
 					ApplicationController.vShowWarning( "error defining file (dir: " + sDirectory + " name: " + sFileName + "): " );
 					return _saveAs( serializableObjectToBeSaved );
 				} else {
+					if( serializableObjectToBeSaved instanceof Model_Dataset ){
+						Model_Dataset model = (Model_Dataset)serializableObjectToBeSaved;
+						if( model.getType() == Model_Dataset.DATASET_TYPE.DataScript ||
+							model.getType() == Model_Dataset.DATASET_TYPE.PlottableExpression ){
+							Utility.fileSave( file, model.getExpression_Text(), sbError );
+							ApplicationController.vShowStatus( "Saved script " + file );
+							String sPath_LastLoadedData = file.getAbsolutePath();
+							ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_PATH_LastLoadedData, sPath_LastLoadedData );
+							_makeClean();
+							return true;
+						}
+					}
 					if( Utility.fileSave( file, serializableObjectToBeSaved, sbError ) ){
 						ApplicationController.vShowStatus( "Saved " + file );
+						String sPath_LastLoadedData = file.getAbsolutePath();
+						ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_PATH_LastLoadedData, sPath_LastLoadedData );
 						_makeClean();
 						return true;
 					} else {
@@ -110,7 +171,23 @@ public class SavableImplementation implements ISavable {
 		StringBuffer sbError = new StringBuffer();
 		String sSuggestedDirectory = _getFileDirectory();
 		if( sSuggestedDirectory == null ) sSuggestedDirectory = ConfigurationManager.getInstance().getProperty_DIR_Scripts();
-		File fileSaved = Utility.fileSaveAs( ApplicationController.getInstance().getAppFrame(), "Save As...", sSuggestedDirectory, _getFileName(), serializableObjectToBeSaved, sbError );
+
+		boolean zSaveScript = false;
+		String sScriptText = null;
+		if( serializableObjectToBeSaved instanceof Model_Dataset ){
+			Model_Dataset model = (Model_Dataset)serializableObjectToBeSaved;
+			if( model.getType() == Model_Dataset.DATASET_TYPE.DataScript ||
+				model.getType() == Model_Dataset.DATASET_TYPE.PlottableExpression ){
+				zSaveScript = true;
+				sScriptText = model.getExpression_Text();
+			}
+		}
+		File fileSaved;
+		if( zSaveScript ){
+			fileSaved = Utility.fileSaveAs( ApplicationController.getInstance().getAppFrame(), "Save Script As...", sSuggestedDirectory, _getFileName(), sScriptText, sbError );
+		} else {
+			fileSaved = Utility.fileSaveAs( ApplicationController.getInstance().getAppFrame(), "Save As...", sSuggestedDirectory, _getFileName(), serializableObjectToBeSaved, sbError );
+		}
 		if( fileSaved == null ){
 			if( sbError.length() == 0 ){
 				ApplicationController.vShowStatus_NoCache( "save cancelled" );
@@ -119,6 +196,8 @@ public class SavableImplementation implements ISavable {
 			}
 			return false;
 		}
+		String sPath_LastLoadedData = fileSaved.getAbsolutePath();
+		ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_PATH_LastLoadedData, sPath_LastLoadedData );
 
 		// remember this directory as the new text file (scripts) directory
 		File fileNewScriptsDirectory = fileSaved.getParentFile();
@@ -131,7 +210,7 @@ public class SavableImplementation implements ISavable {
 			}
 		}
 
-		this.mzDirty = false;
+		_makeClean();
 		ApplicationController.vShowStatus( "Saved file as " + fileSaved );
 		_makeClean();
 		return true;

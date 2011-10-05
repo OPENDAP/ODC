@@ -178,6 +178,8 @@ public class ApplicationController {
 				thisInstance.vActivate();
 			}
 //			vRedirectStandardOut();
+			opendap.clients.odc.Interpreter odc_interpreter = ApplicationController.getInstance().getInterpreter();
+			double dBeginX = odc_interpreter.get( "xyze", sbError );
 		} catch( Throwable t ) {
 			String sStackTrace = Utility.errorExtractStackTrace( t );
 			System.out.println("Unexpected error starting application: " + sStackTrace);

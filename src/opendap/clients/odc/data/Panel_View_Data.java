@@ -27,9 +27,7 @@ import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
 import opendap.clients.odc.IControlPanel;
 import opendap.clients.odc.Interpreter;
-//import opendap.clients.odc.geo.Utility;
 import opendap.clients.odc.gui.Styles;
-import opendap.clients.odc.Panel_View_Text_Editor;
 import opendap.clients.odc.SavableImplementation;
 import opendap.dap.DataDDS;
 
@@ -59,7 +57,10 @@ import java.util.ArrayList;
 /** Panel_LoadedDatasets    dataset combo box and action buttons
  *  Model_DataView          key actions (new dataset, delete dataset, etc)
  *
- * contains the editing panels:
+ *  NORTH: Panel_LoadedDatasets  (contains command buttons for file loading etc, in this file)
+ *
+ * contains the editing panels (in Panel_Edit_Container):
+ * 
  * Data -        left: Panel_Edit_StructureView      right: Panel_Define_Dataset
  *                                                              Panel_Edit_Dataset
  *                                                              Panel_Edit_Variable
@@ -70,12 +71,21 @@ import java.util.ArrayList;
  * 
  *   Panel_VarView (North)
  *   Panel_View_Variable (South) (contains Panel_Edit_ViewArray)
+ *     or panelPreviewPane
+ *     
+ * variable activation:
+ * 
+ *   Panel_Edit_ViewStructure._getVariableView()._show( node )  [see Panel_Edit_Variable_Array]
+ *   
+ * expression activation:
+ * 
  */
 
 public class Panel_View_Data extends JPanel implements IControlPanel {
 	Model_DataView modelDataView = null;
 	Panel_LoadedDatasets panelLoadedDatasets;
 	Panel_Edit_Container panelEditContainer;
+	opendap.clients.odc.plot.PreviewPane panelPreviewPane;
 	public Panel_View_Variable panelVarView;
 	boolean mzAddingItemToList = false; // this is flag used to prevent the add from triggering an item activation
 	private JSplitPane msplitViewData;
@@ -87,11 +97,12 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 			msplitViewData = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
 
 			panelLoadedDatasets = new Panel_LoadedDatasets();
-			panelVarView = Panel_View_Variable._create( msplitViewData, sbError );	
+			panelVarView = Panel_View_Variable._create( sbError );	
 			if( panelVarView == null ){
 				sbError.insert( 0, "failed to create var view: " );
 				return false;
 			}
+			panelPreviewPane = new opendap.clients.odc.plot.PreviewPane(); 
 			modelDataView = new Model_DataView();
 			if( ! modelDataView.zInitialize( this, data_list, sbError ) ){
 				sbError.insert(0, "failed to initialize model: ");
@@ -111,10 +122,8 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 			panelTop.setLayout( new BorderLayout() );
 			panelTop.add( panelLoadedDatasets, BorderLayout.NORTH );
 			panelTop.add( panelEditContainer, BorderLayout.CENTER );
-			msplitViewData.setContinuousLayout( true );
 			msplitViewData.setTopComponent( panelTop );
-			msplitViewData.setBottomComponent( panelVarView );
-			msplitViewData.setDividerLocation( 0.5d );
+			msplitViewData.setContinuousLayout( true );
 			setLayout( new BorderLayout() );
 			
 			// setup split pane
@@ -148,15 +157,20 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 			case Data:
 				if( _zSetModel( modelDataset, sbError ) ){
 					// ApplicationController.vShowStatus( "activated dataset model: " + modelDataset.getTitle() );
+					modelDataView.modelActive = modelDataset;
+					msplitViewData.setBottomComponent( panelVarView );
+					msplitViewData.setDividerLocation( 0.5d );
 				} else {
 					ApplicationController.vShowError( "(Panel_View_Data) internal error while setting model for dataset: " + sbError );
 					return;
 				}
-				modelDataView.modelActive = modelDataset;
 				break;
 			case PlottableExpression:
 				if( _zSetModel( modelDataset, sbError ) ){
 					// ApplicationController.vShowStatus( "activated expression model: " + modelDataset.getTitle() );
+					modelDataView.modelActive = modelDataset;
+					msplitViewData.setBottomComponent( panelPreviewPane );
+					msplitViewData.setDividerLocation( 0.5d );
 				} else {
 					ApplicationController.vShowError( "(Panel_View_Data) internal error while setting model for expression: " + sbError );
 					return;
@@ -175,8 +189,16 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 		}
 		
 	}
+
+	void _vClear(){
+		panelEditContainer._vClear();
+	}
 	
-	public void vSetFocus(){    	
+	public opendap.clients.odc.plot.PreviewPane _getPreviewPane(){
+		return panelPreviewPane;
+	}
+	
+	public void _vSetFocus(){    	
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				panelLoadedDatasets.requestFocus();
@@ -281,11 +303,37 @@ class Model_DataView {
 			mParent.mzAddingItemToList = false;
 		}
 	}
+	void action_LoadLast(){
+		try {
+			StringBuffer sbError = new StringBuffer();
+			String sPath_LastLoadedData = ConfigurationManager.getInstance().getOption( ConfigurationManager.PROPERTY_PATH_LastLoadedData );
+			if( sPath_LastLoadedData == null || sPath_LastLoadedData.trim().length() == 0 ){
+				ApplicationController.vShowError( "no known last loaded data (running read only?)" );
+				return;
+			}
+			java.io.File file = new java.io.File( sPath_LastLoadedData );
+			if( ! file.exists() ){
+				ApplicationController.vShowError( "the last loaded data file (" + sPath_LastLoadedData + ") no longer exists at that location." );
+				return;
+			}
+			SavableImplementation savable = new SavableImplementation( opendap.clients.odc.data.Model_Dataset.class, null, null );
+			Model_Dataset model = (Model_Dataset)savable._open( file, sbError );
+			if( model == null ) return; // user cancelled
+			if( mDatasetList._contains( model ) ){
+				ApplicationController.vShowWarning( "(Panel_View_Data) model " + model.getTitle() + " is already open" );
+			} else {
+				mDatasetList.addDataset( model );
+			}
+			mParent._vActivate( model );
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while trying to load dataset: " );
+		}
+	}
 	void action_Load(){
 		try {
 			SavableImplementation savable = new SavableImplementation( opendap.clients.odc.data.Model_Dataset.class, null, null );
 			Model_Dataset model = (Model_Dataset)savable._open();
-			if( model == null ) return; // user cancelled
+			if( model == null ) return; // user cancelled (or there was an error which has already been reported)
 			if( mDatasetList._contains( model ) ){
 				ApplicationController.vShowWarning( "(Panel_View_Data) model " + model.getTitle() + " is already open" );
 			} else {
@@ -298,6 +346,12 @@ class Model_DataView {
 	}
 	void action_Unload(){
 		mDatasetList.removeDataset( modelActive );
+		if( mDatasetList.getSize() == 0 ){
+			mParent._vClear();
+		} else {
+			Model_Dataset model = (Model_Dataset)mDatasetList.getSelectedItem();
+			mParent._vActivate( model );
+		}
 	}
 	void action_Save(){
 		if( modelActive == null ){
@@ -310,7 +364,12 @@ class Model_DataView {
 		if( modelActive == null ){
 			ApplicationController.vShowStatus_NoCache( "no dataset selected for SaveAs" );
 		} else {
-			modelActive.getSavable()._saveAs( modelActive );
+			SavableImplementation savable = modelActive.getSavable();
+			if( savable == null ){
+				ApplicationController.vShowError( "internal error, no savable implementation defined for " + modelActive );
+				return;
+			}
+			savable._saveAs( modelActive );
 		}
 	}
 	void action_Retitle(){
@@ -352,7 +411,7 @@ class Model_DataView {
 		if( modelActive == null ){
 			ApplicationController.vShowStatus_NoCache( "no expression selected for generation" );
 		} else if( modelActive.getType() != DATASET_TYPE.DataScript ){
-			ApplicationController.vShowStatus_NoCache( "selected dataset is not an expression" );
+			ApplicationController.vShowStatus_NoCache( "selected dataset is not a data-generating expression" );
 		} else {
 			StringBuffer sbError = new StringBuffer( 256 );
 			String sExpressionText = this.modelActive.getExpression_Text();
@@ -368,6 +427,20 @@ class Model_DataView {
 				return;
 			}
 			addDataset_DataDDS( generated_dataset, this.modelActive.getTitle() + "_" );
+		}
+	}
+	void action_PlotFromExpression(){
+		if( modelActive == null ){
+			ApplicationController.vShowError( "No expression selected for plotting." );
+		} else if( modelActive.getType() != DATASET_TYPE.PlottableExpression ){
+			ApplicationController.vShowError( "Selected dataset is not a plottable expression." );
+		} else {
+			StringBuffer sbError = new StringBuffer( 256 );
+			opendap.clients.odc.plot.Panel_View_Plot plotter = ApplicationController.getInstance().getAppFrame().getPlotter();
+			if( ! plotter.zPlotExpressionToPreview( modelActive, sbError ) ){
+				ApplicationController.vShowError( "Failed to plot expression " + this.modelActive.getTitle() + ": " + sbError );
+				return;
+			}
 		}
 	}
 }
@@ -389,6 +462,7 @@ class Panel_LoadedDatasets extends JPanel {
 		jcbLoadedDatasets = new JComboBox( modelDataView.mDatasetList );
 		JButton buttonNewDataset = new JButton( "New" );
 		JButton buttonNewExpression = new JButton( "New Exp" );
+		JButton buttonLoadLast = new JButton( "Load Last" ); buttonLoadLast.setToolTipText( "Loads last loaded data file" ); 
 		JButton buttonLoad = new JButton( "Load..." );
 		JButton buttonUnload = new JButton( "Unload" );
 		JButton buttonSave = new JButton( "Save" );
@@ -403,6 +477,7 @@ class Panel_LoadedDatasets extends JPanel {
 		this.add( jcbLoadedDatasets );
 		this.add( buttonNewDataset );
 		this.add( buttonNewExpression );
+		this.add( buttonLoadLast );
 		this.add( buttonLoad );
 		this.add( buttonUnload );
 		this.add( buttonSave );
@@ -456,6 +531,13 @@ class Panel_LoadedDatasets extends JPanel {
 			new java.awt.event.ActionListener(){
 				public void actionPerformed( ActionEvent event) {
 					modelDataView.action_New_Expression();
+				}
+			}
+		);
+		buttonLoadLast.addActionListener(
+			new java.awt.event.ActionListener(){
+				public void actionPerformed(ActionEvent event) {
+					modelDataView.action_LoadLast();
 				}
 			}
 		);
@@ -602,88 +684,6 @@ class Panel_Define_Expression extends JPanel {
 		}
 	}
 	Panel_View_Data _getParent(){ return mParent; }
-}
-
-class Panel_Edit_Expression extends JPanel {
-	private Model_Dataset mModel;
-	private Panel_Define_Expression mParent;
-	private Panel_View_Text_Editor mEditor;
-	private Panel_DDSView mDDSView;
-	boolean _zInitialize( Panel_Define_Expression parent, String sDirectory, String sName, String sContent, StringBuffer sbError ){
-		mModel = null;
-		mParent = parent;
-		if( parent == null ){
-			sbError.append( "no parent supplied" );
-			return false;
-		}
-		Border borderEtched = BorderFactory.createEtchedBorder();
-		setBorder( BorderFactory.createTitledBorder( borderEtched, "Expression Editor", TitledBorder.RIGHT, TitledBorder.TOP ) );
-		setLayout( new BorderLayout() );
-		
-		// set up editor
-		mEditor = new Panel_View_Text_Editor();
-		mEditor._zInitialize( null, sDirectory, sName, sContent, sbError );
-		this.add( mEditor, BorderLayout.CENTER );
-		
-		// set up structure display
-		mDDSView = new Panel_DDSView();
-		this.add( mDDSView, BorderLayout.EAST );
-		
-		// set up control buttons
-		JPanel panelControlButtons = new JPanel();
-		JButton buttonGenerateDataset = new JButton( "Generate Dataset" );
-		panelControlButtons.setLayout( new BoxLayout(panelControlButtons, BoxLayout.X_AXIS) );
-		panelControlButtons.add( buttonGenerateDataset );
-		this.add( panelControlButtons, BorderLayout.NORTH );
-		
-		// define actions
-		buttonGenerateDataset.addActionListener(
-			new java.awt.event.ActionListener(){
-				public void actionPerformed( ActionEvent event ){
-					if( mParent == null ){
-						ApplicationController.vShowError( "internal error, Panel_Edit_Expression has no parent" );
-						return;
-					}
-					Panel_View_Data panelViewData = mParent._getParent();
-					if( panelViewData == null ){
-						ApplicationController.vShowError( "internal error, no panel exists for generate dataset" );
-						return;
-					}
-					Model_DataView modelDataView = panelViewData._getModelDataView();
-					if( panelViewData == null ){
-						ApplicationController.vShowError( "internal error, no data view model exists for generate dataset" );
-						return;
-					}
-					modelDataView.action_GenerateDatasetFromExpression();
-				}
-			}
-		);
-		
-		return true;
-	}
-	Model_Dataset _getModel(){ return mModel; }
-	boolean _setModel( Model_Dataset model, StringBuffer sbError ){
-		if( model == null ){
-			sbError.append( "no model supplied" );
-			return false;
-		}
-		if( model.getDDS_Full() == null ){
-			sbError.append( "model has no DDS" );
-			return false;
-		}
-		if( model.getType() != DATASET_TYPE.PlottableExpression ){
-			sbError.append( "supplied model is not an expression" );
-			return false;
-		}
-		mModel = model;
-		mEditor._setModel( model );
-		if( ! mDDSView.zSetExpressionDDS( model, sbError ) ){
-			sbError.insert( 0, "setting DDS view for expression model: " );
-			return false;
-		}
-		return true;
-	}
-	Panel_Define_Expression _getParent(){ return mParent; }
 }
 
 /** Blank panel with help-type info on it. Used when no model is selected. */
