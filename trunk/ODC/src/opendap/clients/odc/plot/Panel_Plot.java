@@ -75,16 +75,16 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	protected int mpxLegend_Width = 0;
 	protected int mpxLegend_Height = 0;
 
-	// Scale
+	// scale
 	protected int mpxScale_X = 0;
 	protected int mpxScale_Y = 0;
 	protected int mpxScale_Width = 0;
 	protected int mpxScale_Height = 0;
 	
-	protected int mpxMargin_Top = 70;
+	// layout
+	protected PlotLayout layoutPlotArea = PlotLayout.create( PlotLayout.LayoutStyle.PlotArea ); // should be 
+	protected int mpxMargin_Right = 60;
 	protected int mpxMargin_Bottom = 60;
-	protected int mpxMargin_Left = 50;
-	protected int mpxMargin_Right = 40;	
 
 	private static int miSessionCount = 0;
 	final private static String FORMAT_ID_date = "yyyyMMdd";
@@ -245,9 +245,9 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		} else {
 			mScale.setDataDimension( mPlottable.getDimension_x(), mPlottable.getDimension_y() );
 		}
-		mpxMargin_Left   = mScale.getMarginLeft_px();
+		layoutPlotArea.setOffsetHorizontal( mScale.getMarginLeft_px() );
+		layoutPlotArea.setOffsetVertical( mScale.getMarginTop_px() );
 		mpxMargin_Right  = mScale.getMarginRight_px();
-		mpxMargin_Top    = mScale.getMarginTop_px();
 		mpxMargin_Bottom = mScale.getMarginBottom_px();		
 		
 		if( mbi == null ){
@@ -264,8 +264,8 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			Graphics2D g2 = (Graphics2D)mbi.getGraphics();
 			g2.setColor(mcolorBackground);
 			g2.fillRect(0,0,pxCanvasWidth,pxCanvasHeight); // draw background
-			int pxPlotLeft = mpxMargin_Left;
-			int pxPlotTop  = mpxMargin_Top;
+			int pxPlotLeft = layoutPlotArea.getLocation_Horizontal( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
+			int pxPlotTop  = layoutPlotArea.getLocation_Vertical( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
 
 			g2.setClip(pxPlotLeft, pxPlotTop, pxPlotWidth, pxPlotHeight);
 			mpxPreferredWidth = pxCanvasWidth;
@@ -290,14 +290,14 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	boolean getBoxed(){ return mzBoxed; }
 //	int getCanvasWidth(){ return this.mpxCanvasWidth; }
 //	int getCanvasHeight(){ return this.mpxCanvasHeight; }
-	int getMarginPixels_Top(){ return mpxMargin_Top; }
-	int getMarginPixels_Bottom(){ return mpxMargin_Bottom; }
-	int getMarginPixels_Left(){ return mpxMargin_Left; }
-	int getMarginPixels_Right(){ return mpxMargin_Right; }
-	void setMarginPixels_Top( int iPixels ){ mpxMargin_Top =  iPixels; }
-	void setMarginPixels_Bottom( int iPixels ){ mpxMargin_Bottom =  iPixels; }
-	void setMarginPixels_Left( int iPixels ){ mpxMargin_Left =  iPixels; }
-	void setMarginPixels_Right( int iPixels ){ mpxMargin_Right =  iPixels; }
+//	int getMarginPixels_Top(){ return mpxMargin_Top; }
+//	int getMarginPixels_Left(){ return mpxMargin_Left; }
+//	int getMarginPixels_Bottom(){ return mpxMargin_Bottom; }
+//	int getMarginPixels_Right(){ return mpxMargin_Right; }
+//	void setMarginPixels_Top( int iPixels ){ mpxMargin_Top =  iPixels; }
+//	void setMarginPixels_Bottom( int iPixels ){ mpxMargin_Bottom =  iPixels; }
+//	void setMarginPixels_Left( int iPixels ){ mpxMargin_Left =  iPixels; }
+//	void setMarginPixels_Right( int iPixels ){ mpxMargin_Right =  iPixels; }
 
 	private String msLabel_HorizontalAxis = null;
 	private String msLabel_VerticalAxis = null;
