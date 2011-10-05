@@ -97,6 +97,7 @@ class PlotLayout {
 	public void setRotation( int i ){ miRotation = i; }
 
 	public enum LayoutStyle {
+		PlotArea,
 		Legend,
 		Scale,
 		Axis_X,
@@ -106,7 +107,15 @@ class PlotLayout {
 	
 	public static PlotLayout create( LayoutStyle eDEFAULT_STYLE ){
 		PlotLayout layout = new PlotLayout();
-		switch( eDEFAULT_STYLE ){ 
+		switch( eDEFAULT_STYLE ){
+			case PlotArea:
+				layout.meObject = LAYOUT_OBJECT.Canvas;
+				layout.meOrientation = ORIENTATION.TopRight;
+				layout.meAlignment = ORIENTATION.TopLeft; // uses orientation constants
+				layout.mpxOffsetHorizontal = 70;
+				layout.mpxOffsetVertical = 50;
+				layout.miRotation = 0;
+				break;
 			case Legend:
 				layout.meObject = LAYOUT_OBJECT.Plot;
 				layout.meOrientation = ORIENTATION.TopRight;
@@ -133,11 +142,20 @@ class PlotLayout {
 
 	/** returns a packed long HHHHVVVV or -1 to indicate failure
 	 *  the width/height of are of the text item, the "object" is the object the orientation is relative to
-	 * */
+	 **/
 	long getLocation( int width, int height, int hObject, int vObject, int widthObject, int heightObject ){
 		if( hObject == - 1 || vObject == -1 || widthObject == -1 || heightObject == -1 ) return -1;
+		int hLocation = getLocation_Horizontal( width, height, hObject, vObject, widthObject, heightObject );
+		int vLocation = getLocation_Vertical( width, height, hObject, vObject, widthObject, heightObject );
+		long nLocationPacked = hLocation;
+		nLocationPacked = nLocationPacked << 32;
+		nLocationPacked = nLocationPacked | vLocation;
+		return nLocationPacked;
+	}
+	
+	int getLocation_Horizontal( int width, int height, int hObject, int vObject, int widthObject, int heightObject ){
+		if( hObject == - 1 || vObject == -1 || widthObject == -1 || heightObject == -1 ) return -1;
 		int hLocation = hObject;
-		int vLocation = vObject;
 		switch( meOrientation ){
 			case TopLeft: break;
 			case TopMiddle:
@@ -145,24 +163,23 @@ class PlotLayout {
 			case TopRight:
 				hLocation += widthObject + 1; break;
 			case BottomLeft:
-				vLocation += heightObject + 1; break;
+				break;
 			case BottomMiddle:
 				hLocation += widthObject / 2 + 1;
-				vLocation += heightObject + 1; break;
+				break;
 			case BottomRight:
 				hLocation += widthObject + 1;
-				vLocation += heightObject + 1; break;
+				break;
 			case LeftMiddle:
-				vLocation += heightObject / 2 + 1; break;
+				break;
 			case RightMiddle:
 				hLocation += widthObject + 1;
-				vLocation += heightObject / 2 + 1; break;
+				break;
 			case Center:
 				hLocation += widthObject / 2 + 1;
-				vLocation += heightObject / 2 + 1; break;
+				break;
 		}
 		hLocation += mpxOffsetHorizontal;
-		vLocation += mpxOffsetVertical;
 		switch( meAlignment ){
 			case TopLeft: break;
 			case TopMiddle:
@@ -170,28 +187,66 @@ class PlotLayout {
 			case TopRight:
 				hLocation -= width + 1; break;
 			case BottomLeft:
-				vLocation -= height; break;
+				break;
 			case BottomMiddle:
 				hLocation -= width / 2;
-				vLocation -= height; break;
+				break;
 			case BottomRight:
 				hLocation -= width + 1;
+				break;
+			case LeftMiddle:
+				break;
+			case RightMiddle:
+				hLocation -= width;
+				break;
+			case Center:
+				hLocation -= width / 2;
+				break;
+		}
+		return hLocation;
+	}	
+
+	int getLocation_Vertical( int width, int height, int hObject, int vObject, int widthObject, int heightObject ){
+		if( hObject == - 1 || vObject == -1 || widthObject == -1 || heightObject == -1 ) return -1;
+		int vLocation = vObject;
+		switch( meOrientation ){
+			case TopLeft: break;
+			case TopMiddle: break;
+			case TopRight: break;
+			case BottomLeft:
+				vLocation += heightObject + 1; break;
+			case BottomMiddle:
+				vLocation += heightObject + 1; break;
+			case BottomRight:
+				vLocation += heightObject + 1; break;
+			case LeftMiddle:
+				vLocation += heightObject / 2 + 1; break;
+			case RightMiddle:
+				vLocation += heightObject / 2 + 1; break;
+			case Center:
+				vLocation += heightObject / 2 + 1; break;
+		}
+		vLocation += mpxOffsetVertical;
+		switch( meAlignment ){
+			case TopLeft: break;
+			case TopMiddle: break;
+			case TopRight: break;
+			case BottomLeft:
+				vLocation -= height; break;
+			case BottomMiddle:
+				vLocation -= height; break;
+			case BottomRight:
 				vLocation -= height; break;
 			case LeftMiddle:
 				vLocation -= height / 2; break;
 			case RightMiddle:
-				hLocation -= width;
 				vLocation -= height / 2; break;
 			case Center:
-				hLocation -= width / 2;
 				vLocation -= height / 2; break;
 		}
-		long nLocationPacked = hLocation;
-		nLocationPacked = nLocationPacked << 32;
-		nLocationPacked = nLocationPacked | vLocation;
-		return nLocationPacked;
+		return vLocation;
 	}
-
+	
 	public String toString(){
 		StringBuffer sb = new StringBuffer(250);
 		sb.append("PlotLayout {\n");
