@@ -95,6 +95,8 @@ public class ViewManager implements KeyListener, RelativeLayoutInterface {
 	
 	public final HUD getHUD(){ return hud; }
 	
+	public int getTimesliceMax(){ return this.TIMESLICE_max; }
+	
 	ArrayList<CommandInterface> listCommandObjects = new ArrayList<CommandInterface>();
 	public final void command(){
 		String sCommand = JOptionPane.showInputDialog( frame, "Enter command:", "Enter command", JOptionPane.OK_CANCEL_OPTION );

@@ -93,6 +93,7 @@ public class Geodesy {
 			if( zLoadDatums( sbError ) ){
 //				System.out.println( "Datums:\n" + sDumpDatums() );
 //				System.out.println( "\nEllipsoids:\n" + sDumpEllipsoids() );
+				System.out.println( "loaded datums from: " + sPath_GeoTrans_libs );
 			} else {
 				sbError.insert( 0, "error loading datums: " );
 				return false;

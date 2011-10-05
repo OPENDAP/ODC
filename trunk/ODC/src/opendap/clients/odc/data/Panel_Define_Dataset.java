@@ -1,20 +1,14 @@
 package opendap.clients.odc.data;
 
-import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import java.awt.BorderLayout;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.DAP;
-import opendap.clients.odc.FormLayout;
-import opendap.dap.BaseType;
 
 // Panel_View_Data
 // see Panel_Edit_Container for parent

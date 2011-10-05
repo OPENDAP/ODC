@@ -425,7 +425,7 @@ public class Utility {
 		}
 		Object object = null;
 		try {
-			ois.readObject();
+			object = ois.readObject();
 		} catch( Throwable t ) {
 			sbError.append("unable to read object from file (" + file + "): " + t );
 			return false;
@@ -1076,6 +1076,35 @@ public class Utility {
 			return false;
 		}
 		return true;
+	}
+	
+	public static boolean zFileIsBinary( File file ){
+		if( !file.exists() ) return false;
+		java.io.InputStream inputstreamResource = null;
+		try {
+			inputstreamResource = new FileInputStream(file);
+		} catch(Exception ex) {
+			return false;
+		}
+		try {
+			int ctAlpha = 0;
+			int ctBinary = 0;
+			while( inputstreamResource.available() > 0 && (ctAlpha + ctBinary) < 1000 ){
+				int iByte = inputstreamResource.read();
+				if( iByte < 9 || iByte > 127 ){
+					ctBinary++;
+				} else {
+					ctAlpha++;
+				}
+			}
+			if( ctBinary * 20 > ctAlpha ) return true; else return false; 
+		} catch( Exception ex ) {
+			return false;
+		} finally {
+			try {
+				inputstreamResource.close();
+			} catch( Throwable t ) {}
+		}
 	}
 	
 	public static boolean zDirectoryValidate( String sPath, StringBuffer sbError ){

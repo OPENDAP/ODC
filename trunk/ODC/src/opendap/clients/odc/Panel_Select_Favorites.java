@@ -153,7 +153,7 @@ public class Panel_Select_Favorites extends SearchInterface implements IControlP
         }
 	}
 
-    public void vSetFocus(){    	
+    public void _vSetFocus(){    	
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				mListPanel.requestFocus();

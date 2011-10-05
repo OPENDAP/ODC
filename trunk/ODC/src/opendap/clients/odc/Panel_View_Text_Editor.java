@@ -43,39 +43,39 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 	
 	private Panel_View_Text parent = null;
 
-	public Panel_View_Text_Editor(){}
+	private Panel_View_Text_Editor(){}
 
 	private JScrollPane jspDisplay;
 	private final JTextArea jtaDisplay = new JTextArea("");
 
-	public boolean _zInitialize( Panel_View_Text parent, String sDirectory, String sName, String sContent, StringBuffer sbError ){
-
+	public static Panel_View_Text_Editor _create( Panel_View_Text parent, String sDirectory, String sName, String sContent, StringBuffer sbError ){
+		final Panel_View_Text_Editor editor = new Panel_View_Text_Editor();
 		try {
-			this.parent = parent;
-			savableString = new SavableImplementation( java.lang.String.class, sDirectory, sName );
+			editor.parent = parent;
+			editor.savableString = new SavableImplementation( java.lang.String.class, sDirectory, sName );
 
 			javax.swing.border.Border borderStandard = BorderFactory.createEtchedBorder();
-			this.setBorder(borderStandard);
+			editor.setBorder(borderStandard);
 
-			this.setLayout( new java.awt.BorderLayout() );
+			editor.setLayout( new java.awt.BorderLayout() );
 
 			// Initialize the scrollpane
 			// It is important to set the minimum size of the scroll pane because otherwise the 
 			// minimum size will be set automatically its content
-			jspDisplay = new JScrollPane();
-			jspDisplay.setMinimumSize( new java.awt.Dimension( 20, 20 ) );
+			editor.jspDisplay = new JScrollPane();
+			editor.jspDisplay.setMinimumSize( new java.awt.Dimension( 20, 20 ) );
 			
 			// Create and intialize the text area
-			Styles.vApply(Styles.STYLE_Terminal, jtaDisplay);
-			jtaDisplay.setColumns( ConfigurationManager.getInstance().getProperty_Editing_ColumnCount() );
-			jtaDisplay.setLineWrap( ConfigurationManager.getInstance().getProperty_Editing_LineWrap() );
-			jtaDisplay.setWrapStyleWord( ConfigurationManager.getInstance().getProperty_Editing_WrapByWords() );
-			jtaDisplay.setTabSize( ConfigurationManager.getInstance().getProperty_Editing_TabSize() );
-			jspDisplay.setViewportView(jtaDisplay);
-		    this.add(jspDisplay, java.awt.BorderLayout.CENTER);
+			Styles.vApply(Styles.STYLE_Terminal, editor.jtaDisplay);
+			editor.jtaDisplay.setColumns( ConfigurationManager.getInstance().getProperty_Editing_ColumnCount() );
+			editor.jtaDisplay.setLineWrap( ConfigurationManager.getInstance().getProperty_Editing_LineWrap() );
+			editor.jtaDisplay.setWrapStyleWord( ConfigurationManager.getInstance().getProperty_Editing_WrapByWords() );
+			editor.jtaDisplay.setTabSize( ConfigurationManager.getInstance().getProperty_Editing_TabSize() );
+			editor.jspDisplay.setViewportView( editor.jtaDisplay );
+		    editor.add( editor.jspDisplay, java.awt.BorderLayout.CENTER);
 
 			// Add special warning message to display jta
-			jtaDisplay.addKeyListener(
+			editor.jtaDisplay.addKeyListener(
 				new KeyListener(){
 					public void keyPressed( KeyEvent ke ){
 						int iKeyCode = ke.getKeyCode();
@@ -84,58 +84,58 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 							case KeyEvent.VK_S:
 								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
 									if( (iModifiers & java.awt.event.InputEvent.SHIFT_DOWN_MASK) == java.awt.event.InputEvent.SHIFT_DOWN_MASK ){
-										_saveAs();
+										editor._saveAs();
 									} else {
-										_save();
+										editor._save();
 									}
 									ke.consume();
 								} 
 								break;
 							case KeyEvent.VK_N:
 								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
-									if( Panel_View_Text_Editor.this.parent != null ) Panel_View_Text_Editor.this.parent.editorNew();
+									if( editor.parent != null ) editor.parent.editorNew();
 									ke.consume();
 								}
 								break;
 							case KeyEvent.VK_O:
 								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
-									if( Panel_View_Text_Editor.this.parent != null ) Panel_View_Text_Editor.this.parent.editorOpen();
+									if( editor.parent != null ) editor.parent.editorOpen();
 									ke.consume();
 								}
 								break;
 							case KeyEvent.VK_X:
 								if( (iModifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) == java.awt.event.InputEvent.CTRL_DOWN_MASK ){
 									if( (iModifiers & java.awt.event.InputEvent.SHIFT_DOWN_MASK) == java.awt.event.InputEvent.SHIFT_DOWN_MASK ){
-										if( Panel_View_Text_Editor.this.parent != null ) Panel_View_Text_Editor.this.parent.editorCloseNoSave();
+										if( editor.parent != null ) editor.parent.editorCloseNoSave();
 										ke.consume();
 									} else if( (iModifiers & java.awt.event.InputEvent.ALT_DOWN_MASK) == java.awt.event.InputEvent.ALT_DOWN_MASK ){
-										_save();
-										if( Panel_View_Text_Editor.this.parent != null ) Panel_View_Text_Editor.this.parent.editorCloseNoSave();
+										editor._save();
+										if( editor.parent != null ) editor.parent.editorCloseNoSave();
 										ke.consume();
 									}
 								}
 								break;
 						}
-						if( ! _isDirty() && ( Panel_View_Text_Editor.this.parent != null ) ) Panel_View_Text_Editor.this.parent.updateTabTitles();						
+						if( ! editor._isDirty() && ( editor.parent != null ) ) editor.parent.updateTabTitles();						
 					}
 					public void keyReleased(KeyEvent ke){
-						if( model != null ) model.setExpression_Text( _getText() );
+						if( editor.model != null ) editor.model.setExpression_Text( editor._getText() );
 					}
 					public void keyTyped(KeyEvent ke){}
 				}
 		    );
 
-			if( sContent != null ) jtaDisplay.setText( sContent );
+			if( sContent != null ) editor.jtaDisplay.setText( sContent );
 			
-            return true;
+            return editor;
 
 		} catch(Exception ex){
-            sbError.insert(0, "Unexpected error: " + ex);
-            return false;
+            sbError.insert( 0, "Unexpected error: " + ex );
+            return null;
 		}
 	}
 
-	public void vSetFocus(){    	
+	public void _vSetFocus(){    	
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				jtaDisplay.requestFocus();

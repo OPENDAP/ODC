@@ -28,8 +28,8 @@ public class Model3D_Network {
 	java.awt.Color colorNodeLabel = java.awt.Color.ORANGE; 
 	java.awt.Color colorSegmentLabel = java.awt.Color.PINK; 
 	
-	boolean mzShowNodes = true;
-	boolean mzShowNodeLabels = true;
+	boolean mzShowNodes = false;
+	boolean mzShowNodeLabels = false;
 	boolean mzShowSegments = true;
 	boolean mzShowSegmentLabels = true;
 

@@ -93,6 +93,7 @@ public class ConfigurationManager {
 	public static final String PROPERTY_PATH_Gazetteer = "path.Gazetteer"; // can be file or directory
 	public static final String PROPERTY_PATH_Coastline = "path.Coastline"; // can be file or directory
 	public static final String PROPERTY_PATH_ExpHistory = "path.ExpHistory"; // can be file or directory
+	public static final String PROPERTY_PATH_LastLoadedData = "path.LastLoaded"; // file
 	public static final String PROPERTY_DIR_ImageCache = "dir.ImageCache";
 	public static final String PROPERTY_DIR_DataCache = "dir.DataCache";
 	public static final String PROPERTY_DIR_Plots = "dir.Plots";
@@ -266,14 +267,20 @@ public class ConfigurationManager {
 		// make sure the base directory contains datasets.xml
 		// the user must be running the ODC from its directory or have the base directory set in the config.txt file
 		boolean zDatasetListValidated = false;
-		String sDatasetListPath;
+		String sDatasetListPath = "[undefined]";
 		try {
 			sDatasetListPath = getProperty_PATH_XML_Cache();
+			if( sDatasetListPath == null ){
+				sbError.append( "internal error, no dataset XML path (property " + PROPERTY_PATH_XML_Cache + ") is defined" );
+			}
 			File fileDatasetList = new File( sDatasetListPath );
 			zDatasetListValidated = fileDatasetList.exists();
-		} catch(Exception ex) {}
+		} catch( Exception ex ){
+			sDatasetListPath = "error: " + ex;
+			System.out.println( Utility.errorExtractStackTrace( ex ) );
+		}
 		if( !zDatasetListValidated ){
-			sbError.append("incorrect working directory (dataset list not present); you must either run the ODC from its directory or specify a base directory as an application argument (see installation document, section \"Base Directory\"); current directory is " + sCanonicalPath);
+			sbError.append( "incorrect working directory, dataset list (" + sDatasetListPath + ") not present; you must either run the ODC from its directory or specify a base directory as an application argument (see installation document, section \"Base Directory\"); current directory is " + sCanonicalPath);
 			return false;
 		}
 
@@ -355,6 +362,7 @@ public class ConfigurationManager {
 		mlistProperties.add( PROPERTY_PATH_Gazetteer );
 		mlistProperties.add( PROPERTY_PATH_Coastline );
 		mlistProperties.add( PROPERTY_PATH_ExpHistory );
+		mlistProperties.add( PROPERTY_PATH_LastLoadedData );
 		mlistProperties.add( PROPERTY_DIR_ImageCache );
 		mlistProperties.add( PROPERTY_DIR_DataCache );
 		mlistProperties.add( PROPERTY_DIR_Plots );
@@ -423,6 +431,7 @@ public class ConfigurationManager {
 	public String getProperty_PATH_Gazetteer(){ return getInstance().getOption(PROPERTY_PATH_Gazetteer, this.getDefault_PATH_Gazetteer()); }
 	public String getProperty_PATH_Coastline(){ return getInstance().getOption(PROPERTY_PATH_Coastline, this.getDefault_PATH_Coastline()); }
 	public String getProperty_PATH_ExpHistory(){ return getInstance().getOption(PROPERTY_PATH_ExpHistory, this.getDefault_PATH_ExpHistory()); }
+	public String getProperty_PATH_LastLoaded(){ return getInstance().getOption(PROPERTY_PATH_LastLoadedData, null ); }
 	public String getProperty_DIR_ImageCache(){ return getInstance().getOption(PROPERTY_DIR_ImageCache, this.getDefault_DIR_ImageCache()); }
 	public String getProperty_DIR_DataCache(){ return getInstance().getOption(PROPERTY_DIR_DataCache, this.getDefault_DIR_DataCache()); }
 	public String getProperty_DIR_Plots(){ return getInstance().getOption(PROPERTY_DIR_Plots, this.getDefault_DIR_Plots()); }
@@ -946,6 +955,7 @@ public class ConfigurationManager {
 		sb.append(PROPERTY_PATH_Gazetteer + " = " + this.getProperty_PATH_Gazetteer() + "\n" );
 		sb.append(PROPERTY_PATH_Coastline + " = " + this.getProperty_PATH_Coastline() + "\n" );
 		sb.append(PROPERTY_PATH_ExpHistory + " = " + this.getProperty_PATH_ExpHistory() + "\n" );
+		sb.append(PROPERTY_PATH_LastLoadedData + " = " + this.getProperty_PATH_LastLoaded() + "\n" );
 		sb.append(PROPERTY_DIR_ImageCache + " = " + this.getProperty_DIR_ImageCache() + "\n" );
 		sb.append(PROPERTY_DIR_DataCache + " = " + this.getProperty_DIR_DataCache() + "\n" );
 		sb.append(PROPERTY_DIR_Plots + " = " + this.getProperty_DIR_Plots() + "\n" );
@@ -1021,6 +1031,7 @@ public class ConfigurationManager {
 			mProperties.setProperty( PROPERTY_PATH_Gazetteer, this.getDefault_PATH_Gazetteer());
 			mProperties.setProperty( PROPERTY_PATH_Coastline, this.getDefault_PATH_Coastline());
 			mProperties.setProperty( PROPERTY_PATH_ExpHistory, this.getDefault_PATH_ExpHistory());
+			mProperties.setProperty( PROPERTY_PATH_LastLoadedData, "" );
 			mProperties.setProperty( PROPERTY_DIR_ImageCache, this.getDefault_DIR_ImageCache());
 			mProperties.setProperty( PROPERTY_DIR_DataCache, this.getDefault_DIR_DataCache());
 			mProperties.setProperty( PROPERTY_DIR_Plots, this.getDefault_DIR_Plots());

@@ -59,7 +59,7 @@ import java.util.*;
  *     @param iBrightness  a value from -1 to 255 where -1 means no restriction
  */
 
-class ColorSpecification extends AbstractListModel {
+public class ColorSpecification extends AbstractListModel {
 
 	// list model interface
 	public int getSize(){ return mctRanges + 1; }

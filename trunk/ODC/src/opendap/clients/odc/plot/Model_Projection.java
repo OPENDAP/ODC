@@ -4,6 +4,8 @@ package opendap.clients.odc.plot;
 
 abstract public class Model_Projection {
 	abstract PointSet getPointSet( double[] adPointData_X, double[] adPointData_Y );
+	abstract double[] getMapping_Latitude();
+	abstract double[] getMapping_Longitude();
 }
 
 class Model_Projection_Linear extends Model_Projection {
@@ -28,6 +30,12 @@ class Model_Projection_Linear extends Model_Projection {
 			points.ay1[xPoint] = (int)((adPointData_Y[xPoint - 1] - y_offset)/y_scale); 
 		}
 		return points;
+	}
+	double[] getMapping_Latitude(){ // TODO
+		return null;
+	}
+	double[] getMapping_Longitude(){ // TODO
+		return null;
 	}
 }
 

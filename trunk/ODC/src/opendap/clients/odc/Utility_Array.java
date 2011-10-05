@@ -166,5 +166,9 @@ public class Utility_Array {
 		return sb.toString();
 	}
 	
-
+	public static String dumpArray( java.util.ArrayList list ){
+		StringBuffer sb = new StringBuffer();
+		for( int x = 0; x < list.size(); x++ ) sb.append( list.get( x ).toString() );
+		return sb.toString();
+	}
 }

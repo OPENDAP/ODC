@@ -39,7 +39,7 @@ class Panel_Plot_Surface extends Panel_Plot {
 
 	public String getDescriptor(){ return "S"; }
 
-	public void vGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
+	public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
 		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
 
@@ -151,6 +151,8 @@ class Panel_Plot_Surface extends Panel_Plot {
 			g2.setColor( Color.black );
 			g2.drawPolyline( aiX[xAngle - 1], aiY[xAngle - 1], iRangeDivisions );
 		}
+		
+		return true;
 	}
 
 	public boolean zCreateRGBArray(int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError){

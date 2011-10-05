@@ -57,8 +57,11 @@ class Panel_Plot_Vector extends Panel_Plot {
 	// When the image is generated only one arrow is drawn per vector region, a region
 	// being a square with the size of the nominal maximum arrow. To find the net magnitude for
 	// the arrow, all the vectors in the region are averaged.
-	public void vGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
-		if( mPlottable.getDataType() == 0 ) return; // nothing to plot
+	public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+		if( mPlottable.getDataType() == 0 ){
+			sbError.append( "data type undefined" );
+			return false; // nothing to plot
+		}
 
 		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
 		g2.setColor(Color.black);
@@ -93,7 +96,10 @@ class Panel_Plot_Vector extends Panel_Plot {
 				g2.drawString("Error: " + msbError, 20, 20);
 			}
 		}
-		if( mUmax == 0 || mVmax == 0 ) return; // cannot plot
+		if( mUmax == 0 || mVmax == 0 ){
+			sbError.append( "umax and/or vmax is zero" );
+			return false;
+		}
 		iArrowSize_U /= fPlotScaleX; // if the plot is bigger then the sample size should be smaller (and vice versa)
 		iArrowSize_V /= fPlotScaleY;
 		float fScaleU = mfAverageU * 2f / iArrowSize_U;
@@ -155,6 +161,7 @@ AbortVector:
 		}
 
 		g2.setClip(0, 0, pxCanvasWidth, pxCanvasHeight);
+		return true;
 
 	}
 

@@ -13,7 +13,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.SoftBevelBorder;
@@ -44,7 +43,6 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 	JComboBox jcbArray_exp_text;
 	JComboBox jcbArray_exp_mode;
 	Node_Array nodeActive;
-	JSplitPane mSplitPane;     // this panel is in the lower half of this split pane
 	final ClickableButton buttonRow = new ClickableButton( "r:" );
 	final JLabel labelColumn = new JLabel( "c:" );
 	final JLabel labelValue = new JLabel( "value:" );
@@ -52,9 +50,8 @@ public class Panel_View_Variable extends JPanel implements java.awt.event.Compon
 	private boolean mzShowingSelectionCoordinates = true;
 	private StringBuffer sbError_local = new StringBuffer( 256 );
 	private Panel_View_Variable(){}
-	public static Panel_View_Variable _create( JSplitPane jsp, StringBuffer sbError ){
+	public static Panel_View_Variable _create( StringBuffer sbError ){
 		final Panel_View_Variable panel = new Panel_View_Variable();
-		panel.mSplitPane = jsp;
 				
 		// set up command panel for array viewer
 		panel.jtfArray_row = new JTextField();

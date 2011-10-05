@@ -23,17 +23,18 @@
 package opendap.clients.odc.plot;
 
 /**
- * Title:        PlotLayout
+ * Title:        PlotText
  * Description:  Support for defining text and other annotations to plots
- * Copyright:    Copyright (c) 2003
+ * Copyright:    Copyright (c) 2003-2011
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.40
+ * @version      3.07
  */
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.gui.Styles;
+import opendap.clients.odc.plot.PlotLayout.LayoutStyle;
 
 import java.util.ArrayList;
 import java.awt.Font;
@@ -59,7 +60,9 @@ public class PlotText extends javax.swing.AbstractListModel {
 	public Object getElementAt(int index){ return mlistText.get(index); }
 
 	private ArrayList<PlotTextItem> mlistText = new ArrayList<PlotTextItem>(); // contains PlotTextItems
-	PlotText(){}
+	private PlotText(){}
+	public static PlotText create(){ return new PlotText(); } 
+	
 	PlotTextItem newItem(String sID){
 		PlotTextItem item = new PlotTextItem(sID);
 		mlistText.add(item);
@@ -102,47 +105,23 @@ public class PlotText extends javax.swing.AbstractListModel {
 }
 
 class PlotTextItem {
-	static Font[] FONT_Defaults = new Font[7];
-	static {
-		FONT_Defaults[0] = Styles.fontFixed12;
-		FONT_Defaults[PlotLayout.OBJECT_Canvas] = Styles.fontSansSerif14;
-		FONT_Defaults[PlotLayout.OBJECT_Plot] = Styles.fontSansSerif14;
-		FONT_Defaults[PlotLayout.OBJECT_AxisHorizontal] = Styles.fontSansSerif12;
-		FONT_Defaults[PlotLayout.OBJECT_AxisVertical] = Styles.fontSansSerif12;
-		FONT_Defaults[PlotLayout.OBJECT_Legend] = Styles.fontSansSerif10;
-		FONT_Defaults[PlotLayout.OBJECT_Scale] = Styles.fontSansSerif8;
-	}
-	static Color COLOR_Default = Color.BLACK;
 	String msID;
 	String msExpression;
-	final PlotLayout mLayout = new PlotLayout(0);
-	Font mFont;
-	Color mColor;
-	int mColor_HSB = 0xFFFFFF00;
-	PlotTextItem(String sID){
-		msID = sID;
-		msExpression = new String("[new item]");
-		mFont = null;
-		mColor = null;
-	}
+	TextStyle msStyle;
+	PlotLayout mLayout = PlotLayout.create( LayoutStyle.Axis_X ); // TODO
+	TextStyle getStyle(){ return msStyle; }
 	String getID(){ return msID; }
-	String getExpression(){ return msExpression; }
+	String getString(){ return msExpression; }
 	PlotLayout getPlotLayout(){ return mLayout; }
-	Font getFont(){ if( mFont == null ) return FONT_Defaults[mLayout.getObject()]; else return mFont; }
-	Color getColor(){ if( mColor == null ) return COLOR_Default; else return mColor; }
-	int getColor_HSB(){ return mColor_HSB; }
-	void setExpression( String s ){
+	void setString( String s ){
 		if( s == null ) msExpression = ""; else msExpression = s;
 	}
-	void setFont( Font f ){ mFont = f; }
-	void setColor( int hsb ){
-		mColor_HSB = hsb;
-		mColor = new Color( Color_HSB.iHSBtoRGBA(hsb), true);
+	PlotTextItem( String sID ){
+		msID = sID;
+		msExpression = new String("[new item]");
+		msStyle = new TextStyle(); 
 	}
-	public String toString(){ return getTextValue(); }
-	String getTextValue(){
-		return msExpression;
-	}
+	public String toString(){ return getString(); }
 }
 
 class Panel_PlotText extends JPanel {
@@ -243,7 +222,7 @@ class Panel_PlotText extends JPanel {
 			return;
 		}
 		PlotTextItem item = mPlotText.newItem(null);
-		item.setExpression("[new text]");
+		item.setString("[new text]");
 	}
 	void removePlotItem( int index0 ){
 		if( mPlotText == null ){
@@ -271,8 +250,8 @@ class Panel_PlotText extends JPanel {
 			return;
 		}
 		PlotTextItem item = mPlotText.get(index0);
-		this.jtfExpression.setText(item.getExpression());
-		mTextLayoutPanel.setPlotLayout(item.getPlotLayout());
+		this.jtfExpression.setText(item.getString());
+		mTextLayoutPanel.setPlotLayout( item.getStyle().getPlotLayout() );
 		mTextFontPanel.setTextItem(item);
 	}
 	PlotTextItem getPlotItem( int index0 ){
@@ -318,7 +297,7 @@ class Panel_PlotText extends JPanel {
 			item = Panel_PlotText.this.getPlotItem(indexSelected);
 		}
 		if( item == null ) return; // todo
-		item.setExpression( jtfExpression.getText() );
+		item.setString( jtfExpression.getText() );
 		this.mPlotText.vFireItemChanged( indexSelected );
 		this.mTextFontPanel.vUpdateFields(); // must update example label
 		this.mjlistText.setSelectedValue(item, true);
@@ -414,7 +393,7 @@ class FontPicker extends JPanel implements IColorChanged {
 			labelExample.setText("");
 		} else {
 			zEnable = true;
-			Font font = mTextItem.getFont();
+			Font font = mTextItem.getStyle().getFont();
 			if( font == null ) font = Styles.fontSansSerif10;
 			String sFamily = font.getFamily();
 			String[] asFamily = Utility.getFontFamilies();
@@ -429,11 +408,11 @@ class FontPicker extends JPanel implements IColorChanged {
 			jcbSize.setSelectedItem(Integer.toString(font.getSize()));
 			jcheckBold.setSelected(font.isBold());
 			jcheckItalic.setSelected(font.isItalic());
-			mColorPicker.setColor(mTextItem.getColor_HSB());
-			labelExample.setText(mTextItem.getExpression());
+			mColorPicker.setColor( mTextItem.getStyle().getColor_HSB() );
+			labelExample.setText(mTextItem.getString());
 			labelExample.setFont(font);
-			labelExample.setForeground(mTextItem.getColor());
-			int hsb = mTextItem.getColor_HSB();
+			labelExample.setForeground( mTextItem.getStyle().getColor() );
+			int hsb = mTextItem.getStyle().getColor_HSB();
 			int iSaturation = (hsb & 0x0000FF00) >> 8;
 			int iBrightness = (hsb & 0x000000FF);
 			if( iSaturation < 0x20 && iBrightness > 0xA0)
@@ -448,7 +427,7 @@ class FontPicker extends JPanel implements IColorChanged {
 		mColorPicker.setEnabled(zEnable);
 	}
 	public void vColorChanged( String sID, int iHSB, int iRGB, int iHue, int iSat, int iBri ){
-		mTextItem.setColor( mColorPicker.getHSB() );
+		mTextItem.getStyle().setColor( mColorPicker.getHSB() );
 		vUpdateFields();
 	}
 	public void vProportionalSwap(){} // do nothing
@@ -457,14 +436,11 @@ class FontPicker extends JPanel implements IColorChanged {
 			String sFamily = jcbFont.getSelectedItem().toString();
 			int eSTYLE = Font.PLAIN | (jcheckBold.isSelected() ? Font.BOLD : 0) | (jcheckItalic.isSelected() ? Font.ITALIC : 0);
 			int iSize = Integer.parseInt( jcbSize.getSelectedItem().toString() );
-			Font font = new Font(sFamily, eSTYLE, iSize);
-			if( font == null ){
-				ApplicationController.vShowError("Failed to set font to: " + sFamily + " " + eSTYLE + " " + iSize);
-			}
+			Font font = new Font( sFamily, eSTYLE, iSize );
 			if( mTextItem == null ){
 				ApplicationController.vShowError("Internal Error, attempt to assign font to non-existent text item");
 			} else {
-				mTextItem.setFont(font);
+				mTextItem.getStyle().setFont(font);
 			}
 			vUpdateFields();
 		} catch(Exception ex) {

@@ -86,7 +86,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		thisInstance = this;
 	}
 
-	public void vSetFocus(){
+	public void _vSetFocus(){
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				mDefinitionPanel.requestFocus();
@@ -352,41 +352,79 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		mzFreezeDefinition = z;
 	}
 
-	void vPlot(Model_Dataset urlToPlot){
-		int eOutputOption = getOutputOption();
+	void vPlot( Model_Dataset urlToPlot ){
+		Output_ToPlot.OutputTarget eOutputOption = getOutputOption();
 		vPlot( urlToPlot, eOutputOption );
 	}
 
-	void vPlot( Model_Dataset urlToPlot, int eOutput ){
+	void vPlot( Model_Dataset urlToPlot, Output_ToPlot.OutputTarget eTarget ){
 		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
 		for( int xListItem = 0; xListItem < modelLoadedDatasets.getSize(); xListItem++ ){
 			Model_Dataset urlCurrent = (Model_Dataset)modelLoadedDatasets.getElementAt(xListItem);
 			if( urlCurrent == urlToPlot ){
 				vActivateListItem(xListItem);
-				zPlot(eOutput);
+				zPlot( eTarget );
 				return;
 			}
 		}
 		ApplicationController.vShowWarning("URL not found in dataset list: " + urlToPlot);
 	}
 
-	public static int getOutputOption(){
+	public static Output_ToPlot.OutputTarget getOutputOption(){
 		if( thisInstance == null ){
-			return Output_ToPlot.FORMAT_NewWindow;
+			return Output_ToPlot.OutputTarget.NewWindow;
 		} else {
-			return thisInstance.jcbOutputOptions.getSelectedIndex() + 1;
+			return (Output_ToPlot.OutputTarget)thisInstance.jcbOutputOptions.getSelectedItem();
 		}
 	}
 
 	boolean zPlot(){
-		int eOutputOption = getOutputOption();
-		return zPlot(eOutputOption);
+		Output_ToPlot.OutputTarget eOutputOption = getOutputOption();
+		return zPlot( eOutputOption );
 	}
 
-	boolean zPlot( final int eOutputOption ){ // on the event loop
+	public boolean zPlotExpressionToPreview( final Model_Dataset model, StringBuffer sbError ){
+		try {
+			final Plot_Definition definition = model.getPlotDefinition();
+			if( definition == null ){
+				sbError.append( "internal error, no plotting definition" );
+				return false;
+			}
+			final Activity activitySinglePlot = new Activity();
+			Continuation_DoCancel con = new Continuation_DoCancel(){
+				public void Do(){
+					StringBuffer sbError_plot = new StringBuffer();
+					
+					// gather parameters
+					String sCaption = model.getTitle();
+					PlotOptions po = definition.getOptions();
+					Output_ToPlot.OutputTarget eOutputOption = Output_ToPlot.OutputTarget.ExpressionPreview;
+					PlotScale ps = definition.getScale();
+					ps.setOutputTarget( eOutputOption );
+					ColorSpecification cs = definition.getColorSpecification();
+					PlotText pt = definition.getText();
+					
+					// plot
+					if( Output_ToPlot.zPlot_Expression( model, sCaption, po, eOutputOption, ps, cs, pt, sbError_plot ) ){
+						Panel_View_Plot.getInstance().mDefinitionPanel._vActivatePreview();
+					} else {
+						ApplicationController.vShowError( "Error plotting expression: " + sbError_plot );
+					}
+				}
+				public void Cancel(){}
+			};
+			activitySinglePlot.vDoActivity( null, null, con, null );
+	   } catch(Throwable t) {
+		   ApplicationController.vUnexpectedError( t, sbError );
+		   return false;
+	   }
+	   return true;
+	}
+	
+	boolean zPlot( final Output_ToPlot.OutputTarget eTarget ){ // on the event loop
 		try {
 
-			if( eOutputOption == Output_ToPlot.FORMAT_Thumbnail && Panel_View_Plot.getPlotType() == Output_ToPlot.PLOT_TYPE_Vector ){
+			if( eTarget == Output_ToPlot.OutputTarget.Thumbnail && Panel_View_Plot.getPlotType() == Output_ToPlot.PLOT_TYPE_Vector ){
 				ApplicationController.vShowError("Currently thumbnails cannot be generated for vector plots.");
 				return false;
 			}
@@ -402,8 +440,8 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 					return false;
 				}
 				if( zMultiplot ){
-					if( eOutputOption == Output_ToPlot.FORMAT_PreviewPane ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivatePreview();
-					if( eOutputOption == Output_ToPlot.FORMAT_Thumbnail ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivateThumbnails();
+					if( eTarget == Output_ToPlot.OutputTarget.PreviewPane ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivatePreview();
+					if( eTarget == Output_ToPlot.OutputTarget.Thumbnail ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivateThumbnails();
 					vActivateListItem(aiSelected[0]);
 					final int miMultiplotDelay = po.getValue_int(PlotOptions.OPTION_MultiplotDelay);
 					final Activity activityMultiplot = new Activity();
@@ -421,14 +459,14 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 									sbError.setLength(0);
 									continue;
 								}
-								if( Output_ToPlot.zPlot( model, pdat, defActive, eOutputOption, sbError) ){
+								if( Output_ToPlot.zPlot( model, pdat, defActive, eTarget, sbError) ){
 									try {
 										Thread.sleep(100); // Thread.yield(); // allow screen updates to occur between plots
 									} catch(Exception ex) {}
 								} else {
 									ApplicationController.vShowError("Plotting error: " + sbError);
 								}
-								if( eOutputOption != Output_ToPlot.FORMAT_Thumbnail ){
+								if( eTarget != Output_ToPlot.OutputTarget.Thumbnail ){
 									try {
 										int iTimeInView = (int)(System.currentTimeMillis() - nLastPlot);
 										int iTimeToSleep = miMultiplotDelay - iTimeInView;
@@ -452,9 +490,9 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 						Continuation_DoCancel con = new Continuation_DoCancel(){
 							public void Do(){
 								Model_Dataset model = Panel_View_Plot.getPanel_Definition().modelActive;
-								if( Output_ToPlot.zPlot( model, pdat, defActive, eOutputOption, sbError) ){
-									if( eOutputOption == Output_ToPlot.FORMAT_PreviewPane ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivatePreview();
-									if( eOutputOption == Output_ToPlot.FORMAT_Thumbnail ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivateThumbnails();
+								if( Output_ToPlot.zPlot( model, pdat, defActive, eTarget, sbError) ){
+									if( eTarget == Output_ToPlot.OutputTarget.PreviewPane ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivatePreview();
+									if( eTarget == Output_ToPlot.OutputTarget.Thumbnail ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivateThumbnails();
 								} else {
 									ApplicationController.vShowError("Plotting error: " + sbError);
 								}
@@ -1350,24 +1388,5 @@ class DataParameters {
 
 }
 
-class PreviewPane extends JScrollPane {
-	JPanel panelBlank;
-	public PreviewPane(){
-		setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		panelBlank = new JPanel();
-		panelBlank.setLayout(new BorderLayout());
-		panelBlank.add(Box.createGlue(), BorderLayout.CENTER);
-		setClear();
-	}
-	void setClear(){
-		setViewportView(panelBlank);
-		revalidate();
-	}
-	void setContent( Component c ){
-		setViewportView( c );
-		revalidate();
-	}
-}
 
 

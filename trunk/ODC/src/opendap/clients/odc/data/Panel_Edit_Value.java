@@ -19,15 +19,7 @@ import javax.swing.BoxLayout;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.DAP;
 import opendap.clients.odc.FormLayout;
-import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.gui.Resources;
-import opendap.dap.BaseType;
-import opendap.dap.DArray;
-import opendap.dap.DArrayDimension;
-import opendap.dap.DGrid;
-import opendap.dap.DSequence;
-import opendap.dap.DStructure;
-import opendap.dap.test.dap_test;
 
 // see Panel_View_Data for layout
 // parent: Panel_Define_Dataset

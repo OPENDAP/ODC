@@ -22,16 +22,16 @@
 
 package opendap.clients.odc.plot;
 
-import opendap.clients.odc.data.Model_Dataset;
-
 public class Plot_Definition {
 	private String msPlotID;
-	final private PlotText mText = new PlotText();
-	final private PlotScale mScale = new PlotScale();
+	final private PlotAxes mAxes = PlotAxes.create();
+	final private PlotText mText = PlotText.create();
+	final private PlotScale mScale = PlotScale.create();
 	final private PlotOptions mOptions = new PlotOptions();
 	private ColorSpecification mColorSpecification;
 	private int mePlotType;
 	int getPlotType(){ return mePlotType; }
+	PlotAxes getAxes(){ return mAxes; }
 	PlotText getText(){ return mText; }
 	PlotScale getScale(){ return mScale; }
 	PlotOptions getOptions(){ return mOptions; }

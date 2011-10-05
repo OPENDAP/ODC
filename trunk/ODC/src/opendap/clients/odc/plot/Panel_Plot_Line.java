@@ -269,14 +269,10 @@ class Panel_Plot_Line extends Panel_Plot {
 // System.out.println(" dMin_x: " + dMin_x + " dMax_x: " + dMax_x + " dMin_y: " + dMin_y + " dMax_y: " + dMax_y);
 
 		// setup y-axis
-		maxisY = new PlotAxis();
-		maxisY.setRange( dMin_y, dMax_y );
-		maxisY.setCaption(sCaptionY);
+		maxisY = PlotAxis.createLinear_Y( sCaptionY, dMin_y, dMax_y );
 
 		// setup x-axis and x-mapping
-		maxisX = new PlotAxis();
-		maxisX.setRange( dMin_x, dMax_x );
-		maxisX.setCaption(sCaptionX);
+		maxisX = PlotAxis.createLinear_X( sCaptionX, dMin_x, dMax_x );
 
 		// the data point width/height is purely conventional because the points may be
 		// overlapping etc; in any case the practice here is to default to a square graph
@@ -411,7 +407,7 @@ class Panel_Plot_Line extends Panel_Plot {
 	float[] mafV = null;
 	float mUmax;
 	float mVmax; // will be * PX_MAX_VECTOR squared
-	public void vGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
+	public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
 		int pxCircleOffset = miCircleSize / 2;
 
@@ -439,6 +435,7 @@ class Panel_Plot_Line extends Panel_Plot {
 		// todo why is this here?
 		int pxAxisLength_horizontal = pxPlotWidth + mpxAxisOffsetWidth;
 		int pxAxisLength_vertical = pxPlotHeight + mpxAxisOffsetHeight;
+		return true;
 	}
 
 	public boolean zCreateRGBArray(int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError){

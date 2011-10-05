@@ -25,7 +25,7 @@ package opendap.clients.odc.plot;
 /**
  * Title:        Output_ToPlot
  * Description:  Methods to generate plotting output
- * Copyright:    Copyright (c) 2002, 2003, 2008
+ * Copyright:    Copyright (c) 2002-2011
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
  * @version      3.02
@@ -44,8 +44,8 @@ import java.awt.image.BufferedImage;
 
 import opendap.clients.odc.*;
 import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.data.Script;
 import opendap.clients.odc.gui.Resources;
-import opendap.clients.odc.plot.Panel_Plot_Expression.PlottableExpressionType;
 import opendap.dap.*;
 
 /** The plot types have the following requirements:
@@ -86,13 +86,16 @@ public class Output_ToPlot {
         "Histogram"
     };
 
-	final static int FORMAT_PreviewPane = 1;
-	final static int FORMAT_ExternalWindow = 2;
-	final static int FORMAT_NewWindow = 3;
-	final static int FORMAT_FullScreen = 4;
-	final static int FORMAT_Print = 5;
-	final static int FORMAT_File_PNG = 6;
-	final static int FORMAT_Thumbnail = 7;
+    public enum OutputTarget {
+    	PreviewPane,
+    	FullScreen,
+    	ExternalWindow,
+    	NewWindow,
+    	Print,
+    	File_PNG,
+    	Thumbnail,
+    	ExpressionPreview
+    };
 
 	private static final javax.swing.JWindow windowFullScreen_final = new javax.swing.JWindow(ApplicationController.getInstance().getAppFrame());
 	private static final int SCREEN_Width = Toolkit.getDefaultToolkit().getScreenSize().width;
@@ -166,7 +169,7 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot( final Model_Dataset model, final PlottingData pdat, Plot_Definition def, final int eOutputOption, final StringBuffer sbError){
+	public static boolean zPlot( final Model_Dataset model, final PlottingData pdat, Plot_Definition def, final OutputTarget eOutputOption, final StringBuffer sbError){
 		final int ePlotType = def.getPlotType();
 		if( def == null ){
 			sbError.append("internal error, no plotting definition");
@@ -194,9 +197,9 @@ public class Output_ToPlot {
 			// is capable of automatically adjusting the margins exactly then this should
 			// be removed todo
 			if( po.option_legend_zShow ){
-				int eORIENT = po.option_legend_Layout.getOrientation();
+				PlotLayout.ORIENTATION eORIENT = po.option_legend_Layout.getOrientation();
 				if( ps.getMarginRight_px() == PlotScale.PX_DEFAULT_MARGIN
-				    && (eORIENT == PlotLayout.ORIENT_TopRight) ){
+				    && (eORIENT == PlotLayout.ORIENTATION.TopRight ) ){
 					ps.setMarginRight(130f);
 				}
 			}
@@ -231,7 +234,7 @@ public class Output_ToPlot {
 				for( int xVariable = 1; xVariable <= ctVariable; xVariable++ ){
 					PlottingVariable pv1 = pdat.getVariable1(xVariable);
 					PlottingVariable pv2 = pdat.getVariable2(xVariable);
-					if( ctVariable > 1 && eOutputOption == Output_ToPlot.FORMAT_Thumbnail) sCaption = pv1.getSliceCaption();
+					if( ctVariable > 1 && eOutputOption == OutputTarget.Thumbnail ) sCaption = pv1.getSliceCaption();
 					switch(ePlotType){
 						case PLOT_TYPE_Histogram:
 							zResult = zPlot_Histogram(model, sCaption, pv1, po, eOutputOption, ps, plot_text, xVariable, ctVariable, sbError);
@@ -267,7 +270,7 @@ public class Output_ToPlot {
 //     1 x/y/slice       n slices
 //       n slices        n slices    (number of slices must match for both variables)
 
-	static boolean zPlot_XY( Model_Dataset model, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
+	static boolean zPlot_XY( Model_Dataset model, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, OutputTarget eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
 		try {
 
 			// initialize panel
@@ -407,7 +410,7 @@ public class Output_ToPlot {
 //     1 x/y/slice       n slices
 //       n slices        n slices    (number of slices must match for both variables)
 
-	static boolean zPlot_Expression( Model_Dataset model, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
+	static boolean zPlot_Expression( Model_Dataset model, String sCaption, PlotOptions po, OutputTarget eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
 		try {
 
 			// initialize panel
@@ -416,17 +419,42 @@ public class Output_ToPlot {
 			panelPE.setOptions(po);
 			panelPE.setText(pt);
 
-			// set script (will parse script and compile sub-expressions)
-			String sScript = model.getExpression_Text();
-			if( sScript == null ){
-				sbError.append( "model had no script" );
+			if( model.getType() != Model_Dataset.DATASET_TYPE.PlottableExpression ){
+				sbError.append( "dataset model is not a plottable expression" );
 				return false;
 			}
-			if( ! panelPE.setExpression( sScript, sbError ) ){
-				sbError.insert(0, "Error setting expression: ");
+				
+			String sExpressionText = model.getExpression_Text();
+			if( sExpressionText == null || sExpressionText.length() <= 0 ){
+				sbError.append( "expression has no text" );
+				return false;
+			}
+			Interpreter interpreter = ApplicationController.getInstance().getInterpreter();
+			Script script = interpreter.generateScriptFromText( sExpressionText, sbError );
+			if( script == null ){
+				sbError.insert( 0, "failed to analyze script text " + model.getTitle() );
+				return false;
+			}
+			Model_PlottableExpression modelExpression = Model_PlottableExpression.create( script, sbError );
+			if( modelExpression == null ){
+				sbError.insert( 0, "failed to create expression model: " );
+				return false;
+			}
+			if( ! panelPE.setExpressionModel( modelExpression, sbError ) ){
+				sbError.insert( 0, "error setting expression model: " );
 				return false;
 			}
 
+			// setup axes
+//			PlotAxis axisHorizontal;
+//			axisHorizontal = new PlotAxis();
+//			axisHorizontal.setValues(eggAxisX, varAxisX.getDataType(), false);
+//			axisHorizontal.setCaption( "X" );
+//			PlotAxis axisVertical = new PlotAxis();
+//			axisHorizontal.setCaption( "Y" );
+//			panelPE.setAxisHorizontal(axisHorizontal);
+//			panelPE.setAxisVertical(axisVertical);
+			
 			return zPlot( panelPE, model, eOutputOption, sbError );
 		} catch(Exception ex) {
 			sbError.append("While building line plot: ");
@@ -435,10 +463,10 @@ public class Output_ToPlot {
 		}
 	}
 	
-	static boolean zPlot_Histogram( Model_Dataset model, String sCaption, PlottingVariable pv, PlotOptions po, int eOutputOption, PlotScale ps, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_Histogram( Model_Dataset model, String sCaption, PlottingVariable pv, PlotOptions po, OutputTarget eOutputOption, PlotScale ps, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
 
-			if( eOutputOption == FORMAT_Thumbnail ){
+			if( eOutputOption == OutputTarget.Thumbnail ){
 				sbError.append("cannot thumbnail histograms");
 				return false;
 			}
@@ -472,7 +500,7 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot_PseudoColor( Model_Dataset model, String sCaption, PlottingVariable pv, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_PseudoColor( Model_Dataset model, String sCaption, PlottingVariable pv, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, OutputTarget eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
 
 			int eDATA_TYPE   = pv.getDataType();
@@ -501,10 +529,10 @@ public class Output_ToPlot {
 				return false;
 			}
 			Panel_Plot_Pseudocolor panelPC;
-			if( eOutputOption == FORMAT_Thumbnail ){
+			if( eOutputOption == OutputTarget.Thumbnail ){
 				int pxThumbnailWidth = po.get(PlotOptions.OPTION_ThumbnailWidth).getValue_int();
 				int pxThumbnailHeight = iHeight * pxThumbnailWidth / iWidth;
-				PlotScale psThumbnail = new PlotScale();
+				PlotScale psThumbnail = PlotScale.create();
 				psThumbnail.setScaleMode( PlotScale.SCALE_MODE.PlotArea );
 				psThumbnail.setPixelWidth_PlotArea( pxThumbnailWidth );
 				psThumbnail.setPixelHeight_PlotArea( pxThumbnailHeight );
@@ -529,53 +557,53 @@ public class Output_ToPlot {
 			}
 
 			// set axes
-			if( eOutputOption == FORMAT_Thumbnail ){
+			if( eOutputOption == OutputTarget.Thumbnail ){
 				// do not set axes
 			} else {
 				if( pv.getDimCount() == 2 ){
-					PlotAxis axisHorizontal;
+					PlotAxis axisHorizontal = PlotAxis.createLinear_X( "X-Axis", 0, 0 );
 					if( varAxisX == null ){ // todo resolve reversals/inversions
 						axisHorizontal = null;
 					} else {
 						if( varAxisX.getUseIndex() ) {
-							axisHorizontal = new PlotAxis();
-							axisHorizontal.setIndexed(1, iWidth);
-							axisHorizontal.setCaption("[indexed]");
+//							axisHorizontal = PlotAxis.();
+//							axisHorizontal.setIndexed(1, iWidth);
+//							axisHorizontal.setCaption("[indexed]");
 						} else {
-							axisHorizontal = new PlotAxis();
-							String sNameX = varAxisX.getName();
-							String sLongNameX = varAxisX.getLongName();
-							String sUserCaptionX = varAxisX.getUserCaption();
-							String sUnitsX = varAxisX.getUnits();
-							Object[] eggAxisX = varAxisX.getValueEgg();
-							axisHorizontal.setValues(eggAxisX, varAxisX.getDataType(), false);
-							String sCaptionAxisX = (sUserCaptionX != null ? sUserCaptionX : sLongNameX != null ? sLongNameX : sNameX) +
-												    (sUnitsX == null ? "" : sUnitsX);
-							axisHorizontal.setCaption(sCaptionAxisX);
+//							axisHorizontal = new PlotAxis();
+//							String sNameX = varAxisX.getName();
+//							String sLongNameX = varAxisX.getLongName();
+//							String sUserCaptionX = varAxisX.getUserCaption();
+//							String sUnitsX = varAxisX.getUnits();
+//							Object[] eggAxisX = varAxisX.getValueEgg();
+//							axisHorizontal.setValues(eggAxisX, varAxisX.getDataType(), false);
+//							String sCaptionAxisX = (sUserCaptionX != null ? sUserCaptionX : sLongNameX != null ? sLongNameX : sNameX) +
+//												    (sUnitsX == null ? "" : sUnitsX);
+//							axisHorizontal.setCaption(sCaptionAxisX);
 						}
 					}
-					PlotAxis axisVertical = new PlotAxis();
+					PlotAxis axisVertical = PlotAxis.createLinear_Y( "Y-Axis", 0, 0 );
 					if( varAxisY == null ){
 						axisVertical = null;
 					} else {
 //						String sName = varAxisY.getName();
 //						String sUnits = varAxisY.getUnits();
 						if( varAxisY.getUseIndex() ) {
-							axisVertical = new PlotAxis();
-							axisVertical.setIndexed(1, iHeight);
-							axisVertical.setCaption("[indexed]");
+//							axisVertical = new PlotAxis();
+//							axisVertical.setIndexed(1, iHeight);
+//							axisVertical.setCaption("[indexed]");
 						} else {
-							axisVertical = new PlotAxis();
-							Object[] eggAxisY = varAxisY.getValueEgg();
-							axisVertical.setValues(eggAxisY, varAxisY.getDataType(), true);
-							String sNameY = varAxisY.getName();
-							String sLongNameY = varAxisY.getLongName();
-							String sUserCaptionY = varAxisY.getUserCaption();
-							String sUnitsY = varAxisY.getUnits();
-							axisVertical.setValues(eggAxisY, varAxisY.getDataType(), false);
-							String sCaptionAxisY = (sUserCaptionY != null ? sUserCaptionY : sLongNameY != null ? sLongNameY : sNameY) +
-												    (sUnitsY == null ? "" : sUnitsY);
-							axisVertical.setCaption(sCaptionAxisY);
+//							axisVertical = new PlotAxis();
+//							Object[] eggAxisY = varAxisY.getValueEgg();
+//							axisVertical.setValues(eggAxisY, varAxisY.getDataType(), true);
+//							String sNameY = varAxisY.getName();
+//							String sLongNameY = varAxisY.getLongName();
+//							String sUserCaptionY = varAxisY.getUserCaption();
+//							String sUnitsY = varAxisY.getUnits();
+//							axisVertical.setValues(eggAxisY, varAxisY.getDataType(), false);
+//							String sCaptionAxisY = (sUserCaptionY != null ? sUserCaptionY : sLongNameY != null ? sLongNameY : sNameY) +
+//												    (sUnitsY == null ? "" : sUnitsY);
+//							axisVertical.setCaption(sCaptionAxisY);
 						}
 					}
 					panelPC.setAxisHorizontal(axisHorizontal);
@@ -596,7 +624,7 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot_Vector( Model_Dataset model, String sCaption, PlottingVariable pv, PlottingVariable pv2, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, int eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_Vector( Model_Dataset model, String sCaption, PlottingVariable pv, PlottingVariable pv2, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, OutputTarget eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
 			Panel_Plot_Vector panelVector = new Panel_Plot_Vector( ps, null, sCaption );
 			if( pv == null || pv2 == null ){
@@ -647,45 +675,45 @@ public class Output_ToPlot {
 
 			// set axes
 //			if( pv.getDimCount() == 2 ){
-				PlotAxis axisHorizontal;
+				PlotAxis axisHorizontal = PlotAxis.createLinear_X( "X Axis", 0, 0 );
 				if( varAxisX == null ){ // todo resolve reversals/inversions
 					axisHorizontal = null;
 				} else if( varAxisX.getUseIndex() ) {
-					axisHorizontal = new PlotAxis();
-					axisHorizontal.setIndexed(1, iWidth);
-					axisHorizontal.setCaption("[indexed]");
+//					axisHorizontal = new PlotAxis();
+//					axisHorizontal.setIndexed(1, iWidth);
+//					axisHorizontal.setCaption("[indexed]");
 				} else {
-					axisHorizontal = new PlotAxis();
-					Object[] eggAxisX = varAxisX.getValueEgg();
-					axisHorizontal.setValues(eggAxisX, varAxisX.getDataType(), false);
-					String sNameX = varAxisX.getName();
-					String sLongNameX = varAxisX.getLongName();
-					String sUserCaptionX = varAxisX.getUserCaption();
-					String sUnitsX = varAxisX.getUnits();
-					axisHorizontal.setValues(eggAxisX, varAxisX.getDataType(), false);
-					String sCaptionAxisX = (sUserCaptionX != null ? sUserCaptionX : sLongNameX != null ? sLongNameX : sNameX) +
-											(sUnitsX == null ? "" : sUnitsX);
-					axisHorizontal.setCaption(sCaptionAxisX);
+//					axisHorizontal = new PlotAxis();
+//					Object[] eggAxisX = varAxisX.getValueEgg();
+//					axisHorizontal.setValues(eggAxisX, varAxisX.getDataType(), false);
+//					String sNameX = varAxisX.getName();
+//					String sLongNameX = varAxisX.getLongName();
+//					String sUserCaptionX = varAxisX.getUserCaption();
+//					String sUnitsX = varAxisX.getUnits();
+//					axisHorizontal.setValues(eggAxisX, varAxisX.getDataType(), false);
+//					String sCaptionAxisX = (sUserCaptionX != null ? sUserCaptionX : sLongNameX != null ? sLongNameX : sNameX) +
+//											(sUnitsX == null ? "" : sUnitsX);
+//					axisHorizontal.setCaption(sCaptionAxisX);
 				}
-				PlotAxis axisVertical = new PlotAxis();
+				PlotAxis axisVertical = PlotAxis.createLinear_Y( "Y Axis", 0, 0 );
 				if( varAxisY == null ){
 					axisVertical = null;
 				} else if( varAxisY.getUseIndex() ) {
-					axisVertical = new PlotAxis();
-					axisVertical.setIndexed(1, iHeight);
-					axisVertical.setCaption("[indexed]");
+//					axisVertical = new PlotAxis();
+//					axisVertical.setIndexed(1, iHeight);
+//					axisVertical.setCaption("[indexed]");
 				} else {
-					axisVertical = new PlotAxis();
-					Object[] eggAxisY = varAxisY.getValueEgg();
-					axisVertical.setValues(eggAxisY, varAxisY.getDataType(), true);
-					String sNameY = varAxisY.getName();
-					String sLongNameY = varAxisY.getLongName();
-					String sUserCaptionY = varAxisY.getUserCaption();
-					String sUnitsY = varAxisY.getUnits();
-					axisVertical.setValues(eggAxisY, varAxisY.getDataType(), false);
-					String sCaptionAxisY = (sUserCaptionY != null ? sUserCaptionY : sLongNameY != null ? sLongNameY : sNameY) +
-											(sUnitsY == null ? "" : sUnitsY);
-					axisVertical.setCaption(sCaptionAxisY);
+//					axisVertical = new PlotAxis();
+//					Object[] eggAxisY = varAxisY.getValueEgg();
+//					axisVertical.setValues(eggAxisY, varAxisY.getDataType(), true);
+//					String sNameY = varAxisY.getName();
+//					String sLongNameY = varAxisY.getLongName();
+//					String sUserCaptionY = varAxisY.getUserCaption();
+//					String sUnitsY = varAxisY.getUnits();
+//					axisVertical.setValues(eggAxisY, varAxisY.getDataType(), false);
+//					String sCaptionAxisY = (sUserCaptionY != null ? sUserCaptionY : sLongNameY != null ? sLongNameY : sNameY) +
+//											(sUnitsY == null ? "" : sUnitsY);
+//					axisVertical.setCaption(sCaptionAxisY);
 				}
 				panelVector.setAxisHorizontal(axisHorizontal);
 				panelVector.setAxisVertical(axisVertical);
@@ -704,19 +732,19 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot( Panel_Plot panelPlot, Model_Dataset model, int eOutputOption, StringBuffer sbError ){
+	static boolean zPlot( Panel_Plot panelPlot, Model_Dataset model, OutputTarget eOutputOption, StringBuffer sbError ){
 		return zPlot( panelPlot, model, eOutputOption, 1, 1, sbError );
 	}
 
-	static boolean zPlot( Panel_Plot panelPlot, Model_Dataset model, int eOutputOption, int iFrameNumber, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot( Panel_Plot panelPlot, Model_Dataset model, OutputTarget eOutputOption, int iFrameNumber, int ctFrames, StringBuffer sbError ){
 		try {
 			PlotScale scale;
 			String sOutput;
 			switch( eOutputOption ){
-				case FORMAT_ExternalWindow:
+				case ExternalWindow:
 					if( iFrameNumber > 1 ) Thread.sleep(miMultisliceDelay); // wait for two seconds before continuing
 					sOutput = "the external window";
-				case FORMAT_NewWindow:
+				case NewWindow:
 					sOutput = "new window";
 
 					if( !panelPlot.zPlot(sbError) ){
@@ -725,7 +753,7 @@ public class Output_ToPlot {
 					}
 
 					JFrame frame;
-				    if( eOutputOption == FORMAT_ExternalWindow ){
+				    if( eOutputOption == OutputTarget.ExternalWindow ){
 						frame = mPlotFrame;
 						frame.getContentPane().removeAll();
 					} else { // new window
@@ -757,12 +785,12 @@ public class Output_ToPlot {
 						}
 						compToAdd = panelPlot;
 					}
-				    if( eOutputOption == FORMAT_ExternalWindow ) frame.getContentPane().removeAll();
+				    if( eOutputOption == OutputTarget.ExternalWindow ) frame.getContentPane().removeAll();
 					frame.getContentPane().add(compToAdd, BorderLayout.CENTER);
 					frame.setVisible(true);
 					Thread.yield();
 					break;
-				case FORMAT_FullScreen:
+				case FullScreen:
 
 					if( !panelPlot.zPlot(sbError) ){
 						sbError.insert(0, "plotting to full screen: ");
@@ -783,7 +811,7 @@ public class Output_ToPlot {
 					Thread.yield();
 					windowFullScreen_final.requestFocus(); // so window can handle key strokes
 					break;
-				case FORMAT_Print:
+				case Print:
 					RepaintManager theRepaintManager = RepaintManager.currentManager(panelPlot);
 					try {
 						theRepaintManager.setDoubleBufferingEnabled(false);  // turn off double buffering
@@ -801,7 +829,7 @@ public class Output_ToPlot {
 						theRepaintManager.setDoubleBufferingEnabled(true);  // turn it back on
 					}
 					break;
-				case FORMAT_PreviewPane:
+				case PreviewPane:
 					if( !panelPlot.zPlot(sbError) ){
 						sbError.insert(0, "plotting to preview pane: ");
 						return false;
@@ -811,7 +839,17 @@ public class Output_ToPlot {
 					Thread.yield();
 					sOutput = "preview pane";
 					break;
-				case FORMAT_File_PNG:
+				case ExpressionPreview:
+					if( !panelPlot.zPlot(sbError) ){
+						sbError.insert(0, "plotting to expression preview pane: ");
+						return false;
+					}
+					if( iFrameNumber > 1 ) Thread.sleep(miMultisliceDelay); // wait for two seconds before continuing
+					ApplicationController.getInstance().getAppFrame().getDataViewer()._getPreviewPane().setContent( panelPlot );
+					Thread.yield();
+					sOutput = "expression preview pane";
+					break;
+				case File_PNG:
 					if( !panelPlot.zPlot(sbError) ){
 						sbError.insert(0, "plotting to buffer for image: ");
 						return false;
@@ -831,7 +869,7 @@ public class Output_ToPlot {
 					}
 					sOutput = "PNG file " + file;
 					break;
-				case FORMAT_Thumbnail:
+				case Thumbnail:
 					Panel_Thumbnails panelThumbnails = Panel_View_Plot.getPanel_Thumbnails();
 					Panel_View_Plot.getPreviewPane().setContent(panelPlot);
 					int pxThumbnailWidth = panelPlot.getPlotOptions().get(PlotOptions.OPTION_ThumbnailWidth).getValue_int();

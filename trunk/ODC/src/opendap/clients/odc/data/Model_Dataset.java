@@ -53,17 +53,6 @@ public class Model_Dataset implements java.io.Serializable {
 	// todo delete fav/recent files that have bad serialization
 	private static final long serialVersionUID = 2L;
 
-//	public final static int TYPE_Data = 0;
-//	public final static int TYPE_Definition = 1;
-//	public final static int TYPE_Directory = 2;
-//	public final static int TYPE_Catalog = 3;
-//	public final static int TYPE_Image = 4;
-//	public final static int TYPE_HTML = 5;
-//	public final static int TYPE_Text = 6;
-//	public final static int TYPE_Binary = 7;
-//	public final static int TYPE_Expression = 8;
-//	public final static int TYPE_Stream = 9;
-//    
 	public enum DATASET_TYPE {
 		Data,
 		Definition,
@@ -107,7 +96,9 @@ public class Model_Dataset implements java.io.Serializable {
 
 	transient int miID; // used to tag an URL with an arbitrary id such as for favorites and recent
 
-	private Model_Dataset(){} // prevent external creation of class, users must employ factory constructors
+	private Model_Dataset(){ // prevent external creation of class, users must employ factory constructors
+		mSavable = new SavableImplementation( Model_Dataset.class, null, null );
+	} 
 	
     /**
      * Create a new <code>Model_Dataset</code> of the data type.

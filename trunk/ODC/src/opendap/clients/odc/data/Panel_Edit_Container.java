@@ -1,11 +1,7 @@
 package opendap.clients.odc.data;
 
 import java.awt.BorderLayout;
-
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 
 // parent: Panel_View_Data
 // Panel_LoadedDatasets    dataset combo box and action buttons
@@ -13,7 +9,7 @@ import javax.swing.border.TitledBorder;
 // Data -        left: Panel_Edit_StructureView      right: Panel_Define_Dataset
 //                                                              Panel_Edit_Dataset
 //                                                              Panel_Edit_Variable
-// Expression -  left: Panel_Edit_Expression         right: Panel_Define_Expression
+// Expression -  left: Panel_Edit_Expression         right: Panel_Define_Expression (not used currently)
 // Stream -      left: Panel_Edit_Stream             right: Panel_Define_Stream
 
 public class Panel_Edit_Container extends JPanel {
@@ -54,8 +50,8 @@ public class Panel_Edit_Container extends JPanel {
 		}
 		
 		panelEditContainer.setLayout( new BorderLayout() );
-		Border borderEtched = BorderFactory.createEtchedBorder();
-		panelEditContainer.setBorder( BorderFactory.createTitledBorder( borderEtched, "Structure Editing", TitledBorder.RIGHT, TitledBorder.TOP ) );
+//		Border borderEtched = BorderFactory.createEtchedBorder(); // diagnostic border
+//		panelEditContainer.setBorder( BorderFactory.createTitledBorder( borderEtched, "Dataset Editing", TitledBorder.RIGHT, TitledBorder.TOP ) );
 		panelEditContainer._vClear();
 		return panelEditContainer;
 	}
@@ -85,7 +81,6 @@ public class Panel_Edit_Container extends JPanel {
 				if( mEditExpression._setModel( model, sbError ) ){
 					removeAll();
 					add( mEditExpression, BorderLayout.CENTER );
-					add( mDefineExpression, BorderLayout.EAST );
 				} else {
 					sbError.insert( 0, "failed to initialize expression editing panel: " );
 					return false;

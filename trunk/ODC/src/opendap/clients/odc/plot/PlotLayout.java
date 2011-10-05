@@ -25,10 +25,10 @@ package opendap.clients.odc.plot;
 /**
  * Title:        PlotLayout
  * Description:  Support for defining color ranges
- * Copyright:    Copyright (c) 2003
+ * Copyright:    Copyright (c) 2003-2011
  * Company:      OPeNDAP
  * @author       John Chamberlain
- * @version      2.43
+ * @version      3.07
  */
 
 import java.awt.BorderLayout;
@@ -44,75 +44,91 @@ import java.awt.*;
 
 class PlotLayout {
 
-	public final static int OBJECT_Canvas = 1;
-	public final static int OBJECT_Plot = 2;
-	public final static int OBJECT_AxisHorizontal = 3;
-	public final static int OBJECT_AxisVertical = 4;
-	public final static int OBJECT_Legend = 5;
-	public final static int OBJECT_Scale = 6;
-	public final static String[] AS_Object = { "Canvas", "Plot", "Axis Horizontal", "Axis Vertical", "Legend", "Scale" };
+	public enum LAYOUT_OBJECT {
+		Canvas,
+		Plot,
+		AxisHorizontal,
+		AxisVertical,
+		Legend,
+		Scale,
+	}
+	public final static String[] AS_Object = { "Canvas", "Plot", "Horizontal Axis", "Vertical Axis", "Legend", "Scale" };
 	public final static String[] AS_Object_NoScale = { "Canvas", "Plot", "Axis Horizontal", "Axis Vertical", "Legend" };
 	public final static String[] AS_Object_NoLegend = { "Canvas", "Plot", "Axis Horizontal", "Axis Vertical" };
-	String getObject_String(int e){
-		if( e < 1 || e > AS_Object.length ) e = 1;
-		return AS_Object[e-1];
+	String getObject_String( LAYOUT_OBJECT e ){
+		return AS_Object[ e.ordinal() ];
 	}
 
-	public final static int ORIENT_TopLeft = 1;
-	public final static int ORIENT_TopMiddle = 2;
-	public final static int ORIENT_TopRight = 3;
-	public final static int ORIENT_BottomLeft = 4;
-	public final static int ORIENT_BottomMiddle = 5;
-	public final static int ORIENT_BottomRight = 6;
-	public final static int ORIENT_LeftMiddle = 7;
-	public final static int ORIENT_RightMiddle = 8;
-	public final static int ORIENT_Center = 9;
+	public enum ORIENTATION {
+		TopLeft,
+		TopMiddle,
+		TopRight,
+		BottomLeft,
+		BottomMiddle,
+		BottomRight,
+		LeftMiddle,
+		RightMiddle,
+		Center
+	}
 	public final static String[] AS_Orientation = { "Top Left", "Top Middle", "Top Right", "Bottom Left", "Bottom Middle", "Bottom Right", "Left Middle", "Right Middle", "Center" };
-	String getOrientation_String(int e){
-		if( e < 1 || e > AS_Orientation.length ) e = 1;
-		return AS_Orientation[e-1];
+	String getOrientation_String( ORIENTATION e ){
+		return AS_Orientation[ e.ordinal() ];
 	}
 
-	private int meObject = 1;
-	private int meOrientation = 1;
-	private int meAlignment = 1; // uses orientation constants
+	private LAYOUT_OBJECT meObject = LAYOUT_OBJECT.Plot;
+	private ORIENTATION meOrientation = ORIENTATION.TopLeft;
+	private ORIENTATION meAlignment = ORIENTATION.TopLeft; // uses orientation constants
 	private int mpxOffsetHorizontal = 0;
 	private int mpxOffsetVertical = 0;
 	private int miRotation = 0;
 
-	public int getObject(){ return meObject; }
-	public int getOrientation(){ return meOrientation; }
-	public int getAlignment(){ return meAlignment; }
+	public LAYOUT_OBJECT getObject(){ return meObject; }
+	public ORIENTATION getOrientation(){ return meOrientation; }
+	public ORIENTATION getAlignment(){ return meAlignment; }
 	public int getOffsetHorizontal(){ return mpxOffsetHorizontal; }
 	public int getOffsetVertical(){ return mpxOffsetVertical; }
 	public int getRotation(){ return miRotation; }
 
-	public void setObject( int i ){ meObject = i; }
-	public void setOrientation( int i ){ meOrientation = i; }
-	public void setAlignment( int i ){ meAlignment = i; }
+	public void setObject( LAYOUT_OBJECT e ){ meObject = e; }
+	public void setOrientation( ORIENTATION i ){ meOrientation = i; }
+	public void setAlignment( ORIENTATION i ){ meAlignment = i; }
 	public void setOffsetHorizontal( int i ){ mpxOffsetHorizontal = i; }
 	public void setOffsetVertical( int i ){ mpxOffsetVertical = i; }
 	public void setRotation( int i ){ miRotation = i; }
 
-	public final static int DEFAULT_STYLE_Legend = 1;
-	public final static int DEFAULT_STYLE_Scale = 2;
-
-	public PlotLayout( int eDEFAULT_STYLE ){
-		if( eDEFAULT_STYLE == DEFAULT_STYLE_Legend ){
-			meObject = OBJECT_Plot;
-			meOrientation = ORIENT_TopRight;
-			meAlignment = ORIENT_TopLeft; // uses orientation constants
-			mpxOffsetHorizontal = 10;
-			mpxOffsetVertical = 0;
-			miRotation = 270;
-		} else if( eDEFAULT_STYLE == DEFAULT_STYLE_Scale ) {
-			meObject = OBJECT_Plot;
-			meOrientation = ORIENT_BottomRight;
-			meAlignment = ORIENT_BottomRight; // uses orientation constants
-			mpxOffsetHorizontal = -10;
-			mpxOffsetVertical = 0;
-			miRotation = 0;
+	public enum LayoutStyle {
+		Legend,
+		Scale,
+		Axis_X,
+		Axis_Y
+	}
+	private PlotLayout(){}
+	
+	public static PlotLayout create( LayoutStyle eDEFAULT_STYLE ){
+		PlotLayout layout = new PlotLayout();
+		switch( eDEFAULT_STYLE ){ 
+			case Legend:
+				layout.meObject = LAYOUT_OBJECT.Plot;
+				layout.meOrientation = ORIENTATION.TopRight;
+				layout.meAlignment = ORIENTATION.TopLeft; // uses orientation constants
+				layout.mpxOffsetHorizontal = 10;
+				layout.mpxOffsetVertical = 0;
+				layout.miRotation = 270;
+				break;
+			case Scale:
+				layout.meObject = LAYOUT_OBJECT.Plot;
+				layout.meOrientation = ORIENTATION.BottomRight;
+				layout.meAlignment = ORIENTATION.BottomRight; // uses orientation constants
+				layout.mpxOffsetHorizontal = -10;
+				layout.mpxOffsetVertical = 0;
+				layout.miRotation = 0;
+				break;
+			case Axis_X:
+				break;
+			case Axis_Y:
+				break;
 		}
+		return layout;
 	}
 
 	/** returns a packed long HHHHVVVV or -1 to indicate failure
@@ -123,50 +139,50 @@ class PlotLayout {
 		int hLocation = hObject;
 		int vLocation = vObject;
 		switch( meOrientation ){
-			case ORIENT_TopLeft: break;
-			case ORIENT_TopMiddle:
+			case TopLeft: break;
+			case TopMiddle:
 				hLocation += widthObject / 2 + 1; break;
-			case ORIENT_TopRight:
+			case TopRight:
 				hLocation += widthObject + 1; break;
-			case ORIENT_BottomLeft:
+			case BottomLeft:
 				vLocation += heightObject + 1; break;
-			case ORIENT_BottomMiddle:
+			case BottomMiddle:
 				hLocation += widthObject / 2 + 1;
 				vLocation += heightObject + 1; break;
-			case ORIENT_BottomRight:
+			case BottomRight:
 				hLocation += widthObject + 1;
 				vLocation += heightObject + 1; break;
-			case ORIENT_LeftMiddle:
+			case LeftMiddle:
 				vLocation += heightObject / 2 + 1; break;
-			case ORIENT_RightMiddle:
+			case RightMiddle:
 				hLocation += widthObject + 1;
 				vLocation += heightObject / 2 + 1; break;
-			case ORIENT_Center:
+			case Center:
 				hLocation += widthObject / 2 + 1;
 				vLocation += heightObject / 2 + 1; break;
 		}
 		hLocation += mpxOffsetHorizontal;
 		vLocation += mpxOffsetVertical;
 		switch( meAlignment ){
-			case ORIENT_TopLeft: break;
-			case ORIENT_TopMiddle:
+			case TopLeft: break;
+			case TopMiddle:
 				hLocation -= width / 2; break;
-			case ORIENT_TopRight:
+			case TopRight:
 				hLocation -= width + 1; break;
-			case ORIENT_BottomLeft:
+			case BottomLeft:
 				vLocation -= height; break;
-			case ORIENT_BottomMiddle:
+			case BottomMiddle:
 				hLocation -= width / 2;
 				vLocation -= height; break;
-			case ORIENT_BottomRight:
+			case BottomRight:
 				hLocation -= width + 1;
 				vLocation -= height; break;
-			case ORIENT_LeftMiddle:
+			case LeftMiddle:
 				vLocation -= height / 2; break;
-			case ORIENT_RightMiddle:
+			case RightMiddle:
 				hLocation -= width;
 				vLocation -= height / 2; break;
-			case ORIENT_Center:
+			case Center:
 				hLocation -= width / 2;
 				vLocation -= height / 2; break;
 		}
@@ -179,7 +195,7 @@ class PlotLayout {
 	public String toString(){
 		StringBuffer sb = new StringBuffer(250);
 		sb.append("PlotLayout {\n");
-		sb.append("\tObject: " + getObject_String(meObject) + "\n");
+		sb.append("\tObject: " + getObject_String( meObject ) + "\n");
 		sb.append("\tOrientation: " + getOrientation_String(meOrientation) + "\n");
 		sb.append("\tAlignment: " + getOrientation_String(meAlignment) + "\n");
 		sb.append("\tOffset Horizontal: " + mpxOffsetHorizontal + "\n");
@@ -362,7 +378,7 @@ class Panel_PlotLayout extends JPanel {
 			new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
 					int xSelected = jcbObject.getSelectedIndex();
-					mPlotLayout.setObject(xSelected + 1);
+					mPlotLayout.setObject( PlotLayout.LAYOUT_OBJECT.values()[xSelected] );
 				}
 			}
 		);
@@ -370,7 +386,7 @@ class Panel_PlotLayout extends JPanel {
 			new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
 					int xSelected = jcbOrientation.getSelectedIndex();
-					mPlotLayout.setOrientation(xSelected + 1);
+					mPlotLayout.setOrientation( PlotLayout.ORIENTATION.values()[xSelected] );
 				}
 			}
 		);
@@ -378,7 +394,7 @@ class Panel_PlotLayout extends JPanel {
 			new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
 					int xSelected = jcbAlignment.getSelectedIndex();
-					mPlotLayout.setAlignment(xSelected + 1);
+					mPlotLayout.setAlignment( PlotLayout.ORIENTATION.values()[xSelected] );
 				}
 			}
 		);
@@ -424,9 +440,9 @@ class Panel_PlotLayout extends JPanel {
 		mPlotLayout = layout;
 		setFieldsEnabled(layout != null);
 		if( layout == null ) return;
-		jcbObject.setSelectedIndex(layout.getObject()-1);
-		jcbOrientation.setSelectedIndex(layout.getOrientation()-1);
-		jcbAlignment.setSelectedIndex(layout.getAlignment()-1);
+		jcbObject.setSelectedIndex( layout.getObject().ordinal() );
+		jcbOrientation.setSelectedIndex( layout.getOrientation().ordinal() );
+		jcbAlignment.setSelectedIndex( layout.getAlignment().ordinal() );
 		jtfOffsetHorizontal.setText(Integer.toString(layout.getOffsetHorizontal()));
 		jtfOffsetVertical.setText(Integer.toString(layout.getOffsetVertical()));
 		jtfRotation.setText(Integer.toString(layout.getRotation()));
@@ -442,7 +458,7 @@ class Test_PlotLayout extends JFrame {
 	}
 	public Test_PlotLayout( PlotLayout layout ){
 		if( layout == null ){
-			mPlotLayout = new PlotLayout(PlotLayout.DEFAULT_STYLE_Legend);
+			mPlotLayout = PlotLayout.create( PlotLayout.LayoutStyle.Legend );
 		} else {
 			mPlotLayout = layout;
 		}
@@ -481,7 +497,7 @@ class PlotLayout_TestCanvas extends JPanel {
 		int iObjectX, iObjectY, iObjectHeight, iObjectWidth;
 		switch( mPlotLayout.getObject() ){
 			default:
-			case PlotLayout.OBJECT_Canvas:
+			case Canvas:
 				iObjectX = 0;
 				iObjectY = 0;
 				iObjectWidth = 399;
@@ -489,7 +505,7 @@ class PlotLayout_TestCanvas extends JPanel {
 				g2.drawRect(iObjectX, iObjectY, iObjectWidth, iObjectHeight);
 				g2.drawString("Canvas", 250, 30);
 				break;
-			case PlotLayout.OBJECT_Plot:
+			case Plot:
 				iObjectX = 60;
 				iObjectY = 50;
 				iObjectWidth = 380;
@@ -497,7 +513,7 @@ class PlotLayout_TestCanvas extends JPanel {
 				g2.drawRect(iObjectX, iObjectY, iObjectWidth, iObjectHeight);
 				g2.drawString("Plot Area", iObjectX + iObjectWidth - 80, iObjectY + 40);
 				break;
-			case PlotLayout.OBJECT_Legend:
+			case Legend:
 				iObjectX = 120;
 				iObjectY = 70;
 				iObjectWidth = 240;
@@ -505,7 +521,7 @@ class PlotLayout_TestCanvas extends JPanel {
 				g2.drawRect(iObjectX, iObjectY, iObjectWidth, iObjectHeight);
 				g2.drawString("Legend", iObjectX + iObjectWidth - 80, iObjectY + 40);
 				break;
-			case PlotLayout.OBJECT_Scale:
+			case Scale:
 				iObjectX = 250;
 				iObjectY = 210;
 				iObjectWidth = 60;
@@ -513,7 +529,7 @@ class PlotLayout_TestCanvas extends JPanel {
 				g2.drawRect(iObjectX, iObjectY, iObjectWidth, iObjectHeight);
 				g2.drawString("Scale", iObjectX + 10, iObjectY);
 				break;
-			case PlotLayout.OBJECT_AxisHorizontal:
+			case AxisHorizontal:
 				iObjectX = 60;
 				iObjectY = 250;
 				iObjectWidth = 300;
@@ -521,7 +537,7 @@ class PlotLayout_TestCanvas extends JPanel {
 				g2.drawRect(iObjectX, iObjectY, iObjectWidth, iObjectHeight);
 				g2.drawString("X-Axis", iObjectX + iObjectWidth + 10, iObjectY - 5);
 				break;
-			case PlotLayout.OBJECT_AxisVertical:
+			case AxisVertical:
 				iObjectX = 60;
 				iObjectY = 50;
 				iObjectWidth = 2;

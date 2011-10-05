@@ -755,14 +755,14 @@ class Panel_Plot_Histogram extends Panel_Plot {
 	void setLabel_HorizontalAxis( String sText ){ msLabel_HorizontalAxis = sText; }
 	void setLabel_Title( String sText ){ msLabel_Title = sText; }
 
-	public void vGenerateImage(int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight){
+	public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
 		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
 		g2.setColor(Color.black);
 
 		if( miClassCount == 0 ){
-			ApplicationController.vShowError("Error generating histogram, class count was 0. Data set may be empty.");
-			return; // nothing to graph
+			sbError.append("Error generating histogram, class count was 0. Data set may be empty.");
+			return false; // nothing to graph
 		}
 
 		g2.setFont(Styles.fontSansSerif10);
@@ -771,9 +771,10 @@ class Panel_Plot_Histogram extends Panel_Plot {
 		// draw y-axis (vertical)
 		int pxVerticalAxisHeight = pxCanvasHeight - mpxMargin_Top - mpxMargin_Bottom;
 		if( pxVerticalAxisHeight < 10 ){ // abort - canvas too small
-			return;
+			sbError.append( "Error generating histogram, canvas is too small." );
+			return false;
 		}
-		g2.drawRect(mpxMargin_Left, mpxMargin_Top, mpxAxisThickness, pxVerticalAxisHeight);
+		g2.drawRect( mpxMargin_Left, mpxMargin_Top, mpxAxisThickness, pxVerticalAxisHeight );
 
 		// draw vertical ticks and labels
 		if( mpxMargin_Left > mpxTickMajorLength + 2 ){ // otherwise there is no room for ticks
@@ -817,7 +818,10 @@ class Panel_Plot_Histogram extends Panel_Plot {
 
 		// draw x-axis (horizontal)
 		int pxHorizontalAxisWidth = pxCanvasWidth - mpxMargin_Left - mpxMargin_Right;
-		if( pxHorizontalAxisWidth < 10 ) return; // abort - canvas too small
+		if( pxHorizontalAxisWidth < 10 ){
+			sbError.append( "Error generating histogram, horizontal width of canvas is too small (" + pxHorizontalAxisWidth + ")." );
+			return false; // nothing to graph
+		}
 		g2.drawRect(mpxMargin_Left, mpxMargin_Top + pxVerticalAxisHeight - mpxAxisThickness, pxHorizontalAxisWidth, mpxAxisThickness);
 		// draw horizontal ticks and labels
 		// policy is:
@@ -881,11 +885,10 @@ class Panel_Plot_Histogram extends Panel_Plot {
 		}
 
 		// draw external labels
-		mText.remove(TEXT_ID_CaptionY); // there may be a pre-existing, automatically generated caption
-		mText.remove(TEXT_ID_CaptionX); // there may be a pre-existing, automatically generated caption
 		mText.remove(TEXT_ID_CaptionColorBar); // there may be a pre-existing, automatically generated caption
 		vDrawText(g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight);
-
+		
+		return true;
 	}
 
 	double getValue_double(int index){

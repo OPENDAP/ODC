@@ -421,7 +421,7 @@ public class Panel_Feedback_Bug extends JPanel implements IControlPanel {
         }
 	}
 
-	public void vSetFocus(){
+	public void _vSetFocus(){
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				jcbOperatingSystem.requestFocus();

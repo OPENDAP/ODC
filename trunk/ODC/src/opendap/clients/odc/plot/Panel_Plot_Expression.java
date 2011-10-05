@@ -3,12 +3,11 @@ package opendap.clients.odc.plot;
 import java.awt.Graphics2D;
 
 import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.Utility_String;
 
 import org.python.core.PyObject;
-import org.python.util.PythonInterpreter;
 
 public class Panel_Plot_Expression extends Panel_Plot {
+	Model_PlottableExpression model;
 	
 	public enum PlottableExpressionType {
 		Cartesian,
@@ -16,7 +15,6 @@ public class Panel_Plot_Expression extends Panel_Plot {
 		Parametric
 	};
 
-	private PlottableExpressionType mePlottableExpressionType;
 	private String msExpression = null;
 	private org.python.core.PyCode pycodeExpression = null;
 	private org.python.core.PyCode pycodeExpression_x = null;
@@ -27,88 +25,49 @@ public class Panel_Plot_Expression extends Panel_Plot {
 		super( scale, sID, sCaption );
 	}
 
-	public boolean setExpression( String sScript, StringBuffer sbError ){
-		if( sScript == null ){
-			sbError.append( "script missing" );
+	public boolean setExpressionModel( Model_PlottableExpression model, StringBuffer sbError ){
+		if( model == null ){
+			sbError.append( "expression model missing" );
 			return false;
 		}
-		PythonInterpreter interpreter = ApplicationController.getInstance().getInterpreter().getInterpeter();
-		PlottableExpressionType type;
-//		String sExpression_macroed = Utility_String.sReplaceString( msExpression, "_x", "_value0" );
-//	private org.python.core.PyCode pycodeExpression = interpreter.getInterpeter().compile( sExpression_macroed ); // the expression must be precompiled for performance reasons
+		this.model = model;
 		return true;
 	}
 	
 	public String getDescriptor(){ return "E"; }
 
 	// overrides method in Panel_Plot
-	public void vGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
-		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
-		switch( mePlottableExpressionType ){
-			case Cartesian:
-				vGenerateImage_Cartesian( g2, pxPlotWidth, pxPlotHeight );
-				break;
-			case Polar:
-				vGenerateImage_Polar( g2, pxPlotWidth, pxPlotHeight );
-				break;
-			case Parametric:
-				vGenerateImage_Parametric( g2, pxPlotWidth, pxPlotHeight );
-				break;
+	public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+		PlotCoordinates coordinates = model.getPlotCoordinates( pxPlotWidth, pxPlotHeight, sbError );
+		if( coordinates == null ){
+			sbError.insert( 0, "failed to get coordinates for plot dimensions (" + pxPlotWidth + ", " + pxPlotHeight +  "): " );
+			return false;
 		}
+		if( coordinates.zHasAlpha ){
+			if( coordinates.zHasColor ){
+			} else {
+				int argbBaseColor = coordinates.argbBaseColor;
+				for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){
+					int argb = ( argbBaseColor & 0x00FFFFFF ) | ( coordinates.aAlpha[xPoint] << 0xFFF ) ; // black
+					mbi.setRGB( coordinates.ax0[xPoint], coordinates.ay0[xPoint], argb );
+				}
+			}
+		} else {
+			if( coordinates.zHasColor ){
+			} else {
+				int argb = coordinates.argbBaseColor;
+				for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){
+					mbi.setRGB( mpxMargin_Left + coordinates.ax0[xPoint], pxPlotHeight + mpxMargin_Top - coordinates.ay0[xPoint], argb );
+				}
+			}
+		}
+		return true;
 	}
 
 	private double[] y_value_calculated;
 	private int[] y_value_plotted; // point values  (not anti-aliased or connected)
 	private double[] x_value_calculated;
 	private int[] x_value_plotted; // point values  (not anti-aliased or connected)
-
-	public void vGenerateImage_Cartesian( Graphics2D g2, int pxPlotWidth, int pxPlotHeight ){
-		opendap.clients.odc.Interpreter interpreter = ApplicationController.getInstance().getInterpreter();
-		StringBuffer sbError = new StringBuffer();
-		y_value_calculated = new double[pxPlotWidth];
-		y_value_plotted = new int[pxPlotWidth];
-		double y_scale = 1d;
-		double y_offset = 0d;
-
-		// calculate the direct y-values and determine y-range
-		double y_max = Double.MIN_VALUE;
-		double y_min = Double.MAX_VALUE;
-		for( int x_value = 0; x_value < pxPlotWidth; x_value++ ){
-			Object oCurrentXValue = new Integer( x_value );
-			if( ! interpreter.zSet( "_x", oCurrentXValue, sbError ) ){
-				ApplicationController.vShowError( "failed to set x-value to " + oCurrentXValue + ": " + sbError );
-				return;
-			}
-			PyObject pyobject_y = interpreter.zEval( pycodeExpression, sbError );
-			if( pyobject_y == null ){
-				ApplicationController.vShowError( "failed to evaluate '" + msExpression + "': " + sbError );
-				return;
-			}
-			Double dValue = pyobject_y.asDouble();
-			y_value_calculated[x_value] = dValue; 
-			if( dValue > y_max ) y_max = dValue; 
-			else if( dValue < y_min ) y_min = dValue;
-		}
-		y_offset = y_min;
-		y_scale = pxPlotHeight / (y_max - y_min);
-		
-		// plot the values, interpolate and anti-alias TODO
-		int alpha = 128; // alpha channel
-		int argb = 0xFFFFFFFF;
-		y_value_plotted[0] = (int)(y_value_calculated[0] * y_scale + y_offset);
-		for( int x_value = 1; x_value < pxPlotWidth; x_value++ ){
-			y_value_plotted[x_value] = (int)(y_value_calculated[x_value] * y_scale + y_offset);
-			if( y_value_plotted[x_value] > y_value_plotted[x_value - 1] ){
-				for( int y_point = y_value_plotted[x_value - 1] + 1; y_point <= y_value_plotted[x_value]; y_point++ )
-					mbi.setRGB( x_value, y_point, argb );
-			} else if( y_value_plotted[x_value] < y_value_plotted[x_value - 1] ){
-				for( int y_point = y_value_plotted[x_value - 1] - 1; y_point >= y_value_plotted[x_value]; y_point-- )
-					mbi.setRGB( x_value, y_point, argb );
-			} else { // horizontal line
-				mbi.setRGB( x_value, y_value_plotted[x_value], argb );
-			}
-		}
-	}
 
 	public void vGenerateImage_Polar( Graphics2D g2, int pxPlotWidth, int pxPlotHeight ){
 		opendap.clients.odc.Interpreter interpreter = ApplicationController.getInstance().getInterpreter();
