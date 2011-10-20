@@ -113,9 +113,9 @@ public class Panel_Definition extends JPanel {
 		return true;
 	}
 
-	Plot_Definition getActivePlottingDefinition(){
+	PlotEnvironment getActivePlottingDefinition(){
 		if( modelActive == null ) return null;
-		return modelActive.getPlotDefinition();
+		return modelActive.getPlotEnvironment();
 	}
 
 	public void _vActivateVariableSelector(){
@@ -143,7 +143,7 @@ public class Panel_Definition extends JPanel {
 
 	void _setPlotType( int ePlotType ){
 		if( modelActive != null ){
-			modelActive.getPlotDefinition().setPlotType( ePlotType );
+			modelActive.getPlotEnvironment().setPlotType( ePlotType );
 			mpanelVariables.vShowDDDSForm( ePlotType, modelActive );
 		}
 	}
@@ -165,7 +165,7 @@ public class Panel_Definition extends JPanel {
 				mpanelVariables.vClear();
 			} else {
 				modelActive = model;
-				Plot_Definition pd = model.getPlotDefinition();
+				PlotEnvironment pd = model.getPlotEnvironment();
 				mpanelOptions.setPlotOptions( pd.getOptions()); // must be done before cs is set
 				mpanelScale._setScale( pd.getScale());
 				mpanelText.setPlotText( pd.getText());

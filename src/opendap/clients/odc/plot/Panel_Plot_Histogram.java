@@ -51,8 +51,8 @@ class Panel_Plot_Histogram extends Panel_Plot {
 	private final static Dimension MIN_DIMENSION = new Dimension(200, 400);
 	private String mDisplay_sMessage = null;
 
-	Panel_Plot_Histogram( PlotScale scale, String sID, String sCaption ){
-		super( scale, sID, sCaption );
+	Panel_Plot_Histogram( PlotEnvironment environment, String sID, String sCaption ){
+		super( environment, sID, sCaption );
 		addMouseListener(this);
 	}
 
@@ -112,6 +112,10 @@ class Panel_Plot_Histogram extends Panel_Plot {
 	private int miVerticalTick_MajorInterval = 0;
 	private int miVerticalTick_MinorInterval = 0;
 	private int miVerticalTick_MediumInterval = 0;
+	
+	private int mpxMargin_Top = 10; // TODO
+	private int mpxMargin_Left = 10; // TODO
+	private int mpxAxisThickness = 1; // TODO
 
 	//int getGraphOffsetPixels(){ return mpxGraphOffset; }
 	//void setGraphOffsetPixels( int iPixels ){ mpxGraphOffset = iPixels; }

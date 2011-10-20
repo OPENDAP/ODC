@@ -50,8 +50,8 @@ class Panel_Plot_Line extends Panel_Plot {
 	public final static int TYPE_Scatter = 2;
 	public final static int TYPE_HiLo = 3;
 
-	Panel_Plot_Line( PlotScale scale, String sID, String sCaption ){
-		super( scale, sID, sCaption );
+	Panel_Plot_Line( PlotEnvironment environment, String sID, String sCaption ){
+		super( environment, sID, sCaption );
 	}
 
 	public String getDescriptor(){ return "L"; }
@@ -80,6 +80,12 @@ class Panel_Plot_Line extends Panel_Plot {
 	private boolean	mezShowLines = true;
 	private boolean	mezShowPoints = false;
 
+	private int mpxMargin_Top = 10; // TODO
+	private int mpxMargin_Left = 10; // TODO
+	private int mpxGraphOffset = 50; // TODO
+	private int mpxAxisOffsetHeight = 1; // TODO
+	private int mpxAxisOffsetWidth = 1; // TODO
+	
 	// there can be either one mapping egg in which case all data is mapped to it, or there can be one mapping
 	// for each series; or it can be null (and the x-values will be 1, 2, 3, 4 etc)
 	/** currently the series eggs must contain arrays of doubles */
@@ -279,8 +285,8 @@ class Panel_Plot_Line extends Panel_Plot {
 		if( !zUpdateDimensions(iSeriesLength, iSeriesLength, sbError) ) return false;
 
 		// the axes can only be set after the dimensions are established
-		setAxisVertical(maxisY);
-		setAxisHorizontal(maxisX);
+//		setAxisVertical(maxisY);
+//		setAxisHorizontal(maxisX);
 
 		// the plot dimensions are only known after they have been set above
 		int pxPlotWidth = scale.getPlot_Width();

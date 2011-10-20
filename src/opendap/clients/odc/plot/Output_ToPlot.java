@@ -169,16 +169,16 @@ public class Output_ToPlot {
 		}
 	}
 
-	public static boolean zPlot( final Model_Dataset model, final PlottingData pdat, Plot_Definition def, final OutputTarget eOutputOption, final StringBuffer sbError){
-		final int ePlotType = def.getPlotType();
-		if( def == null ){
+	public static boolean zPlot( PlotEnvironment environment, final Model_Dataset model, final PlottingData pdat, final OutputTarget eOutputOption, final StringBuffer sbError){
+		final int ePlotType = environment.getPlotType();
+		if( environment == null ){
 			sbError.append("internal error, no plotting definition");
 			return false;
 		}
-		ColorSpecification       cs = def.getColorSpecification();
-		final PlotScale          ps = def.getScale();
-		final PlotOptions        po = def.getOptions();
-		final PlotText    plot_text = def.getText();
+		ColorSpecification       cs = environment.getColorSpecification();
+		final PlotScale          ps = environment.getScale();
+		final PlotOptions        po = environment.getOptions();
+		final PlotText    plot_text = environment.getText();
 		try {
 
 			if( pdat == null ){
@@ -229,7 +229,7 @@ public class Output_ToPlot {
 
 			boolean zResult;
 			if( ePlotType == PLOT_TYPE_XY ){ // all variables on same plot
-				return zPlot_XY( model, sCaption, pdat, varAxisX, varAxisY, po, eOutputOption, ps, cs, plot_text, sbError);
+				return zPlot_XY( environment, model, sCaption, pdat, varAxisX, varAxisY, eOutputOption, sbError);
 			} else { // each variable goes on a different plot
 				for( int xVariable = 1; xVariable <= ctVariable; xVariable++ ){
 					PlottingVariable pv1 = pdat.getVariable1(xVariable);
@@ -237,13 +237,13 @@ public class Output_ToPlot {
 					if( ctVariable > 1 && eOutputOption == OutputTarget.Thumbnail ) sCaption = pv1.getSliceCaption();
 					switch(ePlotType){
 						case PLOT_TYPE_Histogram:
-							zResult = zPlot_Histogram(model, sCaption, pv1, po, eOutputOption, ps, plot_text, xVariable, ctVariable, sbError);
+							zResult = zPlot_Histogram( environment, model, sCaption, pv1, eOutputOption, xVariable, ctVariable, sbError);
 							break;
 						case PLOT_TYPE_Pseudocolor:
-							zResult = zPlot_PseudoColor(model, sCaption, pv1, varAxisX, varAxisY, po, eOutputOption, ps, cs, plot_text, xVariable, ctVariable, sbError);
+							zResult = zPlot_PseudoColor( environment, model, sCaption, pv1, varAxisX, varAxisY, eOutputOption, xVariable, ctVariable, sbError);
 							break;
 						case PLOT_TYPE_Vector:
-							zResult = zPlot_Vector(model, sCaption, pv1, pv2, varAxisX, varAxisY, po, eOutputOption, ps, cs, plot_text, xVariable, ctVariable, sbError);
+							zResult = zPlot_Vector( environment, model, sCaption, pv1, pv2, varAxisX, varAxisY, eOutputOption, xVariable, ctVariable, sbError);
 							break;
 						default:
 							sbError.append("unknown plot type " + ePlotType);
@@ -270,11 +270,14 @@ public class Output_ToPlot {
 //     1 x/y/slice       n slices
 //       n slices        n slices    (number of slices must match for both variables)
 
-	static boolean zPlot_XY( Model_Dataset model, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, OutputTarget eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
+	static boolean zPlot_XY( PlotEnvironment environment, Model_Dataset model, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, OutputTarget eOutputOption, StringBuffer sbError ){
 		try {
+			ColorSpecification cs = environment.getColorSpecification();
+			PlotText pt = environment.getText();
+			PlotOptions po = environment.getOptions();
 
 			// initialize panel
-			Panel_Plot_Line panelPL = new Panel_Plot_Line( ps, null, sCaption );
+			Panel_Plot_Line panelPL = new Panel_Plot_Line( environment, null, sCaption );
 			panelPL.setColors(cs);
 			panelPL.setOptions(po);
 			panelPL.setText(pt);
@@ -390,7 +393,7 @@ public class Output_ToPlot {
 			}
 
 			// set data (will generate the line points)
-			if( !panelPL.setLineData( ps, listSeries_Y, listSeries_X, listCaptions_X, listCaptions_Y, DAP.DATA_TYPE_Float64, sCaption_axis_Y, sCaption_axis_X, sbError) ){
+			if( !panelPL.setLineData( environment.getScale(), listSeries_Y, listSeries_X, listCaptions_X, listCaptions_Y, DAP.DATA_TYPE_Float64, sCaption_axis_Y, sCaption_axis_X, sbError) ){
 				sbError.insert(0, "Error setting line data: ");
 				return false;
 			}
@@ -410,20 +413,19 @@ public class Output_ToPlot {
 //     1 x/y/slice       n slices
 //       n slices        n slices    (number of slices must match for both variables)
 
-	static boolean zPlot_Expression( Model_Dataset model, String sCaption, PlotOptions po, OutputTarget eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, StringBuffer sbError ){
+	static boolean zPlot_Expression( PlotEnvironment environment, Model_Dataset model, OutputTarget eOutputOption, String sCaption, StringBuffer sbError ){
 		try {
-
-			// initialize panel
-			Panel_Plot_Expression panelPE = new Panel_Plot_Expression( ps, null, sCaption );
+			ColorSpecification cs = environment.getColorSpecification();
+			PlotText pt = environment.getText();
+			PlotOptions po = environment.getOptions();
+			Panel_Plot_Expression panelPE = new Panel_Plot_Expression( environment, null, sCaption );
 			panelPE.setColors(cs);
 			panelPE.setOptions(po);
 			panelPE.setText(pt);
-
 			if( model.getType() != Model_Dataset.DATASET_TYPE.PlottableExpression ){
 				sbError.append( "dataset model is not a plottable expression" );
 				return false;
 			}
-				
 			String sExpressionText = model.getExpression_Text();
 			if( sExpressionText == null || sExpressionText.length() <= 0 ){
 				sbError.append( "expression has no text" );
@@ -440,32 +442,37 @@ public class Output_ToPlot {
 				sbError.insert( 0, "failed to create expression model: " );
 				return false;
 			}
+			PlotAxes axes = environment.getAxes();
+			PlotRange range = modelExpression.getPlotRange(sbError);
+			if( range == null ) return false;
+			if( axes.mzAutomatic || axes.mzAutomaticX ){
+				PlotAxis axisDefaultX = axes._getDefaultX();
+				axisDefaultX.setRangeX( range );
+				axisDefaultX.setActive( true );
+			}
+			if( axes.mzAutomatic || axes.mzAutomaticY ){
+				PlotAxis axisDefaultY = axes._getDefaultY();
+				axisDefaultY.setRangeY( range );
+				axisDefaultY.setActive( true );
+			}
 			if( ! panelPE.setExpressionModel( modelExpression, sbError ) ){
 				sbError.insert( 0, "error setting expression model: " );
 				return false;
 			}
-
-			// setup axes
-//			PlotAxis axisHorizontal;
-//			axisHorizontal = new PlotAxis();
-//			axisHorizontal.setValues(eggAxisX, varAxisX.getDataType(), false);
-//			axisHorizontal.setCaption( "X" );
-//			PlotAxis axisVertical = new PlotAxis();
-//			axisHorizontal.setCaption( "Y" );
-//			panelPE.setAxisHorizontal(axisHorizontal);
-//			panelPE.setAxisVertical(axisVertical);
-			
 			return zPlot( panelPE, model, eOutputOption, sbError );
 		} catch(Exception ex) {
-			sbError.append("While building line plot: ");
+			sbError.append("While building expression plot: ");
 			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
 	}
 	
-	static boolean zPlot_Histogram( Model_Dataset model, String sCaption, PlottingVariable pv, PlotOptions po, OutputTarget eOutputOption, PlotScale ps, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_Histogram( PlotEnvironment environment, Model_Dataset model, String sCaption, PlottingVariable pv, OutputTarget eOutputOption, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
-
+			PlotOptions po = environment.getOptions();
+			PlotText pt = environment.getText();
+			PlotScale ps = environment.getScale();
+ 
 			if( eOutputOption == OutputTarget.Thumbnail ){
 				sbError.append("cannot thumbnail histograms");
 				return false;
@@ -476,7 +483,7 @@ public class Output_ToPlot {
 			Object[] eggHistogramData = pv.getDataEgg();
 			Object[] eggHistogramMissing = pv.getMissingEgg();
 
-			Panel_Plot_Histogram plotHistogram = new Panel_Plot_Histogram( ps, null, sCaption );
+			Panel_Plot_Histogram plotHistogram = new Panel_Plot_Histogram( environment, null, sCaption );
 			plotHistogram.setText(pt);
 			plotHistogram.setBoxed(false);
 			plotHistogram.setMarginPixels_Top( 50 );
@@ -486,7 +493,7 @@ public class Output_ToPlot {
 			plotHistogram.setLabel_HorizontalAxis( "" );
 			plotHistogram.setLabel_Title( "todo" );
 			int iDataPointCount = DAP.getArraySize(eggHistogramData[0]);
-			if( plotHistogram.setData(ps, eDATA_TYPE, eggHistogramData, eggHistogramMissing, po, sbError) ){
+			if( plotHistogram.setData( ps, eDATA_TYPE, eggHistogramData, eggHistogramMissing, po, sbError) ){
 				// ApplicationController.vShowStatus("plotting histogram of " + iDataPointCount + " values");
 			} else {
 				sbError.insert(0, "failed to set data for histogram of " + iDataPointCount + " values: ");
@@ -500,9 +507,12 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot_PseudoColor( Model_Dataset model, String sCaption, PlottingVariable pv, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, OutputTarget eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_PseudoColor( PlotEnvironment environment, Model_Dataset model, String sCaption, PlottingVariable pv, VariableInfo varAxisX, VariableInfo varAxisY, OutputTarget eOutputOption, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
 
+			ColorSpecification cs = environment.getColorSpecification();
+			PlotText pt = environment.getText();
+			PlotOptions po = environment.getOptions();
 			int eDATA_TYPE   = pv.getDataType();
 
 			// setup generated cs if necessary
@@ -536,9 +546,10 @@ public class Output_ToPlot {
 				psThumbnail.setScaleMode( PlotScale.SCALE_MODE.PlotArea );
 				psThumbnail.setPixelWidth_PlotArea( pxThumbnailWidth );
 				psThumbnail.setPixelHeight_PlotArea( pxThumbnailHeight );
-				panelPC = new Panel_Plot_Pseudocolor(psThumbnail, null, sCaption );
+				environment.setScale( psThumbnail );
+				panelPC = new Panel_Plot_Pseudocolor( environment, null, sCaption );
 			} else {
-				panelPC = new Panel_Plot_Pseudocolor(ps, null, sCaption );
+				panelPC = new Panel_Plot_Pseudocolor( environment, null, sCaption );
 			}
 			panelPC.setColors(cs);
 			panelPC.setText(pt);
@@ -606,8 +617,8 @@ public class Output_ToPlot {
 //							axisVertical.setCaption(sCaptionAxisY);
 						}
 					}
-					panelPC.setAxisHorizontal(axisHorizontal);
-					panelPC.setAxisVertical(axisVertical);
+//					panelPC.setAxisHorizontal(axisHorizontal);
+//					panelPC.setAxisVertical(axisVertical);
 				} else {
 					sbError.append("can only plot pseudocolor data with two axes");
 					return false;
@@ -624,9 +635,12 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot_Vector( Model_Dataset model, String sCaption, PlottingVariable pv, PlottingVariable pv2, VariableInfo varAxisX, VariableInfo varAxisY, PlotOptions po, OutputTarget eOutputOption, PlotScale ps, ColorSpecification cs, PlotText pt, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_Vector( PlotEnvironment environment, Model_Dataset model, String sCaption, PlottingVariable pv, PlottingVariable pv2, VariableInfo varAxisX, VariableInfo varAxisY, OutputTarget eOutputOption, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
-			Panel_Plot_Vector panelVector = new Panel_Plot_Vector( ps, null, sCaption );
+			ColorSpecification cs = environment.getColorSpecification();
+			PlotText pt = environment.getText();
+			PlotOptions po = environment.getOptions();
+			Panel_Plot_Vector panelVector = new Panel_Plot_Vector( environment, null, sCaption );
 			if( pv == null || pv2 == null ){
 				sbError.append("a vector plot requires exactly two variables");
 				return false;
@@ -715,8 +729,8 @@ public class Output_ToPlot {
 //											(sUnitsY == null ? "" : sUnitsY);
 //					axisVertical.setCaption(sCaptionAxisY);
 				}
-				panelVector.setAxisHorizontal(axisHorizontal);
-				panelVector.setAxisVertical(axisVertical);
+//				panelVector.setAxisHorizontal(axisHorizontal);
+//				panelVector.setAxisVertical(axisVertical);
 //			} else {
 //				sbError.append("can only plot vector data with two dimensions");
 //				return false;

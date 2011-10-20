@@ -43,9 +43,11 @@ import javax.swing.JDialog;
 class Panel_Plot_Pseudocolor extends Panel_Plot {
 
 	private int mpxRenderedPlotWidth, mpxRenderedPlotHeight;
+	private int mpxMargin_Top = 10; // TODO
+	private int mpxMargin_Left = 10; // TODO
 
-	Panel_Plot_Pseudocolor( PlotScale scale, String sID, String sCaption ){
-		super( scale, sID, sCaption );
+	Panel_Plot_Pseudocolor( PlotEnvironment environment, String sID, String sCaption ){
+		super( environment, sID, sCaption );
 //		addMouseListener(this); // interfering with full screen cancel
 	}
 

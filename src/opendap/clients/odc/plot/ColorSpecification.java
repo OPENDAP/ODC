@@ -2519,7 +2519,7 @@ class Panel_ColorSpecification extends JPanel implements IRangeChanged {
 		}
 		vUpdateInfo();
 		mRangeEditor.set(cs, 0);
-		Plot_Definition pd = this.mParent.getActivePlottingDefinition();
+		PlotEnvironment pd = this.mParent.getActivePlottingDefinition();
 		if( pd != null ) pd.setColorSpecification(cs);
 	}
 	public void vUpdateInfo(){
@@ -2545,7 +2545,7 @@ class Panel_ColorSpecification extends JPanel implements IRangeChanged {
 		String sName = JOptionPane.showInputDialog(ApplicationController.getInstance().getAppFrame(), "Enter name for new color specification: ");
 		if( sName == null ) return;
 		StringBuffer sbError = new StringBuffer(80);
-		Plot_Definition def = mParent.getActivePlottingDefinition();
+		PlotEnvironment def = mParent.getActivePlottingDefinition();
 		try {
 			int eTYPE = dp.getTYPE();
 			ColorSpecification csNew = new ColorSpecification(sName, eTYPE);

@@ -7,22 +7,15 @@ import opendap.clients.odc.ApplicationController;
 import org.python.core.PyObject;
 
 public class Panel_Plot_Expression extends Panel_Plot {
-	Model_PlottableExpression model;
-	
-	public enum PlottableExpressionType {
-		Cartesian,
-		Polar,
-		Parametric
-	};
-
+	Model_PlottableExpression model;	
 	private String msExpression = null;
 	private org.python.core.PyCode pycodeExpression = null;
 	private org.python.core.PyCode pycodeExpression_x = null;
 	private org.python.core.PyCode pycodeExpression_y = null;
 	private org.python.core.PyCode pycodeExpression_z = null;
 		
-	Panel_Plot_Expression( PlotScale scale, String sID, String sCaption ){
-		super( scale, sID, sCaption );
+	Panel_Plot_Expression( PlotEnvironment environment, String sID, String sCaption ){
+		super( environment, sID, sCaption );
 	}
 
 	public boolean setExpressionModel( Model_PlottableExpression model, StringBuffer sbError ){
@@ -57,7 +50,7 @@ public class Panel_Plot_Expression extends Panel_Plot {
 			} else {
 				int argb = coordinates.argbBaseColor;
 				for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){
-					mbi.setRGB( mpxMargin_Left + coordinates.ax0[xPoint], pxPlotHeight + mpxMargin_Top - coordinates.ay0[xPoint], argb );
+					mbi.setRGB( coordinates.ax0[xPoint], pxPlotHeight + coordinates.ay0[xPoint], argb );
 				}
 			}
 		}

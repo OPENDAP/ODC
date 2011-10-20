@@ -60,8 +60,11 @@ public class PlotAxis {
 	private PlotText listAxisText = PlotText.create();
 	private String msID;
 	public final static String TEXT_ID_Caption = "Caption";
+	private transient boolean mzActive = false; // whether axis is active in the current environment
 
 	public String getID(){ return msID; }
+	public boolean getActive(){ return mzActive; }
+	public void setActive( boolean z ){ mzActive = z; }
 	public String toString(){
 		return getID();
 	}
@@ -290,6 +293,19 @@ public class PlotAxis {
 		}
 		setRange( madValues1[1], madValues1[mctValues] );
 	}
+
+	void setRangeX( PlotRange range ){
+		mdValueFrom = range.dBeginX;
+		mdValueTo = range.dEndX;
+//System.out.println("setting range " + mdValueFrom + " to " + mdValueTo);
+	}
+
+	void setRangeY( PlotRange range ){
+		mdValueFrom = range.dBeginY;
+		mdValueTo = range.dEndY;
+//System.out.println("setting range " + mdValueFrom + " to " + mdValueTo);
+	}
+	
 	void setRange( double dFrom, double dTo ){
 		mdValueFrom = dFrom;
 		mdValueTo = dTo;
