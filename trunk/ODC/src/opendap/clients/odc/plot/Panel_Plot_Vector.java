@@ -40,8 +40,8 @@ import java.awt.*;
 
 class Panel_Plot_Vector extends Panel_Plot {
 
-	Panel_Plot_Vector( PlotScale scale, String sID, String sCaption ){
-		super( scale, sID, sCaption );
+	Panel_Plot_Vector( PlotEnvironment environment, String sID, String sCaption ){
+		super( environment, sID, sCaption );
 	}
 
 	public String getDescriptor(){ return "V"; }
@@ -52,6 +52,11 @@ class Panel_Plot_Vector extends Panel_Plot {
 	private float mUmax, mVmax; // will be * PX_MAX_VECTOR squared
 	private float mfAverageU, mfAverageV;
 
+	private int mpxMargin_Top = 10; // TODO
+	private int mpxMargin_Left = 10; // TODO
+	private int mpxAxisOffsetHeight = 1; // TODO
+	private int mpxAxisOffsetWidth = 1; // TODO
+	
 	StringBuffer msbError = new StringBuffer();
 
 	// When the image is generated only one arrow is drawn per vector region, a region

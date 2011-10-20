@@ -28,7 +28,8 @@ public class Model_PlottableExpression {
 	private PlottableExpression_TYPE type;
 	private Model_PlottableExpression(){}
 	private String msProcessedExpression = null;
-	String getProcessedExpression(){ return msProcessedExpression; } 
+	String getProcessedExpression(){ return msProcessedExpression; }
+	PlotRange range = null;
 	PlottableExpression_TYPE getType(){ return type; } 
 	public final static Model_PlottableExpression create( Script script, StringBuffer sbError ){
 		Model_PlottableExpression model = new Model_PlottableExpression();
@@ -169,7 +170,8 @@ public class Model_PlottableExpression {
 		while( true ){
 			if( pos == ctChars ){
 				if( state == 1 ){
-					listIdentifiers.add( new Identifier( sbBuffer.toString(), posIdentifier ) );
+					String sIdentifier = sbBuffer.toString();
+					listIdentifiers.add( Identifier.create( sIdentifier, posIdentifier ) );
 				}
 				break;
 			}
@@ -192,7 +194,8 @@ public class Model_PlottableExpression {
 					if( c == '_' || Character.isLetter( c ) ||  Character.isDigit( c ) ){
 						sbBuffer.append( c );
 					} else {
-						listIdentifiers.add( new Identifier( sbBuffer.toString(), posIdentifier ) );
+						String sIdentifier = sbBuffer.toString();
+						listIdentifiers.add( Identifier.create( sIdentifier, posIdentifier ) );
 						sbBuffer.setLength( 0 );
 						posIdentifier = -1;
 						state = 0;
@@ -208,23 +211,27 @@ public class Model_PlottableExpression {
 			}
 			pos++;
 		}
+		for( Identifier identifier : listIdentifiers ){
+			System.out.println( "* identifier: " + identifier.s + " pos: " + identifier.pos );
+		}
 		return listIdentifiers;
 	}
 	
-//	"x_range_begin", "x_range_end", "x_increment",
-//	"y_range_begin", "y_range_end", "y_increment",
-//	"r_range_begin", "r_range_end", "r_increment",
-//	"t_range_begin", "t_range_end", "t_increment",
+//	"x_range_begin", "x_range_end"
+//	"y_range_begin", "y_range_end"
+//	"r_range_begin", "r_range_end"
+//	"t_range_begin", "t_range_end"
 	// TODO use an integer mode if inputs are all integers
-	public PlotCoordinates getPlotCoordinates( int iPlotWidth, int iPlotHeight, StringBuffer sbError ){
-		PlotCoordinates coordinates = new PlotCoordinates();
+	
+	public PlotRange getPlotRange( StringBuffer sbError ){
+		if( range != null ) return range;
 		opendap.clients.odc.Interpreter odc_interpreter = ApplicationController.getInstance().getInterpreter();
 		double dBeginX = odc_interpreter.get( "_x_range_begin", sbError );
 		if( Double.isInfinite( dBeginX ) ){
 			sbError.insert( 0, "error getting _x_range_begin: " );
 			return null;
 		}
-		if( Double.isNaN( dBeginX ) ){ // not defined
+		if( Double.isNaN( dBeginX ) ){ // not defined, use default
 			dBeginX = 0;
 		}
 		double dEndX = odc_interpreter.get( "_x_range_end", sbError );
@@ -232,11 +239,10 @@ public class Model_PlottableExpression {
 			sbError.insert( 0, "error getting _x_range_end: " );
 			return null;
 		}
-		if( Double.isNaN( dEndX ) ){ // not defined
-			dEndX = iPlotWidth;
+		if( Double.isNaN( dEndX ) ){ // not defined, use default
+			dEndX = 10;
 		}
 		double dRangeX = dEndX - dBeginX;
-		double dIntervalX = dRangeX / (double)iPlotWidth; // numeric range associated with a pixel
 		double dBeginY = odc_interpreter.get( "_y_range_begin", sbError );
 		if( Double.isInfinite( dBeginY ) ){
 			sbError.insert( 0, "error getting _y_range_begin: " );
@@ -247,162 +253,151 @@ public class Model_PlottableExpression {
 			sbError.insert( 0, "error getting _y_range_end: " );
 			return null;
 		}
-		double dIntervalY = odc_interpreter.get( "_y_interval", sbError );
-		if( Double.isInfinite( dIntervalY ) ){
-			sbError.insert( 0, "error getting _y_interval: " );
-			return null;
-		}
 		int eState = 0;
-		boolean zBeginX_Defined = ! Double.isNaN( dBeginX ); 
-		boolean zEndX_Defined = ! Double.isNaN( dEndX ); 
 		boolean zBeginY_Defined = ! Double.isNaN( dBeginY ); 
 		boolean zEndY_Defined = ! Double.isNaN( dEndY ); 
+		PlotRange range = new PlotRange();
+		range.dBeginX = dBeginX;
+		range.dEndX = dEndX;
 		switch( type ){
 			case Cartesian:
 				double dRangeY = 0;
-				if( Double.isNaN( dBeginY ) ){ // '==' does not work for NaN values
-					if( Double.isNaN( dEndY ) ){
-						if( Double.isNaN( dIntervalY ) ){
-							eState = 1; // "Determining Y Range, no constraints";
-						} else {
-							eState = 2; // "Determining Y Range, interval is known";
-						}
-						dBeginY = Double.MAX_VALUE;
+				if( zBeginY_Defined ){
+					if( zEndY_Defined ){ // Y range, beginning and end are defined
+						range.dBeginY = dBeginY;
+						range.dEndY = dEndY;
+						return range;
+					} else { // "Determining Y Range, beginning is known, end is unknown";
+						eState = 3; // "Determining Y Range, beginning is known, end is unknown";
 						dEndY = Double.MIN_VALUE;
-					} else {
-						if( Double.isNaN( dIntervalY ) ){
-							dBeginY = Double.MAX_VALUE;
-							eState = 3; // "Determining Y Range, end is known";
-						} else {
-							dBeginY = dEndY - (iPlotHeight - 1) * dIntervalY;
-							dRangeY = dEndY - dBeginY;
-							eState = 5; // counting;
-						}
 					}
 				} else {
 					if( Double.isNaN( dEndY ) ){
-						if( Double.isNaN( dIntervalY ) ){
-							eState = 4; // "Determining Y Range, beginning is known";
-							dEndY = Double.MIN_VALUE;
-						} else {
-							dEndY = dBeginY + (iPlotHeight - 1) * dIntervalY;
-							dRangeY = dEndY - dBeginY;
-							eState = 5; // counting;
-						}
+						eState = 1; // "Determining Y Range, no constraints";
+						dBeginY = Double.MAX_VALUE;
+						dEndY = Double.MIN_VALUE;
 					} else {
-						if( Double.isNaN( dIntervalY ) ){
-							dIntervalY = (dEndY - dBeginY + 1.0d) / (double)iPlotHeight;
-						} else {
-							// all three parameters defined
-						}
-						dRangeY = dEndY - dBeginY;
-						eState = 5; // counting
+						dBeginY = Double.MAX_VALUE;
+						eState = 2; // "Determining Y Range, beginning is unknown, end is known";
 					}
 				}
-				while( true ){
-					int ctPoints = 0;
-					int y = 0;
-					org.python.core.PyCode codeY = compiled_y.compiled_code;
-					for( int x = 1; x <= iPlotWidth; x++ ){ // there will be at least one point for every x pixel
-						double dX = dBeginX + x * dRangeX / iPlotWidth;
-						if( ! odc_interpreter.zSet( "_x", dX, sbError ) ){
-							sbError.insert( 0, "failed to set _x to " + dX );
-							return null;
+				int iNominalPlotWidth = 1000;
+				org.python.core.PyCode codeY = compiled_y.compiled_code;
+				for( int x = 1; x <= iNominalPlotWidth; x++ ){ // there will be at least one point for every x pixel
+					double dX = dBeginX + x * dRangeX / iNominalPlotWidth;
+					if( ! odc_interpreter.zSet( "_x", dX, sbError ) ){
+						sbError.insert( 0, "failed to set _x to " + dX );
+						return null;
+					}
+					PyObject pyobjectY = odc_interpreter.zEval( codeY, sbError );
+					if( pyobjectY == null ){
+						sbError.insert( 0, "failed to eval _y expression " +  compiled_y + ": " );
+						return null;
+					}
+					double dY = pyobjectY.asDouble();
+					switch( eState ){
+						case 1: // "Determining Y Range, no constraints"
+							if( dY < dBeginY ) dBeginY = dY;
+							if( dY > dEndY ) dEndY = dY;
+							break;
+						case 2: // "Determining Y Range, beginning is unknown"
+							if( dY < dBeginY ) dBeginY = dY;
+							break;
+						case 3: // "Determining Y Range, end is unknown"
+							if( dY > dEndY ) dEndY = dY;
+							break;
+					}
+				}
+				range.dBeginY = dBeginY;
+				range.dEndY = dEndY;
+				break;
+			case Polar:
+				// TODO
+			case Parametric:
+				// TODO
+		}
+		return range;
+	}
+	
+	public PlotCoordinates getPlotCoordinates( int iPlotWidth, int iPlotHeight, StringBuffer sbError ){
+		if( range == null ){
+			range = getPlotRange( sbError );
+			if( range == null ) return null;
+		}
+		PlotCoordinates coordinates = new PlotCoordinates();
+		opendap.clients.odc.Interpreter odc_interpreter = ApplicationController.getInstance().getInterpreter();
+		double dRangeX = range.dEndX - range.dBeginX;
+		double dRangeY = range.dEndY - range.dBeginY;
+		int eState = 0;
+		switch( type ){
+			case Cartesian:
+				int ctPoints = iPlotWidth;
+				coordinates.ctPoints = ctPoints;
+				coordinates.ax0 = new int[ctPoints];
+				coordinates.ay0 = new int[ctPoints];
+				coordinates.aAlpha = new int[ctPoints];
+				int y = 0;
+				org.python.core.PyCode codeY = compiled_y.compiled_code;
+				for( int x = 1; x <= iPlotWidth; x++ ){ // there will be at least one point for every x pixel
+					double dX = range.dBeginX + x * dRangeX / iPlotWidth;
+					if( ! odc_interpreter.zSet( "_x", dX, sbError ) ){
+						sbError.insert( 0, "failed to set _x to " + dX );
+						return null;
+					}
+					PyObject pyobjectY = odc_interpreter.zEval( codeY, sbError );
+					if( pyobjectY == null ){
+						sbError.insert( 0, "failed to eval _y expression " +  compiled_y + ": " );
+						return null;
+					}
+					double dY = pyobjectY.asDouble();
+					double dY_coordinate = iPlotHeight * (dY - range.dBeginY) / dRangeY;
+					int y_previous = y;
+					y = (int)dY_coordinate;
+					if( dY_coordinate >= iPlotHeight || dY_coordinate < 0 ){
+						// outside plottable view, do not plot
+					} else {
+						if( dY_coordinate - y >= 0.5d ) y++; // round
+						if( eState == 6 ){ // write base point
+							coordinates.ax0[ctPoints] = x;
+							coordinates.ay0[ctPoints] = y;
 						}
-						PyObject pyobjectY = odc_interpreter.zEval( codeY, sbError );
-						if( pyobjectY == null ){
-							sbError.insert( 0, "failed to eval _y expression " +  compiled_y + ": " );
-							return null;
-						}
-						double dY = pyobjectY.asDouble();
-						switch( eState ){
-							case 1: // "Determining Y Range, no constraints"
-							case 2: // "Determining Y Range, interval is known"
-								if( dY < dBeginY ) dBeginY = dY;
-								if( dY > dEndY ) dEndY = dY;
-								break;
-							case 3: // "Determining Y Range, end is known"
-								if( dY < dBeginY ) dBeginY = dY;
-								break;
-							case 4: // "Determining Y Range, beginning is known"
-								if( dY > dEndY ) dEndY = dY;
-								break;
-							case 5: // counting
-							case 6: // writing
-								double dY_coordinate = iPlotHeight * (dY - dBeginY) / dRangeY;
-								int y_previous = y;
-								y = (int)dY_coordinate;
-								if( dY_coordinate >= iPlotHeight || dY_coordinate < 0 ){
-									// outside plottable view, do not plot
-								} else {
-									if( dY_coordinate - y >= 0.5d ) y++; // round
-									if( eState == 6 ){ // write base point
+						ctPoints++;
+						if( ctPoints > 1 ){
+							if( y - y_previous > 1 ){
+								if( eState == 6 ){
+									int y_halfway = coordinates.ay0[ctPoints - 1] + (y - coordinates.ay0[ctPoints - 1]) / 2;
+									for( int xY = coordinates.ay0[ctPoints - 1]; xY < y_halfway; xY++ ){
+										coordinates.ax0[ctPoints] = x - 1;
+										coordinates.ay0[ctPoints] = xY;
+										ctPoints++;
+									}
+									for( int xY = y_halfway; xY < y; xY++ ){
 										coordinates.ax0[ctPoints] = x;
-										coordinates.ay0[ctPoints] = y;
+										coordinates.ay0[ctPoints] = xY;
+										ctPoints++;
 									}
-									ctPoints++;
-									if( ctPoints > 1 ){
-										if( y - y_previous > 1 ){
-											if( eState == 6 ){
-												int y_halfway = coordinates.ay0[ctPoints - 1] + (y - coordinates.ay0[ctPoints - 1]) / 2;
-												for( int xY = coordinates.ay0[ctPoints - 1]; xY < y_halfway; xY++ ){
-													coordinates.ax0[ctPoints] = x - 1;
-													coordinates.ay0[ctPoints] = xY;
-													ctPoints++;
-												}
-												for( int xY = y_halfway; xY < y; xY++ ){
-													coordinates.ax0[ctPoints] = x;
-													coordinates.ay0[ctPoints] = xY;
-													ctPoints++;
-												}
-											} else {
-												ctPoints += y - y_previous; 
-											}
-										} else if( y_previous - y > 1 ){ // need to interpolate points to make curve continuous
-											if( eState == 6 ){
-												int y_halfway = coordinates.ay0[ctPoints - 1] + (y - coordinates.ay0[ctPoints - 1]) / 2;
-												for( int xY = coordinates.ay0[ctPoints - 1]; xY > y_halfway; xY-- ){
-													coordinates.ax0[ctPoints] = x - 1;
-													coordinates.ay0[ctPoints] = xY;
-													ctPoints++;
-												}
-												for( int xY = y_halfway; xY > y; xY-- ){
-													coordinates.ax0[ctPoints] = x;
-													coordinates.ay0[ctPoints] = xY;
-													ctPoints++;
-												}
-											} else {
-												ctPoints += y_previous - y; 
-											}
-										}
-									}
+								} else {
+									ctPoints += y - y_previous; 
 								}
-								break;								
+							} else if( y_previous - y > 1 ){ // need to interpolate points to make curve continuous
+								if( eState == 6 ){
+									int y_halfway = coordinates.ay0[ctPoints - 1] + (y - coordinates.ay0[ctPoints - 1]) / 2;
+									for( int xY = coordinates.ay0[ctPoints - 1]; xY > y_halfway; xY-- ){
+										coordinates.ax0[ctPoints] = x - 1;
+										coordinates.ay0[ctPoints] = xY;
+										ctPoints++;
+									}
+									for( int xY = y_halfway; xY > y; xY-- ){
+										coordinates.ax0[ctPoints] = x;
+										coordinates.ay0[ctPoints] = xY;
+										ctPoints++;
+									}
+								} else {
+									ctPoints += y_previous - y; 
+								}
+							}
 						}
 					}
-					if( eState == 1 || eState == 2 || eState == 3 || eState == 4 ){
-						if( eState == 1 ){
-							dIntervalY = (dEndY - dBeginY + 1.0d) / (double)iPlotHeight;
-						} else if( eState == 2 ){
-							dEndY = dBeginY + (iPlotHeight - 1) * dIntervalY;
-						} else if( eState == 3 ){
-							dBeginY = dEndY - (iPlotHeight - 1) * dIntervalY;
-						} else { // eState == 4
-							dIntervalY = (dEndY - dBeginY + 1.0d) / (double)iPlotHeight;
-						}
-						dRangeY = dEndY - dBeginY;
-						eState = 5;
-					} else if( eState == 5 ){
-						coordinates.dBeginX = dBeginX; 
-						coordinates.dEndX = dEndX; 
-						coordinates.dBeginY = dBeginY; 
-						coordinates.dEndY = dEndY; 
-						coordinates.ctPoints = ctPoints;
-						coordinates.ax0 = new int[ctPoints];
-						coordinates.ay0 = new int[ctPoints];
-						coordinates.aAlpha = new int[ctPoints];
-						eState = 6;
-					} else if( eState == 6 ) break; // done
 				}
 				break;
 			case Polar:
@@ -410,6 +405,13 @@ public class Model_PlottableExpression {
 		}
 		return coordinates;
 	}
+}
+
+class PlotRange {
+	double dBeginX;
+	double dEndX;
+	double dBeginY;
+	double dEndY;
 }
 
 class PlotCoordinates {
@@ -420,19 +422,16 @@ class PlotCoordinates {
 	int[] ax0;
 	int[] ay0;
 	int[] aAlpha;
-	double dBeginX;
-	double dEndX;
-	double dBeginY;
-	double dEndY;
+	PlotRange range;
 	String sDump(){
 		StringBuffer sb = new StringBuffer();
 		sb.append( "zHasAlpha: " + zHasAlpha ).append( '\n' ); 
 		sb.append( "zHasColor: " + zHasColor ).append( '\n' ); 
 		sb.append( "argbBaseColor: " + Integer.toHexString( argbBaseColor ) ).append( '\n' ); 
-		sb.append( "dBeginX: " + dBeginX ).append( '\n' ); 
-		sb.append( "dEndX: " + dEndX ).append( '\n' ); 
-		sb.append( "dBeginY: " + dBeginY ).append( '\n' ); 
-		sb.append( "dEndY: " + dEndY ).append( '\n' );
+		sb.append( "dBeginX: " + range.dBeginX ).append( '\n' ); 
+		sb.append( "dEndX: " + range.dEndX ).append( '\n' ); 
+		sb.append( "dBeginY: " + range.dBeginY ).append( '\n' ); 
+		sb.append( "dEndY: " + range.dEndY ).append( '\n' );
 		sb.append( "ctPoints: " + ctPoints ).append( '\n' );
 		return sb.toString();
 	}
@@ -442,10 +441,10 @@ class PlotCoordinates {
 		sb.append( "zHasAlpha: " + zHasAlpha ).append( '\n' ); 
 		sb.append( "zHasColor: " + zHasColor ).append( '\n' ); 
 		sb.append( "argbBaseColor: " + Integer.toHexString( argbBaseColor ) ).append( '\n' ); 
-		sb.append( "dBeginX: " + dBeginX ).append( '\n' ); 
-		sb.append( "dEndX: " + dEndX ).append( '\n' ); 
-		sb.append( "dBeginY: " + dBeginY ).append( '\n' ); 
-		sb.append( "dEndY: " + dEndY ).append( '\n' );
+		sb.append( "dBeginX: " + range.dBeginX ).append( '\n' ); 
+		sb.append( "dEndX: " + range.dEndX ).append( '\n' ); 
+		sb.append( "dBeginY: " + range.dBeginY ).append( '\n' ); 
+		sb.append( "dEndY: " + range.dEndY ).append( '\n' );
 		sb.append( "ctPoints: " + ctPoints ).append( '\n' );
 		for( int xPoint = 0; xPoint < ctPointsToDump; xPoint++ ){
 			sb.append( String.format( "%d %d %d\n", ax0[xPoint], ay0[xPoint], aAlpha[xPoint] ) );
@@ -462,9 +461,11 @@ enum PlottableExpression_TYPE {
 
 class Identifier {
 	private Identifier(){}
-	Identifier( String s, int pos ){
-		this.s = s;
-		this.pos = pos;
+	final static Identifier create( String s, int pos ){
+		Identifier identifier = new Identifier();
+		identifier.s = s;
+		identifier.pos = pos;
+		return identifier;
 	}
 	String s;
 	int pos;

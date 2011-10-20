@@ -62,13 +62,11 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 
 	protected int[] maiRGBArray = null;
 
+	PlotEnvironment environment = null;
 	protected ColorSpecification mColors = null;
 	protected GeoReference mGeoReference = null;   // these two items should be combined
 	protected Model_Projection mProjection = null;
 	
-	// axes
-	protected PlotAxes axes = null;
-
 	// legend
 	protected int mpxLegend_X = 0;
 	protected int mpxLegend_Y = 0;
@@ -82,7 +80,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	protected int mpxScale_Height = 0;
 	
 	// layout
-	protected PlotLayout layoutPlotArea = PlotLayout.create( PlotLayout.LayoutStyle.PlotArea ); // should be 
+	protected PlotLayout layout = PlotLayout.create( PlotLayout.LayoutStyle.PlotArea );
 	protected int mpxMargin_Right = 60;
 	protected int mpxMargin_Bottom = 60;
 
@@ -101,9 +99,10 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		PlotScale scale = PlotScale.create();
 		String sID = "demo_id";
 		String sCaption = "demo plot";
-		scale.setOutputTarget( OutputTarget.NewWindow );
-		scale.setDataDimension( 600, 600 );
-		Panel_Plot_Surface demo_surface = new Panel_Plot_Surface( scale, sID, sCaption );
+		PlotEnvironment environment = new PlotEnvironment();
+		environment.getScale().setOutputTarget( OutputTarget.NewWindow );
+		environment.getScale().setDataDimension( 600, 600 );
+		Panel_Plot_Surface demo_surface = new Panel_Plot_Surface( environment, sID, sCaption );
 		StringBuffer sbError = new StringBuffer();
 		if( ! demo_surface.zPlot( sbError ) ){
 			System.err.println( "plot failed: " + sbError.toString() );
@@ -121,10 +120,12 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		frame.setVisible( true );
 	}
 	
-	Panel_Plot( PlotScale ps, String sID_descriptive, String sCaption ){
-		if( ps == null ){
-			ApplicationController.vShowError("system error, invalid plot panel, no scale");
+	Panel_Plot( PlotEnvironment environment, String sID_descriptive, String sCaption ){
+		if( environment == null ){
+			ApplicationController.vShowError( "system error, invalid plot panel, no environment" );
+			return;
 		}
+		this.environment = environment;
 		if( miSessionCount == 0 ){ // update from properties
 			if( ConfigurationManager.getInstance() == null ){
 				miSessionCount = 0;
@@ -142,7 +143,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			sID_descriptive = Utility.getCurrentDate( FORMAT_ID_date );
 		}
 		msID = sID_descriptive + "-" + getDescriptor() + "-" + Utility_String.sFormatFixedRight( miSessionCount, iCountWidth, '0' ); // append plot count to ID descriptive string
-		mScale = ps;
+		mScale = environment.getScale();
 		msCaption = sCaption;
 	}
 
@@ -245,8 +246,8 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		} else {
 			mScale.setDataDimension( mPlottable.getDimension_x(), mPlottable.getDimension_y() );
 		}
-		layoutPlotArea.setOffsetHorizontal( mScale.getMarginLeft_px() );
-		layoutPlotArea.setOffsetVertical( mScale.getMarginTop_px() );
+		layout.setOffsetHorizontal( mScale.getMarginLeft_px() );
+		layout.setOffsetVertical( mScale.getMarginTop_px() );
 		mpxMargin_Right  = mScale.getMarginRight_px();
 		mpxMargin_Bottom = mScale.getMarginBottom_px();		
 		
@@ -264,8 +265,8 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			Graphics2D g2 = (Graphics2D)mbi.getGraphics();
 			g2.setColor(mcolorBackground);
 			g2.fillRect(0,0,pxCanvasWidth,pxCanvasHeight); // draw background
-			int pxPlotLeft = layoutPlotArea.getLocation_Horizontal( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
-			int pxPlotTop  = layoutPlotArea.getLocation_Vertical( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
+			int pxPlotLeft = layout.getLocation_Horizontal( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
+			int pxPlotTop  = layout.getLocation_Vertical( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
 
 			g2.setClip(pxPlotLeft, pxPlotTop, pxPlotWidth, pxPlotHeight);
 			mpxPreferredWidth = pxCanvasWidth;
@@ -337,9 +338,9 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 
 	boolean zUpdateDimensions( int iDataPoint_width, int iDataPoint_height, StringBuffer sbError){
 		mScale.setDataDimension( iDataPoint_width, iDataPoint_height );
-		mpxMargin_Left = mScale.getMarginLeft_px();
+//		layout. = mScale.getMarginLeft_px();
+//		mpxMargin_Top = mScale.getMarginTop_px();
 		mpxMargin_Right = mScale.getMarginRight_px();
-		mpxMargin_Top = mScale.getMarginTop_px();
 		mpxMargin_Bottom = mScale.getMarginBottom_px();
 		this.invalidate(); // when the canvas dimensions change, the layout is invalidated
 		mbi = null;
@@ -391,14 +392,14 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 				return;
 			}
 		}
-		int xPlotArea_LowerLeft = mpxMargin_Left;
-		int yPlotArea_LowerLeft = mpxMargin_Top + pxPlotHeight;
+		int xPlotArea_LowerLeft = 10; // mpxMargin_Left;
+		int yPlotArea_LowerLeft = 10; // mpxMargin_Top + pxPlotHeight;
 		Coastline.vDrawCoastline(g2, xPlotArea_LowerLeft, yPlotArea_LowerLeft, pxPlotWidth, pxPlotHeight, mGeoReference);
 	}
 
 	protected void vDrawAxes( Graphics2D g2, int pxPlotWidth, int pxPlotHeight ){
 		StringBuffer sbError = new StringBuffer();
-		ArrayList<PlotAxis> listAxes = axes._getList();
+		ArrayList<PlotAxis> listAxes = environment.getAxes()._getActive();
 		for( int xAxis = 1; xAxis <= listAxes.size(); xAxis++ ){
 			PlotAxis axis = listAxes.get( xAxis - 1 );
 			BufferedImage biAxis = axis.render( g2, mScale, sbError );
@@ -423,8 +424,8 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			int pxAxisLength_horizontal = pxPlotWidth;
 			int pxAxisLength_vertical = pxPlotHeight;
 
-			int xBox      = mpxMargin_Left;
-			int yBox      = mpxMargin_Top;
+			int xBox      = 15; // mpxMargin_Left;
+			int yBox      = 15; // mpxMargin_Top;
 			int widthBox  = pxPlotWidth;
 			int heightBox = pxPlotHeight;
 
@@ -472,8 +473,8 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 				} else {
 					iDefaultLength = pxPlotWidth - 2 * pxOffset_width;
 				}
-				hObject = mpxMargin_Left;
-				vObject = mpxMargin_Top;
+				hObject = 10; // mpxMargin_Left;
+				vObject = 10; // mpxMargin_Top;
 				heightObject = pxPlotHeight;
 				widthObject  = pxPlotWidth;
 				break;
@@ -604,8 +605,8 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 				widthObject  = pxCanvasWidth;
 				break;
 			case Plot:
-				hObject = mpxMargin_Left;
-				vObject = mpxMargin_Top;
+				hObject = 10; // mpxMargin_Left; TODO fix all these
+				vObject = 10; // mpxMargin_Top;
 				heightObject = pxPlotHeight;
 				widthObject  = pxPlotWidth;
 				break;
@@ -739,7 +740,10 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 				hObject = 0; vObject = 0; widthObject = pxCanvasWidth; heightObject = pxCanvasHeight;
 				break;
 			case Plot:
-				hObject = mpxMargin_Left; vObject = mpxMargin_Top; widthObject = pxPlotWidth; heightObject = pxPlotHeight;
+				hObject = 10; // mpxMargin_Left; TODO fix
+				vObject = 10; // mpxMargin_Top; 
+				widthObject = pxPlotWidth; 
+				heightObject = pxPlotHeight;
 				break;
 			case AxisHorizontal:
 				hObject = mpxAxis_Horizontal_X; vObject = mpxAxis_Horizontal_Y; widthObject = mpxAxis_Horizontal_width; heightObject = mpxAxis_Horizontal_height;

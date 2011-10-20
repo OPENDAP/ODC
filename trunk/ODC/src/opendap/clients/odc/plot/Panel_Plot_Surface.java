@@ -33,8 +33,8 @@ class Panel_Plot_Surface extends Panel_Plot {
 		Shaded
 	};
 
-	Panel_Plot_Surface( PlotScale scale, String sID, String sCaption ){
-		super( scale, sID, sCaption );
+	Panel_Plot_Surface( PlotEnvironment environment, String sID, String sCaption ){
+		super( environment, sID, sCaption );
 	}
 
 	public String getDescriptor(){ return "S"; }
