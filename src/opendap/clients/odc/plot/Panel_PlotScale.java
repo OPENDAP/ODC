@@ -324,11 +324,11 @@ class Panel_PlotScale extends JPanel {
 			PlotScale.UNITS eUNITS = scaleActive.getScaleUnits();
 			int pxWidth, pxHeight;
 			if( jrbEntireCanvas.isSelected() ){
-				pxWidth = scaleActive.getCanvas_Width();
-				pxHeight = scaleActive.getCanvas_Height();
+				pxWidth = scaleActive.getCanvas_Width_pixels();
+				pxHeight = scaleActive.getCanvas_Height_pixels();
 			} else {
-				pxWidth = scaleActive.getPlot_Width();
-				pxHeight = scaleActive.getPlot_Height();
+				pxWidth = scaleActive.getPlot_Width_pixels();
+				pxHeight = scaleActive.getPlot_Height_pixels();
 			}
 			float fWidth = scaleActive.getUnits( pxWidth, eUNITS );
 			float fHeight = scaleActive.getUnits( pxHeight, eUNITS );

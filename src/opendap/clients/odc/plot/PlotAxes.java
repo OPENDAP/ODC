@@ -38,7 +38,7 @@ public class PlotAxes extends javax.swing.AbstractListModel {
 		return _newItem( sID );
 	}
 	private PlotAxis _newItem( String sID ){
-		PlotAxis item = PlotAxis.create( sID );
+		PlotAxis item = PlotAxis.createX( sID );
 		return _newItem( item );
 	}
 	private PlotAxis _newItem( PlotAxis item ){

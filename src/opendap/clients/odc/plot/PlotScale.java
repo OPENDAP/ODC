@@ -142,18 +142,18 @@ public class PlotScale {
 	float getMarginRight_display(){ return mfMarginRight; }
 	float getMarginBottom_display(){ return mfMarginBottom; }
 
-	int getCanvas_Width(){
+	int getCanvas_Width_pixels(){
 		return miPixelWidth_Canvas;
 	}
-	int getCanvas_Height(){
+	int getCanvas_Height_pixels(){
 		return miPixelHeight_Canvas;
 	}
 
-	int getPlot_Width(){
+	int getPlot_Width_pixels(){
 		return miPixelWidth_PlotArea;
 	}
 
-	int getPlot_Height(){
+	int getPlot_Height_pixels(){
 		return miPixelHeight_PlotArea;
 	}
 

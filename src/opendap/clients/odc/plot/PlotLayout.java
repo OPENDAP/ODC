@@ -110,7 +110,7 @@ class PlotLayout {
 		switch( eDEFAULT_STYLE ){
 			case PlotArea:
 				layout.meObject = LAYOUT_OBJECT.Canvas;
-				layout.meOrientation = ORIENTATION.TopRight;
+				layout.meOrientation = ORIENTATION.TopLeft;
 				layout.meAlignment = ORIENTATION.TopLeft; // uses orientation constants
 				layout.mpxOffsetHorizontal = 70;
 				layout.mpxOffsetVertical = 50;

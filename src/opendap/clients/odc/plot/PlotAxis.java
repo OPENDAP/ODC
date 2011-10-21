@@ -52,11 +52,10 @@ import java.awt.image.BufferedImage;
 
 public class PlotAxis {
 	private static int serial_number = 0; // TODO remember
-	private AxisStyle axis_style; 
+	private AxisStyle axis_style = null; 
 	private AxisLayout mLayout = null;
 	private AxisProjection mProjection = null;
 	private AxisLabeling mLabeling = null;
-	private java.awt.image.BufferedImage mbi = null;
 	private PlotText listAxisText = PlotText.create();
 	private String msID;
 	public final static String TEXT_ID_Caption = "Caption";
@@ -74,38 +73,13 @@ public class PlotAxis {
 		msID = "Axis" + serial_number;
 	}
 
-	public static PlotAxis create(){
-		PlotAxis axis = new PlotAxis();
-		axis.mLayout = AxisLayout.createFreestanding();
-		axis.mProjection = AxisProjection.create_Automatic();
-		axis.mLabeling = AxisLabeling.create();
-		return axis;
-	}
-
-	public static PlotAxis create( String sID ){
-		PlotAxis axis = new PlotAxis();
-		axis.mLayout = AxisLayout.createFreestanding();
-		axis.mProjection = AxisProjection.create_Automatic();
-		axis.mLabeling = AxisLabeling.create();
-		axis.msID = sID;
-		return axis;
-	}
-	
-	public static PlotAxis createFreestanding( String sID ){
-		PlotAxis axis = new PlotAxis();
-		axis.mLayout = AxisLayout.createFreestanding();
-		axis.mProjection = AxisProjection.create_Automatic();
-		axis.mLabeling = AxisLabeling.create();
-		axis.msID = sID;
-		return axis;
-	}
-	
 	public static PlotAxis createX( String sID ){
 		PlotAxis axis = new PlotAxis();
 		axis.mLayout = AxisLayout.createX();
 		axis.mProjection = AxisProjection.create_Automatic();
 		axis.mLabeling = AxisLabeling.create();
 		axis.msID = sID;
+		axis.axis_style = AxisStyle_SingleTick.createDefault();
 		return axis;
 	}
 
@@ -115,6 +89,7 @@ public class PlotAxis {
 		axis.mProjection = AxisProjection.create_Automatic();
 		axis.mLabeling = AxisLabeling.create();
 		axis.msID = sID;
+		axis.axis_style = AxisStyle_SingleTick.createDefault();
 		return axis;
 	}
 	
@@ -123,6 +98,7 @@ public class PlotAxis {
 		axis.mLayout = AxisLayout.createX();
 		axis.mProjection = AxisProjection.create_LinearRange_Double( dValue_from, dValue_to );
 		axis.mLabeling = AxisLabeling.create();
+		axis.axis_style = AxisStyle_SingleTick.createDefault();
 		if( sCaption != null ){
 			PlotTextItem text = axis.listAxisText.getNew(TEXT_ID_Caption);
 			text.setString( sCaption );
@@ -141,6 +117,7 @@ public class PlotAxis {
 		axis.mLayout = AxisLayout.createY();
 		axis.mProjection = AxisProjection.create_LinearRange_Double( dValue_from, dValue_to );
 		axis.mLabeling = AxisLabeling.create();
+		axis.axis_style = AxisStyle_SingleTick.createDefault();
 		if( sCaption != null ){
 			PlotTextItem text = axis.listAxisText.getNew(TEXT_ID_Caption);
 			text.setString( sCaption );
@@ -165,24 +142,11 @@ public class PlotAxis {
 //		return 0;
 //	}
 	
-	// Note that the buffer is situated according to the layout specified in the layout variable.
+	// Note that the buffer is situated according to the layout specified in the scale variable.
 	public java.awt.image.BufferedImage render( java.awt.Graphics2D g2, PlotScale scale, StringBuffer sbError ){
-		int pxBufferWidth = 0;
-		int pxBufferHeight = 0;
-		if( mbi == null || mbi.getWidth() != pxBufferWidth || mbi.getHeight() != pxBufferHeight ){
-			createBuffer( pxBufferWidth, pxBufferHeight );
-		}
-		if( ! axis_style.render( g2, mbi, scale, mLayout, mProjection, mLabeling, sbError ) ){
-			sbError.insert( 0, "failed to render axis: " );
-			return null;
-		}
-		return mbi;
+		return axis_style.render( g2, scale, mLayout, mProjection, mLabeling, sbError );
 	}
 	
-	public void createBuffer( int width, int height ){
-		mbi = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB);
-	}
-
 	// Determine the maximum space each label takes on the axis (pxLabelLength)
 	private int pxCalculateMaxLabelLength_double( Graphics g, Font font, boolean zOrthogonalLabels, double dValueFrom, double dValueTo ){
 		java.awt.FontMetrics fm = g.getFontMetrics(font);
@@ -598,7 +562,7 @@ class AxisLayout {
 }
 
 abstract class AxisStyle {
-	public abstract boolean render( java.awt.Graphics2D g2, java.awt.image.BufferedImage mbi, PlotScale ps, AxisLayout layout, AxisProjection projection, AxisLabeling labeling, StringBuffer sbError );
+	public abstract BufferedImage render( java.awt.Graphics2D g2, PlotScale ps, AxisLayout layout, AxisProjection projection, AxisLabeling labeling, StringBuffer sbError );
 
 	// these default methods can be overridden by particular styles
 	// the size determinations must be exactly matched to the location
@@ -607,7 +571,7 @@ abstract class AxisStyle {
 			case X:
 				int pxMarginLeft = scale.dpiOutput * layout.iMarginLeft / 1000;
 				int pxMarginRight = scale.dpiOutput * layout.iMarginRight / 1000;
-				return scale.getPlot_Width() + pxMarginLeft + pxMarginRight;
+				return scale.getPlot_Width_pixels() + pxMarginLeft + pxMarginRight;
 			case Y:
 				return scale.dpiOutput * layout.iThickness / 1000;
 			case Radial:
@@ -628,7 +592,7 @@ abstract class AxisStyle {
 			case Y:
 				int pxMarginLeft = scale.dpiOutput * layout.iMarginLeft / 1000;
 				int pxMarginRight = scale.dpiOutput * layout.iMarginRight / 1000;
-				return scale.getPlot_Height() + pxMarginLeft + pxMarginRight;
+				return scale.getPlot_Height_pixels() + pxMarginLeft + pxMarginRight;
 			case Radial:
 			case Axial:
 			case Freestanding:
@@ -645,7 +609,7 @@ abstract class AxisStyle {
 			case X:
 				int pxMarginLeft = scale.dpiOutput * layout.iMarginLeft / 1000;
 				int pxMarginRight = scale.dpiOutput * layout.iMarginRight / 1000;
-				return scale.getPlot_Width() + pxMarginLeft + pxMarginRight;
+				return scale.getPlot_Width_pixels() + pxMarginLeft + pxMarginRight;
 			case Y:
 				return scale.dpiOutput * layout.iThickness / 1000;
 			case Radial:
@@ -664,7 +628,7 @@ abstract class AxisStyle {
 			case X:
 				int pxMarginLeft = scale.dpiOutput * layout.iMarginLeft / 1000;
 				int pxMarginRight = scale.dpiOutput * layout.iMarginRight / 1000;
-				return scale.getPlot_Width() + pxMarginLeft + pxMarginRight;
+				return scale.getPlot_Width_pixels() + pxMarginLeft + pxMarginRight;
 			case Y:
 				return scale.dpiOutput * layout.iThickness / 1000;
 			case Radial:
@@ -682,24 +646,28 @@ abstract class AxisStyle {
 
 class AxisStyle_SingleTick extends AxisStyle {
 	private AxisStyle_SingleTick(){} // create using create methods only
-	public AxisStyle_SingleTick create(
+	public final static AxisStyle_SingleTick createDefault(){
+		AxisStyle_SingleTick interval = new AxisStyle_SingleTick();
+		return interval;
+	}
+	public final static AxisStyle_SingleTick create(
 			String sName,               // name of the interval (displayed in editor)
 			PlotScale.UNITS units,      // units of measure (like mils, pixels, or mm)
-			int length,                 // length orthogonal to the baseline                 
-			int thickness,              // thickness in the direction of the baseline
-			int offset,                 // distance from the baseline edge of the buffer
+			int tick_length,            // length orthogonal to the baseline                 
+			int tick_thickness,         // thickness in the direction of the baseline
+			int baseline_offset,        // distance from the baseline edge of the buffer
 			int inversion,              // 1 or -1, if it is -1 the ticks will go into the plot instead of away from it
 			int color,                  // color of the ticks in RGBA
-			AxisLabeling labeling,  // labeling configuration, if any
+			AxisLabeling labeling,      // labeling configuration, if any
 			boolean zOmitOrigin,        // whether to include a tick at the origin, if there is one
 			int modulo                  // the value divisor, eg 5 or 10, a divisor of 0 means automatic
 		){
 		AxisStyle_SingleTick interval = new AxisStyle_SingleTick();
 		interval.msName = sName;               
 		interval.scale_units = units;         
-		interval.miLength = length;     
-		interval.miThickness = thickness;             
-		interval.miTickOffset = offset;           
+		interval.miLength = tick_length;     
+		interval.miThickness = tick_thickness;             
+		interval.miTickOffset = baseline_offset;           
 		interval.miColor = color;             
 		interval.mLabeling = labeling;
 		interval.mzOmitOrigin = zOmitOrigin;
@@ -707,7 +675,7 @@ class AxisStyle_SingleTick extends AxisStyle {
 		return interval;
 	}
 
-	private String msName = "Default Interval";
+	private String msName = "Default Axis";
 	private PlotScale.UNITS scale_units = PlotScale.UNITS.Inches_Mils;
 	private int miLength = 150;
 	private int miThickness = 10;
@@ -724,9 +692,7 @@ class AxisStyle_SingleTick extends AxisStyle {
 		return 0;
 	}
 	
-	public boolean render( java.awt.Graphics2D g2, java.awt.image.BufferedImage mbi, PlotScale ps, AxisLayout layout, AxisProjection projection, AxisLabeling labeling, StringBuffer sbError ){
-		int pxBufferWidth = mbi.getWidth();
-		int pxBufferHeight = mbi.getHeight();
+	public BufferedImage render( java.awt.Graphics2D g2, PlotScale ps, AxisLayout layout, AxisProjection projection, AxisLabeling labeling, StringBuffer sbError ){
 		int pxAxisLength;
 		int ctAxisLengthInches;
 		int ctDivisions;
@@ -737,22 +703,29 @@ class AxisStyle_SingleTick extends AxisStyle {
 		int pxBaselineOffset = miInversion * ps.dpiOutput * layout.iOffset / 1000;  // conversion from mils
 		int pxTickOffset     = ps.dpiOutput * miTickOffset / 1000;  // conversion from mils
 		int pxTickLength     = miInversion * ps.dpiOutput * miLength / 1000;  // conversion from mils
+		int pxOffsetThickness = layout.iOffset < 0 ? layout.iOffset * -1 : layout.iOffset; 
 		TextStyle style;
 		int rotation_degrees = 0;
 		PlotLayout.ORIENTATION alignmentTickLabel;
 		DAP.DAP_TYPE data_type;
+		java.awt.image.BufferedImage bi = null;
+		int pxBufferWidth; // depends on axis orientation
+		int pxBufferHeight; // depends on axis orientation
 		switch( projection.getType() ){
 			case Range_Linear:
 				data_type = projection.getDataType();
 				switch( layout.eAlignment ){
 					case X:
-						pxAxisLength = pxBufferWidth - layout.iMarginLeft - layout.iMarginRight;
+						pxAxisLength = ps.getPlot_Width_pixels();
+						pxBufferWidth = pxAxisLength + layout.iMarginLeft + layout.iMarginRight;
+						pxBufferHeight = pxOffsetThickness + layout.iThickness;
+						bi = new BufferedImage( pxBufferWidth, pxBufferHeight, BufferedImage.TYPE_INT_ARGB);
 						ctAxisLengthInches = pxAxisLength / ps.dpiOutput;
 						ctDivisions = ctDivisions( ctAxisLengthInches );
 						ctTicks = ctDivisions + 1;
 						alignmentTickLabel = PlotLayout.ORIENTATION.TopMiddle; 
 						style = TextStyle.create( LayoutStyle.Axis_X );
-						DrawLine.drawLine_horizontal( g2, mbi, pxBaselineOffset, pxLeftMargin, pxLeftMargin + pxAxisLength ); // draw the baseline
+						DrawLine.drawLine_horizontal( g2, bi, pxBaselineOffset, pxLeftMargin, pxLeftMargin + pxAxisLength ); // draw the baseline
 						if( data_type == DAP.DAP_TYPE.Int32 ){
 							int begin = projection.getRange_begin_int();
 							int end = projection.getRange_end_int();
@@ -763,25 +736,25 @@ class AxisStyle_SingleTick extends AxisStyle {
 							y2 = pxBaselineOffset + pxTickOffset + pxTickLength;
 							x = pxLeftMargin;
 							if( begin == base ){ // then there is a tick at the left end of the axis
-								DrawLine.drawLine_vertical( g2, mbi, pxLeftMargin, y1, y2 );
+								DrawLine.drawLine_vertical( g2, bi, pxLeftMargin, y1, y2 );
 								String sTickLabel = labeling.getValueString( begin );
-								DrawText.drawText( mbi, sTickLabel, style, x, y2, alignmentTickLabel, rotation_degrees );
+								DrawText.drawText( bi, sTickLabel, style, x, y2, alignmentTickLabel, rotation_degrees );
 							}
 							for( int xDivision = 1; xDivision <= ctDivisions; xDivision++ ){
 								int iDivisionValue = base + divisor * xDivision;  
 								x = ( iDivisionValue - begin ) * pxAxisLength / range;    
-								DrawLine.drawLine_vertical( g2, mbi, x, y1, y2 );
+								DrawLine.drawLine_vertical( g2, bi, x, y1, y2 );
 								String sTickLabel = labeling.getValueString( iDivisionValue );
-								DrawText.drawText( mbi, sTickLabel, style, x, y2, alignmentTickLabel, rotation_degrees );
+								DrawText.drawText( bi, sTickLabel, style, x, y2, alignmentTickLabel, rotation_degrees );
 							}
 							int iDivisionValue = base + divisor * ctTicks; // the value of the last tick  
 							x = ( iDivisionValue - begin ) * pxAxisLength / range;    
 							if( end == iDivisionValue ){ // then there is a tick at the end (facing inward)
 								// x_baseline -= width of tick TODO when tick widths are supported
 							}
-							DrawLine.drawLine_vertical( g2, mbi, x, y1, y2 );
+							DrawLine.drawLine_vertical( g2, bi, x, y1, y2 );
 							String sTickLabel = labeling.getValueString( iDivisionValue );
-							DrawText.drawText( mbi, sTickLabel, style, x, y2, alignmentTickLabel, rotation_degrees );
+							DrawText.drawText( bi, sTickLabel, style, x, y2, alignmentTickLabel, rotation_degrees );
 						} else if( data_type == DAP.DAP_TYPE.Float32 ){
 							double begin = projection.getRange_begin_double();
 							double end = projection.getRange_end_double();
@@ -792,41 +765,44 @@ class AxisStyle_SingleTick extends AxisStyle {
 							y2 = pxBaselineOffset + pxTickOffset + pxTickLength;
 							if( begin == base ){ // then there is a tick at the left end of the axis
 								x = pxLeftMargin;
-								DrawLine.drawLine_vertical( g2, mbi, x, y1, y2 );
+								DrawLine.drawLine_vertical( g2, bi, x, y1, y2 );
 								String sTickLabel = labeling.getValueString( begin );
-								DrawText.drawText( mbi, sTickLabel, style, x, y2, alignmentTickLabel, rotation_degrees );
+								DrawText.drawText( bi, sTickLabel, style, x, y2, alignmentTickLabel, rotation_degrees );
 							}
 							for( int xDivision = 1; xDivision <= ctDivisions; xDivision++ ){
 								double iDivisionValue = base + divisor * xDivision;  
-								x = (int)Math.round( ( iDivisionValue - begin ) * pxAxisLength / range );    
-								DrawLine.drawLine_vertical( g2, mbi, x, y1, y2 );
+								x = (int)Math.round( ( iDivisionValue - begin ) * pxAxisLength / range - 1 );    
+								DrawLine.drawLine_vertical( g2, bi, x, y1, y2 );
 								String sTickLabel = labeling.getValueString( iDivisionValue );
-								DrawText.drawText( mbi, sTickLabel, style, x, y2, alignmentTickLabel, rotation_degrees );
+								DrawText.drawText( bi, sTickLabel, style, x, y2, alignmentTickLabel, rotation_degrees );
 							}
 							double iDivisionValue = base + divisor * ctTicks; // the value of the last tick  
 							x = (int)Math.round( ( iDivisionValue - begin ) * pxAxisLength / range );    
 							if( end == iDivisionValue ){ // then there is a tick at the end (facing inward)
 								// x_baseline -= width of tick TODO when tick widths are supported
 							}
-							DrawLine.drawLine_vertical( g2, mbi, x, y1, y2 );
+							DrawLine.drawLine_vertical( g2, bi, x, y1, y2 );
 							String sTickLabel = labeling.getValueString( iDivisionValue );
-							DrawText.drawText( mbi, sTickLabel, style, x, y2, alignmentTickLabel, rotation_degrees );
+							DrawText.drawText( bi, sTickLabel, style, x, y2, alignmentTickLabel, rotation_degrees );
 						} else {
 							sbError.append( "unsupported data type for axis bounds: " + data_type );
-							return false;
+							return null;
 						}
 						break;
 					case Y: // axis from lower left to upper left of plot area
-						pxAxisLength = pxBufferHeight - layout.iMarginLeft - layout.iMarginRight;
+						pxAxisLength = ps.getPlot_Height_pixels();
+						pxBufferWidth = pxOffsetThickness + layout.iThickness;
+						pxBufferHeight = pxAxisLength + layout.iMarginLeft + layout.iMarginRight;
+						bi = new BufferedImage( pxBufferWidth, pxBufferHeight, BufferedImage.TYPE_INT_ARGB);
 						ctAxisLengthInches = pxAxisLength / ps.dpiOutput;
 						ctDivisions = ctDivisions( ctAxisLengthInches );
 						ctTicks = ctDivisions + 1;
 						alignmentTickLabel = PlotLayout.ORIENTATION.RightMiddle;
 						style = TextStyle.create( LayoutStyle.Axis_Y );
-						x = pxBufferWidth - pxBaselineOffset;
-						y1 = pxLeftMargin;
-						y2 = pxLeftMargin + pxAxisLength; 
-						DrawLine.drawLine_vertical( g2, mbi, x, y1, y2 ); // draw the baseline
+						x = pxBufferWidth - pxBaselineOffset - 1; // the coordinates are zero-based
+						y1 = pxLeftMargin - 1;
+						y2 = pxLeftMargin + pxAxisLength - 1; 
+						DrawLine.drawLine_vertical( g2, bi, x, y1, y2 ); // draw the baseline
 						data_type = projection.getDataType();
 						if( data_type == DAP.DAP_TYPE.Int32 ){
 							int begin = projection.getRange_begin_int();
@@ -838,57 +814,57 @@ class AxisStyle_SingleTick extends AxisStyle {
 							x2 = pxBufferWidth - pxBaselineOffset - pxTickOffset - pxTickLength;
 							if( begin == base ){ // then there is a tick at the bottom end of the axis
 								y = pxBufferHeight - pxRightMargin;
-								DrawLine.drawLine_horizontal( g2, mbi, y, x1, x2 );
+								DrawLine.drawLine_horizontal( g2, bi, y, x1, x2 );
 								String sTickLabel = labeling.getValueString( begin );
-								DrawText.drawText( mbi, sTickLabel, style, x2, y, alignmentTickLabel, rotation_degrees );
+								DrawText.drawText( bi, sTickLabel, style, x2, y, alignmentTickLabel, rotation_degrees );
 							}
 							for( int xDivision = 1; xDivision <= ctDivisions; xDivision++ ){
 								int iDivisionValue = base + divisor * xDivision;  
 								y = pxBufferHeight - pxRightMargin - ( iDivisionValue - begin ) * pxAxisLength / range;    
-								DrawLine.drawLine_horizontal( g2, mbi, y, x1, x2 );
+								DrawLine.drawLine_horizontal( g2, bi, y, x1, x2 );
 								String sTickLabel = labeling.getValueString( iDivisionValue );
-								DrawText.drawText( mbi, sTickLabel, style, x2, y, alignmentTickLabel, rotation_degrees );
+								DrawText.drawText( bi, sTickLabel, style, x2, y, alignmentTickLabel, rotation_degrees );
 							}
 							int iDivisionValue = base + divisor * ctTicks; // the value of the last tick  
 							y = pxBufferHeight - pxRightMargin - ( iDivisionValue - begin ) * pxAxisLength / range;    
 							if( end == iDivisionValue ){ // then there is a tick at the end (facing inward)
 								// x_baseline -= width of tick TODO when tick widths are supported
 							}
-							DrawLine.drawLine_horizontal( g2, mbi, y, x1, x2 );
+							DrawLine.drawLine_horizontal( g2, bi, y, x1, x2 );
 							String sTickLabel = labeling.getValueString( iDivisionValue );
-							DrawText.drawText( mbi, sTickLabel, style, x2, y, alignmentTickLabel, rotation_degrees );
+							DrawText.drawText( bi, sTickLabel, style, x2, y, alignmentTickLabel, rotation_degrees );
 						} else if( data_type == DAP.DAP_TYPE.Float32 ){
 							double begin = projection.getRange_begin_double();
 							double end = projection.getRange_end_double();
 							double range = end - begin;
 							double divisor = range / ctDivisions;
 							double base = begin - begin % divisor; // the location of first tick
-							x1 = pxBufferWidth - pxBaselineOffset - pxTickOffset;
-							x2 = pxBufferWidth - pxBaselineOffset - pxTickOffset - pxTickLength;
+							x1 = pxBufferWidth - pxBaselineOffset - pxTickOffset - 1;
+							x2 = pxBufferWidth - pxBaselineOffset - pxTickOffset - pxTickLength - 1;
 							if( begin == base ){ // then there is a tick at the bottom end of the axis
 								y = pxBufferHeight - pxRightMargin;
-								DrawLine.drawLine_horizontal( g2, mbi, y, x1, x2 );
+								DrawLine.drawLine_horizontal( g2, bi, y, x1, x2 );
 								String sTickLabel = labeling.getValueString( begin );
-								DrawText.drawText( mbi, sTickLabel, style, x2, y, alignmentTickLabel, rotation_degrees );
+								DrawText.drawText( bi, sTickLabel, style, x2, y, alignmentTickLabel, rotation_degrees );
 							}
 							for( int xDivision = 1; xDivision <= ctDivisions; xDivision++ ){
 								double iDivisionValue = base + divisor * xDivision;  
-								y = (int)Math.round( pxBufferHeight - pxRightMargin - ( iDivisionValue - begin ) * pxAxisLength / range );    
-								DrawLine.drawLine_horizontal( g2, mbi, y, x1, x2 );
+								y = (int)Math.round( pxBufferHeight - pxRightMargin - ( iDivisionValue - begin ) * pxAxisLength / range - 1 );    
+								DrawLine.drawLine_horizontal( g2, bi, y, x1, x2 );
 								String sTickLabel = labeling.getValueString( iDivisionValue );
-								DrawText.drawText( mbi, sTickLabel, style, x2, y, alignmentTickLabel, rotation_degrees );
+								DrawText.drawText( bi, sTickLabel, style, x2, y, alignmentTickLabel, rotation_degrees );
 							}
 							double iDivisionValue = base + divisor * ctTicks; // the value of the last tick  
-							y = (int)Math.round( pxBufferHeight - pxRightMargin - ( iDivisionValue - begin ) * pxAxisLength / range );    
+							y = (int)Math.round( pxBufferHeight - pxRightMargin - ( iDivisionValue - begin ) * pxAxisLength / range - 1 );    
 							if( end == iDivisionValue ){ // then there is a tick at the end (facing inward)
 								// x_baseline -= width of tick TODO when tick widths are supported
 							}
-							DrawLine.drawLine_horizontal( g2, mbi, y, x1, x2 );
+							DrawLine.drawLine_horizontal( g2, bi, y, x1, x2 );
 							String sTickLabel = labeling.getValueString( iDivisionValue );
-							DrawText.drawText( mbi, sTickLabel, style, x2, y, alignmentTickLabel, rotation_degrees );
+							DrawText.drawText( bi, sTickLabel, style, x2, y, alignmentTickLabel, rotation_degrees );
 						} else {
 							sbError.append( "unsupported data type for axis bounds: " + data_type );
-							return false;
+							return null;
 						}
 						break;
 					case Radial:
@@ -899,7 +875,7 @@ class AxisStyle_SingleTick extends AxisStyle {
 			case Range_Function:
 			case IndexedValues:
 		}
-		return true;
+		return bi;
 	}
 	
 	// logic to determine how many ticks there shouuld be by length of axis
@@ -918,16 +894,16 @@ class AxisStyle_SingleTick extends AxisStyle {
 }
 
 class AxisStyle_MajorMinor extends AxisStyle {
-	public boolean render( java.awt.Graphics2D g2, java.awt.image.BufferedImage mbi, PlotScale ps, AxisLayout layout, AxisProjection projection, AxisLabeling labeling, StringBuffer sbError ){
+	public BufferedImage render( java.awt.Graphics2D g2, PlotScale ps, AxisLayout layout, AxisProjection projection, AxisLabeling labeling, StringBuffer sbError ){
 		sbError.append( "not implemented" );
-		return false;
+		return null;
 	}
 }
 
 class AxisStyle_Boxed extends AxisStyle {
-	public boolean render( java.awt.Graphics2D g2, java.awt.image.BufferedImage mbi, PlotScale ps, AxisLayout layout, AxisProjection projection, AxisLabeling labeling, StringBuffer sbError ){
+	public BufferedImage render( java.awt.Graphics2D g2, PlotScale ps, AxisLayout layout, AxisProjection projection, AxisLabeling labeling, StringBuffer sbError ){
 		sbError.append( "not implemented" );
-		return false;
+		return null;
 	}
 }
 
@@ -965,9 +941,9 @@ class AxisLabeling {
 			iValue = iValue * Utility_Numeric.power10( 1, iLogarithmicScale ); 
 		}
 		if( sFormatString == null ){
-			return String.format( sFormatString, iValue );
-		} else {
 			return Integer.toString( iValue );
+		} else {
+			return String.format( sFormatString, iValue );
 		}
 	}
 	String getValueString( double dValue ){
@@ -977,9 +953,9 @@ class AxisLabeling {
 			dValue = dValue * Utility_Numeric.power10( 1, iLogarithmicScale ); 
 		}
 		if( sFormatString == null ){
-			return String.format( sFormatString, dValue );
-		} else {
 			return Double.toString( dValue );
+		} else {
+			return String.format( sFormatString, dValue );
 		}
 	}
 }
