@@ -39,9 +39,9 @@ class Panel_Plot_Surface extends Panel_Plot {
 
 	public String getDescriptor(){ return "S"; }
 
-	public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
-		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
+		Graphics2D g2 = (Graphics2D)bi.getGraphics();
 
 		int iRangeDivisions = 100;
 		int iAngularDivisions = 50;

@@ -37,6 +37,7 @@ import opendap.clients.odc.DAP;
 import opendap.clients.odc.data.Model_Dataset;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 class Panel_Plot_Vector extends Panel_Plot {
 
@@ -62,13 +63,13 @@ class Panel_Plot_Vector extends Panel_Plot {
 	// When the image is generated only one arrow is drawn per vector region, a region
 	// being a square with the size of the nominal maximum arrow. To find the net magnitude for
 	// the arrow, all the vectors in the region are averaged.
-	public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 		if( mPlottable.getDataType() == 0 ){
 			sbError.append( "data type undefined" );
 			return false; // nothing to plot
 		}
 
-		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
+		Graphics2D g2 = (Graphics2D)bi.getGraphics();
 		g2.setColor(Color.black);
 
 		g2.setClip(mpxMargin_Left, mpxMargin_Top, pxPlotWidth, pxPlotHeight);

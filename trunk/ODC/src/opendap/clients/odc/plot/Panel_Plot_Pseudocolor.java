@@ -37,6 +37,8 @@ import opendap.clients.odc.data.Model_Dataset;
 
 import java.awt.Graphics2D;
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+
 import javax.swing.JOptionPane;
 import javax.swing.JDialog;
 
@@ -55,8 +57,8 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 
 	static boolean mzTraceErrorOnce = true;
 	StringBuffer msbError = new StringBuffer(80);
-	public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
-		if( mbi == null ){
+	public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+		if( bi == null ){
 			sbError.append( "system error, no graphics buffer" );
 			return false;
 		}
@@ -69,7 +71,7 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 		mpxRenderedPlotWidth = pxPlotWidth;
 		mpxRenderedPlotHeight = pxPlotHeight;
 
-		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
+		Graphics2D g2 = (Graphics2D)bi.getGraphics();
 		g2.setColor(Color.BLACK);
 		try {
 
@@ -106,14 +108,14 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 			int pxOffset = 0;
 			int pxScanlineStride = pxPlotWidth;
 
-			if( pxStartX + pxPlotWidth > mbi.getWidth() || pxStartY + pxPlotHeight > mbi.getHeight() ){
+			if( pxStartX + pxPlotWidth > bi.getWidth() || pxStartY + pxPlotHeight > bi.getHeight() ){
 				if( mzTraceErrorOnce ){
 					mzTraceErrorOnce = false;
 				}
-				sbError.append( "Internal error, invalid plotting dimensions. startx: " + pxStartX + " + plot width: " + pxPlotWidth + " > buffer width: " + mbi.getWidth() + " or starty: " + pxStartY + " + plot height: " + pxPlotHeight + " > buffer height: " + mbi.getHeight() );
+				sbError.append( "Internal error, invalid plotting dimensions. startx: " + pxStartX + " + plot width: " + pxPlotWidth + " > buffer width: " + bi.getWidth() + " or starty: " + pxStartY + " + plot height: " + pxPlotHeight + " > buffer height: " + bi.getHeight() );
 				return false;
 			} else {
-				mbi.setRGB(pxStartX, pxStartY, pxPlotWidth, pxPlotHeight, maiRGBArray, pxOffset, pxScanlineStride);
+				bi.setRGB(pxStartX, pxStartY, pxPlotWidth, pxPlotHeight, maiRGBArray, pxOffset, pxScanlineStride);
 			}
 
 			return true;
