@@ -211,9 +211,6 @@ public class Model_PlottableExpression {
 			}
 			pos++;
 		}
-		for( Identifier identifier : listIdentifiers ){
-			System.out.println( "* identifier: " + identifier.s + " pos: " + identifier.pos );
-		}
 		return listIdentifiers;
 	}
 	
@@ -328,82 +325,259 @@ public class Model_PlottableExpression {
 		opendap.clients.odc.Interpreter odc_interpreter = ApplicationController.getInstance().getInterpreter();
 		double dRangeX = range.dEndX - range.dBeginX;
 		double dRangeY = range.dEndY - range.dBeginY;
-		int eState = 0;
 		switch( type ){
 			case Cartesian:
-				int ctPoints = iPlotWidth;
-				coordinates.ctPoints = ctPoints;
-				coordinates.ax0 = new int[ctPoints];
-				coordinates.ay0 = new int[ctPoints];
-				coordinates.aAlpha = new int[ctPoints];
-				int y = 0;
 				org.python.core.PyCode codeY = compiled_y.compiled_code;
-				for( int x = 1; x <= iPlotWidth; x++ ){ // there will be at least one point for every x pixel
-					double dX = range.dBeginX + x * dRangeX / iPlotWidth;
-					if( ! odc_interpreter.zSet( "_x", dX, sbError ) ){
-						sbError.insert( 0, "failed to set _x to " + dX );
-						return null;
-					}
-					PyObject pyobjectY = odc_interpreter.zEval( codeY, sbError );
-					if( pyobjectY == null ){
-						sbError.insert( 0, "failed to eval _y expression " +  compiled_y + ": " );
-						return null;
-					}
-					double dY = pyobjectY.asDouble();
-					double dY_coordinate = iPlotHeight * (dY - range.dBeginY) / dRangeY;
-					int y_previous = y;
-					y = (int)dY_coordinate;
-					if( dY_coordinate >= iPlotHeight || dY_coordinate < 0 ){
-						// outside plottable view, do not plot
-					} else {
-						if( dY_coordinate - y >= 0.5d ) y++; // round
-						if( eState == 6 ){ // write base point
-							coordinates.ax0[ctPoints] = x;
-							coordinates.ay0[ctPoints] = y;
+				boolean zWriting = false;
+				while( true ){  // two passes, one to count the number of points, the second to write the points
+					int y = 0;
+					double dX = 0;
+					double dY = 0;
+					int ctPoints = 0;
+					for( int x = 0; x < iPlotWidth; x++ ){ // there will be at least one point for every x pixel
+
+						// determine y coordinate for x value
+						double dX_previous = dX;
+						dX = range.dBeginX + x * dRangeX / iPlotWidth;
+						if( ! odc_interpreter.zSet( "_x", dX, sbError ) ){
+							sbError.insert( 0, "failed to set _x to " + dX );
+							return null;
 						}
-						ctPoints++;
-						if( ctPoints > 1 ){
-							if( y - y_previous > 1 ){
-								if( eState == 6 ){
-									int y_halfway = coordinates.ay0[ctPoints - 1] + (y - coordinates.ay0[ctPoints - 1]) / 2;
-									for( int xY = coordinates.ay0[ctPoints - 1]; xY < y_halfway; xY++ ){
-										coordinates.ax0[ctPoints] = x - 1;
-										coordinates.ay0[ctPoints] = xY;
-										ctPoints++;
-									}
-									for( int xY = y_halfway; xY < y; xY++ ){
-										coordinates.ax0[ctPoints] = x;
-										coordinates.ay0[ctPoints] = xY;
-										ctPoints++;
-									}
-								} else {
-									ctPoints += y - y_previous; 
+						PyObject pyobjectY = odc_interpreter.zEval( codeY, sbError );
+						if( pyobjectY == null ){
+							sbError.insert( 0, "failed to eval _y expression " +  compiled_y + ": " );
+							return null;
+						}
+						double dY_previous = x == 1 ? pyobjectY.asDouble() : dY;
+						dY = pyobjectY.asDouble();
+						double dY_coordinate = iPlotHeight * (dY - range.dBeginY) / dRangeY;
+						int y_previous = y;
+						y = (int)dY_coordinate;
+						
+						// plot the point
+						if( y >= iPlotHeight || y < 0 ){
+							// outside plottable view, do not plot
+						} else {
+							if( dY_coordinate - y >= 0.5d ) y++; // round
+							if( zWriting ){
+								coordinates.ax0[x] = x;
+								coordinates.ay0[x] = y;
+								coordinates.ax0_value[x] = dX;
+								coordinates.ay0_value[x] = dY;
+							}
+							ctPoints++;
+						}
+						
+						// interpolate points if y-coordinates are not continuous
+						if( ctPoints > 1 && ( y - y_previous > 1 || y_previous - y > 1 ) ){
+							double dY_delta = dRangeY / iPlotHeight / 100;
+							double dX_begin = dX_previous;
+							double dX_end = dX;
+							double dY_begin = dY_previous;
+							double dY_end = dY;
+							boolean zAscend = (y - y_previous > 1);
+							int iIncrement = zAscend ? 1 : -1; 
+							for( int y_interpolation = y_previous + iIncrement; y_interpolation != y; y_interpolation += iIncrement ){
+								double dY_target = y_interpolation * dRangeY / iPlotHeight + range.dBeginY;
+								double dX_interpolation = dFindInterpolatedX( dY_target, dY_delta, dX_begin, dX_end, dY_begin, dY_end, odc_interpreter, codeY, sbError );
+								if( zWriting ){
+									int x_coordinate = (int)(iPlotWidth * (dX - range.dBeginX) / dRangeX);
+									coordinates.ax0[x] = x_coordinate;
+									coordinates.ay0[x] = y_interpolation;
+									coordinates.ax0_value[x] = dX_interpolation;
+									coordinates.ay0_value[x] = dY_target;
 								}
-							} else if( y_previous - y > 1 ){ // need to interpolate points to make curve continuous
-								if( eState == 6 ){
-									int y_halfway = coordinates.ay0[ctPoints - 1] + (y - coordinates.ay0[ctPoints - 1]) / 2;
-									for( int xY = coordinates.ay0[ctPoints - 1]; xY > y_halfway; xY-- ){
-										coordinates.ax0[ctPoints] = x - 1;
-										coordinates.ay0[ctPoints] = xY;
-										ctPoints++;
-									}
-									for( int xY = y_halfway; xY > y; xY-- ){
-										coordinates.ax0[ctPoints] = x;
-										coordinates.ay0[ctPoints] = xY;
-										ctPoints++;
-									}
-								} else {
-									ctPoints += y_previous - y; 
-								}
+								ctPoints++;
 							}
 						}
 					}
+					if( zWriting ) break;
+					coordinates.setCapacity( ctPoints );
+					zWriting = true;
 				}
+
+				// generate rendered points (antialiased or jagged)
+				zWriting = false;
+				boolean zAntialiased = true;
+				double dThicknessSquared = 8;
+				int ctRenderedPoints = 0;
+				while( true ){  // two passes, one to count the number of points, the second to write the points
+					ctRenderedPoints = 0;
+					for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){ // cycle through the dimensionless points and define points which are actually rendered
+						int x = coordinates.ax0[xPoint];
+						int y = coordinates.ay0[xPoint];
+						ctRenderedPoints += makePoint( coordinates, xPoint, x, y, ctRenderedPoints, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 0 ); 
+					}
+					if( zWriting ) break;
+					coordinates.setCapacity_Rendered( ctRenderedPoints, zAntialiased );
+					zWriting = true;
+					System.out.println( "rendered points found: " + ctRenderedPoints );
+				}
+
+				// consolidate rendered points so there are no duplicates
+				// if two points coincide, then the alpha value which is more opaque is used
+				int[] ax0_unique = null;
+				int[] ay0_unique = null;
+				int[] alpha_unique = null;
+				zWriting = false;
+				while( true ){
+					int ctRenderedPoints_unique = 0;
+					for( int xRenderedPoint = 0; xRenderedPoint < ctRenderedPoints - 1; xRenderedPoint++ ){
+						int xRenderedPoint2 = xRenderedPoint + 1;
+						while( true ){
+							if( xRenderedPoint2 == ctRenderedPoints ){
+								if( zWriting ){
+									int alpha_max = coordinates.aAlpha[xRenderedPoint];
+									for( int xBacktrack = xRenderedPoint - 1; xBacktrack >= 0; xBacktrack-- ){
+										if( coordinates.ax0_antialiased[xRenderedPoint] == coordinates.ax0_antialiased[xBacktrack] &&
+											coordinates.ay0_antialiased[xRenderedPoint] == coordinates.ay0_antialiased[xBacktrack] &&
+											coordinates.aAlpha[xBacktrack] > alpha_max ){
+											alpha_max = coordinates.aAlpha[xBacktrack];
+										}
+									}
+									ax0_unique[ctRenderedPoints_unique] = coordinates.ax0_antialiased[xRenderedPoint]; 
+									ay0_unique[ctRenderedPoints_unique] = coordinates.ay0_antialiased[xRenderedPoint];
+									coordinates.aAlpha[ctRenderedPoints_unique] = alpha_max;
+								}
+								ctRenderedPoints_unique++;
+								break;
+							}
+							if( coordinates.ax0_antialiased[xRenderedPoint] == coordinates.ax0_antialiased[xRenderedPoint2] &&
+								coordinates.ay0_antialiased[xRenderedPoint] == coordinates.ay0_antialiased[xRenderedPoint2] ){
+								break;
+							}
+							xRenderedPoint2++;
+						}
+					}
+					if( zWriting ){
+						coordinates.ax0_antialiased = ax0_unique;
+						coordinates.ay0_antialiased = ay0_unique;
+						coordinates.aAlpha = alpha_unique;
+						break;
+					}
+					coordinates.ctPoints_antialiased = ctRenderedPoints_unique;
+					ax0_unique = new int[ctRenderedPoints_unique];
+					ay0_unique = new int[ctRenderedPoints_unique];
+					alpha_unique = new int[ctRenderedPoints_unique];
+					zWriting = true;
+					System.out.println( "unique renderings: " + ctRenderedPoints_unique );
+				}
+				coordinates.zHasAlpha = true;
+				
 				break;
 			case Polar:
 			case Parametric:
 		}
 		return coordinates;
+	}
+
+	// the idea of the mode is to make the recursive search move outwards, the mode pattern is:
+	//     1 2 2 2 3
+	//     8 1 2 3 4
+	//     8 8 0 4 4
+	//     8 7 6 5 4
+	//     7 6 6 6 5
+	private int makePoint( PlotCoordinates coordinates, int xPoint, int x, int y, int xRenderedPoint, double dRangeX, double dRangeY, int iPlotWidth, int iPlotHeight, double dThicknessSquared, boolean zWriting, int mode ){ 
+		double dX = (double)x;
+		double dY = (double)y;
+		int xCurrentPoint = xPoint;
+		int xPreviousPoint = xPoint == 0 ? xPoint : xPoint - 1;
+		int xNextPoint = xPoint == coordinates.ctPoints - 1 ? xPoint : xPoint + 1;
+		double dX_Current = ( coordinates.ax0_value[xCurrentPoint] - range.dBeginX ) * iPlotWidth / dRangeX; // this is the pixel-related coordinate of the value
+		double dY_Current = ( coordinates.ay0_value[xCurrentPoint] - range.dBeginY ) * iPlotHeight / dRangeY; // this is the pixel-related coordinate of the value
+		double dX_Previous = ( coordinates.ax0_value[xPreviousPoint] - range.dBeginX ) * iPlotWidth / dRangeX; // this is the pixel-related coordinate of the value
+		double dY_Previous = ( coordinates.ay0_value[xPreviousPoint] - range.dBeginY ) * iPlotHeight / dRangeY; // this is the pixel-related coordinate of the value
+		double dX_Next = ( coordinates.ax0_value[xNextPoint] - range.dBeginX ) * iPlotWidth / dRangeX; // this is the pixel-related coordinate of the value
+		double dY_Next = ( coordinates.ay0_value[xNextPoint] - range.dBeginY ) * iPlotHeight / dRangeY; // this is the pixel-related coordinate of the value
+		double distance2CurrentPoint = (dX - dX_Current) * (dX - dX_Current) + (dY - dY_Current) * (dY - dY_Current);
+		double distance2PreviousPoint = (dX - dX_Previous) * (dX - dX_Previous) + (dY - dY_Previous) * (dY - dY_Previous);
+		double distance2NextPoint = (dX - dX_Next) * (dX - dX_Next) + (dY - dY_Next) * (dY - dY_Next);
+		double distanceSquaredAverage = ( distance2CurrentPoint + distance2PreviousPoint + distance2NextPoint )/3;
+		if( distanceSquaredAverage > dThicknessSquared ) return 0; // do not make a point if point is beyond thickness of line
+		if( zWriting ){
+			int alpha = (int)((dThicknessSquared - distanceSquaredAverage) * 0xFF / dThicknessSquared);
+			coordinates.ax0_antialiased[xRenderedPoint] = coordinates.ax0[xPoint];
+			coordinates.ay0_antialiased[xRenderedPoint] = coordinates.ay0[xPoint];
+			coordinates.aAlpha[xRenderedPoint] = alpha;
+		}
+		int ctPointsMade = 1;
+		switch( mode ){
+			case 0:
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 4 );
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 3 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 2 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 8 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 7 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 6 );
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 5 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 1 );
+				break;
+			case 1:
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 1 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 8 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 2 );
+				break;
+			case 2:
+				ctPointsMade += makePoint( coordinates, xPoint, x, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 2 );
+				break;
+			case 3:
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 3 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 2 );
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 4 );
+				break;
+			case 4:
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 4 );
+				break;
+			case 5:
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 5 );
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 4 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 6 );
+				break;
+			case 6:
+				ctPointsMade += makePoint( coordinates, xPoint, x, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 6 );
+			case 7:
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 7 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 6 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 8 );
+				break;
+			case 8:
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 8 );
+				break;
+		}
+		return ctPointsMade;
+	}
+	
+	private double dFindInterpolatedX( double dY_target, double dY_delta, double dX_begin, double dX_end, double dY_begin, double dY_end, opendap.clients.odc.Interpreter odc_interpreter, org.python.core.PyCode codeY, StringBuffer sbError ){
+		double dX = (dX_end + dX_begin) / 2;
+		if( ! odc_interpreter.zSet( "_x", dX, sbError ) ){
+			sbError.insert( 0, "failed to set _x to " + dX );
+			return Double.NaN;
+		}
+		PyObject pyobjectY = odc_interpreter.zEval( codeY, sbError );
+		if( pyobjectY == null ){
+			sbError.insert( 0, "failed to eval _y expression " +  compiled_y + ": " );
+			return Double.NaN;
+		}
+		double dY = pyobjectY.asDouble();
+		double dY_difference = dY > dY_target ? dY - dY_target : dY_target - dY;
+		if( dY_difference < dY_delta ){
+			return dX;
+		} else {
+			if( ( dY_begin < dY_end && dY < dY_target ) || (dY_begin > dY_end && dY > dY_target ) ){
+				return dFindInterpolatedX( dY_target, dY_delta, dX_begin, dX, dY_begin, dY_end, odc_interpreter, codeY, sbError );
+			} else {
+				return dFindInterpolatedX( dY_target, dY_delta, dX, dX_end, dY_begin, dY_end, odc_interpreter, codeY, sbError );
+			}
+		}
+	}
+	
+	private void makePoint( PlotCoordinates coordinates, int xPoint, int x, int y, double dX, double dY, double dY_previous ){
+		coordinates.ax0[xPoint] = x;
+		coordinates.ay0[xPoint] = y;
+		double distanceCurrentPointSquared = (y - dY) * (y - dY);
+		double distancePreviousPointSquared = (y - dY_previous) * (y - dY_previous);
+		double distanceAveraged = ( distanceCurrentPointSquared + distancePreviousPointSquared ) / 2;
+		coordinates.aAlpha[xPoint] = (int)(0xFF * (1 - distanceAveraged));
 	}
 }
 
@@ -418,10 +592,44 @@ class PlotCoordinates {
 	boolean zHasAlpha = false;
 	boolean zHasColor = false;
 	int argbBaseColor = 0xFF000000; // solid black
+	
+	// actual (dimensionless points)
 	int ctPoints;
 	int[] ax0;
 	int[] ay0;
+	double[] ax0_value; // values on which the coordinate is based
+	double[] ay0_value;
+
+	int ctPoints_jagged;
+	int[] ax0_jagged;
+	int[] ay0_jagged;
+
+	int ctPoints_antialiased;
+	int[] ax0_antialiased;
+	int[] ay0_antialiased;
 	int[] aAlpha;
+	
+	void setCapacity( int ctPoints ){
+		this.ctPoints = ctPoints;
+		ax0 = new int[ctPoints];
+		ay0 = new int[ctPoints];
+		ax0_value = new double[ctPoints]; // values on which the coordinate is based
+		ay0_value = new double[ctPoints];	
+	}
+	
+	void setCapacity_Rendered( int ctPoints, boolean zAntialiased ){
+		if( zAntialiased ){
+			ctPoints_antialiased = ctPoints;
+			ax0_antialiased = new int[ctPoints];
+			ay0_antialiased = new int[ctPoints];
+			aAlpha = new int[ctPoints];
+		} else {
+			int ctPoints_jagged;
+			ax0_jagged = new int[ctPoints];
+			ay0_jagged = new int[ctPoints];
+		}
+	}
+	
 	PlotRange range;
 	String sDump(){
 		StringBuffer sb = new StringBuffer();

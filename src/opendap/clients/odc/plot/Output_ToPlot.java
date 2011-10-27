@@ -415,10 +415,10 @@ public class Output_ToPlot {
 
 	static boolean zPlot_Expression( PlotEnvironment environment, Model_Dataset model, OutputTarget eOutputOption, String sCaption, StringBuffer sbError ){
 		try {
+			Panel_Plot_Expression panelPE = new Panel_Plot_Expression( environment, null, sCaption );
 			ColorSpecification cs = environment.getColorSpecification();
 			PlotText pt = environment.getText();
 			PlotOptions po = environment.getOptions();
-			Panel_Plot_Expression panelPE = new Panel_Plot_Expression( environment, null, sCaption );
 			panelPE.setColors(cs);
 			panelPE.setOptions(po);
 			panelPE.setText(pt);
@@ -784,8 +784,8 @@ public class Output_ToPlot {
 					}
 					JComponent compToAdd;
 					scale = panelPlot.getPlotScale();
-					if( (float)scale.getCanvas_Width() > .9f * SCREEN_Width ||
-					    (float)scale.getCanvas_Height() > .9f * SCREEN_Height ){
+					if( (float)scale.getCanvas_Width_pixels() > .9f * SCREEN_Width ||
+					    (float)scale.getCanvas_Height_pixels() > .9f * SCREEN_Height ){
 						if( iFrameNumber == 1 ) frame.setSize(SCREEN_Width, SCREEN_Height);
 						JScrollPane jspNew = new JScrollPane(panelPlot);
 						compToAdd = jspNew;
@@ -793,8 +793,8 @@ public class Output_ToPlot {
 						if( iFrameNumber == 1 ){
 							int iExtraWidth = ApplicationController.getInstance().getFrame_ExtraWidth();
 	    					int iExtraHeight = ApplicationController.getInstance().getFrame_ExtraHeight();
-		    				int iFrameWidth = scale.getCanvas_Width() + iExtraWidth;
-			    			int iFrameHeight = scale.getCanvas_Height() + iExtraHeight;
+		    				int iFrameWidth = scale.getCanvas_Width_pixels() + iExtraWidth;
+			    			int iFrameHeight = scale.getCanvas_Height_pixels() + iExtraHeight;
 				    		frame.setSize(iFrameWidth, iFrameHeight);
 						}
 						compToAdd = panelPlot;
@@ -814,8 +814,8 @@ public class Output_ToPlot {
 					if( iFrameNumber > 1 ) Thread.sleep(miMultisliceDelay); // wait for two seconds before continuing
 					sOutput = "full screen";
 					scale = panelPlot.getPlotScale();
-					int iPanelWidth = scale.getCanvas_Width();
-					int iPanelHeight = scale.getCanvas_Height();
+					int iPanelWidth = scale.getCanvas_Width_pixels();
+					int iPanelHeight = scale.getCanvas_Height_pixels();
 					java.awt.Container container = windowFullScreen_final.getContentPane();
 					container.removeAll();
 					container.add(panelPlot);

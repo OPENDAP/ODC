@@ -1,6 +1,7 @@
 package opendap.clients.odc.plot;
 
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 import opendap.clients.odc.ApplicationController;
 
@@ -30,7 +31,7 @@ public class Panel_Plot_Expression extends Panel_Plot {
 	public String getDescriptor(){ return "E"; }
 
 	// overrides method in Panel_Plot
-	public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 		PlotCoordinates coordinates = model.getPlotCoordinates( pxPlotWidth, pxPlotHeight, sbError );
 		if( coordinates == null ){
 			sbError.insert( 0, "failed to get coordinates for plot dimensions (" + pxPlotWidth + ", " + pxPlotHeight +  "): " );
@@ -40,17 +41,29 @@ public class Panel_Plot_Expression extends Panel_Plot {
 			if( coordinates.zHasColor ){
 			} else {
 				int argbBaseColor = coordinates.argbBaseColor;
-				for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){
+				for( int xPoint = 0; xPoint < coordinates.ctPoints_antialiased; xPoint++ ){
 					int argb = ( argbBaseColor & 0x00FFFFFF ) | ( coordinates.aAlpha[xPoint] << 0xFFF ) ; // black
-					mbi.setRGB( coordinates.ax0[xPoint], coordinates.ay0[xPoint], argb );
+					bi.setRGB( coordinates.ax0[xPoint], coordinates.ay0[xPoint], argb );
 				}
 			}
 		} else {
 			if( coordinates.zHasColor ){
 			} else {
 				int argb = coordinates.argbBaseColor;
+//				int argb = 0x50000000;
+				int argb_antialias = 0x30000000;
+				int coordinateX_previous = 0;
+				int coordinateY_previous = 0;
 				for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){
-					mbi.setRGB( coordinates.ax0[xPoint], pxPlotHeight + coordinates.ay0[xPoint], argb );
+					int coordinateX = coordinates.ax0[xPoint];
+					int coordinateY = pxPlotHeight - coordinates.ay0[xPoint];
+					bi.setRGB( coordinateX, coordinateY, argb );
+					if( coordinateY == coordinateY_previous + 1 || coordinateY == coordinateY_previous - 1 ){
+						bi.setRGB( coordinateX_previous, coordinateY, argb_antialias );
+						bi.setRGB( coordinateX, coordinateY_previous, argb_antialias );
+					}
+					coordinateX_previous = coordinateX; 
+					coordinateY_previous = coordinateY;
 				}
 			}
 		}
@@ -62,7 +75,7 @@ public class Panel_Plot_Expression extends Panel_Plot {
 	private double[] x_value_calculated;
 	private int[] x_value_plotted; // point values  (not anti-aliased or connected)
 
-	public void vGenerateImage_Polar( Graphics2D g2, int pxPlotWidth, int pxPlotHeight ){
+	public void vGenerateImage_Polar( BufferedImage bi, Graphics2D g2, int pxPlotWidth, int pxPlotHeight ){
 		opendap.clients.odc.Interpreter interpreter = ApplicationController.getInstance().getInterpreter();
 		StringBuffer sbError = new StringBuffer();
 
@@ -129,7 +142,7 @@ public class Panel_Plot_Expression extends Panel_Plot {
 		for( int xRadial = 1; xRadial <= iRadialCount; xRadial++ ){
 			y_value_plotted[xRadial] = (int)(y_value_calculated[xRadial] * y_scale + y_offset);
 			x_value_plotted[xRadial] = (int)(x_value_calculated[xRadial] * x_scale + x_offset);
-			mbi.setRGB( x_value_plotted[xRadial], y_value_plotted[xRadial], argb );
+			bi.setRGB( x_value_plotted[xRadial], y_value_plotted[xRadial], argb );
 		}
 	}
 
