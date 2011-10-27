@@ -54,7 +54,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	public final static double TwoPi = 2d * 3.14159d;
 	public final static String TEXT_ID_CaptionColorBar = "CaptionColorbar";
 
-	protected BufferedImage mbi = null;
+	private BufferedImage mbi = null;
 	protected boolean mzMode_FullScreen = false;
 
 	// data
@@ -90,8 +90,8 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	private String msCaption = null;
 
 	abstract public String getDescriptor();
-	abstract public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError );
-	abstract public boolean zCreateRGBArray(int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError);
+	abstract public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError );
+	abstract public boolean zCreateRGBArray( int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError );
 	
 	public static void main(String[] args) {
 		Frame frame = new Frame("Plot Demo");
@@ -213,10 +213,10 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	private boolean zCreateImage( boolean zFill, StringBuffer sbError ){
 
 		// standard scaled area
-		int pxCanvasWidth = mScale.getCanvas_Width();
-		int pxCanvasHeight = mScale.getCanvas_Height();
-		int pxPlotWidth = mScale.getPlot_Width();
-		int pxPlotHeight = mScale.getPlot_Height();
+		int pxCanvasWidth = mScale.getCanvas_Width_pixels();
+		int pxCanvasHeight = mScale.getCanvas_Height_pixels();
+		int pxPlotWidth = mScale.getPlot_Width_pixels();
+		int pxPlotHeight = mScale.getPlot_Height_pixels();
 
 		if( pxCanvasWidth == 0 || pxCanvasHeight == 0 ){
 			sbError.append( "invalid scale, canvas width/height cannot be <= 0" );
@@ -267,11 +267,10 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			g2.fillRect(0,0,pxCanvasWidth,pxCanvasHeight); // draw background
 			int pxPlotLeft = layout.getLocation_Horizontal( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
 			int pxPlotTop  = layout.getLocation_Vertical( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
-
 			g2.setClip(pxPlotLeft, pxPlotTop, pxPlotWidth, pxPlotHeight);
 			mpxPreferredWidth = pxCanvasWidth;
 			mpxPreferredHeight = pxCanvasHeight;
-			if( ! zGenerateImage( pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError ) ){
+			if( ! zGenerateImage( bi, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError ) ){
 				sbError.insert( 0, "failed to generate image: " );
 				return false;
 			}
@@ -400,8 +399,8 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	protected void vDrawAxes( Graphics2D g2, int pxPlotWidth, int pxPlotHeight ){
 		StringBuffer sbError = new StringBuffer();
 		ArrayList<PlotAxis> listAxes = environment.getAxes()._getActive();
-		for( int xAxis = 1; xAxis <= listAxes.size(); xAxis++ ){
-			PlotAxis axis = listAxes.get( xAxis - 1 );
+		for( int xAxis = 0; xAxis < listAxes.size(); xAxis++ ){
+			PlotAxis axis = listAxes.get( xAxis );
 			BufferedImage biAxis = axis.render( g2, mScale, sbError );
 			if( biAxis == null  ){
 				ApplicationController.vShowError_NoModal( "error rendering axis: " + sbError.toString() );

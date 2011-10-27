@@ -360,17 +360,16 @@ The dependent variable range can be set manually (eg y_range_end = 25) or, if ab
 
 For Polar expressions you provide an expression in terms of theta (the angle) and the plotter uses the value of the expression as the radius.
 
-For Parametric expressions you provide multiple expressions in terms of a parameter, by default "t" or "$t". The L-values are determined by the index number in the L-value column of the variable definition panel OR by a comment designator in the expression of the form "# X" in the text of the expression. To set the range and step of a parametric plot set the variables "t_range_begin", "t_range_end" and "t_increment":
+For Parametric expressions you provide multiple expressions in terms of a parameter, by default "t" or "$t". The L-values are determined by the index number in the L-value column of the variable definition panel OR by a comment designator in the expression of the form "# X" in the text of the expression. To set the range of a parametric plot set the variables "t_range_begin" and "t_range_end":
 
 t_range_begin = 0
 t_range_end = 1
-t_increment = 0.001
 
-The default ranges are 0 and 1 as shown above. The default increment is the range divided by the number of pixels in the width of the plot area. For example, if the plot area is 1000 pixels wide and begin is 0 and the end is 1 then the increment will be (1 - 0) / 1000 = 0.001.
+The default ranges are 0 and 1 as shown above.
 
 BEWARE SIDE EFFECTS: Be cautious about including anything in the expression for the dependent variable which would cause a side effect (such as setting a third variable). The reason for this is that the dependent variable expression is evaluated two or three times during plotting: once to determine the range of the dependent variable (if it is not specified explicitly), once to determine how many points need to be stored and to allocate memory, then finally to determine the point coordinates themselves.
 
-IMPORTS: If you need to make an import or other statement, place it in the script. Any line which does not contain an equals sign (=) will be exected once when the script is first compiled. For example,
+IMPORTS: If you need to make an import or other statement, place it in the script. Any line which does not contain an equals sign (=) will be exected only once when the script is first compiled. For example,
 
 import math
 y=sin(x)

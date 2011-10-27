@@ -38,7 +38,7 @@ import opendap.clients.odc.Catalog;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.DAP;
 import opendap.clients.odc.SavableImplementation;
-import opendap.clients.odc.plot.Plot_Definition;
+import opendap.clients.odc.plot.PlotEnvironment;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.Utility_String;
 import opendap.dap.*;
@@ -92,7 +92,7 @@ public class Model_Dataset implements java.io.Serializable {
 	transient private Model_DirectoryTree mDirectoryTree; // this is used in the case of a directory
 	transient private DataDDS mDataDDS;
 	transient private SavableImplementation mSavable;
-	transient private Plot_Definition mPlotDefinition = new Plot_Definition();
+	transient private PlotEnvironment mPlotEnvironment = new PlotEnvironment();
 
 	transient int miID; // used to tag an URL with an arbitrary id such as for favorites and recent
 
@@ -337,7 +337,7 @@ public class Model_Dataset implements java.io.Serializable {
 	
 	public SavableImplementation getSavable(){ return mSavable; }
 
-	public Plot_Definition getPlotDefinition(){ return mPlotDefinition; }
+	public PlotEnvironment getPlotEnvironment(){ return mPlotEnvironment; }
 	
 	public String getError(){ return msError; }
 

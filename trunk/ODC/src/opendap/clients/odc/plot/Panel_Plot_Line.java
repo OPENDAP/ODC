@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.awt.event.*;
 import java.awt.*;
 import java.awt.image.*;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
@@ -289,8 +290,8 @@ class Panel_Plot_Line extends Panel_Plot {
 //		setAxisHorizontal(maxisX);
 
 		// the plot dimensions are only known after they have been set above
-		int pxPlotWidth = scale.getPlot_Width();
-		int pxPlotHeight = scale.getPlot_Height();
+		int pxPlotWidth = scale.getPlot_Width_pixels();
+		int pxPlotHeight = scale.getPlot_Height_pixels();
 
 		// make lines
 		double dX_lower = maxisX.getValueFrom();
@@ -413,11 +414,11 @@ class Panel_Plot_Line extends Panel_Plot {
 	float[] mafV = null;
 	float mUmax;
 	float mVmax; // will be * PX_MAX_VECTOR squared
-	public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
 		int pxCircleOffset = miCircleSize / 2;
 
-		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
+		Graphics2D g2 = (Graphics2D)bi.getGraphics();
 
 		// draw plot
 		for( int xLine = 1; xLine <= mctLines; xLine++ ){

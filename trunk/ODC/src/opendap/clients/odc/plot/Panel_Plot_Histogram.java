@@ -36,6 +36,7 @@ import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.gui.Styles;
 
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.awt.*;
 import javax.swing.*;
 import java.io.*;
@@ -122,8 +123,8 @@ class Panel_Plot_Histogram extends Panel_Plot {
 
 	boolean setData( PlotScale scale, int eTYPE, Object[] eggData, Object[] eggMissing, PlotOptions plot_options, StringBuffer sbError ){
 		try {
-			int pxCanvasWidth = scale.getCanvas_Width();
-			int pxPlotWidth = scale.getPlot_Width();
+			int pxCanvasWidth = scale.getCanvas_Width_pixels();
+			int pxPlotWidth = scale.getPlot_Width_pixels();
 			meTYPE = eTYPE;
 			int ctMissing;
 			switch(meTYPE){
@@ -759,9 +760,9 @@ class Panel_Plot_Histogram extends Panel_Plot {
 	void setLabel_HorizontalAxis( String sText ){ msLabel_HorizontalAxis = sText; }
 	void setLabel_Title( String sText ){ msLabel_Title = sText; }
 
-	public boolean zGenerateImage( int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
-		Graphics2D g2 = (Graphics2D)mbi.getGraphics();
+		Graphics2D g2 = (Graphics2D)bi.getGraphics();
 		g2.setColor(Color.black);
 
 		if( miClassCount == 0 ){
