@@ -1,14 +1,24 @@
 package opendap.clients.odc.plot;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+
 import opendap.clients.odc.ApplicationController;
+import opendap.clients.odc.DAP;
 
 import org.python.core.PyObject;
 
+// This panel is added to whatever output context is determined by Output_ToPlot
+// For example, if the output is delivered to the Data Preview Pane then it goes to the content pane of PreviewPane
+
 public class Panel_Plot_Expression extends Panel_Plot {
-	Model_PlottableExpression model;	
+	Model_PlottableExpression model;
+	PlotCoordinates coordinates = null;
+	private int mpxPlotHeight = 0;   // this is here for the microscope, but should be removed TODO
 	private String msExpression = null;
 	private org.python.core.PyCode pycodeExpression = null;
 	private org.python.core.PyCode pycodeExpression_x = null;
@@ -32,7 +42,8 @@ public class Panel_Plot_Expression extends Panel_Plot {
 
 	// overrides method in Panel_Plot
 	public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
-		PlotCoordinates coordinates = model.getPlotCoordinates( pxPlotWidth, pxPlotHeight, sbError );
+		coordinates = model.getPlotCoordinates( pxPlotWidth, pxPlotHeight, sbError );
+		mpxPlotHeight = pxPlotHeight;
 		if( coordinates == null ){
 			sbError.insert( 0, "failed to get coordinates for plot dimensions (" + pxPlotWidth + ", " + pxPlotHeight +  "): " );
 			return false;
@@ -42,28 +53,20 @@ public class Panel_Plot_Expression extends Panel_Plot {
 			} else {
 				int argbBaseColor = coordinates.argbBaseColor;
 				for( int xPoint = 0; xPoint < coordinates.ctPoints_antialiased; xPoint++ ){
-					int argb = ( argbBaseColor & 0x00FFFFFF ) | ( coordinates.aAlpha[xPoint] << 0xFFF ) ; // black
-					bi.setRGB( coordinates.ax0[xPoint], coordinates.ay0[xPoint], argb );
+					int argb = ( argbBaseColor & 0x00FFFFFF ) | ( coordinates.aAlpha[xPoint] << 24 ) ; // black
+					int x = coordinates.ax0_antialiased[xPoint];
+					int y = pxPlotHeight - coordinates.ay0_antialiased[xPoint] - 1;
+					bi.setRGB( x, y, argb );
 				}
 			}
 		} else {
 			if( coordinates.zHasColor ){
 			} else {
 				int argb = coordinates.argbBaseColor;
-//				int argb = 0x50000000;
-				int argb_antialias = 0x30000000;
-				int coordinateX_previous = 0;
-				int coordinateY_previous = 0;
 				for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){
 					int coordinateX = coordinates.ax0[xPoint];
-					int coordinateY = pxPlotHeight - coordinates.ay0[xPoint];
+					int coordinateY = pxPlotHeight - coordinates.ay0[xPoint] - 1;
 					bi.setRGB( coordinateX, coordinateY, argb );
-					if( coordinateY == coordinateY_previous + 1 || coordinateY == coordinateY_previous - 1 ){
-						bi.setRGB( coordinateX_previous, coordinateY, argb_antialias );
-						bi.setRGB( coordinateX, coordinateY_previous, argb_antialias );
-					}
-					coordinateX_previous = coordinateX; 
-					coordinateY_previous = coordinateY;
 				}
 			}
 		}
@@ -245,6 +248,62 @@ public class Panel_Plot_Expression extends Panel_Plot {
 	public boolean zCreateRGBArray(int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError){
 		sbError.append("internal error, rgb array creation not applicable to plottable expressions");
 		return false;
+	}
+
+	void vShowDataMicroscope( int xClick, int yClick, int pxPlotHeight ){
+		if( coordinates == null ) return;
+		int iMicroscopeWidth = 10;
+		int iMicroscopeHeight = 10;
+		int[][] aRGB = new int[iMicroscopeWidth][iMicroscopeHeight];               // the raster that the microscope will display
+		String[][] asData = new String[iMicroscopeWidth][iMicroscopeHeight];       // the data values as strings
+		for( int x = 0; x < iMicroscopeWidth; x++ ){
+			for( int y = 0; y < iMicroscopeHeight; y++ ){
+				aRGB[x][y] = 0xFFFFFFFF; // initialize to white
+			}
+		}
+		if( coordinates.zHasAlpha ){
+			if( coordinates.zHasColor ){
+			} else {
+				int argbBaseColor = coordinates.argbBaseColor;
+				for( int xPoint = 0; xPoint < coordinates.ctPoints_antialiased; xPoint++ ){
+					int x = coordinates.ax0_antialiased[xPoint];
+					int y = pxPlotHeight - coordinates.ay0_antialiased[xPoint] - 1;
+					if( x >= xClick && x < xClick + iMicroscopeWidth &&
+						y >= yClick && y < yClick + iMicroscopeHeight ){
+						int argb = ( argbBaseColor & 0x00FFFFFF ) | ( coordinates.aAlpha[xPoint] << 24 ) ; // black
+						int xMicroscope = x - xClick;
+						int yMicroscope = y - yClick;
+						aRGB[xMicroscope][yMicroscope] = argb;
+						asData[xMicroscope][yMicroscope] = Integer.toString( coordinates.aAlpha[xPoint] );
+					}
+				}
+			}
+		} else {
+			if( coordinates.zHasColor ){
+			} else {
+				int argb = coordinates.argbBaseColor;
+				for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){
+					int coordinateX = coordinates.ax0[xPoint];
+					int coordinateY = pxPlotHeight - coordinates.ay0[xPoint] - 1;
+//					bi.setRGB( coordinateX, coordinateY, argb );
+				}
+			}
+		}
+
+		StringBuffer sbError = new StringBuffer();
+		final Panel_Microscope microscope = new Panel_Microscope();
+		microscope.set( aRGB, asData, iMicroscopeWidth, iMicroscopeHeight );
+		final JOptionPane jop = new JOptionPane( microscope, JOptionPane.INFORMATION_MESSAGE );
+		final JDialog jd = jop.createDialog(ApplicationController.getInstance().getAppFrame(), "Data Microscope ( " + xClick + ", " + yClick + " )");
+		jd.setVisible( true );
+	}
+
+	public void mouseClicked( java.awt.event.MouseEvent evt){
+		int mpxMargin_Left = 10;
+		int mpxMargin_Top =  10;
+		int xPX = evt.getX();
+		int yPX = evt.getY();
+	    vShowDataMicroscope( xPX - mpxMargin_Left, yPX - mpxMargin_Top, mpxPlotHeight );
 	}
 	
 }

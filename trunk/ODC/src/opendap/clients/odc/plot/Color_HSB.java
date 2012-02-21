@@ -3,6 +3,13 @@ package opendap.clients.odc.plot;
 /** functions which manage Hue-Saturation-Brightness (HSB) color system */
 
 public class Color_HSB {
+	
+	// Darel Rex Finley relation
+	// approximately 130 is the cutoff between white and black contrast
+	public static int iPerceivedBrightness( int red, int green, int blue ){
+		return (int)Math.sqrt( .241 * red * red + .691 * green * green + .068 * blue * blue );
+	}
+	
     public static int iHSBtoRGBA( int iHSB ) {
 		int iAlpha      = (int)((iHSB & 0xFF000000L) >> 24);
 		int iHue        = (iHSB & 0x00FF0000) >> 16;

@@ -145,6 +145,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		msID = sID_descriptive + "-" + getDescriptor() + "-" + Utility_String.sFormatFixedRight( miSessionCount, iCountWidth, '0' ); // append plot count to ID descriptive string
 		mScale = environment.getScale();
 		msCaption = sCaption;
+		addMouseListener( this );
 	}
 
 	// this is needed to tell any container how big the panel wants to be
@@ -265,16 +266,18 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			Graphics2D g2 = (Graphics2D)mbi.getGraphics();
 			g2.setColor(mcolorBackground);
 			g2.fillRect(0,0,pxCanvasWidth,pxCanvasHeight); // draw background
-			int pxPlotLeft = layout.getLocation_Horizontal( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
-			int pxPlotTop  = layout.getLocation_Vertical( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
-			g2.setClip(pxPlotLeft, pxPlotTop, pxPlotWidth, pxPlotHeight);
+//			int pxPlotLeft = layout.getLocation_Horizontal( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
+//			int pxPlotTop  = layout.getLocation_Vertical( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
+//			g2.setClip(pxPlotLeft, pxPlotTop, pxPlotWidth, pxPlotHeight);
 			mpxPreferredWidth = pxCanvasWidth;
 			mpxPreferredHeight = pxCanvasHeight;
-			if( ! zGenerateImage( bi, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError ) ){
+			BufferedImage bi_plot = new BufferedImage( pxPlotWidth, pxPlotHeight, BufferedImage.TYPE_INT_ARGB );
+			if( ! zGenerateImage( bi_plot, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError ) ){
 				sbError.insert( 0, "failed to generate image: " );
 				return false;
 			}
-			g2.setClip(0, 0, pxCanvasWidth, pxCanvasHeight);
+			g2.drawImage( bi_plot, 15, 15, null );
+			g2.setClip( 0, 0, pxCanvasWidth, pxCanvasHeight);
 			 // TODO regularize histograms
 			if( !(this instanceof Panel_Plot_Histogram) ) vDrawAnnotations(g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight);
 			return true;
@@ -423,10 +426,10 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			int pxAxisLength_horizontal = pxPlotWidth;
 			int pxAxisLength_vertical = pxPlotHeight;
 
-			int xBox      = 15; // mpxMargin_Left;
-			int yBox      = 15; // mpxMargin_Top;
-			int widthBox  = pxPlotWidth;
-			int heightBox = pxPlotHeight;
+			int xBox      = 10; // mpxMargin_Left;
+			int yBox      = 10; // mpxMargin_Top;
+			int widthBox  = pxPlotWidth + 20;
+			int heightBox = pxPlotHeight + 20;
 
 			g2.setColor(Color.black);
 			g2.fillRect(xBox, yBox, widthBox - 1, 1); // top
