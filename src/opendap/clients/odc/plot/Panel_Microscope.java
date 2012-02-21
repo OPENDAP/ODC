@@ -98,6 +98,8 @@ public class Panel_Microscope extends JPanel implements MouseListener {
 	int mxColorLabel;
 	GeneralPath mshapeIndicator;
 
+	int mxWidth = 0;
+	int mxHeight = 0;
 	Color[][] maColors = new Color[7][7];
 	String[][] masValues = new String[7][7];
 	String[][] masColors = new String[7][7];
@@ -131,51 +133,50 @@ public class Panel_Microscope extends JPanel implements MouseListener {
         g2.fillRect(0,0,mpxCanvasWidth,mpxCanvasHeight); // draw background
 
 		// draw color boxes
-		for( int xRow = 1; xRow <= 6; xRow++ ){
-			for( int xColumn = 1; xColumn <= 6; xColumn++ ){
-				g2.setColor(maColors[xRow][xColumn]);
-				g2.fillRect((xRow - 1)*mpxCellWidth, (xColumn - 1)*mpxCellWidth, mpxCellWidth-1, mpxCellWidth-1);
+		for( int x = 1; x <= mxWidth; x++ ){
+			for( int y = 1; y <= mxHeight; y++ ){
+				g2.setColor(maColors[x][y]);	
+				g2.fillRect((x - 1)*mpxCellWidth, (y - 1)*mpxCellWidth, mpxCellWidth-1, mpxCellWidth-1);
 			}
 		}
 
 		// draw data labels
-		g2.setColor(Color.black);
+		g2.setColor(Color.white);
+//		g2.setColor(Color.black);
 		g2.setFont(Styles.fontSansSerifBold12);
-		for( int xRow = 1; xRow <= 6; xRow++ ){
-			for( int xColumn = 1; xColumn <= 6; xColumn++ ){
-				String s = masValues[xRow][xColumn];
-				int iWidth;
-				if( s == null ){
-					iWidth = mfontmetricsSansSerifBold12.stringWidth("null");
-				} else {
-					iWidth = mfontmetricsSansSerifBold12.stringWidth(s);
-				}
+		for( int x = 1; x <= mxWidth; x++ ){
+			for( int y = 1; y <= mxHeight; y++ ){
+				String s = masValues[x][y];
+				if( s == null ) continue;
+				int iWidth = mfontmetricsSansSerifBold12.stringWidth(s);
 				int iOffset = (mpxCellWidth - iWidth)/2;
-				g2.drawString(s, (xColumn - 1)*mpxCellWidth + iOffset, (xRow - 1)*mpxCellWidth + mpxCellWidth/2 - mpxTextBoldAscent);
+				g2.drawString(s, (x - 1)*mpxCellWidth + iOffset, (y - 1)*mpxCellWidth + mpxCellWidth/2 - mpxTextBoldAscent);
 			}
 		}
 
 		// draw labels
-		g2.setColor(Color.black);
-		g2.setFont(Styles.fontSansSerifBold12);
-		for( int xRow = 1; xRow <= 6; xRow++ ){
-			for( int xColumn = 1; xColumn <= 6; xColumn++ ){
-				String s = masValues[xRow][xColumn];
-				int iWidth = mfontmetricsSansSerifBold12.stringWidth(s);
-				int yText = (xRow - 1)*mpxCellWidth + mpxCellWidth/2 - mpxTextBoldAscent;
-				int iOffset;
-				if( iWidth < mpxCellWidth - 6 ){
-					iOffset = (mpxCellWidth - iWidth)/2;
-					g2.drawString(s, (xColumn - 1)*mpxCellWidth + iOffset, yText);
-				} else { // split data string in half
-					String s1 = s.substring(0, 8);
-					String s2 = s.substring(8);
-					int iNewWidth = mfontmetricsSansSerifBold12.stringWidth(s);
-					iOffset = (mpxCellWidth - iNewWidth)/2;
-					g2.drawString(s1, (xColumn - 1)*mpxCellWidth + iOffset, yText);
-					yText +=  mpxTextHeight + 2;
-					g2.drawString(s2, (xColumn - 1)*mpxCellWidth + iOffset, yText);
-				}
+//		g2.setColor(Color.black);
+//		g2.setColor(Color.white);
+//		g2.setFont(Styles.fontSansSerifBold12);
+//		for( int x = 1; x <= 6; x++ ){
+//			for( int y = 1; y <= 6; y++ ){
+//				String s = masValues[x][y];
+//				if( s == null ) continue;
+//				int iWidth = mfontmetricsSansSerifBold12.stringWidth(s);
+//				int yText = (y - 1)*mpxCellWidth + mpxCellWidth/2 - mpxTextBoldAscent;
+//				int iOffset;
+//				if( iWidth < mpxCellWidth - 6 ){
+//					iOffset = (mpxCellWidth - iWidth)/2;
+//					g2.drawString(s, (x - 1)*mpxCellWidth + iOffset, yText);
+//				} else { // split data string in half
+//					String s1 = s.substring(0, 8);
+//					String s2 = s.substring(8);
+//					int iNewWidth = mfontmetricsSansSerifBold12.stringWidth(s);
+//					iOffset = (mpxCellWidth - iNewWidth)/2;
+//					g2.drawString(s1, (x - 1)*mpxCellWidth + iOffset, yText);
+//					yText +=  mpxTextHeight + 2;
+//					g2.drawString(s2, (x - 1)*mpxCellWidth + iOffset, yText);
+//				}
 
 				// draw color label
 //				String sColor = masColors[xRow][xColumn];
@@ -183,19 +184,28 @@ public class Panel_Microscope extends JPanel implements MouseListener {
 //				iOffset = (mpxCellWidth - iWidth)/2;
 //				yText +=  mpxTextHeight + 4;
 //				g2.drawString(sColor, (xColumn - 1)*mpxCellWidth + iOffset, yText);
-			}
-		}
+//			}
+//		}
 
 		((Graphics2D)g).drawImage(mbi, null, 0, 0); // flip mbi (the draw target) to the active graphics
 	}
 
-	public void set( int[] rgbRaster, String[] asValues ){
-		for( int xRow = 1; xRow <= 6; xRow++ ){
-			for( int xColumn = 1; xColumn <= 6; xColumn++ ){
-				int iRasterIndex = 6 * (xRow-1) + (xColumn-1);
-				maColors[xRow][xColumn] = new Color(rgbRaster[iRasterIndex]);
-				masValues[xRow][xColumn] = asValues[iRasterIndex];
-				masColors[xRow][xColumn] = Utility_String.sToHex( Color_HSB.iRGBtoHSB(rgbRaster[iRasterIndex]), 8);
+	public void set( int[][] rgbRaster0, String[][] asValues0, int iWidth, int iHeight ){
+		mxWidth = iWidth;
+		mxHeight = iHeight;
+		maColors = new Color[mxWidth + 1][mxHeight + 1];
+		masValues = new String[mxWidth + 1][mxHeight + 1];
+		masColors = new String[mxWidth + 1][mxHeight + 1];
+		mpxCanvasHeight = mpxCellWidth * iHeight;
+		mpxCanvasWidth = mpxCellWidth * iWidth;
+		mbi = new BufferedImage( mpxCanvasWidth, mpxCanvasHeight, BufferedImage.TYPE_INT_ARGB );
+		g2 = (Graphics2D)mbi.getGraphics();
+		this.setPreferredSize( new Dimension( mpxCanvasWidth, mpxCanvasHeight ) );
+		for( int x = 0; x < iWidth; x++ ){
+			for( int y = 0; y < iHeight; y++ ){
+				maColors[x + 1][y + 1] = new Color( rgbRaster0[x][y], true );
+				masValues[x + 1][y + 1] = asValues0[x][y];
+				masColors[x + 1][y + 1] = Utility_String.sToHex( Color_HSB.iRGBtoHSB(rgbRaster0[x][y]), 8);
 			}
 		}
 	}

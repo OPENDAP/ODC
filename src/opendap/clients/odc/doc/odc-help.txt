@@ -351,10 +351,15 @@ The range of the expression is determined by the independent variable:
 x_range_begin = 0
 x_range_end = 1
 
-or
+or (for polar plots)
 
 theta_range_begin = 0
 theta_range_end = 0.25 * math.pi
+
+or (for parametric plots)
+
+t_range_begin = 0
+t_range_end = 1
 
 The dependent variable range can be set manually (eg y_range_end = 25) or, if absent, will be calculated automatically. If the ranges need to be calculated automatically then the plot calculation will occur twice, once to determine the ranges, then again to do the actual plot. The interval for Cartesian and polar plots is determined by the resolution of the output device. For example, if the output is the preview pane and the plot area in the preview pane is 600 pixels wide and the range is 0 to 1198 on the x-axis then there will be 600 calculations and x will be stepped by 2 for each one. The default indepenent range is 0 to the number of pixels in the output area.
 
@@ -381,9 +386,6 @@ If the plot is continuous it will be rendered as a series of line segments betwe
 *** Ranges and Steps ***
 
 You may need to specify ranges and steps for the plot so the ODC knows what values to calculate. For a cartesian plot you can leave the step blank and the ODC will automatically calculate a value appropriate for the resolution of the output area. For example, if you are plotting and expression with a y L-value to the preview pane and it has 400 pixels in the x-dimension for the specified range then 400 calculations will be done, one for each pixel along the x-axis. Using the automatic calculation for Cartesian expressions ensures that you getting the best resolution and computing the fewest number of values necessary.
-
-For Parametric expressions you need to specify both a range and a step value because it is difficult to determine the right step value automatically.
-
 
 #Plotting Lines
 

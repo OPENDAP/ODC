@@ -21,6 +21,8 @@ import opendap.clients.odc.data.Script;
  */
 
 public class Model_PlottableExpression {
+	public final static double DEFAULT_Theta_begin = 0;
+	public final static double DEFAULT_Theta_end = 2 * Math.PI;
 	public CompiledExpression compiled_x;
 	public CompiledExpression compiled_y;
 	public CompiledExpression compiled_z;
@@ -223,41 +225,41 @@ public class Model_PlottableExpression {
 	public PlotRange getPlotRange( StringBuffer sbError ){
 		if( range != null ) return range;
 		opendap.clients.odc.Interpreter odc_interpreter = ApplicationController.getInstance().getInterpreter();
-		double dBeginX = odc_interpreter.get( "_x_range_begin", sbError );
-		if( Double.isInfinite( dBeginX ) ){
-			sbError.insert( 0, "error getting _x_range_begin: " );
-			return null;
-		}
-		if( Double.isNaN( dBeginX ) ){ // not defined, use default
-			dBeginX = 0;
-		}
-		double dEndX = odc_interpreter.get( "_x_range_end", sbError );
-		if( Double.isInfinite( dEndX ) ){
-			sbError.insert( 0, "error getting _x_range_end: " );
-			return null;
-		}
-		if( Double.isNaN( dEndX ) ){ // not defined, use default
-			dEndX = 10;
-		}
-		double dRangeX = dEndX - dBeginX;
-		double dBeginY = odc_interpreter.get( "_y_range_begin", sbError );
-		if( Double.isInfinite( dBeginY ) ){
-			sbError.insert( 0, "error getting _y_range_begin: " );
-			return null;
-		}
-		double dEndY = odc_interpreter.get( "_y_range_end", sbError );
-		if( Double.isInfinite( dEndY ) ){
-			sbError.insert( 0, "error getting _y_range_end: " );
-			return null;
-		}
-		int eState = 0;
-		boolean zBeginY_Defined = ! Double.isNaN( dBeginY ); 
-		boolean zEndY_Defined = ! Double.isNaN( dEndY ); 
 		PlotRange range = new PlotRange();
-		range.dBeginX = dBeginX;
-		range.dEndX = dEndX;
 		switch( type ){
 			case Cartesian:
+				double dBeginX = odc_interpreter.get( "_x_range_begin", sbError );
+				if( Double.isInfinite( dBeginX ) ){
+					sbError.insert( 0, "error getting _x_range_begin: " );
+					return null;
+				}
+				if( Double.isNaN( dBeginX ) ){ // not defined, use default
+					dBeginX = 0;
+				}
+				double dEndX = odc_interpreter.get( "_x_range_end", sbError );
+				if( Double.isInfinite( dEndX ) ){
+					sbError.insert( 0, "error getting _x_range_end: " );
+					return null;
+				}
+				if( Double.isNaN( dEndX ) ){ // not defined, use default
+					dEndX = 10;
+				}
+				double dRangeX = dEndX - dBeginX;
+				double dBeginY = odc_interpreter.get( "_y_range_begin", sbError );
+				if( Double.isInfinite( dBeginY ) ){
+					sbError.insert( 0, "error getting _y_range_begin: " );
+					return null;
+				}
+				double dEndY = odc_interpreter.get( "_y_range_end", sbError );
+				if( Double.isInfinite( dEndY ) ){
+					sbError.insert( 0, "error getting _y_range_end: " );
+					return null;
+				}
+				int eState = 0;
+				boolean zBeginY_Defined = ! Double.isNaN( dBeginY ); 
+				boolean zEndY_Defined = ! Double.isNaN( dEndY );
+				range.dBeginX = dBeginX;
+				range.dEndX = dEndX;
 				double dRangeY = 0;
 				if( zBeginY_Defined ){
 					if( zEndY_Defined ){ // Y range, beginning and end are defined
@@ -309,68 +311,96 @@ public class Model_PlottableExpression {
 				range.dEndY = dEndY;
 				break;
 			case Polar:
-				// TODO
+				double dBeginTheta = odc_interpreter.get( "_theta_range_begin", sbError );
+				if( Double.isInfinite( dBeginTheta ) ){
+					dBeginTheta = DEFAULT_Theta_begin;
+				}
+				double dEndTheta = odc_interpreter.get( "_theta_range_end", sbError );
+				if( Double.isInfinite( dEndTheta ) ){
+					dEndTheta = DEFAULT_Theta_end;
+				}
+				range.dBeginTheta = dBeginTheta;
+				range.dEndTheta = dEndTheta;
+				double dRangeTheta = dEndTheta - dBeginTheta;  
+				int iNominalAngularResolution = 1000;
+				org.python.core.PyCode codeR = compiled_r.compiled_code;
+				for( int x = 1; x <= iNominalAngularResolution; x++ ){ // there will be at least one point for every x pixel
+					double dTheta = dBeginTheta + x * dRangeTheta / iNominalAngularResolution;
+					if( ! odc_interpreter.zSet( "_theta", dTheta, sbError ) ){
+						sbError.insert( 0, "failed to set _theta to " + dTheta );
+						return null;
+					}
+					PyObject pyobjectR = odc_interpreter.zEval( codeR, sbError );
+					if( pyobjectR == null ){
+						sbError.insert( 0, "failed to eval _r expression " +  compiled_r + ": " );
+						return null;
+					}
+					double dR = pyobjectR.asDouble();
+					if( dR > range.dEndR ) range.dEndR = dR; 
+				}
+				break;
 			case Parametric:
 				// TODO
 		}
 		return range;
 	}
 	
-	public PlotCoordinates getPlotCoordinates( int iPlotWidth, int iPlotHeight, StringBuffer sbError ){
+	private int[][] maiPlotBuffer; // this is used to optimize the generation of the plot coordinates
+	                               // by providing a pre-plot of the curve so that the point discovery
+	                               // algorithm can determine if the point has already been plotted
+	                               // By doing this the step of eliminating redundant points can be avoided
+	                               // This results in a faster algorithm at the expense of allocating a big buffer.
+	public PlotCoordinates getPlotCoordinates( int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 		if( range == null ){
 			range = getPlotRange( sbError );
 			if( range == null ) return null;
 		}
 		PlotCoordinates coordinates = new PlotCoordinates();
-		opendap.clients.odc.Interpreter odc_interpreter = ApplicationController.getInstance().getInterpreter();
+		maiPlotBuffer = new int[pxPlotWidth][pxPlotHeight];
+		opendap.clients.odc.Interpreter interpreter = ApplicationController.getInstance().getInterpreter();
 		double dRangeX = range.dEndX - range.dBeginX;
 		double dRangeY = range.dEndY - range.dBeginY;
+		double dMax_x = pxPlotWidth - 1;  // if the plot is 100 pixels wide then x goes from 0 to 99;
+		double dMax_y = pxPlotHeight - 1;
+		boolean zWriting = false;
 		switch( type ){
 			case Cartesian:
 				org.python.core.PyCode codeY = compiled_y.compiled_code;
-				boolean zWriting = false;
+				zWriting = false;
 				while( true ){  // two passes, one to count the number of points, the second to write the points
 					int y = 0;
 					double dX = 0;
 					double dY = 0;
 					int ctPoints = 0;
-					for( int x = 0; x < iPlotWidth; x++ ){ // there will be at least one point for every x pixel
+					for( int x = 0; x < pxPlotWidth; x++ ){ // there will be at least one point for every x pixel
 
 						// determine y coordinate for x value
 						double dX_previous = dX;
-						dX = range.dBeginX + x * dRangeX / iPlotWidth;
-						if( ! odc_interpreter.zSet( "_x", dX, sbError ) ){
+						dX = range.dBeginX + x * dRangeX / dMax_x;
+						if( ! interpreter.zSet( "_x", dX, sbError ) ){
 							sbError.insert( 0, "failed to set _x to " + dX );
 							return null;
 						}
-						PyObject pyobjectY = odc_interpreter.zEval( codeY, sbError );
-						if( pyobjectY == null ){
-							sbError.insert( 0, "failed to eval _y expression " +  compiled_y + ": " );
-							return null;
+						PyObject pyobjectY = interpreter.zEval( codeY, sbError );
+						if( pyobjectY == null ){ // probably division by zero
+							continue;
+//							sbError.insert( 0, "failed to eval _y expression " +  compiled_y + ": " ); // TODO division by zero
+//							return null;
 						}
-						double dY_previous = x == 1 ? pyobjectY.asDouble() : dY;
+						double dY_previous = x == 0 ? pyobjectY.asDouble() : dY;
 						dY = pyobjectY.asDouble();
-						double dY_coordinate = iPlotHeight * (dY - range.dBeginY) / dRangeY;
+						double dY_coordinate = dMax_y * (dY - range.dBeginY) / dRangeY;
 						int y_previous = y;
 						y = (int)dY_coordinate;
-						
-						// plot the point
-						if( y >= iPlotHeight || y < 0 ){
-							// outside plottable view, do not plot
+						if( dY_coordinate > 0 ){
+							if( dY_coordinate - y >= 0.5d ) y++; // round up
 						} else {
-							if( dY_coordinate - y >= 0.5d ) y++; // round
-							if( zWriting ){
-								coordinates.ax0[x] = x;
-								coordinates.ay0[x] = y;
-								coordinates.ax0_value[x] = dX;
-								coordinates.ay0_value[x] = dY;
-							}
-							ctPoints++;
+							if( y - dY_coordinate >= 0.5d ) y--; // round down
 						}
-						
+
 						// interpolate points if y-coordinates are not continuous
-						if( ctPoints > 1 && ( y - y_previous > 1 || y_previous - y > 1 ) ){
-							double dY_delta = dRangeY / iPlotHeight / 100;
+						if( ctPoints > 0 && ( y - y_previous > 1 || y_previous - y > 1 ) ){
+							double dY_delta = dRangeY / dMax_y / 100;
 							double dX_begin = dX_previous;
 							double dX_end = dX;
 							double dY_begin = dY_previous;
@@ -378,18 +408,38 @@ public class Model_PlottableExpression {
 							boolean zAscend = (y - y_previous > 1);
 							int iIncrement = zAscend ? 1 : -1; 
 							for( int y_interpolation = y_previous + iIncrement; y_interpolation != y; y_interpolation += iIncrement ){
-								double dY_target = y_interpolation * dRangeY / iPlotHeight + range.dBeginY;
-								double dX_interpolation = dFindInterpolatedX( dY_target, dY_delta, dX_begin, dX_end, dY_begin, dY_end, odc_interpreter, codeY, sbError );
 								if( zWriting ){
-									int x_coordinate = (int)(iPlotWidth * (dX - range.dBeginX) / dRangeX);
-									coordinates.ax0[x] = x_coordinate;
-									coordinates.ay0[x] = y_interpolation;
-									coordinates.ax0_value[x] = dX_interpolation;
-									coordinates.ay0_value[x] = dY_target;
+									double dY_target = y_interpolation * dRangeY / dMax_y + range.dBeginY;
+									double dX_interpolation = dFindInterpolatedX( dY_target, dY_delta, dX_begin, dX_end, dY_begin, dY_end, interpreter, codeY, sbError );
+									double dX_coordinate = dMax_x * (dX_interpolation - range.dBeginX) / dRangeX;
+									int x_coordinate = (int)dX_coordinate;
+									if( dX_interpolation > 0 ){
+										if( dX_interpolation - x_coordinate >= 0.5d ) x_coordinate++; // round up
+									} else {
+										if( x_coordinate - dX_interpolation >= 0.5d ) x_coordinate--; // round down
+									}
+									coordinates.ax0[ctPoints] = x_coordinate;
+									coordinates.ay0[ctPoints] = y_interpolation;
+									coordinates.ax0_value[ctPoints] = dX_interpolation;
+									coordinates.ay0_value[ctPoints] = dY_target;
 								}
 								ctPoints++;
 							}
 						}
+
+						// plot the point
+						if( y >= pxPlotHeight || y < 0 ){
+							// outside plottable view, do not plot
+						} else {
+							if( zWriting ){
+								coordinates.ax0[ctPoints] = x;
+								coordinates.ay0[ctPoints] = y;
+								coordinates.ax0_value[ctPoints] = dX;
+								coordinates.ay0_value[ctPoints] = dY;
+							}
+							ctPoints++;
+						}
+						
 					}
 					if( zWriting ) break;
 					coordinates.setCapacity( ctPoints );
@@ -399,75 +449,163 @@ public class Model_PlottableExpression {
 				// generate rendered points (antialiased or jagged)
 				zWriting = false;
 				boolean zAntialiased = true;
-				double dThicknessSquared = 8;
+				double dThickness_pixels = 1;
 				int ctRenderedPoints = 0;
 				while( true ){  // two passes, one to count the number of points, the second to write the points
 					ctRenderedPoints = 0;
+					Utility_Array.clear( maiPlotBuffer );
 					for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){ // cycle through the dimensionless points and define points which are actually rendered
 						int x = coordinates.ax0[xPoint];
 						int y = coordinates.ay0[xPoint];
-						ctRenderedPoints += makePoint( coordinates, xPoint, x, y, ctRenderedPoints, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 0 ); 
+						ctRenderedPoints += makePoint( coordinates, xPoint, x, y, ctRenderedPoints, dRangeX, dRangeY, pxPlotWidth, pxPlotHeight, dThickness_pixels, zWriting, 0 ); 
 					}
 					if( zWriting ) break;
 					coordinates.setCapacity_Rendered( ctRenderedPoints, zAntialiased );
 					zWriting = true;
-					System.out.println( "rendered points found: " + ctRenderedPoints );
 				}
 
-				// consolidate rendered points so there are no duplicates
-				// if two points coincide, then the alpha value which is more opaque is used
-				int[] ax0_unique = null;
-				int[] ay0_unique = null;
-				int[] alpha_unique = null;
-				zWriting = false;
-				while( true ){
-					int ctRenderedPoints_unique = 0;
-					for( int xRenderedPoint = 0; xRenderedPoint < ctRenderedPoints - 1; xRenderedPoint++ ){
-						int xRenderedPoint2 = xRenderedPoint + 1;
-						while( true ){
-							if( xRenderedPoint2 == ctRenderedPoints ){
-								if( zWriting ){
-									int alpha_max = coordinates.aAlpha[xRenderedPoint];
-									for( int xBacktrack = xRenderedPoint - 1; xBacktrack >= 0; xBacktrack-- ){
-										if( coordinates.ax0_antialiased[xRenderedPoint] == coordinates.ax0_antialiased[xBacktrack] &&
-											coordinates.ay0_antialiased[xRenderedPoint] == coordinates.ay0_antialiased[xBacktrack] &&
-											coordinates.aAlpha[xBacktrack] > alpha_max ){
-											alpha_max = coordinates.aAlpha[xBacktrack];
-										}
-									}
-									ax0_unique[ctRenderedPoints_unique] = coordinates.ax0_antialiased[xRenderedPoint]; 
-									ay0_unique[ctRenderedPoints_unique] = coordinates.ay0_antialiased[xRenderedPoint];
-									coordinates.aAlpha[ctRenderedPoints_unique] = alpha_max;
-								}
-								ctRenderedPoints_unique++;
-								break;
-							}
-							if( coordinates.ax0_antialiased[xRenderedPoint] == coordinates.ax0_antialiased[xRenderedPoint2] &&
-								coordinates.ay0_antialiased[xRenderedPoint] == coordinates.ay0_antialiased[xRenderedPoint2] ){
-								break;
-							}
-							xRenderedPoint2++;
-						}
-					}
-					if( zWriting ){
-						coordinates.ax0_antialiased = ax0_unique;
-						coordinates.ay0_antialiased = ay0_unique;
-						coordinates.aAlpha = alpha_unique;
-						break;
-					}
-					coordinates.ctPoints_antialiased = ctRenderedPoints_unique;
-					ax0_unique = new int[ctRenderedPoints_unique];
-					ay0_unique = new int[ctRenderedPoints_unique];
-					alpha_unique = new int[ctRenderedPoints_unique];
-					zWriting = true;
-					System.out.println( "unique renderings: " + ctRenderedPoints_unique );
-				}
-				coordinates.zHasAlpha = true;
-				
 				break;
 			case Polar:
+				org.python.core.PyCode codeR = compiled_r.compiled_code;
+				int pxPlotCenter_x = pxPlotWidth / 2; 
+				int pxPlotCenter_y = pxPlotHeight / 2; 
+
+				// determine the angular resolution in radians based on the plot area
+				double dCornerDistance = Math.sqrt( pxPlotWidth * pxPlotWidth + pxPlotHeight * pxPlotHeight );
+				double angular_resolution_radians = Math.asin( 1 / dCornerDistance );
+
+				// size the plotting arrays according to the angular resolution
+				double dRangeTheta = range.dEndTheta - range.dBeginTheta;
+				if( dRangeTheta < 0 ) dRangeTheta *= -1;
+				if( dRangeTheta > 2 * Math.PI ) dRangeTheta = 2 * Math.PI; 
+				int iRadialCount = (int)( dRangeTheta / angular_resolution_radians ); 
+				double[] y_value_calculated = new double[iRadialCount];
+				int[] y_value_plotted = new int[iRadialCount];
+				double[] x_value_calculated = new double[iRadialCount];
+				int[] x_value_plotted = new int[iRadialCount];
+				double y_scale = 1d;
+				double y_offset = 0d;
+				double x_scale = 1d;
+				double x_offset = 0d;
+
+				// calculate the direct xy-values and determine xy-range for a full circle
+				double y_max = Double.MIN_VALUE;
+				double y_min = Double.MAX_VALUE;
+				double x_max = Double.MIN_VALUE;
+				double x_min = Double.MAX_VALUE;
+				double dR = 0;
+				double dX = 0;
+				double dY = 0;
+				int y = 0;
+				int x = 0;
+				int ctPoints = 0;
+				for( int xRadial = 0; xRadial < iRadialCount; xRadial++ ){
+					
+					// calculate real values
+					double theta = range.dBeginTheta + angular_resolution_radians * xRadial;
+					Object oCurrentThetaValue = new Double( theta );
+					if( ! interpreter.zSet( "_theta", oCurrentThetaValue, sbError ) ){
+						ApplicationController.vShowError( "failed to set theta-value to " + oCurrentThetaValue + " for radial " + xRadial + ": " + sbError );
+						return null;
+					}
+					PyObject pyobject_range = interpreter.zEval( codeR, sbError );
+					if( pyobject_range == null ){
+						ApplicationController.vShowError( "failed to evaluate polar expression '" + msProcessedExpression + "' with theta value of " + oCurrentThetaValue + ": " + sbError );
+						return null;
+					}
+					double dR_previous = dR; 
+					double dX_previous = dX; 
+					double dY_previous = dY; 
+					dR = pyobject_range.asDouble();
+					dX = dR * Math.cos( theta );
+					dY = dR * Math.sin( theta );
+					
+					// determine plot coordinates
+					double dX_coordinate = dMax_x * (dX - range.dBeginX) / dRangeX;
+					double dY_coordinate = dMax_y * (dY - range.dBeginY) / dRangeY;
+					int x_previous = x;
+					int y_previous = y;
+					x = (int)dX_coordinate;
+					if( dX_coordinate > 0 ){
+						if( dX_coordinate - x >= 0.5d ) x++; // round up
+					} else {
+						if( x - dX_coordinate >= 0.5d ) x--; // round down
+					}
+					y = (int)dY_coordinate;
+					if( dY_coordinate > 0 ){
+						if( dY_coordinate - y >= 0.5d ) y++; // round up
+					} else {
+						if( y - dY_coordinate >= 0.5d ) y--; // round down
+					}
+					
+					// interpolate points in a line if coordinates are not continuous TODO hard to do curves because could be an infinite number of points between radials
+					if( ctPoints > 0 && ( y - y_previous > 1 || y_previous - y > 1 || x - x_previous > 1 || x_previous - x > 1 ) ){
+						int x_range = x >= x_previous ? x - x_previous : x_previous - x;
+						int y_range = y >= y_previous ? y - y_previous : y_previous - y;
+						int x_begin = x_previous;
+						int x_end = x;
+						int y_begin = y_previous;
+						int y_end = y;
+						boolean zAscend_y = (y - y_previous > 1);
+						boolean zAscend_x = (x - x_previous > 1);
+						int iIncrement_y = zAscend_y ? 1 : -1; 
+						int iIncrement_x = zAscend_x ? 1 : -1; 
+						if( x_range > y_range ){
+							int interpolation_index = 0;
+							for( int x_interpolation = x_begin + iIncrement_x; x_interpolation != x_end; x_interpolation += iIncrement_x ){
+								interpolation_index++;
+								int y_interpolation = y_begin + iIncrement_y * interpolation_index * y_range / x_range;    
+								if( zWriting ){
+									coordinates.ax0[ctPoints] = x_interpolation;
+									coordinates.ay0[ctPoints] = y_interpolation;
+									coordinates.ax0_value[ctPoints] = range.dBeginX + x_interpolation * dRangeX / dMax_x;
+									coordinates.ay0_value[ctPoints] = range.dBeginY + y_interpolation * dRangeY / dMax_y;
+								}
+								ctPoints++;
+							}
+						} else {
+							int interpolation_index = 0;
+							for( int y_interpolation = y_begin + iIncrement_y; y_interpolation != y_end; y_interpolation += iIncrement_y ){
+								interpolation_index++;
+								int x_interpolation = x_begin + iIncrement_x * interpolation_index * x_range / y_range;    
+								if( zWriting ){
+									coordinates.ax0[ctPoints] = x_interpolation;
+									coordinates.ay0[ctPoints] = y_interpolation;
+									coordinates.ax0_value[ctPoints] = range.dBeginX + x_interpolation * dRangeX / dMax_x;
+									coordinates.ay0_value[ctPoints] = range.dBeginY + y_interpolation * dRangeY / dMax_y;
+								}
+								ctPoints++;
+							}
+						}
+
+						// plot the point
+						if( y >= pxPlotHeight || y < 0 || x >= pxPlotWidth || x < 0 ){
+							// outside plottable view, do not plot
+						} else {
+							if( zWriting ){
+								coordinates.ax0[ctPoints] = x;
+								coordinates.ay0[ctPoints] = y;
+								coordinates.ax0_value[ctPoints] = dX;
+								coordinates.ay0_value[ctPoints] = dY;
+							}
+							ctPoints++;
+						}
+// ???				
+//				y_offset = y_min + pxPlotCenter_y;
+//				y_scale = pxPlotHeight / (y_max - y_min);
+//				x_offset = x_min + pxPlotCenter_x;
+//				x_scale = pxPlotWidth / (x_max - x_min);
+						
+					}
+					if( zWriting ) break;
+					coordinates.setCapacity( ctPoints );
+					zWriting = true;
+				}
+				break;
 			case Parametric:
 		}
+		maiPlotBuffer = null;
+		coordinates.zHasAlpha = true;
 		return coordinates;
 	}
 
@@ -477,77 +615,114 @@ public class Model_PlottableExpression {
 	//     8 8 0 4 4
 	//     8 7 6 5 4
 	//     7 6 6 6 5
-	private int makePoint( PlotCoordinates coordinates, int xPoint, int x, int y, int xRenderedPoint, double dRangeX, double dRangeY, int iPlotWidth, int iPlotHeight, double dThicknessSquared, boolean zWriting, int mode ){ 
+	private int makePoint( PlotCoordinates coordinates, int xPoint, int x, int y, int xRenderedPoint, double dRangeX, double dRangeY, int iPlotWidth, int iPlotHeight, double dThickness_pixels, boolean zWriting, int mode ){
+		if( x < 0 || x >= iPlotWidth || y < 0 || y >= iPlotHeight ) return 0;
+		double dMax_x = iPlotWidth - 1;  // if the plot is 100 pixels wide, x goes from 0 to 99
+		double dMax_y = iPlotHeight - 1;
+		double dThicknessThreshold = dThickness_pixels * 0.5;
+		double dAntialiasingThreshold = dThicknessThreshold + 1;
 		double dX = (double)x;
 		double dY = (double)y;
 		int xCurrentPoint = xPoint;
 		int xPreviousPoint = xPoint == 0 ? xPoint : xPoint - 1;
 		int xNextPoint = xPoint == coordinates.ctPoints - 1 ? xPoint : xPoint + 1;
-		double dX_Current = ( coordinates.ax0_value[xCurrentPoint] - range.dBeginX ) * iPlotWidth / dRangeX; // this is the pixel-related coordinate of the value
-		double dY_Current = ( coordinates.ay0_value[xCurrentPoint] - range.dBeginY ) * iPlotHeight / dRangeY; // this is the pixel-related coordinate of the value
-		double dX_Previous = ( coordinates.ax0_value[xPreviousPoint] - range.dBeginX ) * iPlotWidth / dRangeX; // this is the pixel-related coordinate of the value
-		double dY_Previous = ( coordinates.ay0_value[xPreviousPoint] - range.dBeginY ) * iPlotHeight / dRangeY; // this is the pixel-related coordinate of the value
-		double dX_Next = ( coordinates.ax0_value[xNextPoint] - range.dBeginX ) * iPlotWidth / dRangeX; // this is the pixel-related coordinate of the value
-		double dY_Next = ( coordinates.ay0_value[xNextPoint] - range.dBeginY ) * iPlotHeight / dRangeY; // this is the pixel-related coordinate of the value
-		double distance2CurrentPoint = (dX - dX_Current) * (dX - dX_Current) + (dY - dY_Current) * (dY - dY_Current);
-		double distance2PreviousPoint = (dX - dX_Previous) * (dX - dX_Previous) + (dY - dY_Previous) * (dY - dY_Previous);
-		double distance2NextPoint = (dX - dX_Next) * (dX - dX_Next) + (dY - dY_Next) * (dY - dY_Next);
-		double distanceSquaredAverage = ( distance2CurrentPoint + distance2PreviousPoint + distance2NextPoint )/3;
-		if( distanceSquaredAverage > dThicknessSquared ) return 0; // do not make a point if point is beyond thickness of line
+		double dX_Current = ( coordinates.ax0_value[xCurrentPoint] - range.dBeginX ) * dMax_x / dRangeX; // this is the pixel-related coordinate of the value
+		double dY_Current = ( coordinates.ay0_value[xCurrentPoint] - range.dBeginY ) * dMax_y / dRangeY; // this is the pixel-related coordinate of the value
+		double dX_Previous = ( coordinates.ax0_value[xPreviousPoint] - range.dBeginX ) * dMax_x / dRangeX; // this is the pixel-related coordinate of the value
+		double dY_Previous = ( coordinates.ay0_value[xPreviousPoint] - range.dBeginY ) * dMax_y / dRangeY; // this is the pixel-related coordinate of the value
+		double dX_PreviousMidpoint = ( dX_Current + dX_Previous )/2;  
+		double dY_PreviousMidpoint = ( dY_Current + dY_Previous )/2;
+		double dX_Next = ( coordinates.ax0_value[xNextPoint] - range.dBeginX ) * dMax_x / dRangeX; // this is the pixel-related coordinate of the value
+		double dY_Next = ( coordinates.ay0_value[xNextPoint] - range.dBeginY ) * dMax_y / dRangeY; // this is the pixel-related coordinate of the value
+		double dX_NextMidpoint = ( dX_Current + dX_Next )/2;  
+		double dY_NextMidpoint = ( dY_Current + dY_Next )/2;
+		double distanceCurrentPoint = Math.sqrt( (dX - dX_Current) * (dX - dX_Current) + (dY - dY_Current) * (dY - dY_Current) );
+		double distancePreviousPoint = Math.sqrt( (dX - dX_Previous) * (dX - dX_Previous) + (dY - dY_Previous) * (dY - dY_Previous) );
+		double distanceNextPoint = Math.sqrt( (dX - dX_Next) * (dX - dX_Next) + (dY - dY_Next) * (dY - dY_Next) );
+		double distancePreviousMidpoint = Math.sqrt( (dX - dX_PreviousMidpoint) * (dX - dX_PreviousMidpoint) + (dY - dY_PreviousMidpoint) * (dY - dY_PreviousMidpoint) );
+		double distanceNextMidpoint = Math.sqrt( (dX - dX_NextMidpoint) * (dX - dX_NextMidpoint) + (dY - dY_NextMidpoint) * (dY - dY_NextMidpoint) );
+		double distance = distanceCurrentPoint;
+		if( distancePreviousPoint < distance ) distance = distancePreviousPoint; 
+		if( distanceNextPoint < distance ) distance = distanceNextPoint; 
+		if( distancePreviousMidpoint < distance ) distance = distancePreviousMidpoint; 
+		if( distanceNextMidpoint < distance ) distance = distanceNextMidpoint;  
+//		if( xPoint < 30 ) System.out.format( "xPoint %d  distance: %f  dX_Current: %f  dY_Current: %f  dX: %f  dY: %f\n", xPoint, distance, dX_Current, dY_Current, dX, dY ); 		
+		if( distance > dAntialiasingThreshold ) return 0; // do not make a point if point is beyond thickness of line
+		int alpha = distance > dThicknessThreshold ?
+				(int)((dAntialiasingThreshold - distance) * 0xFF / dAntialiasingThreshold) :
+				0xFF;
+		if( alpha == 0 ) return 0; // do not plot totally transparent points
+		if( maiPlotBuffer[x][y] > 0 ){ // point has already been plotted
+			if( alpha > maiPlotBuffer[x][y] ){
+				if( zWriting ){  // go back and update the coordinate list with the higher alpha
+					for( int xPriorPlottedPoint = xRenderedPoint - 1; xPriorPlottedPoint >= 0; xPriorPlottedPoint-- ){
+						if( 	coordinates.ax0_antialiased[xPriorPlottedPoint] == x &&
+								coordinates.ay0_antialiased[xPriorPlottedPoint] == y ){
+								coordinates.aAlpha[xPriorPlottedPoint] = alpha;
+								return 0;
+						}
+					}
+				}
+				maiPlotBuffer[x][y] = alpha; // record the higher alpha
+			}
+			return 0;
+		}
+		maiPlotBuffer[x][y] = alpha; // new point
 		if( zWriting ){
-			int alpha = (int)((dThicknessSquared - distanceSquaredAverage) * 0xFF / dThicknessSquared);
-			coordinates.ax0_antialiased[xRenderedPoint] = coordinates.ax0[xPoint];
-			coordinates.ay0_antialiased[xRenderedPoint] = coordinates.ay0[xPoint];
+			coordinates.ax0_antialiased[xRenderedPoint] = x;
+			coordinates.ay0_antialiased[xRenderedPoint] = y;
 			coordinates.aAlpha[xRenderedPoint] = alpha;
 		}
 		int ctPointsMade = 1;
 		switch( mode ){
 			case 0:
-				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 4 );
-				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 3 );
-				ctPointsMade += makePoint( coordinates, xPoint, x, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 2 );
-				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 8 );
-				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 7 );
-				ctPointsMade += makePoint( coordinates, xPoint, x, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 6 );
-				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 5 );
-				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 1 );
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 4 );
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 3 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 2 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 8 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 7 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 6 );
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 5 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 1 );
 				break;
 			case 1:
-				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 1 );
-				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 8 );
-				ctPointsMade += makePoint( coordinates, xPoint, x, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 2 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 1 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 8 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 2 );
 				break;
 			case 2:
-				ctPointsMade += makePoint( coordinates, xPoint, x, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 2 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 2 );
 				break;
 			case 3:
-				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 3 );
-				ctPointsMade += makePoint( coordinates, xPoint, x, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 2 );
-				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 4 );
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 3 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y + 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 2 );
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 4 );
 				break;
 			case 4:
-				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 4 );
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 4 );
 				break;
 			case 5:
-				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 5 );
-				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 4 );
-				ctPointsMade += makePoint( coordinates, xPoint, x, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 6 );
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 5 );
+				ctPointsMade += makePoint( coordinates, xPoint, x + 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 4 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 6 );
 				break;
 			case 6:
-				ctPointsMade += makePoint( coordinates, xPoint, x, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 6 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 6 );
 			case 7:
-				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 7 );
-				ctPointsMade += makePoint( coordinates, xPoint, x, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 6 );
-				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 8 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 7 );
+				ctPointsMade += makePoint( coordinates, xPoint, x, y - 1, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 6 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 8 );
 				break;
 			case 8:
-				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThicknessSquared, zWriting, 8 );
+				ctPointsMade += makePoint( coordinates, xPoint, x - 1, y, xRenderedPoint + ctPointsMade, dRangeX, dRangeY, iPlotWidth, iPlotHeight, dThickness_pixels, zWriting, 8 );
 				break;
 		}
 		return ctPointsMade;
 	}
 	
 	private double dFindInterpolatedX( double dY_target, double dY_delta, double dX_begin, double dX_end, double dY_begin, double dY_end, opendap.clients.odc.Interpreter odc_interpreter, org.python.core.PyCode codeY, StringBuffer sbError ){
+//		if( dX_begin > dX_end && dX_begin - dX_end < dX_delta ) return Double.NaN; // interpolation failure
+//		if( dX_begin < dX_end && dX_end - dX_begin < dX_delta ) return Double.NaN; // interpolation failure
 		double dX = (dX_end + dX_begin) / 2;
 		if( ! odc_interpreter.zSet( "_x", dX, sbError ) ){
 			sbError.insert( 0, "failed to set _x to " + dX );
@@ -559,26 +734,27 @@ public class Model_PlottableExpression {
 			return Double.NaN;
 		}
 		double dY = pyobjectY.asDouble();
+//System.out.format( "dY %f, dX %f, dY_target %f, dY_delta %f, dX_begin %f, dX_end %f, dY_begin %f, dY_end %f \n", dY, dX, dY_target, dY_delta, dX_begin, dX_end, dY_begin, dY_end );
 		double dY_difference = dY > dY_target ? dY - dY_target : dY_target - dY;
 		if( dY_difference < dY_delta ){
 			return dX;
 		} else {
-			if( ( dY_begin < dY_end && dY < dY_target ) || (dY_begin > dY_end && dY > dY_target ) ){
-				return dFindInterpolatedX( dY_target, dY_delta, dX_begin, dX, dY_begin, dY_end, odc_interpreter, codeY, sbError );
+			if( dY < dY_target ){
+				if( dY_begin < dY_end ){
+					return dFindInterpolatedX( dY_target, dY_delta, dX, dX_end, dY, dY_end, odc_interpreter, codeY, sbError );
+				} else {
+					return dFindInterpolatedX( dY_target, dY_delta, dX_begin, dX, dY_begin, dY, odc_interpreter, codeY, sbError );
+				}	
 			} else {
-				return dFindInterpolatedX( dY_target, dY_delta, dX, dX_end, dY_begin, dY_end, odc_interpreter, codeY, sbError );
+				if( dY_begin < dY_end ){
+					return dFindInterpolatedX( dY_target, dY_delta, dX_begin, dX, dY_begin, dY, odc_interpreter, codeY, sbError );
+				} else {
+					return dFindInterpolatedX( dY_target, dY_delta, dX, dX_end, dY, dY_end, odc_interpreter, codeY, sbError );
+				}	
 			}
 		}
 	}
 	
-	private void makePoint( PlotCoordinates coordinates, int xPoint, int x, int y, double dX, double dY, double dY_previous ){
-		coordinates.ax0[xPoint] = x;
-		coordinates.ay0[xPoint] = y;
-		double distanceCurrentPointSquared = (y - dY) * (y - dY);
-		double distancePreviousPointSquared = (y - dY_previous) * (y - dY_previous);
-		double distanceAveraged = ( distanceCurrentPointSquared + distancePreviousPointSquared ) / 2;
-		coordinates.aAlpha[xPoint] = (int)(0xFF * (1 - distanceAveraged));
-	}
 }
 
 class PlotRange {
@@ -586,6 +762,9 @@ class PlotRange {
 	double dEndX;
 	double dBeginY;
 	double dEndY;
+	double dBeginTheta;
+	double dEndTheta;
+	double dEndR;
 }
 
 class PlotCoordinates {
@@ -630,32 +809,38 @@ class PlotCoordinates {
 		}
 	}
 	
-	PlotRange range;
 	String sDump(){
 		StringBuffer sb = new StringBuffer();
 		sb.append( "zHasAlpha: " + zHasAlpha ).append( '\n' ); 
 		sb.append( "zHasColor: " + zHasColor ).append( '\n' ); 
 		sb.append( "argbBaseColor: " + Integer.toHexString( argbBaseColor ) ).append( '\n' ); 
-		sb.append( "dBeginX: " + range.dBeginX ).append( '\n' ); 
-		sb.append( "dEndX: " + range.dEndX ).append( '\n' ); 
-		sb.append( "dBeginY: " + range.dBeginY ).append( '\n' ); 
-		sb.append( "dEndY: " + range.dEndY ).append( '\n' );
 		sb.append( "ctPoints: " + ctPoints ).append( '\n' );
 		return sb.toString();
 	}
 	String sDump( int ctPointsToDump ){
 		if( ctPointsToDump > ctPoints ) ctPointsToDump = ctPoints; 
+		return sDump( 0, ctPointsToDump );
+	}
+	String sDump( int xFrom, int xTo ){
 		StringBuffer sb = new StringBuffer();
 		sb.append( "zHasAlpha: " + zHasAlpha ).append( '\n' ); 
 		sb.append( "zHasColor: " + zHasColor ).append( '\n' ); 
 		sb.append( "argbBaseColor: " + Integer.toHexString( argbBaseColor ) ).append( '\n' ); 
-		sb.append( "dBeginX: " + range.dBeginX ).append( '\n' ); 
-		sb.append( "dEndX: " + range.dEndX ).append( '\n' ); 
-		sb.append( "dBeginY: " + range.dBeginY ).append( '\n' ); 
-		sb.append( "dEndY: " + range.dEndY ).append( '\n' );
-		sb.append( "ctPoints: " + ctPoints ).append( '\n' );
-		for( int xPoint = 0; xPoint < ctPointsToDump; xPoint++ ){
-			sb.append( String.format( "%d %d %d\n", ax0[xPoint], ay0[xPoint], aAlpha[xPoint] ) );
+		sb.append( "dimensionless ctPoints: " + ctPoints ).append( '\n' );
+		for( int xPoint = xFrom; xPoint <= xTo; xPoint++ ){
+			sb.append( String.format( "%d %d %f %f\n", ax0[xPoint], ay0[xPoint], ax0_value[xPoint], ay0_value[xPoint] ) );
+		}
+		if( ctPoints_jagged > 0 ){
+			sb.append( "jagged ctPoints: " + ctPoints_jagged ).append( '\n' );
+			for( int xPoint = xFrom; xPoint <= xTo && xPoint < ctPoints_jagged; xPoint++ ){
+				sb.append( String.format( "%d %d %d\n", ax0_jagged[xPoint], ay0_jagged[xPoint] ) );
+			}
+		}
+		if( ctPoints_antialiased > 0 ){
+			sb.append( "antialiased ctPoints: " + ctPoints_antialiased ).append( '\n' );
+			for( int xPoint = xFrom; xPoint <= xTo && xPoint < ctPoints_antialiased; xPoint++ ){
+				sb.append( String.format( "%d: %d %d %d\n", xPoint, ax0_antialiased[xPoint], ay0_antialiased[xPoint], aAlpha[xPoint] ) );
+			}
 		}
 		return sb.toString();
 	}

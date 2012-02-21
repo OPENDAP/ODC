@@ -1,6 +1,11 @@
 package opendap.clients.odc;
 
 public class Utility_Array {
+	public static void clear( int[][] ai ){
+		for( int x = 0; x < ai.length; x++ )
+			for( int y = 0; y < ai[x].length; y++ )
+				ai[x][y] = 0;
+	}
 	public static boolean arrayHasMember( int[] ai, int value ){
 		for( int x = 0; x < ai.length; x++ ) if( ai[x] == value ) return true;
 		return false;

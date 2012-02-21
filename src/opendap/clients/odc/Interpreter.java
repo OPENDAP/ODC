@@ -42,6 +42,7 @@ import org.python.util.PythonInterpreter;
 import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.core.PyCode;
+import org.python.core.PyException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +51,8 @@ public class Interpreter {
 	private PythonInterpreter mInterpreter = null;
 	private String msPrompt = ">>> ";
 	private java.io.OutputStream streamTrace = null;
-
+	private PyException last_error = null;
+	
 	public Interpreter() {}
 
 	public PythonInterpreter getInterpeter(){ return mInterpreter; }
@@ -66,6 +68,10 @@ public class Interpreter {
 		return true;
 	}
 
+	public PyException getLastError(){
+		return last_error;
+	}
+	
 	/** creates a new interpreter (the old one, if any, is discarded) */
 	public boolean zCreateInterpreter( java.io.OutputStream os, StringBuffer sbError ){
 		try {
@@ -179,6 +185,7 @@ public class Interpreter {
 			sbError.append( "!python syntax error: " + parse_error );
 			return null;
 		} catch( org.python.core.PyException python_error ) {
+			last_error = python_error;
 			sbError.append( "!python error: " + python_error );
 			return null;
 		} catch( Throwable t ) {
@@ -280,6 +287,7 @@ public class Interpreter {
 			sbError.append( "!python syntax error: " + parse_error );
 			return null;
 		} catch( org.python.core.PyException python_error ) {
+			last_error = python_error;
 			sbError.append( "!python error: " + python_error );
 			return null;
 		} catch( Throwable t ) {

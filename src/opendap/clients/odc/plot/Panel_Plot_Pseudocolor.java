@@ -161,7 +161,7 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 		return maiRGBArray != null;
 	}
 
-	void vShowDataMicroscope(int xPlot, int yPlot){
+	void vShowDataMicroscope( int xPlot, int yPlot ){
 		int iDataDim_Width = mPlottable.getDimension_x();
 		int iDataDim_Height = mPlottable.getDimension_y();
 
@@ -206,7 +206,7 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 		final Panel_Microscope microscope = new Panel_Microscope();
 		final JOptionPane jop = new JOptionPane(microscope, JOptionPane.INFORMATION_MESSAGE);
 		final JDialog jd = jop.createDialog(ApplicationController.getInstance().getAppFrame(), "Data Microscope ( " + xPlot + ", " + yPlot + " )");
-		microscope.set(aRGB, as);
+//		microscope.set(aRGB, as);
 		jd.setVisible( true );
 	}
 
