@@ -204,7 +204,7 @@ class CommandListener extends Thread {
 					vSetOutputStream( os );
 				}
 			}
-			writeLine("command: " + sCommand);
+			writeLine("\n   !command: " + sCommand);
 			sCommand = sCommand.trim();
 			String sCommandUpper = sCommand.toUpperCase();
 			StringBuffer sbError = new StringBuffer(250);
@@ -225,7 +225,7 @@ class CommandListener extends Thread {
 				ApplicationController.vShowError(sError);
 			} else if( sCommandUpper.equals("?") || sCommandUpper.equals("HELP") ){
 				writeLine(ApplicationController.getInstance().getAppName() + " version " + ApplicationController.getInstance().getAppVersion());
-				writeLine("--- ODC Commands (case-insensitive) ---");
+				writeLine("--- ODC Commands (case-insensitive, require leading \"!\") ---");
 				writeLine("? or Help          - this information");
 				writeLine("exit or quit       - end the application");
 				writeLine("about              - about this application");
@@ -236,6 +236,7 @@ class CommandListener extends Thread {
 				writeLine("show splash        - displays the splash screen (click it to close)");
 				writeLine("show activities    - displays any active processes");
 				writeLine("show memory        - prints memory information for system");
+				writeLine("list scripts       - lists the files in the scripts directory");
 				writeLine("gc                 - run garbage collector (compacts memory)");
 				writeLine("set [option] [val] - sets the value of a configuration option");
 				writeLine("dump tree          - prints tree if selected URL is a directory");
@@ -363,6 +364,16 @@ class CommandListener extends Thread {
 				ApplicationController.getInstance().vShowSplashScreen();
 			} else if( sCommandUpper.equals("SHOW MEMORY") ){
 				writeLine(ApplicationController.getInstance().sMemoryStatus());
+			} else if( sCommandUpper.equals("LIST SCRIPTS") ){
+				String sDirectoryPath = ConfigurationManager.getInstance().getDefault_DIR_Scripts();
+				ArrayList<String> listFiles = Utility.listDirectoryContents( sDirectoryPath, sbError );
+				if( listFiles == null ){
+					writeLine( "Error identifying files in " + sDirectoryPath + ": " + sbError.toString() );
+				} else {
+					for( String s : listFiles ){
+						writeLine( s );
+					}
+				}
 			} else if( sCommandUpper.equals("GC") ){
 				Runtime.getRuntime().gc();
 				Thread.yield();

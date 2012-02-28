@@ -1194,6 +1194,20 @@ public class Utility {
 			return null;
 		}
 	}
+	
+	final public static ArrayList<String> listDirectoryContents( String sDirectoryPath, StringBuffer sbError ){
+		if( ! Utility.zDirectoryValidate( sDirectoryPath, sbError ) ){
+			sbError.insert( 0, "invalid directory: " );
+			return null;
+		}
+		File fileDirectory = new File( sDirectoryPath );
+		ArrayList<String> list = new ArrayList<String>();
+		File[] aFiles = fileDirectory.listFiles();
+		for( int xFile = 0; xFile < aFiles.length; xFile++ ){
+			list.add( aFiles[xFile].getName() );
+		}
+		return list;
+	}
 
 	final public static String sGetDODSError( String sPageText ){
 		int posError = sPageText.indexOf( "Error {" );

@@ -80,7 +80,7 @@ public class Model_Dataset implements java.io.Serializable {
 	private String msDAS_Text;
 	private String msDDX_Text;
 	private String msInfo_Text;
-	private String msScript_Text;
+	private String msContentText; // if this is a small text file or script
 
 	transient private boolean mzUnreachable = false;
 	transient private String msError; // if the site is unreachable
@@ -170,10 +170,24 @@ public class Model_Dataset implements java.io.Serializable {
     /**
      * Create a new <code>Model_Dataset</code> of the data type.
      */
+    public final static Model_Dataset createPlainText( final StringBuffer sbError ){
+    	Model_Dataset model = new Model_Dataset();
+		model.meType = DATASET_TYPE.Text;
+		model.msContentText = "";
+		model.msURL = "";
+		model.msCE = "";
+		model.mDDS_Full = null;
+		model.msDDS_Text = null;
+		model.msTitle = null;
+		model.msMIMEType = null;
+		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
+		return model;
+    }
+
     public final static Model_Dataset createExpression( final StringBuffer sbError ){
     	Model_Dataset model = new Model_Dataset();
 		model.meType = DATASET_TYPE.PlottableExpression;
-		model.msScript_Text = "";
+		model.msContentText = "";
 		model.msURL = "";
 		model.msCE = "";
 		model.mDDS_Full = null;
@@ -187,7 +201,7 @@ public class Model_Dataset implements java.io.Serializable {
     public final static Model_Dataset createDataScript( final StringBuffer sbError ){
     	Model_Dataset model = new Model_Dataset();
 		model.meType = DATASET_TYPE.DataScript;
-		model.msScript_Text = "";
+		model.msContentText = "";
 		model.msURL = "";
 		model.msCE = "";
 		model.mDDS_Full = null;
@@ -205,7 +219,7 @@ public class Model_Dataset implements java.io.Serializable {
     	}
     	Model_Dataset model = new Model_Dataset();
 		model.meType = DATASET_TYPE.Definition;
-		model.msScript_Text = "";
+		model.msContentText = "";
 		model.msURL = "";
 		model.msCE = "";
 		model.mDDS_Full = dds;
@@ -249,7 +263,7 @@ public class Model_Dataset implements java.io.Serializable {
 		model.msDAS_Text= existing_model.msDAS_Text;
 		model.msDDX_Text= existing_model.msDDX_Text;
 		model.msInfo_Text= existing_model.msInfo_Text;
-		model.msScript_Text= existing_model.msScript_Text;
+		model.msContentText= existing_model.msContentText;
 		model.mDDS_Subset = existing_model.mDDS_Subset;
 		model.mDDS_Full = existing_model.mDDS_Full;
 		model.mDAS = existing_model.mDAS;
@@ -404,10 +418,10 @@ public class Model_Dataset implements java.io.Serializable {
 
 	public String getInfo_Text(){ return msInfo_Text; }
 
-	public String getExpression_Text(){ return msScript_Text; }
+	public String getTextContent(){ return msContentText; }
 	
-	public void setExpression_Text(String expression_text){
-		msScript_Text = expression_text;
+	public void setTextContent( String text){
+		msContentText = text;
 	}
 	
 	public String getFileName(){

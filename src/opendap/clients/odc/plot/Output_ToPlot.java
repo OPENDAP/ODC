@@ -426,7 +426,7 @@ public class Output_ToPlot {
 				sbError.append( "dataset model is not a plottable expression" );
 				return false;
 			}
-			String sExpressionText = model.getExpression_Text();
+			String sExpressionText = model.getTextContent();
 			if( sExpressionText == null || sExpressionText.length() <= 0 ){
 				sbError.append( "expression has no text" );
 				return false;

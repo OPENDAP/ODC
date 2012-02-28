@@ -414,7 +414,7 @@ class Model_DataView {
 			ApplicationController.vShowStatus_NoCache( "selected dataset is not a data-generating expression" );
 		} else {
 			StringBuffer sbError = new StringBuffer( 256 );
-			String sExpressionText = this.modelActive.getExpression_Text();
+			String sExpressionText = this.modelActive.getTextContent();
 			Interpreter interpreter = ApplicationController.getInstance().getInterpreter();
 			Script script = interpreter.generateScriptFromText( sExpressionText, sbError );
 			if( script == null ){
