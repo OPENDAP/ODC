@@ -213,34 +213,60 @@ public class Panel_View_Text extends JPanel implements IControlPanel {
 	}
 
 	void editorOpen(){
-		SavableImplementation savable = new SavableImplementation( java.lang.String.class, null, null );  
-		String sContent = (String)savable._open();
-		if( sContent == null ) return; // user cancelled
-		editorNew( savable, sContent );
+		try {
+			SavableImplementation savable = new SavableImplementation( java.lang.String.class, null, null );
+			Object oSavable = savable._open();
+			if( oSavable == null ) return; // user cancelled
+			if( ! (oSavable instanceof opendap.clients.odc.data.Model_Dataset) ){
+				ApplicationController.vShowError( "File could not be interpreted in a way that is loadable in the editor. May be an unrecognized binary type." );
+				return;
+			}
+			opendap.clients.odc.data.Model_Dataset model = (opendap.clients.odc.data.Model_Dataset)oSavable;
+			String sContent = model.getTextContent();
+			editorNew( savable, sContent );
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while opening editor file" );
+		}
 	}
 	
 	void editorSave(){
-		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
-		editor._save();
+		try {
+			Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
+			editor._save();
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while saving editor file" );
+		}
 	}
 	
 	void editorSaveAs(){
-		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
-		editor._saveAs();		
+		try {
+			Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
+			editor._saveAs();		
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while saving-as editor file" );
+		}
 	}
 	void editorSaveClose(){
-		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
-		if( editor == null ){
-			ApplicationController.vShowStatus_NoCache( "no active editor to save/close" );
-			return;
+		try {
+			Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
+			if( editor == null ){
+				ApplicationController.vShowStatus_NoCache( "no active editor to save/close" );
+				return;
+			}
+			if( ! editor._save() ) return; // do not close if action was cancelled or failed
+			jtpEditors.remove( editor );
+			listEditors.remove( editor );
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while saving and closing editor file" );
 		}
-		if( ! editor._save() ) return; // do not close if action was cancelled or failed
-		jtpEditors.remove( editor );
-		listEditors.remove( editor );
 	}
 	void editorCloseNoSave(){
-		Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
-		editorCloseNoSave( editor );
+		try {
+			Panel_View_Text_Editor editor = (Panel_View_Text_Editor)jtpEditors.getSelectedComponent();
+			editorCloseNoSave( editor );
+		} catch( Throwable t ) {
+			ApplicationController.vUnexpectedError( t, "while closing without saving editor file" );
+		}
 	}
 	void editorCloseNoSave( Panel_View_Text_Editor editor ){
 		if( editor == null ){

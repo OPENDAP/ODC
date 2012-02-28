@@ -92,29 +92,39 @@ public class SavableImplementation implements ISavable {
 					sbError.insert( 0, "failed to load lines: " );
 					return null;
 				}
+				boolean zIsODCExpression = false;
 				boolean zIsDataScript = false;
+				boolean zEncounteredNonComment = false;
 				for( int xLine = 0; xLine < listLines.size(); xLine++ ){
 					String sLine = listLines.get( xLine );
 					String s_no_spaces = Utility_String.sReplaceString( sLine, " ", "" );
 					String s_no_tabs = Utility_String.sReplaceString( s_no_spaces, "\t", "" );
 					String sLine_upper = s_no_tabs.toUpperCase();
+					if( sLine_upper.trim().length() > 0 &&  ! sLine_upper.startsWith( "#" ) ) zEncounteredNonComment = true;
+					if( ! zEncounteredNonComment && sLine_upper.startsWith( "#!ODC" ) ) zIsODCExpression = true; 
 					if( sLine_upper.startsWith( "VALUE=" ) || sLine_upper.startsWith( "0$=" ) ){
 						zIsDataScript = true;
 						break;
 					}
 				}
 				Model_Dataset model;
-				if( zIsDataScript ){
-					model = Model_Dataset.createDataScript( sbError );
-				} else {
-					model = Model_Dataset.createExpression( sbError );
+				if( zIsODCExpression ){
+					if( zIsDataScript ){
+						model = Model_Dataset.createDataScript( sbError );
+					} else {
+						model = Model_Dataset.createExpression( sbError );
+					}
+					if( model == null ){
+						sbError.insert( 0, "failed to create model: " );
+						return null;
+					}
+					model.setTextContent( s );
+					serializableContent = model;
+				} else { // treat as plain text
+					model = Model_Dataset.createPlainText( sbError );
+					model.setTextContent( s );
+					serializableContent = model;
 				}
-				if( model == null ){
-					sbError.insert( 0, "failed to create model: " );
-					return null;
-				}
-				model.setExpression_Text( s );
-				serializableContent = model;
 			}
 			msFileDirectory = file.getParent();
 			msFileName = file.getName();
@@ -141,12 +151,15 @@ public class SavableImplementation implements ISavable {
 					if( serializableObjectToBeSaved instanceof Model_Dataset ){
 						Model_Dataset model = (Model_Dataset)serializableObjectToBeSaved;
 						if( model.getType() == Model_Dataset.DATASET_TYPE.DataScript ||
-							model.getType() == Model_Dataset.DATASET_TYPE.PlottableExpression ){
-							Utility.fileSave( file, model.getExpression_Text(), sbError );
+							model.getType() == Model_Dataset.DATASET_TYPE.PlottableExpression || 
+							model.getType() == Model_Dataset.DATASET_TYPE.Text ){
+							String sFileContent = model.getTextContent();
+							Utility.fileSave( file, sFileContent, sbError );
 							ApplicationController.vShowStatus( "Saved script " + file );
 							String sPath_LastLoadedData = file.getAbsolutePath();
 							ConfigurationManager.getInstance().setOption( ConfigurationManager.PROPERTY_PATH_LastLoadedData, sPath_LastLoadedData );
 							_makeClean();
+							System.out.println( "Saved: " + sFileContent );
 							return true;
 						}
 					}
@@ -177,9 +190,10 @@ public class SavableImplementation implements ISavable {
 		if( serializableObjectToBeSaved instanceof Model_Dataset ){
 			Model_Dataset model = (Model_Dataset)serializableObjectToBeSaved;
 			if( model.getType() == Model_Dataset.DATASET_TYPE.DataScript ||
-				model.getType() == Model_Dataset.DATASET_TYPE.PlottableExpression ){
+				model.getType() == Model_Dataset.DATASET_TYPE.PlottableExpression ||
+				model.getType() == Model_Dataset.DATASET_TYPE.Text ){
 				zSaveScript = true;
-				sScriptText = model.getExpression_Text();
+				sScriptText = model.getTextContent();
 			}
 		}
 		File fileSaved;
@@ -221,107 +235,5 @@ public class SavableImplementation implements ISavable {
 	}
 	public void _makeDirty(){ mzDirty = true; }
 	public void _makeClean(){ mzDirty = false; }
-
-// old file loading routine
-//	void vFileLoad(){
-//		try {
-//
-//			// determine file path
-//			String sCacheDirectory = ConfigurationManager.getInstance().getProperty_DIR_DataCache();
-//			StringBuffer sbError = new StringBuffer();
-//			File fileCacheDirectory = Utility.fileEstablishDirectory( sCacheDirectory, sbError );
-//			if (jfc == null) jfc = new JFileChooser();
-//			if( fileCacheDirectory != null ) jfc.setCurrentDirectory(fileCacheDirectory);
-//			int iState = jfc.showDialog(Panel_View_Plot.this, "Load");
-//			File file = jfc.getSelectedFile();
-//			if (iState != JFileChooser.APPROVE_OPTION)	return;
-//			if (file == null) return;
-//
-//			// load serialized object
-//			Object o = Utility.oLoadObject(file, sbError);
-//			if( o == null ){
-//				ApplicationController.vShowError("Error loading Data DDS from file: " + sbError);
-//				return;
-//			}
-//			if( o instanceof opendap.clients.odc.plot.DataConnectorFile ){
-//				DataConnectorFile dcf = (DataConnectorFile)o;
-//				Model_Dataset url = dcf.getURL();
-//				url.setData(dcf.getData());
-//				if( Panel_View_Plot.this.source_Add(url, sbError) ){
-//					ApplicationController.vShowStatus("File loaded to plotter: " + url);
-//				} else {
-//					ApplicationController.vShowError("Error adding file as plotting source: " + sbError);
-//				}
-//			} else {
-//				ApplicationController.vShowError("Object in file " + file.getPath() + " is of type " +  o.getClass().getName() + " not a loadable type");
-//				return;
-//			}
-//
-//		} catch(Exception ex) {
-//			StringBuffer sbError = new StringBuffer(80);
-//			ApplicationController.vUnexpectedError(ex, sbError);
-//			ApplicationController.vShowError("Unexpected error loading item: " + sbError);
-//		}
-//	}
-
-// old file save routine
-//	void vSaveSelectedListing(){
-//		int xURL_0;
-//		try {
-//			xURL_0 = jlistSelectedURLs.getSelectedIndex();
-//			if( xURL_0 < 0 ){
-//				ApplicationController.vShowWarning("nothing selected");
-//				return;
-//			}
-//			final Model_Dataset url = (Model_Dataset)Panel_View_Plot.this.listPlotterData.get(xURL_0);
-//			String sTitle = url.getTitle();
-//			DataConnectorFile dcf = new DataConnectorFile();
-//			dcf.setTitle(url.getTitle());
-//			dcf.setURL(url);
-//			dcf.setData(url.getData());
-//
-//			// ask user for desired location
-//			String sCacheDirectory = ConfigurationManager.getInstance().getProperty_DIR_DataCache();
-//			StringBuffer sbError = new StringBuffer();
-//			File fileCacheDirectory = Utility.fileEstablishDirectory( sCacheDirectory, sbError );
-//			if (jfc == null) jfc = new JFileChooser();
-//			if( fileCacheDirectory == null ){
-//				// not established
-//			} else {
-//				jfc.setCurrentDirectory(fileCacheDirectory);
-//			}
-//			String sSuggestedFileName = Utility.sFriendlyFileName(sTitle) + ConfigurationManager.EXTENSION_Data;
-//			jfc.setSelectedFile(new File(sSuggestedFileName));
-//			int iState = jfc.showDialog(Panel_View_Plot.this, "Select Save Location");
-//			File file = jfc.getSelectedFile();
-//			if (file == null || iState != JFileChooser.APPROVE_OPTION) return; // user cancel
-//
-//			// try to save this directory as the new data cache directory
-//			File fileNewCacheDirectory = file.getParentFile();
-//			if( fileCacheDirectory != null ) if( !fileCacheDirectory.equals(fileNewCacheDirectory) ){
-//				String sNewCacheDirectory = fileNewCacheDirectory.getCanonicalPath();
-//				ConfigurationManager.getInstance().setOption(ConfigurationManager.PROPERTY_DIR_DataCache, sNewCacheDirectory );
-//			}
-//
-//			// save DCF
-//			String sPath = file.getPath();
-//			FileOutputStream fos = new FileOutputStream(file);
-//			ObjectOutputStream oos = new ObjectOutputStream(fos);
-//			try {
-//				oos.writeObject(dcf);
-//			} catch(Exception ex) {
-//				ApplicationController.vShowError("Failed to serialize object to file [" + sPath + "]: " + ex);
-//			} finally {
-//				try {
-//					if(fos!=null) fos.close();
-//				} catch(Exception ex) {}
-//			}
-//		} catch(Exception ex) {
-//			StringBuffer sbError = new StringBuffer(80);
-//			ApplicationController.vUnexpectedError(ex, sbError);
-//			ApplicationController.vShowError("Unexpected error unloading item: " + sbError);
-//		}
-//	}
-
-	
 }
+

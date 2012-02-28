@@ -119,7 +119,7 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 						if( ! editor._isDirty() && ( editor.parent != null ) ) editor.parent.updateTabTitles();						
 					}
 					public void keyReleased(KeyEvent ke){
-						if( editor.model != null ) editor.model.setExpression_Text( editor._getText() );
+						if( editor.model != null ) editor.model.setTextContent( editor._getText() );
 					}
 					public void keyTyped(KeyEvent ke){}
 				}
@@ -146,7 +146,7 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
 	public void _setModel( Model_Dataset m ){
 		model = m;
 		if( model != null ){
-			jtaDisplay.setText( model.getExpression_Text() );
+			jtaDisplay.setText( model.getTextContent() );
 			savableString = m.getSavable();
 		}
 	}
@@ -162,12 +162,22 @@ public class Panel_View_Text_Editor extends JPanel implements IControlPanel {
     
 	/** returns false if the action was cancelled or failed */
 	boolean _save(){
-		return savableString._save( _getText() );
+		if( model == null ){
+			StringBuffer sbError = new StringBuffer();
+			model = Model_Dataset.createPlainText( sbError );
+		}
+		model.setTextContent( _getText() );
+		return savableString._save( model );
 	}
 
 	/** returns false if the action was cancelled or failed */
 	boolean _saveAs(){
-		if( savableString._saveAs( _getText() ) ){
+		if( model == null ){
+			StringBuffer sbError = new StringBuffer();
+			model = Model_Dataset.createPlainText( sbError );
+		}
+		model.setTextContent( _getText() );
+		if( savableString._saveAs( model ) ){
 			if( Panel_View_Text_Editor.this.parent != null ) parent.updateTabTitles(); // update the name of the tab
 			return true;
 		} else {

@@ -220,11 +220,11 @@ Commands prefixed by an exclamation point ("!") will be sent to the ODC. Type "!
 
 Example: type "print 2+5" and press the enter key. The result 7 will appear on the next line.
 
-The system automatically defines a script directory. By default this is "scripts" in your ODC base directory. You can place Python script files here to be imported. Type "print sys.path" to see the directories which scripts are accessible from. You can append to the path normally as in Python to add an additional directory for imports.
+The system automatically defines a script directory. By default this is "scripts" in your ODC base directory. You can place Python script files here to be imported. Type "!list scripts" to see a list of the files in the scripts directory. Type "print sys.path" to see the directories which scripts are accessible from. You can append to the path normally as in Python to add an additional directory for imports.
 
 The file editing capabilities of the ODC are useful for interactively building scripts. See the topic "Editor" for more information.
 
-For more information on scripting see the help topics for Interpreter.
+For more information on scripting see the help topics for Interpreter, such as "Interpreter - Scripts" for the basics on running a script.
 
 #Editor
 
@@ -335,7 +335,7 @@ Within a given plot object, such as an axis, legend or scale, there should be no
 
 #Plotting Expressions
 
-You can plot Python expressions by loading or creating expressions in the data editor (View / Data). Script files that contain a specification for a mathematical formula, or formulas, which can be plotted are called "plottable expressions". The difference between a data script (qv) and a plottable expression is that a datascript always has a "value=" or "$0=" line. When an expression data type is selected the plotter's variable panel will automatically show the settings for configuring the plotting of the expression. Three types of expression plotting are supported:
+You can plot Python expressions by loading or creating expressions in the data editor (View / Data). Script files that contain a specification for a mathematical formula, or formulas, which can be plotted are called "plottable expressions". A plottable expression must begin with the directive #!odc. This tells the ODC that the file is not a normal text file, but is expression code. The difference between a data script (qv) and a plottable expression is that a datascript always has a "value=" or "$0=" line. Both must begin with the line "#!odc". When an expression data type is selected the plotter's variable panel will automatically show the settings for configuring the plotting of the expression. Three types of expression plotting are supported:
 
 Cartesian   (example: y=2*x)
 
@@ -376,6 +376,7 @@ BEWARE SIDE EFFECTS: Be cautious about including anything in the expression for 
 
 IMPORTS: If you need to make an import or other statement, place it in the script. Any line which does not contain an equals sign (=) will be exected only once when the script is first compiled. For example,
 
+#!odc
 import math
 y=sin(x)
 
@@ -1018,7 +1019,7 @@ In general, the operating principle of a one-liner is that you can modify existi
 
 #Data Viewer - Scripts
 
-Data Viewer scripts allow you to generate data using mathematical expressions and functions in the Python language. This can be useful in wide variety of ways. For example, using the scripting engine you can calculate a linear regression of a data set and then, using the layer capability of the plotter, overlay the regression line on a plot of the data. Scripts can be used for more mundane uses. For example, you might want to add a dimensional index numbers to a dataset that lacks them. You can also use scripts to modify existing data sets. For example, you can use the geodesic functions that are built into the ODC to perform transformations such as orthorectification on satellite data sets.
+Data Viewer scripts allow you to generate data using mathematical expressions and functions in the Python language. All scripts begin with the directive "#!odc". This can be useful in wide variety of ways. For example, using the scripting engine you can calculate a linear regression of a data set and then, using the layer capability of the plotter, overlay the regression line on a plot of the data. Scripts can be used for more mundane uses. For example, you might want to add a dimensional index numbers to a dataset that lacks them. You can also use scripts to modify existing data sets. For example, you can use the geodesic functions that are built into the ODC to perform transformations such as orthorectification on satellite data sets.
 
 DON'T CONFUSE WITH PLOTTABLE EXPRESSIONS: Don't confuse data scripts with plottable scripts. A data script always defines the "value" (or $0) variable. A plottable script or expression (see topic "Plotting Expressions" above) defines cartesian or polar coordinates such as "x" or "y". If the ODC finds a "value" assignment it will treat the script as a data generator, if it finds a plottable coordinate it will treat the script as an formula expression, otherwise it will return an error when you try to run/plot the script. You can explicitly define the script type by using directives (see the topic "Script Directives"). For example, the directive "#!new" would cause the script to be treated as a data script.
 
@@ -1026,16 +1027,19 @@ There are three ways to use data scripting: create a full script in the text edi
 
 Scripts are stored as text files which are intended for use by the ODC's Python engine. The file is pre-processed, however, so its format is more restricted than a normal Python script file. At a minimum the file must define at least one output. For example, the statement
 
+	#!odc
 	value = 5
 	
 would create a 1-dimensional vector in which every single value is 5. Note that no type is defined and no dimensional ranges are defined. The default type is double and the default dimensional range is 1-100 with a step of 1, so in this case the end result would be a 100-member array in which each member is the double 5.00000. The identifier "value" is repetitively evaluated by the ODC using the Python engine. Whatever value that identifier has will be used as the variable value. Suppose we wanted a vector with the integer numbers 1 to 50 in it:
 
+	#!odc
 	type = "Int32"
 	size = 50
 	value = 1 + $1
 
 The order of the parameters does not matter. The term $1 is a macro substitution referring to the current value of the index in the first dimension which begins at 0. The first dimension is the row. You can use up to 4 dimensions. You can also create recursive functions. For example, if we wanted a vector with the first 20 values of the fibonacci sequence the script would be:
 
+	#!odc
 	type = "Int32"
 	size = 20
 	value = if( $1 == 0 ) then 0, else if( $1 == 1 ) then 1, else value[$1 - 1] + value[$1 - 2]
@@ -1059,6 +1063,7 @@ Scripts can be prefaced by special directives that control the target of the scr
 
 Script Directives (invalid for one-liners)
 
+#!odc             all scripts must begin with this directive to identify it as an ODC script
 #!new             generate a new dataset using the script (this is the default mode)
 #!modify          modify the currently active dataset
 #!modify_view     modify the active 2D array in the array view
@@ -1301,6 +1306,7 @@ Example: Creating an ECEF Grid
 
 To create an earth-centered, earth-fixed (ECEF) grid we could use the following script:
 
+	#!odc
 	type = "Int32"
 	value = 5
 	size_1 = 651
