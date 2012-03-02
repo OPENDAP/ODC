@@ -6,7 +6,7 @@ package opendap.clients.odc;
  * Copyright:    Copyright (c) 2002-2011
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.01
+ * @version      3.08
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,6 @@ package opendap.clients.odc;
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 /////////////////////////////////////////////////////////////////////////////
 
-import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Panel_Retrieve;
 import opendap.clients.odc.data.Panel_View_Data;
 import opendap.clients.odc.gui.Resources;

@@ -203,11 +203,11 @@ class Panel_Plot_Pseudocolor extends Panel_Plot {
 				break;
 		}
 
-		final Panel_Microscope microscope = new Panel_Microscope();
-		final JOptionPane jop = new JOptionPane(microscope, JOptionPane.INFORMATION_MESSAGE);
-		final JDialog jd = jop.createDialog(ApplicationController.getInstance().getAppFrame(), "Data Microscope ( " + xPlot + ", " + yPlot + " )");
+//		final Panel_Microscope microscope = new Panel_Microscope();
+//		final JOptionPane jop = new JOptionPane(microscope, JOptionPane.INFORMATION_MESSAGE);
+//		final JDialog jd = jop.createDialog(ApplicationController.getInstance().getAppFrame(), "Data Microscope ( " + xPlot + ", " + yPlot + " )");
 //		microscope.set(aRGB, as);
-		jd.setVisible( true );
+//		jd.setVisible( true );
 	}
 
 	/** Do not use this currently because we need to receive mouse events

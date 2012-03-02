@@ -1,14 +1,9 @@
 package opendap.clients.odc.plot;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-
 import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.DAP;
 
 import org.python.core.PyObject;
 
@@ -250,12 +245,32 @@ public class Panel_Plot_Expression extends Panel_Plot {
 		return false;
 	}
 
-	void vShowDataMicroscope( int xClick, int yClick, int pxPlotHeight ){
+	int iMicroscopeWidth = 10;
+	int iMicroscopeHeight = 10;
+	int[][] aRGB = new int[iMicroscopeWidth][iMicroscopeHeight];               // the raster that the microscope will display
+	String[][] asData = new String[iMicroscopeWidth][iMicroscopeHeight];       // the data values as strings
+
+	public void mouseClicked( java.awt.event.MouseEvent evt){
+		int mpxMargin_Left = 10;
+		int mpxMargin_Top =  10;
+		int xPX = evt.getX();
+		int yPX = evt.getY();
+	    vUpdateMicroscopeArrays( xPX - mpxMargin_Left, yPX - mpxMargin_Top, mpxPlotHeight );
+		activateMicroscope( aRGB, asData, iMicroscopeWidth, iMicroscopeHeight );
+	}
+
+	public void mouseMoved( java.awt.event.MouseEvent evt ){ // TODO move functionality to panel plot
+		if( ! _isMicroscopeActive() ) return;
+		int mpxMargin_Left = 10;
+		int mpxMargin_Top =  10;
+		int xPX = evt.getX();
+		int yPX = evt.getY();
+	    vUpdateMicroscopeArrays( xPX - mpxMargin_Left, yPX - mpxMargin_Top, mpxPlotHeight );
+		Panel_Microscope.microscope._update( aRGB, asData );
+	}
+	
+	void vUpdateMicroscopeArrays( int xClick, int yClick, int pxPlotHeight ){
 		if( coordinates == null ) return;
-		int iMicroscopeWidth = 10;
-		int iMicroscopeHeight = 10;
-		int[][] aRGB = new int[iMicroscopeWidth][iMicroscopeHeight];               // the raster that the microscope will display
-		String[][] asData = new String[iMicroscopeWidth][iMicroscopeHeight];       // the data values as strings
 		for( int x = 0; x < iMicroscopeWidth; x++ ){
 			for( int y = 0; y < iMicroscopeHeight; y++ ){
 				aRGB[x][y] = 0xFFFFFFFF; // initialize to white
@@ -290,20 +305,6 @@ public class Panel_Plot_Expression extends Panel_Plot {
 			}
 		}
 
-		StringBuffer sbError = new StringBuffer();
-		final Panel_Microscope microscope = new Panel_Microscope();
-		microscope.set( aRGB, asData, iMicroscopeWidth, iMicroscopeHeight );
-		final JOptionPane jop = new JOptionPane( microscope, JOptionPane.INFORMATION_MESSAGE );
-		final JDialog jd = jop.createDialog(ApplicationController.getInstance().getAppFrame(), "Data Microscope ( " + xClick + ", " + yClick + " )");
-		jd.setVisible( true );
 	}
 
-	public void mouseClicked( java.awt.event.MouseEvent evt){
-		int mpxMargin_Left = 10;
-		int mpxMargin_Top =  10;
-		int xPX = evt.getX();
-		int yPX = evt.getY();
-	    vShowDataMicroscope( xPX - mpxMargin_Left, yPX - mpxMargin_Top, mpxPlotHeight );
-	}
-	
 }

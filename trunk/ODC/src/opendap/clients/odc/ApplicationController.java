@@ -38,7 +38,6 @@ import javax.swing.*;
 
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Model_LoadedDatasets;
-import opendap.clients.odc.data.Model_ExpressionHistory;
 import opendap.clients.odc.data.Model_Retrieve;
 import opendap.clients.odc.data.OutputEngine;
 import opendap.clients.odc.gui.Resources;
@@ -52,7 +51,7 @@ public class ApplicationController {
 	private static final ApplicationController thisSingleton = new ApplicationController();
 
 	private static final String msAppName = "OPeNDAP Data Connector";
-	private static final String msAppVersion = "3.07";
+	private static final String msAppVersion = "3.08";
 	private static final String msAppReleaseDate = "20 April 2011"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
@@ -178,8 +177,6 @@ public class ApplicationController {
 				thisInstance.vActivate();
 			}
 //			vRedirectStandardOut();
-			opendap.clients.odc.Interpreter odc_interpreter = ApplicationController.getInstance().getInterpreter();
-			double dBeginX = odc_interpreter.get( "xyze", sbError );
 		} catch( Throwable t ) {
 			String sStackTrace = Utility.errorExtractStackTrace( t );
 			System.out.println("Unexpected error starting application: " + sStackTrace);

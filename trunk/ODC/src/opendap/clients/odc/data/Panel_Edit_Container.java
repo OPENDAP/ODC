@@ -78,11 +78,12 @@ public class Panel_Edit_Container extends JPanel {
 				mEditStructure._setModel( tree );
 				break;
 			case PlottableExpression:
+			case Text:
 				if( mEditExpression._setModel( model, sbError ) ){
 					removeAll();
 					add( mEditExpression, BorderLayout.CENTER );
 				} else {
-					sbError.insert( 0, "failed to initialize expression editing panel: " );
+					sbError.insert( 0, "(Panel_Edit_Container) failed to initialize expression editing panel: " );
 					return false;
 				}
 				break;

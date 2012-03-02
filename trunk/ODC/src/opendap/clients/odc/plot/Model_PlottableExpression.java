@@ -649,9 +649,9 @@ public class Model_PlottableExpression {
 //		if( xPoint < 30 ) System.out.format( "xPoint %d  distance: %f  dX_Current: %f  dY_Current: %f  dX: %f  dY: %f\n", xPoint, distance, dX_Current, dY_Current, dX, dY ); 		
 		if( distance > dAntialiasingThreshold ) return 0; // do not make a point if point is beyond thickness of line
 		int alpha = distance > dThicknessThreshold ?
-				(int)((dAntialiasingThreshold - distance) * 0xFF / dAntialiasingThreshold) :
+				(int)( 0xFF + 0xAA * Math.log( (dAntialiasingThreshold - distance)/dAntialiasingThreshold ) ) :
 				0xFF;
-		if( alpha == 0 ) return 0; // do not plot totally transparent points
+		if( alpha <= 0 ) return 0; // do not plot totally transparent points
 		if( maiPlotBuffer[x][y] > 0 ){ // point has already been plotted
 			if( alpha > maiPlotBuffer[x][y] ){
 				if( zWriting ){  // go back and update the coordinate list with the higher alpha

@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Panel_Help
  * Description:  Displays the help screens
- * Copyright:    Copyright (c) 2002-2008
+ * Copyright:    Copyright (c) 2002-2012
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.00
+ * @version      3.08
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -117,8 +117,8 @@ public class Panel_Help extends JPanel implements IControlPanel {
 		}
 	}
 
-	boolean zLoadHelp(StringBuffer sbError){
-		StringBuffer sbContent = new StringBuffer(5000);
+	boolean zLoadHelp( StringBuffer sbError ){
+		StringBuffer sbContent = new StringBuffer( 10000 );
 		if( Utility.zLoadStringResource(Resources.pathHelpText, sbContent, sbError) ){
 			// help successfully loaded
 		} else {
@@ -145,21 +145,29 @@ public class Panel_Help extends JPanel implements IControlPanel {
 			char c = sbContent.charAt(pos);
 			switch(eState){
 				case 1: // beginning of line
-					if( c == '#' ) eState = 2; else eState = 3;
+					if( c == '#' ) eState = 2; else eState = 4;
 					pos++;
 					break;
-				case 2: // in topic line
-					if( c == '\n' || c == '\r' ){
-						ctTopic++;
+				case 2: // after # at beginning of line
+					if( c == '~' ){
+						eState = 3; 
+					} else {
 						eState = 4;
 					}
 					pos++;
 					break;
-				case 3: // in normal line
-					if( c == '\n' || c == '\r' ) eState = 4;
+				case 3: // in topic line
+					if( c == '\n' || c == '\r' ){
+						ctTopic++;
+						eState = 5;
+					}
 					pos++;
 					break;
-				case 4: // in line terminator
+				case 4: // in normal line
+					if( c == '\n' || c == '\r' ) eState = 5;
+					pos++;
+					break;
+				case 5: // in line terminator
 					if( c == '\n' || c == '\r' ) pos++; else eState = 1;
 					break;
 			}
@@ -191,18 +199,35 @@ public class Panel_Help extends JPanel implements IControlPanel {
 						    eState = 2;
 							break;
 						case '\n':
-							eState = 4;
+							eState = 5;
 							break;
 						case '\r':
-							eState = 5;
+							eState = 6;
 							break;
 						default:
 							sbEntry.append(c);
-							eState = 3;
+							eState = 4;
 					}
 					pos++;
 					break;
-				case 2: // in topic line
+				case 2: // beginning of line, after #
+					switch( c ){
+						case '~':
+						    eState = 3;
+							break;
+						case '\n':
+							eState = 5;
+							break;
+						case '\r':
+							eState = 6;
+							break;
+						default:
+							sbEntry.append(c);
+							eState = 4;
+					}
+					pos++;
+					break;
+				case 3: // in topic line
 					if( c == '\n' || c == '\r' ){
 						if( xTopic > 0 ){ // store entry for previous topic
 							if( xTopic == 1 ){ // always add version header to first topic
@@ -219,21 +244,21 @@ public class Panel_Help extends JPanel implements IControlPanel {
 						if( sTopic.length() == 0 ) sTopic = "*";
 						asTopics[xTopic] = sTopic;
 						xTopic++;
-						if( c == '\n' ) eState = 4; else eState = 5;
+						if( c == '\n' ) eState = 5; else eState = 6;
 					} else sb.append(c);
 					pos++;
 					break;
-				case 3: // in normal line
+				case 4: // in normal line
 					if( c == '\n' ){
 					    eState = 4;
 					} else if( c == '\r' ){
-					    eState = 5;
+					    eState = 6;
 					} else {
 						sbEntry.append(c);
 					}
 					pos++;
 					break;
-				case 4: // after new line
+				case 5: // after new line
 					if( c == '\n' ){
 						sbEntry.append('\n');
 						sbEntry.append('\n');
@@ -244,7 +269,7 @@ public class Panel_Help extends JPanel implements IControlPanel {
 					}
 					eState = 1;
 					break;
-				case 5: // after carriage return
+				case 6: // after carriage return
 					if( c == '\n' ){
 						sbEntry.append('\n');
 						pos++;

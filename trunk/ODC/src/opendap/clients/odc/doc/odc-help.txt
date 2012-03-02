@@ -1,5 +1,5 @@
-#Introduction
-(help file revised 17 April 2011)
+#~Introduction
+(help file revised 28 February 2012)
 
 This is the OPeNDAP Data Connector (ODC). Using the ODC you can search for and retrieve datasets published by OPeNDAP data servers. OPeNDAP servers (also known as DODS servers) located at major institutions around the world serve a wide variety of data including: climatic data, satellite imagery, and ocean sensor results. The ODC allows you to find these datasets, download them to your machine, save them, and import them into client applications like IDL, Matlab, SPSS, Excel, or into databases such as Access and Oracle. The ODC is your gateway to terabytes of scientific data and imagery.
 
@@ -14,7 +14,7 @@ John Chamberlain <odc_help followed by opendap.org>
 
 The development of this software was funded by the National Oceanographic Partnership Program (http://www.nopp.org/).
 
-#Startup and Shutdown
+#~Startup and Shutdown
 
 Start the ODC by running the executable ("odc.exe" on Windows, "odc" on UNIX). Configuration parameters for startup are in the file "startup.ini" which must be in the base directory (unless you are doing a manual startup (see installation instructions for your system). Note that a 1.4 or better JRE must be available. The Windows package includes this JRE and on Mac OS X Jaguar or better it is built-in.
 
@@ -26,7 +26,7 @@ The ODC has various configuration settings. These are stored in a file called "c
 
 Your base directory on startup will always be the first status log entry (see Status and Errors topic below for how to display). You can change the base directory by supplying the desired directory path as an argument to your startup command. In a unix install this startup command is usually a script. In a Windows installation the application argument can be specified in the startup.ini file as the "ApplicationParameter" value.
 
-#Quickstart
+#~Quickstart
 
 The ODC uses a tab-based interface. This is the help tab.
 The tabs are persistent: you can leave a tab and come back to it and it will be unchanged.
@@ -74,7 +74,7 @@ Congratulations you have done a plot!
 Each of the screens above has much more functionality and options than we have explored here.
 Read the rest of the help when you want to learn more. Visit the web site's plot gallery (http://opendap.org/ODC/gallery) to get detailed walk throughs for how do plots of all types.
 	
-#About Network Resources, Firewalls and Proxies
+#~About Network Resources, Firewalls and Proxies
 
 It is important to realize that the ODC does its work by accessing servers located all over the internet. These connections may not always be active or servers may be down or malfunctioning. In some cases a server will not be responsive and you will see the progress meter in the lower right-hand corner of the display strobe persistently. You can stop such actions by double-clicking the progress meter.
 
@@ -94,7 +94,7 @@ proxy.Password
 
 To determine the host and port of your proxy either ask your administrator or look in your browser settings. For example in Netscape 4.72 the proxy settings can be found under the menu Preferences / Advanced / Proxies.
 
-#About Memory
+#~About Memory
 
 The ODC is a memory-intensive application especially if you use it for plotting. You can increase its responsiveness by setting the minimum heap memory (the starting memory for the application). You should increase the maximum amount of memory available to the program to match the total amount of memory in your computer unless you have some special reason for restricting it. If you set the maximum memory higher than the total amount of real memory in your system the program will use "virtual memory", ie disk space, to serve as the memory. This is much slower than real memory, RAM, and wears the disk. For these reasons it is recommended that you try to match the maximum memory setting to actual amount of RAM available to the application.
 
@@ -111,17 +111,17 @@ Failing to change maximum memory setting can be particularly debilitating becaus
 
 Note that the amount of memory used will often be much larger than the raw amount of memory a dataset consumes. For example, a dataset that consumes 20 megabytes as a raw stream might easily use 80 megabytes when it is being manipulated in memory. The reason for this is that for some operations, notably plotting, the data must be held in multiple buffers simultaneously.
 
-#About Undo, There is None
+#~About Undo, There is None
 
 The ODC does not have an undo feature like you may be used to in other desktop applications. The reason for this is that it is programmatically complex to implement undo procedures and it strains memory. For example, if you are doing cell-level modifications on a dataset that takes up 500 MB of memory, the program would have to keep an entire copy of the previous version of the data in memory to support an undo. The operation would also be more time-consuming because all 500 MB of memory would have to be copied before the modification could be started. In the interests of maximizing speed and memory there is therefore no undo.
 
 Since there is no undo it is recommended that when doing modifications you maintain checkpoint versions of your data on disk so that in the event that a modification goes wrong you have a backup copy of the data.
 
-#Status and Errors
+#~Status and Errors
 
 The ODC keeps track of most major application actions in its status log. It also records all errors and warnings. To view status or error information go to the View / Text tab. At the bottom of the screen are buttons that will output the status and error information to the text windows. If you encounter a problem and want to report it to the developers please copy and paste your status log into the message to us. Errors always print out at the end of a status log dump. You can also dump just the errors and warnings by clicking the "Show Errors" button.
 
-#Configuration
+#~Configuration
 
 The default settings for this program will work for most people however you may need (or want) to tweak its configuration. For example, if you are behind a firewall you will need to set the configuration to use a proxy server.
 
@@ -133,7 +133,7 @@ The configuration settings for the ODC are in a file called "config.txt" located
 
 You can use the console available on the View / Text tab to display or modify configuration settings. To show all settings enter "show config" in the text box at the bottom of the screen and press the Enter key. Likewise you can use the "set" command to change a setting. To display all the commands enter the command "help" or "?".
 
-#Searching and Retrieving
+#~Searching and Retrieving
 
 The top row of tabs in the interface gives your search options. Favorites are your favorite data sets. Initially this list will be empty. Recent is the 20 (by default) most recent data sets selected. GCMD is the Global Change Master Directory sponsored by NASA. The dataset list is a general catalog of known OPeNDAP servers and their data. Note that the favorites and recent will not be visible if you are in read-only mode (eg running the program directly from a CD-ROM).
 
@@ -149,7 +149,7 @@ The information used to populate the dataset list comes from a file included wit
 
 * Dataset List Search: to use this search enter search terms in the box and click the "Search" button; the search is by default an "OR" search that includes any of your terms; if you want to guarantee a term is there ("AND") put a "+" in front of that search term; when the search completes the tree will be updated to only include matching nodes; to restore the tree to show all nodes make the search box empty and click the "Search" button again
 
-#Subset and Select
+#~Subset and Select
 
 When you send one or more dataset locations to the Retrieve panel, the panel will be activated and the dataset location title will be listed in the panel on the upper left. 
 
@@ -177,7 +177,7 @@ You may subset one or more directory files by double-clicking the file name. The
 
 To constrain the results from dataset use the lower pane of the "Additional Criteria" panel. If the selected dataset has fields that can be constrained they will appear here. In the case of an array you can specify the starting index, ending index and stride (ie step). For example, if you specify "4:2:12" you will get data for array indices 4, 6, 8, 10, and 12. In the case of sequences you can use the drop down box to specify a relation and then give a quantity in the text box next to it. For more information on constraining a dataset see the OPeNDAP web site.
 
-#Outputting
+#~Outputting
 
 There are various output options indicated by the buttons in the lower left quadrant of the retrieve panel. When you select one of these options they will be applied to all of the selected datasets as indicated in the "Selected Datasets" list box as long as the operation is valid. (For example, you cannot send a gif to the plotter; you can only send OPeNDAP datasets to the plotter.)
 
@@ -198,7 +198,7 @@ If you attempt to output a file in a non-supported format you will receive an er
 Data Binary Output Not Supported:
 Currently (as of version 2.41) data files which the server can read as OPeNDAP sources, for example, NetCDF (*.nc) and HDF files, CANNOT be returned in the binary format. You can only return the ASCII or formatted ASCII formats for data files. Binary file retrievals are only possible for non-OPeNDAP sources such as images (.gif, .jpg, etc), text or other non-OPeNDAP sources. This is a limitation of the current OPeNDAP server design.
 
-#Timeouts
+#~Timeouts
 
 You may get a timeout error indicating that the ODC did not want to wait any longer for data. Some servers may require longer timeouts than normal because they have data archived using complex retrieval systems. This is true of MODIS data for example.
 
@@ -212,7 +212,7 @@ Would set the timeout to 30 seconds. You can read more about entering commands a
 
 Another way to change this setting is to edit the config.txt file in the ODC base directory.
 
-#Scripting: Python Support
+#~Scripting: Python Support
 
 The console (View / Command tab) allows you to enter in commands to the program and to programmatically control the ODC.
 
@@ -226,13 +226,13 @@ The file editing capabilities of the ODC are useful for interactively building s
 
 For more information on scripting see the help topics for Interpreter, such as "Interpreter - Scripts" for the basics on running a script.
 
-#Editor
+#~Editor
 
 The ODC has a text editor capability. Go to the tab View / Editor. The editor can work with multiple files at once.
 
 There are several configuration settings that control line wrapping and column count. These settings affect both the command console and the editor panes. Type "!show config" in the command console to see these settings.
 
-#Third-Party and Command Line Support (Console)
+#~Third-Party and Command Line Support (Console)
 
 * The ODC has a command server called the "interprocess server" which listens by default on port 31870. You can issue commands to the IPS by entering them command console prefixed by a "!". The exclamation point indicates that the command is to be sent directly to the ODC, and is not for the Python intrepreter.
 
@@ -267,7 +267,7 @@ There are several configuration settings that control line wrapping and column c
 InterprocessServer.port = 31870
 InterprocessServer.on = Yes
 
-#Program Directories and Files
+#~Program Directories and Files
 
 * The ODC uses various files and directories installed below its root directory relative to the "base directory". The base directory is normally where the application has been installed. The relative paths are:
 
@@ -285,7 +285,7 @@ InterprocessServer.on = Yes
 * If you do not use a launcher you should supply the name of the base directory as a startup argument. If you supply no base directory the working directory (user.dir) will be used.
 
 
-#Spatial-Temporal Constraint
+#~Spatial-Temporal Constraint
 
 The spatial-temporal constraint panel can be used to create a spatial or temporal constraint on your search.
 
@@ -295,7 +295,7 @@ To create a temporal constraint enter the From and To dates in the boxes provide
 
 The gazetteer has preset coordinates for well-known regions. The first list box contains region types. The second list box has the entries for the selected type. It updates automatically when you select a region type. The third list box has custom regions. By clicking the Add button you can define your own regions. These will be added to the gazetteer file. The gazetteer file is a text file the location of which is specified in your configuration. It has a self-evident format so you can modify it or provide your own gazetteer.
 
-#Plotting
+#~Plotting
 
 If you would like to graph your data the ODC has the ability to create plots of various kinds such as line, scatter, histograms, pseudocolor, contour and vector plots. A good way to get started plotting is to go to the OPeNDAP online gallery of example plots and see how those plots were done. This will give you an idea of the range of plotting capabilities and serve as a guide to setting up the plots of the various types. Each example in the gallery has a detailed set of directions for duplicating the plot.
 
@@ -333,7 +333,7 @@ Plotting Objects and Overlap
 
 Within a given plot object, such as an axis, legend or scale, there should be no overlap of text or other items as long as the screen DPI option is set correctly (see Screen DPI Calibration). Plot objects can be overlapped, and in this case a text collision can occur. For example, label of the base point of the y-axis could overlap with the label of the base point of the x-axis. To avoid problems like this you may have to manually adjust the plot object location or use parameters like Omit Origin Label on an axis.
 
-#Plotting Expressions
+#~Plotting Expressions
 
 You can plot Python expressions by loading or creating expressions in the data editor (View / Data). Script files that contain a specification for a mathematical formula, or formulas, which can be plotted are called "plottable expressions". A plottable expression must begin with the directive #!odc. This tells the ODC that the file is not a normal text file, but is expression code. The difference between a data script (qv) and a plottable expression is that a datascript always has a "value=" or "$0=" line. Both must begin with the line "#!odc". When an expression data type is selected the plotter's variable panel will automatically show the settings for configuring the plotting of the expression. Three types of expression plotting are supported:
 
@@ -388,7 +388,7 @@ If the plot is continuous it will be rendered as a series of line segments betwe
 
 You may need to specify ranges and steps for the plot so the ODC knows what values to calculate. For a cartesian plot you can leave the step blank and the ODC will automatically calculate a value appropriate for the resolution of the output area. For example, if you are plotting and expression with a y L-value to the preview pane and it has 400 pixels in the x-dimension for the specified range then 400 calculations will be done, one for each pixel along the x-axis. Using the automatic calculation for Cartesian expressions ensures that you getting the best resolution and computing the fewest number of values necessary.
 
-#Plotting Lines
+#~Plotting Lines
 
 When plotting lines directly from data (not using a table view) there are following ways of defining the data variables:
 
@@ -415,7 +415,7 @@ Axis Parameters:
 
    Omit Origin/Endpoint Label - If selected then the origin/endpoint label will not be drawn. The renderer assumes you do not want any drawing at all beyond the coordinate origin/endpoint if these options are selected, so if some other element, such as another tick label or the axis label extends beyond the end of the axis then it will be cut off.
 
-#Plotting - Line and Scatter Plots from a table
+#~Plotting - Line and Scatter Plots from a table
 
 If you use the table view to set up your data ou have three options for defining your data:
    1 one or more linear ranges with the same length
@@ -434,7 +434,7 @@ Option 3 is possible if you have a large number of lines in a rectangular array.
 
 If you add each line separately you can specify an ID for the lines. This is the string that will appear in the legend.
 
-#Plotting - Annotations
+#~Plotting - Annotations
 
 The plotter can automatically generate a range of annotations and you can add custom text annotations. 
 
@@ -461,7 +461,7 @@ The scale is a line that shows relationship between distances on the image to di
 
 Currently the scale only has one style: a line with out-turned ticks at each end.
 
-#Plotting - Layout
+#~Plotting - Layout
 
 The plotter locates text, legend/colorbar and scale on the plot using a layout system with six quantities: object, orientation, alignment, h/v offset and rotation.
 
@@ -475,7 +475,7 @@ The rotation is relative to the horizon. If the text is like a hand of a clock, 
 
 If the bottom of the text seems to be extra high this is because the alignment takes into account descenders--characters such as 'y' and 'q' that have tails below the baseline. The text rectangle is placed so that its bottom includes the full descent of all possible characters.
 
-#Plotting - Output
+#~Plotting - Output
 
 The output options are controlled by the drop-down list next to the blue Plot button.
 
@@ -506,7 +506,7 @@ Thumbnails  - the plot(s) will be sent to the thumbnail pane; the thumbnails are
 Image       - you will be prompted for a file name and location and the plot will be stored as
               a PNG image file
 
-#Plotting - Scaling
+#~Plotting - Scaling
 
 The scale tab has controls that allow you to define margins and scale for your plot. The scale is the relationship between data points and screen pixels. For example in a 1 to 1 scale there would be one data point for each pixel. In other words if you were plotting a 200 x 300 array in a pseudocolor plot the plot area would be 200 x 300 pixels in size on both the screen and the printer. You can change the scale by setting the zoom factor which has the following meaning:
 
@@ -536,7 +536,7 @@ The following scale units are supported:
 
 If you are working with fine lines you may want to use mils. On an 85 ppi monitor 10 mils equates to 1 pixel, a hairline. The problem with specifying in pixels is that if you print and your printer has, say, a 1200 dpi resolution, the line will be thinner than the line on the screen and may be too thin. By working in mils you will get similar results on both the screen and on paper when generating fine lines.
 
-#Plotting - Histograms
+#~Plotting - Histograms
 
 The histogram plotter can show you the distribution of values in your data. It can operate on any single variable or slice from your dataset. The X-axis shows the extreme values from lowest to highest and the Y-axis shows the number of values. Histograms work by sorting all the values of the dataset into classes. Classes are sometimes casually referred to as "bins". For example, you could divide a country's population into age groups. The first class might be children (age 0-10), the second adolescents (age 11-14), and so on.
 
@@ -546,7 +546,7 @@ Histogram Reports
 
 To get detailed information on a class single-click the rectangle. A popup box will appear showing range and count information for the class. Clicking on the plot area outside the rectangles will prompt you for a histogram report. This report is sent to the View / Text tab and you must go there to see it. It tabulates summary information about histogram.
 
-#Plotting - Colors
+#~Plotting - Colors
 
 In the ODC plotter you can specify colors via their HSB (hue, saturation, brightness) value. You can also specify transparency (called "alpha"). Each of these values ranges in hex from 00-FF and can be selected either numerically or using a picker.
 
@@ -577,7 +577,7 @@ In this example the data range plots between green (50) and blue (80). The hue (
 
 To get a better understanding of color systems and controlling color you may want to read the next topic, "Generating Colors".
 
-#Plotting - Data Parameters
+#~Plotting - Data Parameters
 
 When data is plotted there are three key additional parameters to plotting it:
 
@@ -597,7 +597,7 @@ You can view the data parameters in the values area of the variables panel.
 
 When a new color specification is created or colors are generated the current data parameters are used.
 
-#Plotting - Using the Color Picker
+#~Plotting - Using the Color Picker
 
 The color picker is the dialog box titled "Choose Color" which comes up when you change a color.
 
@@ -621,7 +621,7 @@ Make white -      white = 0% sat, 100% bri (to make gray reduce brightness)
 
 Make black -      black = 0% brightness (no light!)
 
-#Plotting - Generating Colors
+#~Plotting - Generating Colors
 
 If you do not make a color specification then the plots that require color will make their own using the ODC's color generating ability.
 
@@ -668,7 +668,7 @@ To generate a continuous color system, pick the basic type (gray scale, multi-hu
         all six colors (red, green, blue, yellow, cyan, magenta)
         are of equal size; has the best spectrum distribution 
   
-#Plotting - HSB Colors
+#~Plotting - HSB Colors
 
 The plotting color system uses the HSB (Hue-Saturation-Brightness-Alpha) color system. To make colors in this system you start with a hue and add black (saturation) or white (brightness). This table shows some of the conventional terms used under this system:
 
@@ -684,9 +684,9 @@ Tone         1-99%  1-99%
 
 For example, to make a brown shade you start with a yellow-red hue and shade it down to the brown by reducing the brightness.
 
-The Alpha channel is transparency.
+The Alpha channel is transparency. The higher the alpha value, the more opaque the color. 0xFF is maximum opacity.
 
-#Plotting - Line Styles
+#~Plotting - Line Styles
 
 Some settings allow you to set a line style. In the line style there will be a thickness, color and dash pattern.
 
@@ -705,7 +705,7 @@ For example 4 2 3 1 : 2 looks like this,
 
 The phase must be greater than or equal to zero and cannot be greater than the total pattern length. For example, in the pattern above the total length is 4 + 2 + 3 + 1 = 10.
 
-#Plotting - Multiple Plots
+#~Plotting - Multiple Plots
 
 You can generate multiple plots all at once in several ways.
 
@@ -713,7 +713,7 @@ If you have dataset with more than 2 dimensions you can specify one of the const
 
 You can also multi-plot by creating thumbnails, selecting the thumbnails you want to plot by holding down the shift key and then pressing the plot button. All the selected thumbnails will be plotted.
 
-#Plotting - Coastline
+#~Plotting - Coastline
 
 You can display a coastline by turning on the Show Coastline option in the Options tab.
 
@@ -731,14 +731,14 @@ You can cause only the crude coastline to be used by setting the coastline path 
 
 IMPORTANT: any resolution smaller than low (5 km) will use significant memory and time resources to load and process. Be cautious when using the coastline on data that covers a small region.
 
-#Additional Tips
+#~Additional Tips
 
 * In the GCMD search you can clear the info panel by clicking the area to the right of the info buttons
 * By double-clicking in this area you can see the currently defined constraint
 * Ctrl-clicking in this area will run whatever text is in this panel as a GCMD query
 * Some servers especially NOAA/NASA servers may require longer timeouts
 
-#Interpreter
+#~Interpreter
 
 The ODC uses the Jython interpreter as its scripting engine. Jython is a full-featured implementation of the Python programming language. This allows you to program the ODC with Python to manipulate data, generate plots, and do calculations. Python is the most powerful interpretive language available and there are many libraries written in Python which you can use to do calculations.
 
@@ -756,7 +756,7 @@ The interpreter remembers previous commands which you can access with the up-arr
 
 Python is complex object-oriented language that you can find more information about at www.python.org. To find out about Jython go to www.jython.org.
 
-#Interpreter  - Commands
+#~Interpreter  - Commands
 
 The ODC interpreter has two main modes: ODC native commands and Jython interpreter commands. By default anything typed into the interpreter will be interpreted as a Python expression unless it begins with an exclamation point (!) in which case it is treated as an ODC native command. Examples of commands:
 
@@ -776,7 +776,7 @@ Complete list of Python built-in functions:
 
    http://www.python.org/doc/current/lib/built-in-funcs.html
 
-#Interpreter  - Scripts
+#~Interpreter  - Scripts
 
 When working with Python you typically use a combination of pre-existing modules and scripts that you write. The default directory for such scripts is the /scripts directory which is in the ODC base directory. You may find some example scripts in this directory after you install the software.
 
@@ -804,13 +804,13 @@ If you make a change to your script and save the change you can reload the new v
 
    >>> reload(batch)
 
-#Interpreter  - Modules
+#~Interpreter  - Modules
 
 Master list of standard Python modules: http://docs.python.org/modindex.html
 
 List of nearly 3000 importable Python modules: http://cheeseshop.python.org
 
-#Interpreter  - Java and ODC Data Access
+#~Interpreter  - Java and ODC Data Access
 
 To get access to any Java method import it using the full class name. For example, to determine the day of the week of January 17, 1823, you could give the following commands:
 
@@ -835,13 +835,13 @@ As an example of accessing the ODC directly suppose you wanted to get the system
    >>> import opendap.clients.odc.ApplicationController
    >>> print opendap.clients.odc.ApplicationController.getInstance().sMemoryStatus()
 
-#Data Viewer
+#~Data Viewer
 
 The data viewer allows you to view, edit, save and load data sets in various formats. You can display plots of the data interactively as you edit it. You can also view the data in table like format which itself can be copy and pasted (ctrl-c and ctrl-v) into Excel or other spreadsheets. The spreadsheet display, called the "tabular viewer," can be saved as a comma-separated value (CSV) file which many programs such as Excel and databases such as Microsoft Access can import. When you display a variable in tabular form you can optionally include dimensional data vectors as the first row or column of the data. Note that you can only display one variable at a time and if the data has more than two dimensions you can only display a two-dimensional slice. The configuration options for the tabular viewer are located in the header of the table. This header can be hidden. The structure view panel for your data contains the controls to show or hide the viewing header as well as the type of view you want to see.
 
 If you choose the plot view you will see a plot of the data instead of a tabular view. The plot view controls are on the plotter tab. You can save plotter configurations. If the plotter configuration which is open when the data is generated does not match the data then a default configuration will be automatically determined by the ODC.
 
-#Data Viewer - Datasets
+#~Data Viewer - Datasets
 
 Datasets are bundles of data in the OPeNDAP or other formats. For full details on the specification of this format see the PDF /doc/DAP_4.0.pdf in the base directory where you installed the ODC. You can Load (open), Unload (close) existing datasets from the Data Viewer (View / Data tab). You can also create New datasets.
 
@@ -861,7 +861,7 @@ You can also edit the characteristics of the element depending what it is. For e
 Creating Arrays: 
                    When you create new arrays they are automatically dimensioned to 100 elements and the dimension is given a generic name of "dim1". This is to give you a starting point with something to work with. You can add more dimensions, rename them and resize them. An array must have at least one dimension. You can view and edit the data your array contains in the tabular view at the bottom of the screen. You can paste data into this matrix, type or generate it using an expression (see the topic "Data Viewer - Expressions"). Note that you can use expressions to generate entire datasets, as well.
 
-#Data Viewer - Dataset Structure
+#~Data Viewer - Dataset Structure
 
 The Dataset Structure view is located in the left middle of screen on the Data / View tab. Topologically the view is a tree and looks like a file folder editor. It allows you to see and select elments from the overall structure of the dataset. The topmost element, the root of the structure, is the first "folder" in the tree. You can expand or collapse the tree branches by clicking the gray triangle icons next to the folders. Each folder is labeled with the name of the variable. When you select a variable (click on it once to select it), the corresponding variable is shown to the right in the "Define Variable" panel, and if applicable a view of the data in the variable is shown below in the array viewer. Not all variable types have an array view.
 
@@ -896,7 +896,7 @@ Note that when you paste data as a new variable the ODC needs to decide what kin
 	
 Even a single string in the data will cause the whole dataset (if an array, or field if a sequence) to be typed as a String. If you want to coerce the data to be a particular type, create the variable yourself first (as in the "Add a new variable" instructions above) with the desired type. The dimensions do not matter--they will be overwritten by the paste. Then paste the data into the array view using the Ctrl+Alt+V key combination. This will size the array to match the paste and the values will be of the type you specified. See the topic "Data Viewer - Copy and Paste" for more information on this.	
 				   
-#Data Viewer - Array View
+#~Data Viewer - Array View
 
 The array viewer is located in the bottom half of the Data / View tab and is shown when a dataset element of type array, grid or sequence is selected. This viewer looks like a spreadsheet and gives you a two-dimensional view of the data in the array. The view can be configured through the Define Variable panel to show different slices of a multi-dimensional array or to show different dimensions on the x- and y-axes. Using the array view you can edit the data in an array, copy it, paste new values in, and use expressions to modify or make special views of the data in the array.
 
@@ -910,7 +910,7 @@ Value Text Box
 Expression One-Liner
                       The expression editing combo box labeled "exp:" next to the value text box is called the expression "one-liner". It allows you to write quick expressions (formulas) to modify cell contents or create a "view" of cells. A view changes the way cells are displayed, but does not change the actual contents of the dataset. For example, you could use a view to see Celsius values in Farenheit without actually changing the dataset itself. Next to the one-liner is a mode drop-down. This controls the range of cells affected by the expression when the enter key is pressed (All, Selection, Value, View). For more information on the expression one-liner see the topic "Data Viewer - Expression One-Liner".
 
-#Data Viewer - Array View Navigation and Selection
+#~Data Viewer - Array View Navigation and Selection
 
 To navigate in the array view:
 
@@ -935,7 +935,7 @@ The last mentioned control is only useful in data that has three or more dimensi
 	Ctrl+Spacebar                  select entire column
 	Ctrl+A                         select the entire page
 					  
-#Data Viewer - Copy and Paste
+#~Data Viewer - Copy and Paste
 
 You can copy and paste one-dimensional or two-dimensional information into and out of the data viewer. Select the cells desired and press Ctrl+C to copy. Press Ctrl+A to select all the cells in the current view. To paste into the array viewer the following key combinations are possible:
 
@@ -955,13 +955,13 @@ Note that copied values are strings corresponding to the current view of the dat
 
 When you paste data into the array view the data will always be forced into the type of the array. For example, if the array is of type Int32 then all the strings will be converted to integers. Any errors will cause the integer error value to be entered. If you want the ODC to attempt intelligent type recognition paste into the structure view, not the array view. See the topic "Data Viewer - Dataset Structure" for more information.
 
-#Data Viewer - Search and Replace
+#~Data Viewer - Search and Replace
 
 Pressing Ctrl+F activates a search and replace dialog.
 
 You can search and replace data using the dialog.
 	
-#Data Viewer - Expression One Liner
+#~Data Viewer - Expression One Liner
 
 The expression one-liner is a combo box that allows you to write short expressions to modify data or create a view of the data as seen in the array viewer (View / Data, lower half of screen). An expression is a formula in Python that evaluates to a value. In general, this text box behaves similarly to expressions created in the Script Editor or Value Editor. The main difference is that it assumes you are only setting the "value" variable so you do not need an equation, you just write the R-value. For example, the one-liner:
 
@@ -1017,7 +1017,7 @@ One-liners are evaluated in a different way than scripts and there are important
 	
 In general, the operating principle of a one-liner is that you can modify existing data or expression-view existing data using only the macro substitutions, $0 (the cell), and $1-$5, the dimensional index (up to five dimensions).
 
-#Data Viewer - Scripts
+#~Data Viewer - Scripts
 
 Data Viewer scripts allow you to generate data using mathematical expressions and functions in the Python language. All scripts begin with the directive "#!odc". This can be useful in wide variety of ways. For example, using the scripting engine you can calculate a linear regression of a data set and then, using the layer capability of the plotter, overlay the regression line on a plot of the data. Scripts can be used for more mundane uses. For example, you might want to add a dimensional index numbers to a dataset that lacks them. You can also use scripts to modify existing data sets. For example, you can use the geodesic functions that are built into the ODC to perform transformations such as orthorectification on satellite data sets.
 
@@ -1057,7 +1057,7 @@ This script would create a new one-dimensional array in which each value was one
 
 See "Data Viewer - Parameter Reference" for a listing of all the possible parameters in an expression set.
 
-#Data Viewer - Script Directives
+#~Data Viewer - Script Directives
 
 Scripts can be prefaced by special directives that control the target of the script and the range of cells to be operated on. Directives are indicated by a hash-bang "#!" and must end with a semicolon ";" if they are used in a one-liner. Python treats hashes ('#') as comments so the directives are ignored by the Python engine. They only have meaning to the ODC.
 
@@ -1083,7 +1083,7 @@ If a directive is used in a one-liner it must be separated from the expression b
 
 The first part of this directive ("report first fifteen errors") is an informational label. Informational labels must not begin with "test", "[", "cursor", or "selection", and must end with a colon.
 	  
-#Data Viewer - Modifying Data with Scripts
+#~Data Viewer - Modifying Data with Scripts
 
 In addition to making new datasets, you can modify datasets with scripts. Use a directive to indicate that you want to do a modification. There are three typical types of directives to do this:
 
@@ -1104,7 +1104,7 @@ value = $0 * 9 / 5 + 32
 
 Would convert to Farenheit only the selected cells in the active dataset. Note that the ODC remembers the selection for every loaded dataset, so even if a dataset is not currently active you can still refer to its last selection. If a dataset is freshly loaded the initial selection is the first element of the first variable, which is [0][0] in the case of a two-dimensional array.
 	  
-#Data Viewer - Parameter Reference
+#~Data Viewer - Parameter Reference
 
 The parameter names are case-sensitive and must be lower-case to be recognized.
 
@@ -1188,13 +1188,13 @@ Python is an untyped language. The ODC takes whatever value Python generates and
 
 The index variables are L-values you can use to create grids. Normally dimension 1 is x, dimension 2 is y, dimension 3 is z and dimension 4 is time, but in some applications the dimensions could have other meanings. See the help section "Data Viewer - Grid Expressions" for more information on creating grids and the use of these variables. The size of the index arrays is determined by the size of the array they index.
 
-#Data Viewer - Mini Scripts
+#~Data Viewer - Mini Scripts
 
 In the data viewer's "Value Editor" panel is a text pane you can use to create mini-scripts along with a target selector ("All", "View", etc). A mini script operates the same way as a full size script, except that you can specify a target, which you cannot do with a full-size script. Mini scripts are useful when you want to do small-scale editing and viewing, but need a multi-line script that goes beyond the capabilities of the one-liner interface.
 
 Note that you can only have one view expression active at a given time and the mini script panel takes precedence over the one-liner. If you have both set to "View", the one-liner will be ignored and only the mini script will be used.
 
-#Data Viewer - Script Ranges
+#~Data Viewer - Script Ranges
 
 To control the range over which a script does a modification you can use range directives. By default a script will be executed against every value in the active dataset. Range restrictions are ignored if a new (#!new) dataset is being generated. Directives are entered as Python comments followed an exclamation point, or what is known as a hash-bang in programming parlance, for example:
 
@@ -1222,7 +1222,7 @@ Earthware remembers the last selected cell, and selection range for every loaded
 
 Expressions can be used to control ranges, but be aware that the range directive is evaluated before anything else in the expression.
 
-#Data Viewer - Script Errors
+#~Data Viewer - Script Errors
 
 The "allow_errors" parameter allows you to control how errors are handled when your script is executed. By default this parameter is false so if an error occurs execution halts and an error is generated. If you want to allow errors in your data and continue execution even when errors occur set this value to true. In this case the data value that is in error will have one of the following values depending on its type:
 
@@ -1239,7 +1239,7 @@ Note that some errors are fatal and will result in process termination regardles
 
 Python errors are different than ODC-related errors. If a Python error occurs it will say Python syntax error or Python error. In this case you need to check the syntax or content of your script to make sure it is correct Python. Other errors indicate a problem with ODC-specific processing and there will usually be a detailed error message describing the problem.
 
-#Data Viewer - Debugging Script
+#~Data Viewer - Debugging Script
 
 The "trace" parameter enables you to debug the operation of your expression. With no parameters supplied every loop through the data will be traced. Beware that the trace will generate up to a page of text for every loop through the data. So if you are generating a million-member array with tracing on for all points the ODC will attempt to send a million pages of text to your text viewer and probably bring your system to its knees. To control which loops are traced use the following syntax:
 
@@ -1253,7 +1253,7 @@ This would trace elements [5-11][15][0-2]. There would be 21 traces in this case
 
 All trace output is sent to the text viewer (View/Text).
 	
-#Data Viewer - Intermediate Values
+#~Data Viewer - Intermediate Values
 
 If your script formulas are complicated you may want to break them into easier-to-understand sub-calculations using intermediate values or variables. The key thing when doing this is to understand the order of evaluation of the different statements you place in your expression file which is as follows:
 
@@ -1281,10 +1281,11 @@ If your script formulas are complicated you may want to break them into easier-t
 
 Steps (6) and (8) are your chance to define intermediate values that are used to calculate (7) and (9). You can also designate variables to be evaluated once at the beginning of the variable creation by prefixing them with "__". See the section "Data Viewer - Grid Expressions" for examples of using intermediate expressions.
 	
-#Data Viewer - Grid Scripts
+#~Data Viewer - Grid Scripts
 
 The help section "Data Viewer - Scripts" describes how to create simple vectors and matrices using scripts. You can also use scripts to create grids. Grids are vectors or matrices with quantified indices. For example, if you have a satellite image you may like to know what the coordinates of each pixel in the image are. This is what the grid indices tell you. To create a grid with the constant value of 5 with the indices going from 180 to 210 in the "x" direction (longitude) and 40 to 60 in "y" direction (latitude) you would write:
 
+	#!odc
 	type = "Int32"
 	size_1 = 31
 	size_2 = 21
@@ -1329,7 +1330,7 @@ To create an earth-centered, earth-fixed (ECEF) grid we could use the following 
 
 This will create the grid as the previous example except that the index will be a three arrays containing the ECEF coordinates of the values instead of two vectors containing the latitude and longitude coordinates. Note that the "__" variables are evaluated only once at the beginning of the run and the "_" variables are evaluated before the index values (index_1_1, index_1_2, index_1_3) are evaluated.
 
-#Desired Features
+#~Desired Features
 circular/coverage plots
 track plots	
 

@@ -3,10 +3,10 @@ package opendap.clients.odc.gui;
 /**
  * Title:        Resources
  * Description:  Standard borders and fonts
- * Copyright:    Copyright (c) 2005-2010
+ * Copyright:    Copyright (c) 2005-2012
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.06
+ * @version      3.08
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -32,9 +32,11 @@ package opendap.clients.odc.gui;
 /////////////////////////////////////////////////////////////////////////////
 
 import java.awt.Image;
+import java.awt.Cursor;
 import javax.swing.ImageIcon;
 
 import opendap.clients.odc.ApplicationController;
+import opendap.clients.odc.ApplicationFrame;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.Utility;
 
@@ -59,6 +61,9 @@ public class Resources {
 	public static Image imageArrowDown = null;
 	public static Image imageNavigateMinus = null;
 	public static Image imageNavigatePlus = null;
+	public static Image imageMicroscopeCursor = null;
+	
+	private static Cursor cursorMicroscope = null;
 
 	public static enum Icons {
 		SplashScreen,
@@ -99,6 +104,15 @@ public class Resources {
 		}
 	}
 	
+	public static Cursor getMicroscopeCursor(){
+		if( cursorMicroscope == null ){
+			final java.awt.Point hotspot = new java.awt.Point(0, 0);
+			java.awt.Toolkit toolkit = ApplicationController.getInstance().getAppFrame().getToolkit();
+			cursorMicroscope = toolkit.createCustomCursor( imageMicroscopeCursor, hotspot, "Data Microscope" );
+		}
+		return cursorMicroscope;
+	}
+
 	// icon delivery is set up this way so that icon fetches can occur in an ad hoc manner without
 	// all icons having to be loaded; this is useful when running an isolated panel in testing, for example
 	// in such a case the regular app may not have been started so no general load of all icons will have occurred
@@ -162,18 +176,9 @@ public class Resources {
 				return null;
 			}
 			java.awt.image.ImageProducer image_producer = (java.awt.image.ImageProducer)oContent;
-			if( image_producer == null ){
-				if( oContent instanceof java.awt.Image ){
-					return (java.awt.Image)oContent;
-				} else {
-					sbError.append("failed to load image: " + sResourcePath + " unknown resource type: " + oContent.getClass().getName());
-					return null;
-				}
-			} else {
-				java.awt.Toolkit tk = java.awt.Toolkit.getDefaultToolkit();
-				java.awt.Image image = tk.createImage(image_producer);
-				return image;
-			}
+			java.awt.Toolkit tk = java.awt.Toolkit.getDefaultToolkit();
+			java.awt.Image image = tk.createImage(image_producer);
+			return image;
 /* does not work for zip files for some reason:
 			java.io.InputStream inputstreamImage = url.openStream();
 			int iChunkSize = inputstreamImage.available();
@@ -334,6 +339,13 @@ public class Resources {
 				return false;
 			}
 			imageNavigateMinus = image.getImage();
+
+			image = imageiconLoadResource(sPath + "microscope_cursor.png", sbError);
+			if( image == null ){
+				sbError.insert( 0, "image " + sPath + "microscope_cursor" + " not found: " );
+				return false;
+			}
+			imageMicroscopeCursor = image.getImage();
 			
 			return true;
 		} catch(Exception ex) {

@@ -94,8 +94,10 @@ public class Panel_Edit_Expression extends JPanel {
 			sbError.append( "no model supplied" );
 			return false;
 		}
-		if( model.getType() != DATASET_TYPE.PlottableExpression ){
-			sbError.append( "supplied model is not an expression" );
+		if( model.getType() == DATASET_TYPE.PlottableExpression || model.getType() == DATASET_TYPE.Text ){
+			// these two types are supported
+		} else {
+			sbError.append( "supplied model is not an expression (or text)" );
 			return false;
 		}
 		mModel = model;
