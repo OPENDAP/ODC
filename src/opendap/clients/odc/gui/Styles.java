@@ -3,10 +3,10 @@ package opendap.clients.odc.gui;
 /**
  * Title:        Styles
  * Description:  Standard borders and fonts
- * Copyright:    Copyright (c) 2002
+ * Copyright:    Copyright (c) 2002-2012
  * Company:      University of Rhode Island, Graduate School of Oceanography
  * @author       John Chamberlain
- * @version      2.43
+ * @version      3.08
  */
 
 /////////////////////////////////////////////////////////////////////////////

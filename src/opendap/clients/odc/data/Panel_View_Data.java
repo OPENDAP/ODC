@@ -166,6 +166,7 @@ public class Panel_View_Data extends JPanel implements IControlPanel {
 				}
 				break;
 			case PlottableExpression:
+			case Text:
 				if( _zSetModel( modelDataset, sbError ) ){
 					// ApplicationController.vShowStatus( "activated expression model: " + modelDataset.getTitle() );
 					modelDataView.modelActive = modelDataset;
@@ -334,6 +335,15 @@ class Model_DataView {
 			SavableImplementation savable = new SavableImplementation( opendap.clients.odc.data.Model_Dataset.class, null, null );
 			Model_Dataset model = (Model_Dataset)savable._open();
 			if( model == null ) return; // user cancelled (or there was an error which has already been reported)
+			switch( model.getType() ){
+				case Data:
+				case PlottableExpression:
+				case Text:
+					break; // these are all supported types
+				default:
+					ApplicationController.vShowError( "The data type of this model " + model.getType() + " cannot be opened from this view." );
+					return;
+			}
 			if( mDatasetList._contains( model ) ){
 				ApplicationController.vShowWarning( "(Panel_View_Data) model " + model.getTitle() + " is already open" );
 			} else {
@@ -432,8 +442,8 @@ class Model_DataView {
 	void action_PlotFromExpression(){
 		if( modelActive == null ){
 			ApplicationController.vShowError( "No expression selected for plotting." );
-		} else if( modelActive.getType() != DATASET_TYPE.PlottableExpression ){
-			ApplicationController.vShowError( "Selected dataset is not a plottable expression." );
+		} else if( modelActive.getType() != DATASET_TYPE.PlottableExpression && modelActive.getType() != DATASET_TYPE.Text ){
+			ApplicationController.vShowError( "Selected dataset is not a plottable expression (or text)." );
 		} else {
 			StringBuffer sbError = new StringBuffer( 256 );
 			opendap.clients.odc.plot.Panel_View_Plot plotter = ApplicationController.getInstance().getAppFrame().getPlotter();

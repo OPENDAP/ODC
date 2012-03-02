@@ -28,12 +28,14 @@ package opendap.clients.odc.plot;
  * Copyright:    Copyright (c) 2003
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      2.25
+ * @version      3.07
  */
 
+import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.gui.Styles;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import java.awt.*;
@@ -42,6 +44,11 @@ import java.awt.image.BufferedImage;
 import java.awt.event.*;
 
 public class Panel_Microscope extends JPanel implements MouseListener {
+
+	final public static Panel_Microscope microscope = new Panel_Microscope();
+	public static JFrame frameMicroscope = null;
+	public static Panel_Plot panelHost = null;
+	
 	BufferedImage mbi = null;
 	int mpxCanvasWidth;
 	int mpxCanvasHeight;
@@ -104,7 +111,7 @@ public class Panel_Microscope extends JPanel implements MouseListener {
 	String[][] masValues = new String[7][7];
 	String[][] masColors = new String[7][7];
 
-	public Panel_Microscope(){
+	private Panel_Microscope(){
 		mbi = new BufferedImage( 10, 10, BufferedImage.TYPE_INT_ARGB ); // smaller buffer just used to get sizes
 		g2 = (Graphics2D)mbi.getGraphics();
 		mfontmetricsSansSerif10 = g2.getFontMetrics(Styles.fontSansSerif10);
@@ -126,6 +133,28 @@ public class Panel_Microscope extends JPanel implements MouseListener {
 
 	}
 
+	public static void _activate( Panel_Plot host, int[][] aRGB, String[][] asData, int iMicroscopeWidth, int iMicroscopeHeight ){
+		microscope._set( aRGB, asData, iMicroscopeWidth, iMicroscopeHeight );
+		panelHost = host;
+		if( frameMicroscope == null ){
+			frameMicroscope = new JFrame();
+			frameMicroscope.add( microscope );
+			WindowListener listenerCloser = new WindowAdapter(){
+				public void windowClosing(WindowEvent e){
+					Panel_Microscope.panelHost.deactivateMicroscope();
+				}
+			};
+			frameMicroscope.addWindowListener( listenerCloser );
+		}
+		frameMicroscope.setTitle( "Data Microscope: " + panelHost._getCaption() );
+		frameMicroscope.setVisible( true );
+		frameMicroscope.pack();
+	}
+	
+	public static void _deactivate(){
+		if( frameMicroscope != null ) frameMicroscope.setVisible( false );
+	}
+	
 	StringBuffer sb = new StringBuffer(80);
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -190,7 +219,7 @@ public class Panel_Microscope extends JPanel implements MouseListener {
 		((Graphics2D)g).drawImage(mbi, null, 0, 0); // flip mbi (the draw target) to the active graphics
 	}
 
-	public void set( int[][] rgbRaster0, String[][] asValues0, int iWidth, int iHeight ){
+	public void _set( int[][] rgbRaster0, String[][] asValues0, int iWidth, int iHeight ){
 		mxWidth = iWidth;
 		mxHeight = iHeight;
 		maColors = new Color[mxWidth + 1][mxHeight + 1];
@@ -201,15 +230,20 @@ public class Panel_Microscope extends JPanel implements MouseListener {
 		mbi = new BufferedImage( mpxCanvasWidth, mpxCanvasHeight, BufferedImage.TYPE_INT_ARGB );
 		g2 = (Graphics2D)mbi.getGraphics();
 		this.setPreferredSize( new Dimension( mpxCanvasWidth, mpxCanvasHeight ) );
-		for( int x = 0; x < iWidth; x++ ){
-			for( int y = 0; y < iHeight; y++ ){
+		_update( rgbRaster0, asValues0 );
+	}
+
+	public void _update( int[][] rgbRaster0, String[][] asValues0 ){
+		for( int x = 0; x < mxWidth; x++ ){
+			for( int y = 0; y < mxHeight; y++ ){
 				maColors[x + 1][y + 1] = new Color( rgbRaster0[x][y], true );
 				masValues[x + 1][y + 1] = asValues0[x][y];
 				masColors[x + 1][y + 1] = Utility_String.sToHex( Color_HSB.iRGBtoHSB(rgbRaster0[x][y]), 8);
 			}
 		}
+		this.repaint();
 	}
-
+	
 	// Mouse listener interface
 	public void mousePressed(MouseEvent evt){
 	}

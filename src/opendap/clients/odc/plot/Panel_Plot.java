@@ -25,7 +25,7 @@ package opendap.clients.odc.plot;
 /**
  * Title:        Panel_Plot
  * Description:  Base class for plotting
- * Copyright:    Copyright (c) 2002-11
+ * Copyright:    Copyright (c) 2002-12
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
  * @version      3.08
@@ -35,6 +35,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.Utility_String;
+import opendap.clients.odc.gui.Resources;
 import opendap.clients.odc.gui.Styles;
 import opendap.clients.odc.plot.Output_ToPlot.OutputTarget;
 
@@ -146,6 +147,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		mScale = environment.getScale();
 		msCaption = sCaption;
 		addMouseListener( this );
+		addMouseMotionListener( this );
 	}
 
 	// this is needed to tell any container how big the panel wants to be
@@ -156,9 +158,9 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		return new Dimension( mpxPreferredWidth, mpxPreferredHeight );
     }
 
-	BufferedImage getImage(){ return mbi; }
-	String getID(){ return msID; }
-	String getCaption(){ return msCaption; }
+	BufferedImage _getImage(){ return mbi; }
+	String _getID(){ return msID; }
+	String _getCaption(){ return msCaption; }
 
 	// the way printing works is that the printer keeps asking for pages and when you return no_such_page it stops
 	// in the current implementation the Java printer always asks for the same page twice (with different
@@ -842,9 +844,24 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			g2.drawRect(pxLocation_X, pxLocation_Y, pxWidth, pxHeight);
 		}
 	}
+	
+	private boolean mzMicroscopeActive = false;
+	
+	public boolean _isMicroscopeActive(){ return mzMicroscopeActive; }
 
+	protected void activateMicroscope( int[][] aRGB, String[][] asData, int iMicroscopeWidth, int iMicroscopeHeight ){
+		Panel_Microscope._activate( this, aRGB, asData, iMicroscopeWidth, iMicroscopeHeight );
+		setCursor( Resources.getMicroscopeCursor() );
+		mzMicroscopeActive = true;
+	}
+
+	public void deactivateMicroscope(){
+		setCursor( Cursor.getDefaultCursor() );
+		mzMicroscopeActive = false;
+	}
+	
 	// Mouse motion interface
-	public void mouseMoved(MouseEvent evt){ }
+	public void mouseMoved( MouseEvent evt ){}
 
 	// Mouse listener interface
 	public void mousePressed(MouseEvent evt){ }

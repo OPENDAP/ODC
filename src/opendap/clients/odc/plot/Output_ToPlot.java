@@ -422,7 +422,7 @@ public class Output_ToPlot {
 			panelPE.setColors(cs);
 			panelPE.setOptions(po);
 			panelPE.setText(pt);
-			if( model.getType() != Model_Dataset.DATASET_TYPE.PlottableExpression ){
+			if( model.getType() != Model_Dataset.DATASET_TYPE.PlottableExpression && model.getType() != Model_Dataset.DATASET_TYPE.Text ){
 				sbError.append( "dataset model is not a plottable expression" );
 				return false;
 			}
@@ -868,7 +868,7 @@ public class Output_ToPlot {
 						sbError.insert(0, "plotting to buffer for image: ");
 						return false;
 					}
-					java.awt.image.RenderedImage imagePlot = panelPlot.getImage();
+					java.awt.image.RenderedImage imagePlot = panelPlot._getImage();
 					if( imagePlot == null ){
 						sbError.append("internal error, no image");
 						return false;
@@ -898,7 +898,7 @@ public class Output_ToPlot {
 					Graphics g = biThumbnail.getGraphics();
 					g.setColor(Color.BLACK);
 					g.drawRect(0, 0, pxThumbnailWidth - 1, pxThumbnailHeight - 1);
-					panelThumbnails.addThumbnail( model, panelPlot.getCaption(), biThumbnail );
+					panelThumbnails.addThumbnail( model, panelPlot._getCaption(), biThumbnail );
 					panelThumbnails.revalidate();
 					sOutput = "thumbnail";
 					break;
@@ -909,9 +909,9 @@ public class Output_ToPlot {
 			if( iFrameNumber < ctFrames ){
 				ApplicationController.vShowStatus_NoCache("plot frame " + iFrameNumber + " / " + ctFrames);
 			} else if( ctFrames > 1 ) {
-				ApplicationController.vShowStatus("Plotted " + ctFrames + " frames " + panelPlot.getID() + " to " + sOutput);
+				ApplicationController.vShowStatus("Plotted " + ctFrames + " frames " + panelPlot._getID() + " to " + sOutput);
 			} else {
-				ApplicationController.vShowStatus("Plotted " + panelPlot.getID() + " to " + sOutput);
+				ApplicationController.vShowStatus("Plotted " + panelPlot._getID() + " to " + sOutput);
 			}
 			return true;
 		} catch(Exception ex) {
