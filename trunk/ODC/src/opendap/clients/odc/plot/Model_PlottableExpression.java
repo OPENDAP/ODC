@@ -27,6 +27,7 @@ public class Model_PlottableExpression {
 	public CompiledExpression compiled_y;
 	public CompiledExpression compiled_z;
 	public CompiledExpression compiled_r;
+	public CompiledExpression compiled_v;
 	private PlottableExpression_TYPE type;
 	private Model_PlottableExpression(){}
 	private String msProcessedExpression = null;
@@ -38,10 +39,10 @@ public class Model_PlottableExpression {
 		String sScriptText = script.getText();
 		String sScriptText_escaped = Utility_String.sReplaceString( sScriptText, "$$", "$" );
 		ArrayList<Identifier> listIdentifiers = gatherIdentifiers( sScriptText_escaped, sbError );
-		String[] asDollarTokens = { "$x", "$y", "$z", "$r", "$t", "$theta" };
+		String[] asDollarTokens = { "$x", "$y", "$z", "$r", "$t", "$theta", "$value" };
 		String[] asKnownParameters = {
-				"$x", "$y", "$z", "$r", "$t", "$theta",
-				"x", "y", "z", "r", "t", "theta",
+				"$x", "$y", "$z", "$r", "$t", "$theta", "$value",
+				"x", "y", "z", "r", "t", "theta", "value",
 				"x_range_begin", "x_range_end", "x_increment",
 				"y_range_begin", "y_range_end", "y_increment",
 				"r_range_begin", "r_range_end", "r_increment",
@@ -70,7 +71,9 @@ public class Model_PlottableExpression {
 
 		// determine type of expression
 		if( zUsing$Tokens ){
-			if( Identifier.contains( listIdentifiers, "$x" ) && Identifier.contains( listIdentifiers, "$y" ) ){
+			if( Identifier.contains( listIdentifiers, "$value" ) ){
+				model.type = PlottableExpression_TYPE.Pseudocolor;
+			} else if( Identifier.contains( listIdentifiers, "$x" ) && Identifier.contains( listIdentifiers, "$y" ) ){
 				model.type = PlottableExpression_TYPE.Cartesian;
 			} else if( Identifier.contains( listIdentifiers, "$r" ) && Identifier.contains( listIdentifiers, "$theta" ) ){
 				model.type = PlottableExpression_TYPE.Polar;
@@ -81,7 +84,9 @@ public class Model_PlottableExpression {
 				return null;
 			}
 		} else {
-			if( Identifier.contains( listIdentifiers, "x" ) && Identifier.contains( listIdentifiers, "y" ) ){
+			if( Identifier.contains( listIdentifiers, "value" ) ){
+				model.type = PlottableExpression_TYPE.Pseudocolor;
+			} else if( Identifier.contains( listIdentifiers, "x" ) && Identifier.contains( listIdentifiers, "y" ) ){
 				model.type = PlottableExpression_TYPE.Cartesian;
 			} else if( Identifier.contains( listIdentifiers, "r" ) && Identifier.contains( listIdentifiers, "theta" ) ){
 				model.type = PlottableExpression_TYPE.Polar;
@@ -118,7 +123,14 @@ public class Model_PlottableExpression {
 			if( posEqualsSign > 0 ){
 				String sVariable = sLine.substring( 0, posEqualsSign ).trim();
 				String sRValue = sLine.substring( posEqualsSign + 1 ).trim();
-				if( sVariable.equals( "_x") ){
+				if( sVariable.equals( "_value") ){
+					org.python.core.PyCode code = odc_interpreter.zCompile( sRValue, sbError );
+					if( code == null  ){
+						sbError.insert( 0, "failed to compile _value expression [" + sRValue + "]: ");
+						return null;
+					}
+					model.compiled_v = CompiledExpression.create( sVariable, sLine, code );
+				} else if( sVariable.equals( "_x") ){
 					org.python.core.PyCode code = odc_interpreter.zCompile( sRValue, sbError );
 					if( code == null  ){
 						sbError.insert( 0, "failed to compile _x expression [" + sRValue + "]: ");
@@ -364,6 +376,62 @@ public class Model_PlottableExpression {
 		double dMax_y = pxPlotHeight - 1;
 		boolean zWriting = false;
 		switch( type ){
+			case Pseudocolor: { // encapsulating braces needed to protect like variables dX, dY, etc.
+				org.python.core.PyCode codeV = compiled_v.compiled_code;
+				zWriting = false;
+				int ctPoints = pxPlotWidth * pxPlotHeight;
+				coordinates.setCapacity( ctPoints );
+				double dX = 0;
+				double dY = 0;
+				double dV = 0;
+				for( int x = 0; x < pxPlotWidth; x++ ){
+					for( int y = 0; y < pxPlotHeight; y++ ){
+						dX = range.dBeginX + x * dRangeX / dMax_x;
+						if( ! interpreter.zSet( "_x", dX, sbError ) ){
+							sbError.insert( 0, "failed to set _x to " + dX );
+							return null;
+						}
+						dY = range.dBeginY + y * dRangeY / dMax_y;
+						if( ! interpreter.zSet( "_y", dY, sbError ) ){
+							sbError.insert( 0, "failed to set _y to " + dY );
+							return null;
+						}
+						
+						PyObject pyobjectV = interpreter.zEval( codeV, sbError );
+						if( pyobjectV == null ){ // probably division by zero
+							continue;
+//							sbError.insert( 0, "failed to eval _y expression " +  compiled_y + ": " ); // TODO division by zero
+//							return null;
+						}
+						dV = pyobjectV.asDouble();
+
+						// plot the point
+						coordinates.ax0[ctPoints] = x;
+						coordinates.ay0[ctPoints] = y;
+						coordinates.ax0_value[ctPoints] = dX;
+						coordinates.ay0_value[ctPoints] = dY;
+					}
+				}
+
+				// generate rendered points (antialiased or jagged)
+				zWriting = false;
+				boolean zAntialiased = true;
+				double dThickness_pixels = 1;
+				int ctRenderedPoints = 0;
+				while( true ){  // two passes, one to count the number of points, the second to write the points
+					ctRenderedPoints = 0;
+					Utility_Array.clear( maiPlotBuffer );
+					for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){ // cycle through the dimensionless points and define points which are actually rendered
+						int x = coordinates.ax0[xPoint];
+						int y = coordinates.ay0[xPoint];
+						ctRenderedPoints += makePoint( coordinates, xPoint, x, y, ctRenderedPoints, dRangeX, dRangeY, pxPlotWidth, pxPlotHeight, dThickness_pixels, zWriting, 0 ); 
+					}
+					if( zWriting ) break;
+					coordinates.setCapacity_Rendered( ctRenderedPoints, zAntialiased );
+					zWriting = true;
+				}
+
+				break; }
 			case Cartesian:
 				org.python.core.PyCode codeY = compiled_y.compiled_code;
 				zWriting = false;
@@ -849,7 +917,8 @@ class PlotCoordinates {
 enum PlottableExpression_TYPE {
 	Cartesian,
 	Polar,
-	Parametric
+	Parametric, 
+	Pseudocolor
 }
 
 class Identifier {
