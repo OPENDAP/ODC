@@ -43,7 +43,6 @@ import opendap.clients.odc.data.Model_URLList;
 public abstract class SearchInterface extends JPanel {
 	public abstract Model_Dataset[] getURLs( StringBuffer sbError );
 	public abstract void addListSelectionListener( ListSelectionListener listener );
-	public abstract boolean zInitialize( StringBuffer sbError );
 	public void vAddSelected(){
 		StringBuffer sbError = new StringBuffer(80);
 		Model_Dataset[] urls = getURLs(sbError);

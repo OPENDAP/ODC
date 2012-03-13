@@ -15,10 +15,8 @@ import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 import org.w3c.dom.*;
 
 import javax.swing.tree.*;
@@ -41,6 +39,7 @@ public class DOMTree extends JTree {
     final static public int SEARCH_NO_MATCH = 1;
     final static public int SEARCH_ERROR = 2;
     final static public int SEARCH_MATCH_FOUND = 3;
+    final static public int SEARCH_BAD_DOCUMENT = 4;
 
     static private String listTitle = "DODS Dataset List";
 
@@ -86,15 +85,36 @@ public class DOMTree extends JTree {
 		this.mParent = parent;
 	}
 
-	boolean zRefreshTreeFromCacheFile( StringBuffer sbError ){
-		java.io.FileInputStream fisXML = mParent.getXMLInputStream( sbError );
-		if( fisXML == null ){
-			sbError.insert(0, "dataset list xml unavailable: ");
+	Document loadDocumentFromFile( String sCachePath, StringBuffer sbError ){
+		if( sCachePath == null ){
+			sbError.append("no path to cache supplied");
+			return null;
+		}
+		java.io.FileInputStream fisCache;
+		try {
+			java.io.File fileCache = new java.io.File( sCachePath );
+			if( fileCache.exists()){
+				fisCache = new java.io.FileInputStream( fileCache );
+			} else {
+				sbError.append( "file does not exist: " + sCachePath );
+				return null;
+			}
+		} catch( Throwable t ){
+			ApplicationController.vUnexpectedError( t, "unable to load file [" + sCachePath + "]");
+			return null;
+		}
+		
+		// build DOM document
+		Document domParsedDocument = documentBuild( fisCache, sbError );
+		return domParsedDocument;
+	}
+    
+	boolean zRefreshTreeFromCacheFile( String sCachePath, StringBuffer sbError ){
+		Document domParsedDocument = loadDocumentFromFile( sCachePath, sbError );
+		if( domParsedDocument == null ){
+			sbError.insert( 0, "Failed to load document from file: " );
 			return false;
 		}
-
-		Document domParsedDocument = documentBuild( fisXML, sbError );
-		if( domParsedDocument == null ) return false;
 		document   = domParsedDocument;
         currentDoc = domParsedDocument;
 
@@ -179,8 +199,8 @@ public class DOMTree extends JTree {
     // Returns an array of the selected nodes
     //
     public Object[] getSelection() {
-        Hashtable hashNodes = new Hashtable();
-        Vector vnodes = new Vector();
+        Hashtable<String,String> hashNodes = new Hashtable<String,String>();
+        Vector<AdapterNode> vnodes = new Vector<AdapterNode>();
         TreePath[] selectionPath = getSelectionPaths();
         DomToTreeModelAdapter model = new DomToTreeModelAdapter(currentDoc);
         for (int s=0; s < getSelectionCount(); s++) {
@@ -240,14 +260,15 @@ public class DOMTree extends JTree {
     }
 
 
-    public int constrainTree(Object[] keywords_G1, String logic_G1,
+    public int constrainTree( String sCachePath,
+    						 Object[] keywords_G1, String logic_G1,
                              String logic_between,
                              Object[] keywords_G2, String logic_G2,
 							 StringBuffer sbError) {
 
 		if( keywords_G1 == null || logic_G1 == null || logic_between == null || keywords_G2 == null || logic_G2 == null ){
 			sbError.append("Internal Error, one or more null inputs");
-			return this.SEARCH_ERROR;
+			return DOMTree.SEARCH_ERROR;
 		}
 
         // setup regular expressions
@@ -294,24 +315,14 @@ public class DOMTree extends JTree {
             nosearch = true;
         }
 
-        if (! nosearch) {
-            // search tree
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            Document nDoc;
-            try {
-                DocumentBuilder builder = factory.newDocumentBuilder();
-				java.io.InputStream fisXML = mParent.getXMLInputStream( sbError );
-				if( fisXML == null ){
-					ApplicationController.vShowError( "Failed to access datasets xml file: " + sbError.toString() );
-					return SEARCH_ERROR;
-				}
-                nDoc = builder.parse( fisXML );
-            } catch(Exception e) {
-				ApplicationController.vUnexpectedError(e, new StringBuffer("creating document builder: "));
-				return SEARCH_ERROR;
-			}
-
-            AdapterNode newDoc = new AdapterNode(nDoc);
+        if( ! nosearch ){
+        	
+        	Document nDoc = loadDocumentFromFile( sCachePath, sbError );
+        	if( nDoc == null ){
+        		sbError.insert( 0, "Failed to load document from cache path: " );
+        		return SEARCH_BAD_DOCUMENT;
+        	}
+            AdapterNode newDoc = new AdapterNode( nDoc );
             AdapterNode root = newDoc.getChild( 0, sbError );
             if( root == null ){
             	sbError.insert( 0, "new document has no children or otherwise is invalid: " );
@@ -495,57 +506,46 @@ public class DOMTree extends JTree {
         return false;
     }
 
+	public class AdapterNode {
+		private org.w3c.dom.Node domNode;
+	
+		// Construct an Adapter node from a DOM node
+		public AdapterNode( org.w3c.dom.Node node ){
+			domNode = node;
+		}
+	
+		// Return a string that identifies this node in the tree
+		public String toString(){
+			String s = "";
+			String nodeName = domNode.getNodeName();
+			if( nodeName.startsWith("#") ){
+				if( nodeName.startsWith( "#document") ){
+					s += listTitle;
+				}
+			} else {
+				if( nodeName.equals( ELEMENT_ROOT )){
+					s += rootTitle;
+				} else {  // Trim the value to get rid of NL's at the front
+					String t = content().trim();
+					int x = t.indexOf("\n");
+					if( x >= 0 ) t = t.substring(0, x);
+					s += " " + t;
+				}
+			}
+			return s;
+		}
 
-    //
-    // DOM node Adapter
-    //
-    public class AdapterNode
-    {
-        private org.w3c.dom.Node domNode;
-
-        // Construct an Adapter node from a DOM node
-        public AdapterNode(org.w3c.dom.Node node) {
-            domNode = node;
-        }
-
-        // Return a string that identifies this node in the tree
-        public String toString() {
-            String s = "";
-            String nodeName = domNode.getNodeName();
-            if (! nodeName.startsWith("#")) {
-                if (nodeName.equals(ELEMENT_ROOT)) {
-                    s += rootTitle;
-                } else {
-                    // Trim the value to get rid of NL's at the front
-                    String t = content().trim();
-                    int x = t.indexOf("\n");
-                    if (x >= 0) t = t.substring(0, x);
-                    s += " " + t;
-                }
-            } else {
-                if (nodeName.startsWith("#document")) {
-                    s += listTitle;
-                }
-            }
-
-            return s;
-        }
-
-        public String content() {
-            String s = "";
-            if (domNode.getAttributes() != null) {
-                if (domNode.getAttributes().getLength() > 0) {
-                    for (int i=0; i < desiredTreeAttributes.length; i++) {
-                        if (domNode.getAttributes().getNamedItem(desiredTreeAttributes[i]) != null) {
-                            if (desiredTreeAttributes[i] == ATTR_NAME) {
-                                s += domNode.getAttributes().getNamedItem(desiredTreeAttributes[i]).getNodeValue();
-                            }
-                        }
-                    }
-                }
-            }
-            return s;
-        }
+		public String content() {
+			String s = "";
+			if( domNode.getAttributes() != null ){
+				if( domNode.getAttributes().getLength() > 0 ){
+					for( int i=0; i < desiredTreeAttributes.length; i++ ){
+						if( domNode.getAttributes().getNamedItem(desiredTreeAttributes[i]) != null ){
+							if (desiredTreeAttributes[i] == ATTR_NAME) {
+								s += domNode.getAttributes().getNamedItem(desiredTreeAttributes[i]).getNodeValue();
+							}}}}}
+			return s;
+		}
 
         public NamedNodeMap getAttributes() {
             return domNode.getAttributes();
@@ -643,11 +643,10 @@ public class DOMTree extends JTree {
 
         public int childCount() {
             int count = 0;
-            for (int i=0; i<domNode.getChildNodes().getLength(); i++) {
+            for( int i=0; i<domNode.getChildNodes().getLength(); i++ ){
                 org.w3c.dom.Node node = domNode.getChildNodes().item(i);
-                if (node.getNodeType() == ELEMENT_TYPE
-                        && treeElement( node.getNodeName() ))
-                {
+                if( node.getNodeName() == null ) continue;
+                if( node.getNodeType() == ELEMENT_TYPE && treeElement( node.getNodeName() )){
                     ++count;		// count only the nodes we want
                 }
             }
@@ -655,8 +654,6 @@ public class DOMTree extends JTree {
         }
 
     } // AdapterNode
-
-
 
     //
     // This adapter converts the current Document (a DOM) into
@@ -704,7 +701,7 @@ public class DOMTree extends JTree {
         }
 
 
-        private Vector listenerList = new Vector();
+        private Vector<TreeModelListener> listenerList = new Vector<TreeModelListener>();
         public void addTreeModelListener( TreeModelListener listener ) {
             if ( listener != null && ! listenerList.contains( listener ) ) {
                 listenerList.addElement( listener );

@@ -33,7 +33,7 @@ import java.io.RandomAccessFile;
  * @version     2.00 Jul 2002
  * @author      Kashan A. Shaikh
  * @modified by Sheila Jiang 12 Mar 2002
- * @modified by John Chamberlain July 2002, December 2003, June 2004, July 2004
+ * @modified by John Chamberlain July 2002, December 2003, June 2004, July 2004, March 2012
  *
  * 1.26 July 2001
  * 2.14 August 2002
@@ -41,96 +41,112 @@ import java.io.RandomAccessFile;
  * 2.49 June 2004
  * 2.53 July 2004
  * 3.05 October 2009
+ * 3.08 March 2012      THREDDS mode added
  *
  */
 public class DatasetList extends SearchInterface {
-    private DOMTree xmlDOMTree;
+
+	public enum MODE {
+		DatasetList,
+		THREDDS
+	}
+	
+	private MODE mode;
+	
+	private DOMTree xmlDOMTree;
 
     // Dimensions
-    static final int windowHeight = 400;
-    static final int leftWidth = 400;
-    static final int rightWidth = 400;
-    static final int windowWidth = leftWidth + rightWidth;
+	static final int windowHeight = 400;
+	static final int leftWidth = 400;
+	static final int rightWidth = 400;
+	static final int windowWidth = leftWidth + rightWidth;
 
-    private JPanel treePanel;
-    private JSplitPane windowSplitPane;
-    private JPanel treeSelectionInfoPanel;
+	private JPanel treePanel;
+	private JSplitPane windowSplitPane;
+	private JPanel treeSelectionInfoPanel;
 	private JScrollPane scrollTree;
 
-    public static String EVENT_RETRIEVE="Retrieve";
-    public static String EVENT_REFRESH="Refresh XML";
-    public static String EVENT_REFRESH_CANCEL="Cancel Refresh";
-    public static String EVENT_SEARCH="Search";
-    public static String EVENT_CLEAR="Clear";
-    public static String EVENT_SHOW_ALL="Show All";
+	public static String EVENT_RETRIEVE="Retrieve";
+	public static String EVENT_REFRESH="Refresh XML";
+	public static String EVENT_REFRESH_CANCEL="Cancel Refresh";
+	public static String EVENT_SEARCH="Search";
+	public static String EVENT_CLEAR="Clear";
+	public static String EVENT_SHOW_ALL="Show All";
 
 	private JButton mjbuttonRefresh;
 	private final JButton searchButton = new JButton("Search: ");
 	private final JButton jbuttonShowAll = new JButton("Show All");
 	javax.swing.JTextField jtfSearch;
 
-    public DatasetList() {
+	private DatasetList() {}
+    
+	public MODE getMode(){ return mode; }
 
-        xmlDOMTree = new DOMTree(this);
+	public static DatasetList create( MODE mode, StringBuffer sbError ){
+		DatasetList panel = new DatasetList();
+		panel.mode = mode;
+		panel.xmlDOMTree = new DOMTree( panel );
 
         // Selection window
-        JPanel outerInfoPanel = new JPanel();
-        outerInfoPanel.setLayout(new BoxLayout(outerInfoPanel,BoxLayout.Y_AXIS));
-        outerInfoPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        outerInfoPanel.setAlignmentY(Component.TOP_ALIGNMENT);
-        outerInfoPanel.setBorder(BorderFactory.createCompoundBorder(
+		JPanel outerInfoPanel = new JPanel();
+		outerInfoPanel.setLayout(new BoxLayout(outerInfoPanel,BoxLayout.Y_AXIS));
+		outerInfoPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		outerInfoPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+		outerInfoPanel.setBorder(BorderFactory.createCompoundBorder(
                                      BorderFactory.createTitledBorder("Current Datasets"),
                                      BorderFactory.createEmptyBorder(2,2,2,2)));
-        treeSelectionInfoPanel = new JPanel();
-        treeSelectionInfoPanel.setLayout(new BoxLayout(treeSelectionInfoPanel,BoxLayout.Y_AXIS));
-        addTreeSelectionInterface();
-        JScrollPane treeSelectionInfoScrollPane = new JScrollPane(treeSelectionInfoPanel);
-        treeSelectionInfoScrollPane.setPreferredSize(new Dimension( rightWidth, windowHeight ));
-        outerInfoPanel.add(treeSelectionInfoScrollPane);
+		panel.treeSelectionInfoPanel = new JPanel();
+		panel.treeSelectionInfoPanel.setLayout( new BoxLayout( panel.treeSelectionInfoPanel,BoxLayout.Y_AXIS ));
+		panel.addTreeSelectionInterface();
+		JScrollPane treeSelectionInfoScrollPane = new JScrollPane( panel.treeSelectionInfoPanel );
+		treeSelectionInfoScrollPane.setPreferredSize(new Dimension( rightWidth, windowHeight ));
+		outerInfoPanel.add(treeSelectionInfoScrollPane);
 
         // Build xml Tree view
-		scrollTree = new JScrollPane(xmlDOMTree);
-        scrollTree.setPreferredSize(new Dimension( leftWidth, windowHeight ));
-        treePanel = new JPanel();
-        treePanel.setLayout(new BoxLayout(treePanel,BoxLayout.Y_AXIS));
-        treePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        treePanel.setAlignmentY(Component.TOP_ALIGNMENT);
-        EmptyBorder eb = new EmptyBorder(5,5,5,5);
-        BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);
-        CompoundBorder cb = new CompoundBorder(eb,bb);
-        treePanel.setBorder(new CompoundBorder(cb,eb));
-        treePanel.setLayout(new BorderLayout());
+		panel.scrollTree = new JScrollPane( panel.xmlDOMTree );
+		panel.scrollTree.setPreferredSize(new Dimension( leftWidth, windowHeight ));
+		panel.treePanel = new JPanel();
+		panel.treePanel.setLayout( new BoxLayout( panel.treePanel,BoxLayout.Y_AXIS ));
+		panel.treePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		panel.treePanel.setAlignmentY(Component.TOP_ALIGNMENT);
+		EmptyBorder eb = new EmptyBorder(5,5,5,5);
+		BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);
+		CompoundBorder cb = new CompoundBorder(eb,bb);
+		panel.treePanel.setBorder( new CompoundBorder(cb,eb) );
+		panel.treePanel.setLayout( new BorderLayout() );
 
 		// Populate tree panel
-		StringBuffer sbError = new StringBuffer(256);
-		if( !zRefreshDisplayFromCache(sbError) ){
-			ApplicationController.vShowError("Error refreshing dataset list from cache: " + sbError.toString());
-			sbError.setLength(0);
+		String sCachePath = panel.getCachePath();
+		if( panel.zRefreshDisplayFromCache( sCachePath, sbError )){
+			// refresh method updates panel content
+		} else {
+			ApplicationController.vShowWarning( "Error refreshing dataset list from cache: " + sbError.toString() );
+			sbError.setLength( 0 );
 		}
 
         // Put tree view and selection view into a splitPane
-        windowSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,treePanel,outerInfoPanel);
-        windowSplitPane.setContinuousLayout( true );
-        windowSplitPane.setDividerLocation( leftWidth );
-        windowSplitPane.setAlignmentX(Component.CENTER_ALIGNMENT);
-        windowSplitPane.setAlignmentY(Component.TOP_ALIGNMENT);
-        windowSplitPane.setPreferredSize(new Dimension( windowWidth+10, windowHeight+10 ));
-        windowSplitPane.setOneTouchExpandable(true);
+		panel.windowSplitPane = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT, panel.treePanel, outerInfoPanel );
+		panel.windowSplitPane.setContinuousLayout( true );
+		panel.windowSplitPane.setDividerLocation( leftWidth );
+		panel.windowSplitPane.setAlignmentX( Component.CENTER_ALIGNMENT );
+		panel.windowSplitPane.setAlignmentY( Component.TOP_ALIGNMENT );
+		panel.windowSplitPane.setPreferredSize( new Dimension( windowWidth+10, windowHeight+10 ) );
+		panel.windowSplitPane.setOneTouchExpandable( true );
 
-        JPanel jpanelCommandBar = new JPanel();
+		JPanel jpanelCommandBar = new JPanel();
 		jpanelCommandBar.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 		jpanelCommandBar.setLayout(new BoxLayout(jpanelCommandBar, BoxLayout.X_AXIS));
-		vSetupCommandBar(jpanelCommandBar);
+		panel.vSetupCommandBar( jpanelCommandBar );
 
         // Add components
-        this.setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
-        this.setAlignmentX(Component.CENTER_ALIGNMENT);
-        this.setAlignmentY(Component.TOP_ALIGNMENT);
-        this.add(jpanelCommandBar);
-        this.add(windowSplitPane);
+        panel.setLayout( new BoxLayout( panel,BoxLayout.Y_AXIS ));
+        panel.setAlignmentX( Component.CENTER_ALIGNMENT );
+        panel.setAlignmentY( Component.TOP_ALIGNMENT );
+        panel.add( jpanelCommandBar );
+        panel.add( panel.windowSplitPane );
+        
+        return panel;
     }
-
-    public boolean zInitialize(StringBuffer sbError){ return true; }
 
 	private void vSetupCommandBar(JPanel jpanelContainer){
 
@@ -265,23 +281,55 @@ public class DatasetList extends SearchInterface {
 
     // XML source management
 
-	String getDatasetXML_URL(){
-		String sURL = ConfigurationManager.getInstance().getProperty_URL_XML();
-		if( sURL == null ) return null;
+	String getURL_CatalogXML( StringBuffer sbError ){
+		String sURL;
+		String sTarget;
+		if( mode == MODE.DatasetList ){
+			sURL = ConfigurationManager.getInstance().getProperty_URL_DatasetList();
+			sTarget = "Dataset List";
+		} else if( mode == MODE.DatasetList ){
+			sURL = ConfigurationManager.getInstance().getProperty_URL_THREDDS();
+			sTarget = "THREDDS master catalog";
+		} else {
+			sbError.append( "Internal error, unknown mode" );
+			return null;
+		}
+		if( sURL == null ){
+			sbError.append( "The URL for " + mode + " is set to null in your configuration. This setting must point to the " + sTarget + "." );
+			return null;
+		}
 		try {
 			new java.net.URL( sURL ); // see if we can make a valid URL
 		} catch(Exception ex) {
-			ApplicationController.vShowError("unable to interpret dataset URL [" + sURL + "]: " + ex);
+			ApplicationController.vShowError("unable to interpret URL [" + sURL + "]: " + ex);
 		}
 		return sURL;
 	}
 
+	private String getCachePath(){
+		String sCachePath;
+		if( mode == MODE.DatasetList ){
+			sCachePath = ConfigurationManager.getInstance().getProperty_PATH_XML_DatasetList_Cache();
+		} else if( mode == MODE.THREDDS ){
+			sCachePath = ConfigurationManager.getInstance().getProperty_PATH_XML_THREDDS_Cache();
+		} else return null;
+		return sCachePath;
+	}
+
+	private String getCatalogURL(){
+		String sURL;
+		if( mode == MODE.DatasetList ){
+			sURL = ConfigurationManager.getInstance().getProperty_URL_DatasetList();
+		} else if( mode == MODE.THREDDS ){
+			sURL = ConfigurationManager.getInstance().getProperty_URL_THREDDS();
+		} else return null;
+		return sURL;
+	}
+	
 	void vDeleteCache(){
-		String sCachePath = ConfigurationManager.getInstance().getProperty_PATH_XML_Cache();
-		if( sCachePath == null ) return;
+		String sCachePath = getCachePath();
 		try {
 			java.io.File fileCache = new java.io.File(sCachePath);
-			if( fileCache == null ) return;
 			if( fileCache.exists()) fileCache.delete();
 		} catch(Exception ex) {
 			ApplicationController.vShowError("unable to delete cache [" + sCachePath + "]: " + ex);
@@ -290,8 +338,12 @@ public class DatasetList extends SearchInterface {
 	}
 
 	boolean isURLRemote(){
-		String surlDatasetListXML = this.getDatasetXML_URL();
-		if( surlDatasetListXML == null ) return false;
+		StringBuffer sbError = new StringBuffer();
+		String surlDatasetListXML = this.getURL_CatalogXML( sbError );
+		if( surlDatasetListXML == null ){
+			ApplicationController.vShowWarning( "Unable to get URL for data catalog: " + sbError );
+			return false;
+		}
         String sProtocol = Utility.url_getPROTOCOL( surlDatasetListXML );
         if( sProtocol == null ) return false;
         if( sProtocol.equalsIgnoreCase("file") ){
@@ -301,48 +353,24 @@ public class DatasetList extends SearchInterface {
 		}
 	}
 
-	java.io.FileInputStream getXMLInputStream( StringBuffer sbError ){
-		String sCachePath = ConfigurationManager.getInstance().getProperty_PATH_XML_Cache();
-		if( sCachePath == null ){
-			sbError.append("no path to cache supplied");
-			return null;
-		}
-		try {
-			java.io.File fileCache = new java.io.File( sCachePath );
-			if( fileCache == null ){
-				sbError.append("invalid path: " + sCachePath);
-				return null;
-			}
-			if( fileCache.exists()){
-				java.io.FileInputStream fisCache = new java.io.FileInputStream( fileCache );
-				return fisCache;
-			} else {
-				sbError.append("file does not exist: " + sCachePath);
-				return null;
-			}
-		} catch(Exception ex) {
-			ApplicationController.vShowError("unable to load file [" + sCachePath + "]: " + ex);
-			return null;
-		}
-	}
-
-	boolean zLoadXMLCache_NIO(StringBuffer sbError){
+	boolean zLoadXMLCache_NIO( StringBuffer sbError ){
 		java.nio.channels.FileChannel fcCache;
 		java.nio.channels.ReadableByteChannel rbcSource;
 		int iDatasetSourceSize = 0;
-		String sCachePath = ConfigurationManager.getInstance().getProperty_PATH_XML_Cache();
-		String sURI = ConfigurationManager.getInstance().getProperty_URL_XML();
+		String sCachePath = getCachePath();
 		if( sCachePath == null ){
-			sbError.append("no cache path defined");
+			sbError.append( "no cache path defined" );
 			return false;
 		}
+		String sURI;
+		if( mode == MODE.DatasetList ){
+			sURI = ConfigurationManager.getInstance().getProperty_URL_DatasetList();
+		} else if( mode == MODE.THREDDS ){
+			sURI = ConfigurationManager.getInstance().getProperty_URL_THREDDS();
+		} else return true;
 		if( sURI == null ) return true; // in this case the cache is the source so there is no load
 		try {
-			java.io.File fileCache = new java.io.File(sCachePath);
-			if( fileCache == null ){
-				sbError.append("cache path is invalid [" + sCachePath + "]");
-				return false;
-			}
+			java.io.File fileCache = new java.io.File( sCachePath );
 			java.io.FileOutputStream fosCache = new java.io.FileOutputStream( fileCache );
 			fcCache = fosCache.getChannel();
 		} catch(Exception ex) {
@@ -350,39 +378,37 @@ public class DatasetList extends SearchInterface {
 			return false;
 		}
 		try {
-			String surlDatasetXML = this.getDatasetXML_URL();
-			URI uriDatasetXML = new URI(surlDatasetXML);
-			String sScheme = uriDatasetXML.getScheme();
+			String surlDatasetXML = getURL_CatalogXML( sbError );
 			if( surlDatasetXML == null ){
-				sbError.append("URL to dataset XML not supplied");
-				try { if( fcCache != null ) fcCache.close(); } catch(Exception exclose) {}
+				sbError.insert( 0, "error getting catalog XML URL: " );
 				return false;
-			} else if( sScheme.equalsIgnoreCase("file") ){
+			}
+			URI uriDatasetXML = new URI( surlDatasetXML );
+			String sScheme = uriDatasetXML.getScheme();
+			if( sScheme.equalsIgnoreCase("file") ){
 				String sProtocol = Utility.url_getPROTOCOL( surlDatasetXML );
-				java.io.File fileSource = new java.io.File( surlDatasetXML );
-				if( fileSource == null ){
-					sbError.append("dataset source path is invalid [" + surlDatasetXML + "]");
+				if( ! sProtocol.equalsIgnoreCase( "FILE" ) ){
+					sbError.append( "URI validation failed, scheme was file, but protocol for [" + surlDatasetXML + "] does not appear to be file-based" );
 					return false;
 				}
+				java.io.File fileSource = new java.io.File( surlDatasetXML );
 				java.io.FileOutputStream fosSource = new java.io.FileOutputStream( fileSource );
 				rbcSource = fosSource.getChannel();
 			} else {
-				java.io.InputStream isDatasetSource;
 				java.net.URLConnection ucDatasetSource;
 				try {
-					isDatasetSource = uriDatasetXML.toURL().openStream();
 					ucDatasetSource = uriDatasetXML.toURL().openConnection();
 				} catch(Exception ex) {
 					sbError.append("error opening dataset source [" + uriDatasetXML + "]: " + ex);
-					try { if( fcCache != null ) fcCache.close(); } catch(Exception exclose) {}
+					try { if( fcCache != null ) fcCache.close(); } catch( Throwable t ){}
 					return false;
 				}
 				iDatasetSourceSize = ucDatasetSource.getContentLength();
 				if( iDatasetSourceSize == -1 ){ // hopefully this won't happen
-					ApplicationController.getInstance().vShowWarning("Dataset source provider server returned no content length.");
+					ApplicationController.vShowWarning( "Dataset source provider server returned no content length." );
 					iDatasetSourceSize = 1000000;
 				}
-				rbcSource = java.nio.channels.Channels.newChannel(ucDatasetSource.getInputStream());
+				rbcSource = java.nio.channels.Channels.newChannel( ucDatasetSource.getInputStream() );
 			}
 		} catch(Exception ex) {
 			sbError.append("error opening dataset xml source [" + sURI + "]: " + ex);
@@ -390,7 +416,7 @@ public class DatasetList extends SearchInterface {
 			return false;
 		}
 		try {
-			fcCache.transferFrom(rbcSource, 0L, iDatasetSourceSize);
+			fcCache.transferFrom( rbcSource, 0L, iDatasetSourceSize );
 		} catch(Exception ex) {
 			sbError.append("error transferring dataset source xml to cache: " + ex);
 			return false;
@@ -401,12 +427,11 @@ public class DatasetList extends SearchInterface {
 		return true;
 	}
 
-	boolean zUpdateCacheFromMasterList(StringBuffer sbError){
+	boolean zUpdateCacheFromMasterCatalog( StringBuffer sbError ){
 
 		// get relevant paths
-		int iDatasetSourceSize = 0;
-		final String sCachePath = ConfigurationManager.getInstance().getProperty_PATH_XML_Cache();
-		final String sURI = ConfigurationManager.getInstance().getProperty_URL_XML();
+		final String sCachePath = getCachePath();
+		final String sURI = getCatalogURL();
 		if( sCachePath == null ){
 			sbError.append("no cache path defined");
 			return false;
@@ -477,7 +502,7 @@ public class DatasetList extends SearchInterface {
 			fcCache.transferFrom(rbcSource, 0L, iDatasetSourceSize);
 			return true;
 		} catch(Exception ex) {
-			sbError.append("error transferring dataset source xml to cache: " + ex);
+			sbError.append( "error transferring dataset source xml to cache: " + ex );
 			return false;
 		} finally {
 			try { if( fcCache != null ) fcCache.close(); } catch(Exception exclose) {}
@@ -514,8 +539,8 @@ public class DatasetList extends SearchInterface {
 
     // Returns DodsUrl object with selected URLs
 	public Model_Dataset[] getURLs( StringBuffer sbError ) {
-        Hashtable urlshash = new Hashtable();
-        Vector urlsvect = new Vector();
+        Hashtable<String,String> urlshash = new Hashtable<String,String>();
+        Vector<DOMTree.AdapterNode> urlsvect = new Vector<DOMTree.AdapterNode>();
         Object[] nodes = xmlDOMTree.getSelection();
 		if (nodes != null) {
             for (int i=0; i < nodes.length; i++) {
@@ -565,7 +590,7 @@ public class DatasetList extends SearchInterface {
             }
         }
 
-        if (urlsvect.size() > 0) {
+        if( urlsvect.size() > 0 ){
             Model_Dataset[] urls = new Model_Dataset[urlsvect.size()];
             for (int i=0; i < urlsvect.size(); i++) {
                 DOMTree.AdapterNode thisnode = (DOMTree.AdapterNode) urlsvect.elementAt(i);
@@ -594,19 +619,18 @@ public class DatasetList extends SearchInterface {
         }
     }
 
-	private boolean zRefreshDisplayFromCache( StringBuffer sbError ){
-		if( xmlDOMTree.zRefreshTreeFromCacheFile( sbError ) ){
+	private boolean zRefreshDisplayFromCache( String sCacheFilePath, StringBuffer sbError ){
+		if( xmlDOMTree.zRefreshTreeFromCacheFile( sCacheFilePath, sbError ) ){
 			treePanel.removeAll();
 			treePanel.add(scrollTree,BorderLayout.CENTER);
 			return true;
 		} else {
 
 			// post message to tree panel
-			String sCachePath = ConfigurationManager.getInstance().getProperty_PATH_XML_Cache();
 			JTextArea jtaNoTree = new JTextArea();
-			jtaNoTree.setText(sbError.toString());
+			jtaNoTree.setText( sbError.toString() );
 			jtaNoTree.setPreferredSize( new Dimension( leftWidth, windowHeight ));
-			treePanel.add(jtaNoTree, BorderLayout.CENTER);
+			treePanel.add( jtaNoTree, BorderLayout.CENTER );
 
 			// and return error
 			sbError.insert(0, "Failed to refresh tree from cache file: ");
@@ -622,21 +646,21 @@ public class DatasetList extends SearchInterface {
 				new Continuation_DoCancel(){
 					public void Do(){
 						StringBuffer sbError = new StringBuffer(256);
-						if( DatasetList.this.zUpdateCacheFromMasterList(sbError) ){
-							if( zRefreshDisplayFromCache(sbError) ){
-								String sCachePath = ConfigurationManager.getInstance().getProperty_PATH_XML_Cache();
-								ApplicationController.vShowStatus("Updated dataset list tree from: " + sCachePath);
+						if( DatasetList.this.zUpdateCacheFromMasterCatalog(sbError) ){
+							String sCachePath = getCachePath();
+							if( zRefreshDisplayFromCache( sCachePath, sbError ) ){
+								ApplicationController.vShowStatus( "Updated " + mode + " catalog from: " + sCachePath );
 							} else {
-								ApplicationController.vShowError(sbError.toString());
+								ApplicationController.vShowError( "Failed to update catalog from " + sCachePath + " for " + mode + ": " + sbError.toString() );
 							}
 						} else {
-							ApplicationController.vShowError("Failed to get master dataset list: " + sbError);
+							ApplicationController.vShowError( "Failed to get master catalog for " + mode + ": " + sbError);
 						}
 					}
 					public void Cancel(){
 					}
 				};
-			activityRefreshCache.vDoActivity(mjbuttonRefresh, this, conLoadXMLCache, "Refreshing dataset xml cache ...");
+			activityRefreshCache.vDoActivity( mjbuttonRefresh, this, conLoadXMLCache, "Refreshing " + mode + " catalog xml cache ..." );
 		}
 	}
 
@@ -682,7 +706,12 @@ public class DatasetList extends SearchInterface {
 				}
 			}
 			StringBuffer sbError = new StringBuffer(80);
-            int searchResult = xmlDOMTree.constrainTree(
+			String sCachePath = DatasetList.this.getCachePath();
+			if( sCachePath == null ){
+				ApplicationController.vShowError( "Unable to constrain search, no cache path. A catalog must be loaded and cached before a constraint can be applied." );
+				return;
+			}
+            int searchResult = xmlDOMTree.constrainTree( sCachePath,
                                    aoAnd, "AND",
                                    "AND",
                                    aoOr, "OR", sbError );
@@ -694,10 +723,13 @@ public class DatasetList extends SearchInterface {
 					ApplicationController.vShowStatus("The search returned no matches.");
 					break;
 				case DOMTree.SEARCH_ERROR:
-					ApplicationController.vShowStatus("An error was encountered during the search.");
+					ApplicationController.vShowStatus( "An error was encountered during the search." );
 					break;
 				case DOMTree.SEARCH_MATCH_FOUND:
 					// do nothing
+					break;
+				case DOMTree.SEARCH_BAD_DOCUMENT:
+					ApplicationController.vShowStatus( "The catalog cache file [" + sCachePath + "] did not load." );
 					break;
             }
 		}
@@ -709,7 +741,7 @@ public class DatasetList extends SearchInterface {
 
             if (datalist != null) {
                 // Create a frame and container for the panels.
-                JFrame datasetListFrame = new JFrame("DatasetList");
+                JFrame datasetListFrame = new JFrame( "" + datalist.mode + " Catalog");
 
                 // Set the look and feel.
                 try {
