@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Configuration Manager
  * Description:  Maintains preferential settings for the application
- * Copyright:    Copyright (c) 2002-2011
+ * Copyright:    Copyright (c) 2002-2012
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.07
+ * @version      3.08
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,8 @@ public class ConfigurationManager {
 	public static final String SYSTEM_PROPERTY_OSName = "os.name";
 	private static final String PROPERTIES_HEADER = "Import Preferences version 2";
 	private static final String FILE_NAME_PROPERTIES = "config.txt";
-	private static final String FILE_NAME_XML = "datasets.xml";
+	private static final String FILE_NAME_XML_DatasetList = "datasets.xml";
+	private static final String FILE_NAME_XML_THREDDS = "THREDDS.xml";
 	private static final String FILE_NAME_ECHO_Valids = "ECHO_static_valids.xml";
 	private static final String FILE_NAME_Gazetteer = "gazetteer.txt";
 	private static final String FILE_NAME_ExpHistory = "exp.txt";
@@ -63,6 +64,7 @@ public class ConfigurationManager {
 	private static final String URL_Default_DatasetList = "http://xml.opendap.org/datasets/datasets.xml";
 	private static final String URL_Default_GCMD = "http://gcmd.nasa.gov/OpenAPI/";
 	private static final String URL_Default_GCMD_old = "http://gcmd.nasa.gov/servlets/md/";
+	private static final String URL_Default_THREDDS = "http://motherlode.ucar.edu:8080/thredds/catalog.xml";
 
 	private static final String DIR_Default_ImageCache = "ImageCache";
 	private static final String DIR_Default_DataCache = "DataCache";
@@ -87,8 +89,10 @@ public class ConfigurationManager {
 	public static final String PROPERTY_MODE_ReadOnly = "mode.ReadOnly";
 	public static final String PROPERTY_URL_GCMD = "url.GCMD";
 	public static final String PROPERTY_URL_ECHO = "url.ECHO";
-	public static final String PROPERTY_URL_XML = "url.XML";
-	public static final String PROPERTY_PATH_XML_Cache = "path.XML_Cache";
+	public static final String PROPERTY_URL_THREDDS = "url.THREDDS";
+	public static final String PROPERTY_URL_DatasetList = "url.DatasetList";
+	public static final String PROPERTY_PATH_XML_DatasetList_Cache = "path.DatasetList_Cache";
+	public static final String PROPERTY_PATH_XML_THREDDS_Cache = "path.THREDDS_Cache";
 	public static final String PROPERTY_PATH_ECHO_Valids = "path.XML_ECHO_Valids";
 	public static final String PROPERTY_PATH_Gazetteer = "path.Gazetteer"; // can be file or directory
 	public static final String PROPERTY_PATH_Coastline = "path.Coastline"; // can be file or directory
@@ -163,11 +167,7 @@ public class ConfigurationManager {
 		thisSingleton = new ConfigurationManager();
 
 		File fileCurrentDirectory = new File(".");
-		if( fileCurrentDirectory == null ){
-			ApplicationController.vShowStatus( "Warning: unable to determine current directory" );
-		} else {
-			ApplicationController.vShowStatus( "Current Directory: " + fileCurrentDirectory.getAbsolutePath() );
-		}
+		ApplicationController.vShowStatus( "Current Directory: " + fileCurrentDirectory.getAbsolutePath() );
 
 		// determine runtime paths
 		if( ! thisSingleton.zResolveBaseDirectory(sBaseDirectoryPath, sbError) ){
@@ -269,9 +269,9 @@ public class ConfigurationManager {
 		boolean zDatasetListValidated = false;
 		String sDatasetListPath = "[undefined]";
 		try {
-			sDatasetListPath = getProperty_PATH_XML_Cache();
+			sDatasetListPath = getProperty_PATH_XML_DatasetList_Cache();
 			if( sDatasetListPath == null ){
-				sbError.append( "internal error, no dataset XML path (property " + PROPERTY_PATH_XML_Cache + ") is defined" );
+				sbError.append( "internal error, no dataset XML path (property " + PROPERTY_PATH_XML_DatasetList_Cache + ") is defined" );
 			}
 			File fileDatasetList = new File( sDatasetListPath );
 			zDatasetListValidated = fileDatasetList.exists();
@@ -294,7 +294,7 @@ public class ConfigurationManager {
 		File fileConfiguration;
 		File fileGazetteer;
 		String sPath_Configuration = getPath_Properties();
-		String sPath_DatasetsXML = getProperty_PATH_XML_Cache();
+		String sPath_DatasetsXML = getProperty_PATH_XML_DatasetList_Cache();
 		String sPath_Gazetteer = getProperty_PATH_Gazetteer();
 		try {
 			fileBaseDirectory = new File( msBaseDirectoryPath );
@@ -356,8 +356,10 @@ public class ConfigurationManager {
 		mlistProperties.add( PROPERTY_MODE_ReadOnly);
 		mlistProperties.add( PROPERTY_URL_GCMD);
 		mlistProperties.add( PROPERTY_URL_ECHO );
-		mlistProperties.add( PROPERTY_URL_XML );
-		mlistProperties.add( PROPERTY_PATH_XML_Cache );
+		mlistProperties.add( PROPERTY_URL_THREDDS );
+		mlistProperties.add( PROPERTY_URL_DatasetList );
+		mlistProperties.add( PROPERTY_PATH_XML_DatasetList_Cache );
+		mlistProperties.add( PROPERTY_PATH_XML_THREDDS_Cache );
 		mlistProperties.add( PROPERTY_PATH_ECHO_Valids );
 		mlistProperties.add( PROPERTY_PATH_Gazetteer );
 		mlistProperties.add( PROPERTY_PATH_Coastline );
@@ -425,8 +427,10 @@ public class ConfigurationManager {
 		}
 	}
 	public String getProperty_URL_ECHO(){ return getInstance().getOption(PROPERTY_URL_ECHO, getDefault_URL_ECHO()); }
-	public String getProperty_URL_XML(){ return getInstance().getOption(PROPERTY_URL_XML, getDefault_URL_DatasetList()); }
-	public String getProperty_PATH_XML_Cache(){ return getInstance().getOption(PROPERTY_PATH_XML_Cache, this.getDefault_PATH_XML()); }
+	public String getProperty_URL_THREDDS(){ return getInstance().getOption(PROPERTY_URL_THREDDS, getDefault_URL_THREDDS()); }
+	public String getProperty_URL_DatasetList(){ return getInstance().getOption(PROPERTY_URL_DatasetList, getDefault_URL_DatasetList()); }
+	public String getProperty_PATH_XML_DatasetList_Cache(){ return getInstance().getOption(PROPERTY_PATH_XML_DatasetList_Cache, this.getDefault_PATH_XML_DatasetList()); }
+	public String getProperty_PATH_XML_THREDDS_Cache(){ return getInstance().getOption(PROPERTY_PATH_XML_THREDDS_Cache, this.getDefault_PATH_XML_THREDDS()); }
 	public String getProperty_PATH_XML_ECHO_Valids(){ return getInstance().getOption(PROPERTY_PATH_ECHO_Valids, this.getDefault_PATH_ECHO_Valids()); }
 	public String getProperty_PATH_Gazetteer(){ return getInstance().getOption(PROPERTY_PATH_Gazetteer, this.getDefault_PATH_Gazetteer()); }
 	public String getProperty_PATH_Coastline(){ return getInstance().getOption(PROPERTY_PATH_Coastline, this.getDefault_PATH_Coastline()); }
@@ -882,10 +886,16 @@ public class ConfigurationManager {
 
 	public String getDefault_URL_DatasetList(){ return URL_Default_DatasetList; }
 
-	public String getDefault_PATH_XML(){
-		return Utility.sConnectPaths(getBaseDirectory(), FILE_NAME_XML);
+	public String getDefault_URL_THREDDS(){ return URL_Default_THREDDS; }
+	
+	public String getDefault_PATH_XML_DatasetList(){
+		return Utility.sConnectPaths( getBaseDirectory(), FILE_NAME_XML_DatasetList );
 	}
 
+	public String getDefault_PATH_XML_THREDDS(){
+		return Utility.sConnectPaths( getBaseDirectory(), FILE_NAME_XML_THREDDS );
+	}
+	
 	public String getDefault_PATH_ECHO_Valids(){
 		return Utility.sConnectPaths(getBaseDirectory(), FILE_NAME_ECHO_Valids);
 	}
@@ -949,8 +959,10 @@ public class ConfigurationManager {
 		sb.append(PROPERTY_MODE_ReadOnly + " = " + this.getProperty_MODE_ReadOnly() + "\n" );
 		sb.append(PROPERTY_URL_GCMD + " = " + this.getProperty_URL_GCMD() + "\n" );
 		sb.append(PROPERTY_URL_ECHO + " = " + this.getProperty_URL_ECHO() + "\n" );
-		sb.append(PROPERTY_URL_XML + " = " + this.getProperty_URL_XML() + "\n" );
-		sb.append(PROPERTY_PATH_XML_Cache + " = " + this.getProperty_PATH_XML_Cache() + "\n" );
+		sb.append(PROPERTY_URL_DatasetList + " = " + this.getProperty_URL_DatasetList() + "\n" );
+		sb.append(PROPERTY_URL_THREDDS + " = " + this.getProperty_URL_THREDDS() + "\n" );
+		sb.append(PROPERTY_PATH_XML_DatasetList_Cache + " = " + this.getProperty_PATH_XML_DatasetList_Cache() + "\n" );
+		sb.append(PROPERTY_PATH_XML_THREDDS_Cache + " = " + this.getProperty_PATH_XML_THREDDS_Cache() + "\n" );
 		sb.append(PROPERTY_PATH_ECHO_Valids + " = " + this.getProperty_PATH_XML_ECHO_Valids() + "\n" );
 		sb.append(PROPERTY_PATH_Gazetteer + " = " + this.getProperty_PATH_Gazetteer() + "\n" );
 		sb.append(PROPERTY_PATH_Coastline + " = " + this.getProperty_PATH_Coastline() + "\n" );
@@ -1025,8 +1037,9 @@ public class ConfigurationManager {
 		if( fisProperties == null ){ // create a new file
 			mProperties.setProperty( PROPERTY_URL_GCMD, getDefault_URL_GCMD());
 			mProperties.setProperty( PROPERTY_URL_ECHO, getDefault_URL_ECHO());
-			mProperties.setProperty( PROPERTY_URL_XML, getDefault_URL_DatasetList());
-			mProperties.setProperty( PROPERTY_PATH_XML_Cache, this.getDefault_PATH_XML());
+			mProperties.setProperty( PROPERTY_URL_DatasetList, getDefault_URL_DatasetList());
+			mProperties.setProperty( PROPERTY_PATH_XML_DatasetList_Cache, this.getDefault_PATH_XML_DatasetList());
+			mProperties.setProperty( PROPERTY_PATH_XML_THREDDS_Cache, this.getDefault_PATH_XML_THREDDS());
 			mProperties.setProperty( PROPERTY_PATH_ECHO_Valids, this.getDefault_PATH_ECHO_Valids());
 			mProperties.setProperty( PROPERTY_PATH_Gazetteer, this.getDefault_PATH_Gazetteer());
 			mProperties.setProperty( PROPERTY_PATH_Coastline, this.getDefault_PATH_Coastline());
@@ -1094,10 +1107,6 @@ public class ConfigurationManager {
 	public static File[] getPreferencesFiles( FilenameFilter filter ){
 		String sPreferencesDirectory = ConfigurationManager.getInstance().getProperty_PreferencesDirectory();
 		File filePreferencesDirectory = new File( sPreferencesDirectory );
-		if( filePreferencesDirectory == null ){
-			ApplicationController.vShowError("attempt to resolve preferences directory (" + sPreferencesDirectory + ") unexpectedly had a null result" );
-			return null;
-		}
 		if( !filePreferencesDirectory.exists() ){
 			filePreferencesDirectory.mkdirs();
 		}

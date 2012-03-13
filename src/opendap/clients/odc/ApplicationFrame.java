@@ -3,7 +3,7 @@ package opendap.clients.odc;
 /**
  * Title:        Application Frame
  * Description:  This is the outer container of the GUI
- * Copyright:    Copyright (c) 2002-2011
+ * Copyright:    Copyright (c) 2002-2012
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
  * @version      3.08
@@ -259,14 +259,21 @@ public class ApplicationFrame extends JFrame {
 		opendap.clients.odc.GCMD.GCMDSearch frameGCMDSearch = ApplicationController.getInstance().getGCMDSearch();
 
 		ApplicationController.getInstance().vShowStartupMessage("creating dataset list search tab");
-		opendap.clients.odc.DatasetList.DatasetList searchDataSetList = ApplicationController.getInstance().getDatasetListSearch();
+		opendap.clients.odc.DatasetList.DatasetList panelSearchDatasetList = ApplicationController.getInstance().getSearchPanel_DatasetList( sbError );
+		if( panelSearchDatasetList == null ){
+			ApplicationController.vShowWarning( "Dataset list search unavailable: " + sbError.toString() );
+			sbError.setLength( 0 );
+		}
 
+		ApplicationController.getInstance().vShowStartupMessage("creating dataset list search tab");
+		opendap.clients.odc.DatasetList.DatasetList panelSearchTHREDDS = ApplicationController.getInstance().getSearchPanel_THREDDS( sbError );
+		if( panelSearchTHREDDS == null ){
+			ApplicationController.vShowWarning( "THREDDS search unavailable: " + sbError.toString() );
+			sbError.setLength( 0 );
+		}
+		
 		ApplicationController.getInstance().vShowStartupMessage("creating ECHO search tab");
 		opendap.clients.odc.ECHO.ECHOSearchWindow frameECHOSearch = ApplicationController.getInstance().getECHOSearch();
-
-// not implemented currently
-//		ApplicationController.getInstance().vShowStartupMessage("creating THREDDS search tab");
-//		opendap.clients.odc.THREDDS.THREDDSSearch frameTHREDDSSearch = ApplicationController.getInstance().getTHREDDSSearch();
 
 		// now add everything to the tabs
 		boolean zShowViewTab = ConfigurationManager.getInstance().getProperty_DISPLAY_ShowViewTab();
@@ -276,10 +283,10 @@ public class ApplicationFrame extends JFrame {
 		jtpMain.addTab(" Help", null, panelHelp, "Help!");
 		jtpMain.addTab(" Feedback", null, jtpFeedback, "Send comment to devs or post a bug");
 
-		if( searchDataSetList != null ) jtpSelect.addTab(" Dataset List", null, searchDataSetList, "Master list of known datasets");
+		if( panelSearchDatasetList != null ) jtpSelect.addTab(" Dataset List", null, panelSearchDatasetList, "Master list of known datasets from OPeNDAP");
+		if( panelSearchTHREDDS != null ) jtpSelect.addTab(" THREDDS", null, panelSearchTHREDDS, "Master catalog of known datasets from THREDDS/UCAR");
 		if( frameGCMDSearch != null ) jtpSelect.addTab(" GCMD", null, frameGCMDSearch, "NASA's Global Change Master Directory provides access to a wide range of important datasets");
 		if( frameECHOSearch != null ) jtpSelect.addTab(" ECHO", null, frameECHOSearch, "NASA EOS ClearingHOuse Search");
-//		if( frameTHREDDSSearch != null ) jtpSelect.addTab(" THREDDS", null, frameTHREDDSSearch, "THREDDS Catalog Search");
 		if( !zReadOnly ) jtpSelect.addTab(" Favorites", null, panelFavorites, "A list of your favorite datasets");
 		if( !zReadOnly ) jtpSelect.addTab(" Recent", null, panelRecent, "A list of datasets that have been selected most recently");
 

@@ -40,6 +40,7 @@ public class THREDDSSearch extends SearchInterface {
 
 	private final JTabbedPane tabbedPane = new JTabbedPane();
 	private String msCatalogURL;
+	Model_Dataset[] mSelectedURLs = null;
 
     /**
      * Create a new <code>THREDDSSearch</code>
@@ -55,64 +56,9 @@ public class THREDDSSearch extends SearchInterface {
 
 			//add title info
 			tabbedPane.setBorder(BorderFactory.createTitledBorder("THREDDS Search"));
-			//tabbedPane.addChangeListener(this);
-			//add tabbed panel and button panel
-			setLayout(new BorderLayout());
-
-// disabled for now
-//			final thredds.catalog.ui.ThreddsDatasetChooser thredds_chooser = new thredds.catalog.ui.ThreddsDatasetChooser( null, tabbedPane);
-//			thredds_chooser.addPropertyChangeListener( new java.beans.PropertyChangeListener() {
-//				public void propertyChange(java.beans.PropertyChangeEvent e) {
-//					if (e.getPropertyName().equals("Dataset")) {
-//						thredds.catalog.InvDataset ds = (thredds.catalog.InvDataset)e.getNewValue();
-//						setDataset(ds);
-//					}
-//				}
-//			});
-
-			// only allow OPeNDAP data sets
-//			thredds_chooser.setDatasetFilter( new DatasetFilter.ByServiceType( ServiceType.OPENDAP));
-
-			// Create and intialize the command panel
-//			final JPanel jpanelAccessTHREDDS = new JPanel();
-//			final JButton jbuttonAccessTHREDDS = new JButton("Click to \nAccess THREDDS");
-//			Styles.vApply( Styles.STYLE_NetworkAction, jbuttonAccessTHREDDS);
-//			jbuttonAccessTHREDDS.setMinimumSize(new Dimension(250, 100));
-//			jbuttonAccessTHREDDS.setMaximumSize(new Dimension(250, 100));
-//			jbuttonAccessTHREDDS.setPreferredSize(new Dimension(250, 100));
-//			javax.swing.ImageIcon iiInternetConnectionIcon = Utility.imageiconLoadResource(Resources.ICON_InternetConnection);
-//			jbuttonAccessTHREDDS.setIcon(iiInternetConnectionIcon);
-//			final ActionListener action =
-//				new ActionListener(){
-//					public void actionPerformed(ActionEvent event) {
-//						Activity activityAccessTHREDDS = new Activity();
-//						Continuation_DoCancel con =
-//							new Continuation_DoCancel(){
-//								public void Do(){
-//									THREDDSSearch.this.remove(jpanelAccessTHREDDS);
-//									try {
-//										add(thredds_chooser, BorderLayout.CENTER);
-//									} catch(Exception ex){
-//										StringBuffer sb = new StringBuffer(80);
-//										Utility.vUnexpectedError(ex, sb);
-//										ApplicationController.getInstance().vShowError("Error creating free text search panel: " + sb);
-//									}
-//									jbuttonAccessTHREDDS.setVisible(false);
-//								}
-//								public void Cancel(){
-//									tabbedPane.removeAll();
-//								}
-//							};
-//						activityAccessTHREDDS.vDoActivity(	jbuttonAccessTHREDDS, this, con, "Accessing THREDDS" );
-//					}
-//				};
-//			jbuttonAccessTHREDDS.addActionListener(action);
-//
-//			// add button to center of display
-//			jpanelAccessTHREDDS.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-//			jpanelAccessTHREDDS.setLayout(new java.awt.GridBagLayout());
-//			jpanelAccessTHREDDS.add( jbuttonAccessTHREDDS );
-//			this.add(jpanelAccessTHREDDS, BorderLayout.CENTER);
+			// add tabbed panel and button panel
+			setLayout( new BorderLayout() );
+			
 
 			sbError.append("not implemented");
 			return false;
@@ -125,8 +71,6 @@ public class THREDDSSearch extends SearchInterface {
 			return false;
 		}
 	}
-
-	Model_Dataset[] mSelectedURLs = null;
 
 	public Model_Dataset[] getURLs( StringBuffer sbError ){
 		return mSelectedURLs;
@@ -182,6 +126,60 @@ public class THREDDSSearch extends SearchInterface {
     }
 }
 
+// old code using NetCDF library
+//			final thredds.catalog.ui.ThreddsDatasetChooser thredds_chooser = new thredds.catalog.ui.ThreddsDatasetChooser( null, tabbedPane);
+//			thredds_chooser.addPropertyChangeListener( new java.beans.PropertyChangeListener() {
+//				public void propertyChange(java.beans.PropertyChangeEvent e) {
+//					if (e.getPropertyName().equals("Dataset")) {
+//						thredds.catalog.InvDataset ds = (thredds.catalog.InvDataset)e.getNewValue();
+//						setDataset(ds);
+//					}
+//				}
+//			});
+
+			// only allow OPeNDAP data sets
+//			thredds_chooser.setDatasetFilter( new DatasetFilter.ByServiceType( ServiceType.OPENDAP));
+
+			// Create and intialize the command panel
+//			final JPanel jpanelAccessTHREDDS = new JPanel();
+//			final JButton jbuttonAccessTHREDDS = new JButton("Click to \nAccess THREDDS");
+//			Styles.vApply( Styles.STYLE_NetworkAction, jbuttonAccessTHREDDS);
+//			jbuttonAccessTHREDDS.setMinimumSize(new Dimension(250, 100));
+//			jbuttonAccessTHREDDS.setMaximumSize(new Dimension(250, 100));
+//			jbuttonAccessTHREDDS.setPreferredSize(new Dimension(250, 100));
+//			javax.swing.ImageIcon iiInternetConnectionIcon = Utility.imageiconLoadResource(Resources.ICON_InternetConnection);
+//			jbuttonAccessTHREDDS.setIcon(iiInternetConnectionIcon);
+//			final ActionListener action =
+//				new ActionListener(){
+//					public void actionPerformed(ActionEvent event) {
+//						Activity activityAccessTHREDDS = new Activity();
+//						Continuation_DoCancel con =
+//							new Continuation_DoCancel(){
+//								public void Do(){
+//									THREDDSSearch.this.remove(jpanelAccessTHREDDS);
+//									try {
+//										add(thredds_chooser, BorderLayout.CENTER);
+//									} catch(Exception ex){
+//										StringBuffer sb = new StringBuffer(80);
+//										Utility.vUnexpectedError(ex, sb);
+//										ApplicationController.getInstance().vShowError("Error creating free text search panel: " + sb);
+//									}
+//									jbuttonAccessTHREDDS.setVisible(false);
+//								}
+//								public void Cancel(){
+//									tabbedPane.removeAll();
+//								}
+//							};
+//						activityAccessTHREDDS.vDoActivity(	jbuttonAccessTHREDDS, this, con, "Accessing THREDDS" );
+//					}
+//				};
+//			jbuttonAccessTHREDDS.addActionListener(action);
+//
+//			// add button to center of display
+//			jpanelAccessTHREDDS.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+//			jpanelAccessTHREDDS.setLayout(new java.awt.GridBagLayout());
+//			jpanelAccessTHREDDS.add( jbuttonAccessTHREDDS );
+//			this.add(jpanelAccessTHREDDS, BorderLayout.CENTER);
 
 
 

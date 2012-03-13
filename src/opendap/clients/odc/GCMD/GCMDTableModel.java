@@ -23,7 +23,6 @@
 package opendap.clients.odc.GCMD;
 
 import javax.swing.table.*;
-import java.lang.*;
 
 public class GCMDTableModel extends AbstractTableModel {
     final String[] columnNames = { "Title" };

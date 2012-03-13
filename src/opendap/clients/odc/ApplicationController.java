@@ -3,10 +3,10 @@ package opendap.clients.odc;
 /**
  * Title:        Application Controller
  * Description:  Top-level controller for starting and managing the application
- * Copyright:    Copyright (c) 2002-2011
+ * Copyright:    Copyright (c) 2002-2012
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.07
+ * @version      3.08
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ public class ApplicationController {
 
 	private static final String msAppName = "OPeNDAP Data Connector";
 	private static final String msAppVersion = "3.08";
-	private static final String msAppReleaseDate = "20 April 2011"; // todo create ANT substitution
+	private static final String msAppReleaseDate = "March 2012"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	public final String getAppName(){ return msAppName; }
@@ -774,16 +774,16 @@ public class ApplicationController {
 		lLastProfile = lNow;
 	}
 
-	opendap.clients.odc.GCMD.GCMDSearch mSearch_GCMD = null;
-	opendap.clients.odc.ECHO.ECHOSearchWindow mSearch_ECHO = null;
-	opendap.clients.odc.DatasetList.DatasetList mSearch_XML = null;
-	opendap.clients.odc.THREDDS.THREDDSSearch mSearch_THREDDS = null;
+	opendap.clients.odc.GCMD.GCMDSearch mSearchPanel_GCMD = null;
+	opendap.clients.odc.ECHO.ECHOSearchWindow mSearchPanel_ECHO = null;
+	opendap.clients.odc.DatasetList.DatasetList mSearchPanel_DatasetList = null;
+	opendap.clients.odc.DatasetList.DatasetList mSearchPanel_THREDDS = null;
 
 	opendap.clients.odc.GCMD.GCMDSearch getGCMDSearch(){
-		if( mSearch_GCMD == null ){
-			mSearch_GCMD = new opendap.clients.odc.GCMD.GCMDSearch();
+		if( mSearchPanel_GCMD == null ){
+			mSearchPanel_GCMD = new opendap.clients.odc.GCMD.GCMDSearch();
 		}
-		return mSearch_GCMD;
+		return mSearchPanel_GCMD;
 	}
 
 	opendap.clients.odc.ECHO.ECHOSearchWindow getECHOSearch(){
@@ -794,39 +794,42 @@ public class ApplicationController {
 //		return mSearch_ECHO;
 	}
 
-	opendap.clients.odc.THREDDS.THREDDSSearch getTHREDDSSearch(){
-		return null;
-// implementation postponed
-//		if( mSearch_THREDDS == null ){
-//			String sTHREDDS_URL = "";
-//			if( sTHREDDS_URL == null ){
-//				this.vShowError("Failed to initialize retrieve THREDDS url from configuration file");
-//				return null;
-//			} else {
-//				mSearch_THREDDS = new opendap.clients.odc.THREDDS.THREDDSSearch();
-//				StringBuffer sbError = new StringBuffer( 80 );
-//				if( !mSearch_THREDDS.zInitialize( sbError ) ){
-//					vShowError("Failed to initialize THREDDS interface: " + sbError);
-//					return null;
-//				}
-//			}
-//		}
-//		return mSearch_THREDDS;
-	}
-
-	opendap.clients.odc.DatasetList.DatasetList getDatasetListSearch(){
-		if( mSearch_XML == null ){
-			String urlXML = ConfigurationManager.getInstance().getOption("url.XML");
+	opendap.clients.odc.DatasetList.DatasetList getSearchPanel_DatasetList( StringBuffer sbError ){
+		if( mSearchPanel_DatasetList == null ){
+			String urlXML = ConfigurationManager.getInstance().getProperty_URL_DatasetList();
 			if( urlXML == null ){
-				vShowError("Failed to initialize retrieve XML url from configuration file");
+				sbError.append( "Failed to initialize retrieve Dataset List XML url from configuration file" );
 				return null;
 			} else {
-				mSearch_XML = new opendap.clients.odc.DatasetList.DatasetList();
+				opendap.clients.odc.DatasetList.DatasetList.MODE mode = opendap.clients.odc.DatasetList.DatasetList.MODE.DatasetList; 
+				mSearchPanel_DatasetList = opendap.clients.odc.DatasetList.DatasetList.create( mode, sbError );
+				if( mSearchPanel_DatasetList == null ){
+					sbError.insert( 0, "Failed to create dataset list search panel: " );
+					return null;
+				}
 			}
 		}
-		return mSearch_XML;
+		return mSearchPanel_DatasetList;
 	}
 
+	opendap.clients.odc.DatasetList.DatasetList getSearchPanel_THREDDS( StringBuffer sbError ){
+		if( mSearchPanel_THREDDS == null ){
+			String urlXML = ConfigurationManager.getInstance().getProperty_URL_THREDDS();
+			if( urlXML == null ){
+				sbError.append( "Failed to initialize retrieve THREDDS XML url from configuration file" );
+				return null;
+			} else {
+				opendap.clients.odc.DatasetList.DatasetList.MODE mode = opendap.clients.odc.DatasetList.DatasetList.MODE.THREDDS; 
+				mSearchPanel_THREDDS = opendap.clients.odc.DatasetList.DatasetList.create( mode, sbError );
+				if( mSearchPanel_THREDDS == null ){
+					sbError.insert( 0, "Failed to create THREDDS search panel: " );
+					return null;
+				}
+			}
+		}
+		return mSearchPanel_THREDDS;
+	}
+	
 	boolean mzConstraintChanging = false;
 	public boolean isConstraintChanging(){ return mzConstraintChanging; }
 	public void setConstraintChanging( boolean z ){ mzConstraintChanging = z; }
