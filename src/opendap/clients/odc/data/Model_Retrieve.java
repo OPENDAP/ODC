@@ -35,6 +35,8 @@ import opendap.clients.odc.OpendapConnection;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
+import opendap.clients.odc.gui.Panel_Retrieve;
+import opendap.clients.odc.gui.Panel_Retrieve_DDX;
 
 public class Model_Retrieve {
 
@@ -42,7 +44,7 @@ public class Model_Retrieve {
 	public Model_URLList getURLList(){ return mmodelURLs; }
 	Model_DirectoryTree mActiveDirectoryTree;
 
-	Panel_Retrieve retrieve_panel;
+	public Panel_Retrieve retrieve_panel;
 
 	public boolean zInitialize( Panel_Retrieve main_retrieve_panel, StringBuffer sbError ){
 		if( main_retrieve_panel == null ){
@@ -374,7 +376,7 @@ public class Model_Retrieve {
 //		return true;
 //	}
 
-	void vUpdateSubset(){
+	public void vUpdateSubset(){
 		Panel_Retrieve_DDX panel = retrieve_panel.getPanelDDX();
 		if( panel == null ){
 			ApplicationController.vShowWarning("internal error, attempt to update null ddx panel");
@@ -466,7 +468,7 @@ public class Model_Retrieve {
 		return;
 	}
 
-	boolean zEnterURLByHand( String sURL, StringBuffer sbError ){
+	public boolean zEnterURLByHand( String sURL, StringBuffer sbError ){
 		if( sURL == null ){
 			sURL = javax.swing.JOptionPane.showInputDialog("Enter URL:");
 			if( sURL.length() ==  0 ) return true; // user cancel
@@ -503,11 +505,11 @@ public class Model_Retrieve {
 		return true;
 	}
 
-	void setLocationString( String sLocation ){
+	public void setLocationString( String sLocation ){
 		retrieve_panel.setLocationString(sLocation);
 	}
 
-	void vClearSelection(){
+	public void vClearSelection(){
 		retrieve_panel.vClearSelection();
 	}
 
@@ -523,9 +525,8 @@ public class Model_Retrieve {
 		}
 	}
 
-	Model_DirectoryTree zGenerateDirectoryTree( Activity activity, final String sURL, final boolean zRecurse, StringBuffer sbError ){
-		final DirectoryTreeNode nodeRoot = new DirectoryTreeNode(sURL); // the label for the root is it's URL
-		final Model_DirectoryTree dt = new Model_DirectoryTree(nodeRoot);
+	public Model_DirectoryTree zGenerateDirectoryTree( Activity activity, final String sURL, final boolean zRecurse, StringBuffer sbError ){
+		final Model_DirectoryTree dt = Model_DirectoryTree.create( sURL );
 		miMaxDirectoryCount = ConfigurationManager.getInstance().getProperty_DirectoryCount();
 		miMaxDirectoryDepth = ConfigurationManager.getInstance().getProperty_DirectoryDepth();
 		miMaxDirectoryFiles = ConfigurationManager.getInstance().getProperty_DirectoryFiles();
@@ -533,7 +534,7 @@ public class Model_Retrieve {
 		miCurrentDirectoryFiles = 0;
 		try {
 			if( activity != null ) activity.vUpdateStatus("loading root node " + sURL);
-			vFetchDirectoryTree_LoadNode( nodeRoot, sURL, 1, zRecurse, activity );
+			vFetchDirectoryTree_LoadNode( dt.getRootNode(), sURL, 1, zRecurse, activity );
 		} catch(Exception ex) {
 			ApplicationController.vUnexpectedError( ex, "Unexpected error getting directory tree " + sURL);
 			return null;
@@ -584,7 +585,7 @@ public class Model_Retrieve {
 	// todo add hash table to make double sure we are not doing a recursive search
 	// todo add status update that shows x of x for each dir level
 	static StringBuffer sbNodeError = new StringBuffer(80);
-	void vFetchDirectoryTree_LoadNode( DirectoryTreeNode node, String sPageURL, int iDepth, boolean zRecurse, Activity activity ){
+	public void vFetchDirectoryTree_LoadNode( DirectoryTreeNode node, String sPageURL, int iDepth, boolean zRecurse, Activity activity ){
 		try {
 
 System.out.println("\n**********\nloading node " + sPageURL + ": \n");

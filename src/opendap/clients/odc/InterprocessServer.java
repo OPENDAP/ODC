@@ -116,6 +116,8 @@ public class InterprocessServer extends Thread {
 		}
 	}
 
+	public static String getResponseTermination(){ return CommandListener.FORMATTING_ResponseTermination; } 
+	
 }
 
 // todo kill connection after timeout has elapsed
@@ -619,7 +621,7 @@ class CommandListener extends Thread {
 					 for(int xphrase = 0; xphrase < ct; xphrase++ ){
 						 sb.append(sPhrase);
 					 }
-					 Message.show(sb.toString());
+					 opendap.clients.odc.gui.Message.show( sb.toString() );
 				 } catch(Exception ex) {}
  			} else if( sCommandUpper.startsWith("MATCH ") ){
  				int xsp1 = sCommand.indexOf(" ");

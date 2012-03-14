@@ -772,7 +772,7 @@ public class Model_Dataset implements java.io.Serializable {
 		}
 	}
 	
-	Model_Dataset_Local getDataTree( StringBuffer sbError ){
+	public Model_Dataset_Local getDataTree( StringBuffer sbError ){
 		BaseType bt_root;
 		if( getType() == DATASET_TYPE.Data ){
 			DataDDS data = this.getData();

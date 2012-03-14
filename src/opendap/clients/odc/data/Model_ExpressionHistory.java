@@ -13,6 +13,7 @@ import java.io.File;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.Utility;
+import opendap.clients.odc.gui.Panel_View_Variable;
 
 /** The data viewer, Panel_VarView, owns this object.
  *  This models the one-liner history used in the array viewers combo box only, not scripts in general.

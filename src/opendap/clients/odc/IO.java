@@ -700,14 +700,6 @@ ReadHeader:
 
 }
 
-class Cookie {
-	String sName;
-	String sValue;
-	String sExpires;
-	String sPath;
-	public String getClientCookie(){ return sName + '=' + sValue; }
-}
-
 /**
  * A <code>ChunkedInputStream</code> provides a stream for reading a body of
  * a http message that can be sent as a series of chunks, each with its own

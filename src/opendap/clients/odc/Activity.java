@@ -25,6 +25,9 @@ package opendap.clients.odc;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
+import opendap.clients.odc.gui.StatusBar;
+
 import java.net.*;
 import java.util.ArrayList;
 

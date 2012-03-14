@@ -36,9 +36,9 @@ import java.util.*;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.OpendapConnection;
-import opendap.clients.odc.Panel_Select_Favorites;
-import opendap.clients.odc.Panel_Select_Recent;
 import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
+import opendap.clients.odc.gui.Panel_Select_Favorites;
+import opendap.clients.odc.gui.Panel_Select_Recent;
 import opendap.dap.*;
 import java.awt.event.*;
 
