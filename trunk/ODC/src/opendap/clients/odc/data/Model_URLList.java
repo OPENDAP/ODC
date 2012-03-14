@@ -34,10 +34,12 @@ package opendap.clients.odc.data;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.OpendapConnection;
-import opendap.clients.odc.Panel_Select_Favorites;
-import opendap.clients.odc.Panel_Select_Recent;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
+import opendap.clients.odc.data.DirectoryTreeNode;
+import opendap.clients.odc.gui.Panel_Select_Favorites;
+import opendap.clients.odc.gui.Panel_Select_Recent;
+import opendap.clients.odc.gui.Panel_URLList;
 import opendap.dap.*;
 
 public class Model_URLList extends javax.swing.DefaultListModel implements Model_Datasets {
@@ -279,7 +281,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		// not implemented
 	}
 
-	void vAddToFavorites( Model_Dataset[] aURLsToAdd ){
+	public void vAddToFavorites( Model_Dataset[] aURLsToAdd ){
 		if( aURLsToAdd == null ){
 			ApplicationController.getInstance().vShowWarning("Internal error, attempt to add null to favorites.");
 			return;

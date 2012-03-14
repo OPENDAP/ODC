@@ -209,7 +209,7 @@ public class Utility {
 		}
 	}
 
-	static boolean zStorePreferenceObject(Object theObjectReference, String sFileName, StringBuffer sbError){
+	public static boolean zStorePreferenceObject(Object theObjectReference, String sFileName, StringBuffer sbError){
 		try {
 			String sPreferencesDirectory = ConfigurationManager.getInstance().getProperty_PreferencesDirectory();
 			String sPath = sPreferencesDirectory + sFileName;
@@ -469,7 +469,7 @@ public class Utility {
 //		}
 //	}
 
-	static boolean fileLoadIntoBuffer( String sAbsolutePath, StringBuffer sbResource, StringBuffer sbError){
+	public static boolean fileLoadIntoBuffer( String sAbsolutePath, StringBuffer sbResource, StringBuffer sbError){
 		File file = new File(sAbsolutePath);
 		if( !file.exists() ){
 			sbError.append("file not found");
@@ -486,7 +486,7 @@ public class Utility {
 	}
 
 	/** Provide resource path (eg "resources/help.txt") */
-	static boolean zLoadStringResource( String sRelativeResourcePath, StringBuffer sbResource, StringBuffer sbError){
+	public static boolean zLoadStringResource( String sRelativeResourcePath, StringBuffer sbResource, StringBuffer sbError){
 		java.io.InputStream inputstreamResource = null;
 		try {
 			inputstreamResource = ApplicationController.getInstance().getClass().getResourceAsStream(sRelativeResourcePath);
@@ -497,7 +497,7 @@ public class Utility {
 		return zLoadString( inputstreamResource, sbResource, sbError );
 	}
 
-	static boolean zLoadString( java.io.InputStream inputstreamResource, StringBuffer sbResource, StringBuffer sbError){
+	public static boolean zLoadString( java.io.InputStream inputstreamResource, StringBuffer sbResource, StringBuffer sbError){
 		if( inputstreamResource == null ){
 			sbError.append("resource input stream does not exist");
 			return false;

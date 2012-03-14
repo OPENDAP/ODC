@@ -30,16 +30,16 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 	
 	public static int getSessionDatasetCount(){ return mctSessionDatasets; }
 	
-	boolean _contains( Model_Dataset model ){
+	public boolean _contains( Model_Dataset model ){
 		for( int xModel = 1; xModel <= mctDatasets; xModel++ ) if( maDatasets0[xModel - 1] == model ) return true;
 		return false;
 	}
 	
-	boolean _setName( String sNewName, StringBuffer sbError ){
+	public boolean _setName( String sNewName, StringBuffer sbError ){
 		return _setName( miSelectedItem0, sNewName, sbError );
 	}
 	
-	boolean _setName( int xItem0, String sNewName, StringBuffer sbError ){
+	public boolean _setName( int xItem0, String sNewName, StringBuffer sbError ){
 		if( xItem0 < 0 || xItem0 >= mctDatasets ){
 			sbError.append( "internal error, invalid item number (" + xItem0 + ")" );
 			return false;
@@ -57,7 +57,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 		return maDatasets0[iIndex0];
 	}
 	
-	void addDataset( Model_Dataset url ){
+	public void addDataset( Model_Dataset url ){
 		if( url == null ){
 			ApplicationController.vShowError("(Model_LoadedDataset) internal error, attempt to add null dataset");
 			return;
@@ -85,7 +85,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 		}
 	}
 
-	void removeDataset( int iIndex0 ){
+	public void removeDataset( int iIndex0 ){
 		if( iIndex0 < 0 || iIndex0 >= mctDatasets ){
 			ApplicationController.vShowWarning("attempt to unload non-existent dataset index " + iIndex0);
 			return;
@@ -102,7 +102,7 @@ public class Model_LoadedDatasets extends AbstractListModel implements MutableCo
 		}
 	}
 
-	void removeDataset( Model_Dataset url ){
+	public void removeDataset( Model_Dataset url ){
 		for( int xList = 0; xList < mctDatasets; xList++ ){
 			if( maDatasets0[xList] == url ){
 				for( ; xList < mctDatasets - 1; xList++ ) maDatasets0[xList] = maDatasets0[xList + 1];

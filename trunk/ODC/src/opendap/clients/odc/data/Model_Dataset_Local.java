@@ -26,7 +26,7 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 	
 	public static final long serialVersionUID = 1L;
 	public static final char SEPARATOR = '.';
-	Model_Dataset mSourceModel = null;
+	private Model_Dataset mSourceModel = null;
 	transient private SavableImplementation mSavable;
 	boolean zHasData;
 	private String sDatasetName;
@@ -40,6 +40,8 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 		return sDatasetName;
 	}
 
+	public Model_Dataset getSource(){ return mSourceModel; } 
+	
 	public boolean setName( String sNewName, StringBuffer sbError ){
 		try {
 			mSourceModel.getData().setName( sNewName );
@@ -116,11 +118,11 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 		return local;
 	}
 
-	Node getRootNode(){ return (Node)this.getRoot(); }
-	void _update( BaseType bt ){
+	public Node getRootNode(){ return (Node)this.getRoot(); }
+	public void _update( BaseType bt ){
 		_update( (Node)getRoot(), bt ); 
 	}
-	void _update( Node node, BaseType bt ){
+	public void _update( Node node, BaseType bt ){
 		if( node.getBaseType().equals( bt ) ){
 			nodeChanged( node );
 			return;
@@ -130,7 +132,7 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 			_update( children.nextElement(), bt );
 		}
 	}
-	String getPathForNode( Node node ){
+	public String getPathForNode( Node node ){
 		if( node == null ) return "";
 		TreeNode[] aNodes = node.getPath();
 		StringBuffer sbPath = new StringBuffer(80);
@@ -141,7 +143,7 @@ public class Model_Dataset_Local extends DefaultTreeModel implements java.io.Ser
 		}
 		return sbPath.toString();
 	}
-	String getPrintout(){
+	public String getPrintout(){
 		Node nodeRoot = (Node)this.getRoot();
 		return getPrintoutForNode( nodeRoot, 0 );
 	}

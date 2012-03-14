@@ -40,6 +40,7 @@ import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Model_LoadedDatasets;
 import opendap.clients.odc.data.Model_Retrieve;
 import opendap.clients.odc.data.OutputEngine;
+import opendap.clients.odc.gui.ApplicationFrame;
 import opendap.clients.odc.gui.Resources;
 
 import java.awt.event.*;
@@ -774,19 +775,19 @@ public class ApplicationController {
 		lLastProfile = lNow;
 	}
 
-	opendap.clients.odc.GCMD.GCMDSearch mSearchPanel_GCMD = null;
-	opendap.clients.odc.ECHO.ECHOSearchWindow mSearchPanel_ECHO = null;
-	opendap.clients.odc.DatasetList.DatasetList mSearchPanel_DatasetList = null;
-	opendap.clients.odc.DatasetList.DatasetList mSearchPanel_THREDDS = null;
+	opendap.clients.odc.search.GCMD.GCMDSearch mSearchPanel_GCMD = null;
+	opendap.clients.odc.search.ECHO.ECHOSearchWindow mSearchPanel_ECHO = null;
+	opendap.clients.odc.search.DatasetList mSearchPanel_DatasetList = null;
+	opendap.clients.odc.search.DatasetList mSearchPanel_THREDDS = null;
 
-	opendap.clients.odc.GCMD.GCMDSearch getGCMDSearch(){
+	public opendap.clients.odc.search.GCMD.GCMDSearch getGCMDSearch(){
 		if( mSearchPanel_GCMD == null ){
-			mSearchPanel_GCMD = new opendap.clients.odc.GCMD.GCMDSearch();
+			mSearchPanel_GCMD = new opendap.clients.odc.search.GCMD.GCMDSearch();
 		}
 		return mSearchPanel_GCMD;
 	}
 
-	opendap.clients.odc.ECHO.ECHOSearchWindow getECHOSearch(){
+	public opendap.clients.odc.search.ECHO.ECHOSearchWindow getECHOSearch(){
 		return null; // temporarily disabling
 //		if( mSearch_ECHO == null ){
 //			mSearch_ECHO = new opendap.clients.odc.ECHO.ECHOSearchWindow();
@@ -794,15 +795,15 @@ public class ApplicationController {
 //		return mSearch_ECHO;
 	}
 
-	opendap.clients.odc.DatasetList.DatasetList getSearchPanel_DatasetList( StringBuffer sbError ){
+	public opendap.clients.odc.search.DatasetList getSearchPanel_DatasetList( StringBuffer sbError ){
 		if( mSearchPanel_DatasetList == null ){
 			String urlXML = ConfigurationManager.getInstance().getProperty_URL_DatasetList();
 			if( urlXML == null ){
 				sbError.append( "Failed to initialize retrieve Dataset List XML url from configuration file" );
 				return null;
 			} else {
-				opendap.clients.odc.DatasetList.DatasetList.MODE mode = opendap.clients.odc.DatasetList.DatasetList.MODE.DatasetList; 
-				mSearchPanel_DatasetList = opendap.clients.odc.DatasetList.DatasetList.create( mode, sbError );
+				opendap.clients.odc.search.DatasetList.MODE mode = opendap.clients.odc.search.DatasetList.MODE.DatasetList; 
+				mSearchPanel_DatasetList = opendap.clients.odc.search.DatasetList.create( mode, sbError );
 				if( mSearchPanel_DatasetList == null ){
 					sbError.insert( 0, "Failed to create dataset list search panel: " );
 					return null;
@@ -812,15 +813,15 @@ public class ApplicationController {
 		return mSearchPanel_DatasetList;
 	}
 
-	opendap.clients.odc.DatasetList.DatasetList getSearchPanel_THREDDS( StringBuffer sbError ){
+	public opendap.clients.odc.search.DatasetList getSearchPanel_THREDDS( StringBuffer sbError ){
 		if( mSearchPanel_THREDDS == null ){
 			String urlXML = ConfigurationManager.getInstance().getProperty_URL_THREDDS();
 			if( urlXML == null ){
 				sbError.append( "Failed to initialize retrieve THREDDS XML url from configuration file" );
 				return null;
 			} else {
-				opendap.clients.odc.DatasetList.DatasetList.MODE mode = opendap.clients.odc.DatasetList.DatasetList.MODE.THREDDS; 
-				mSearchPanel_THREDDS = opendap.clients.odc.DatasetList.DatasetList.create( mode, sbError );
+				opendap.clients.odc.search.DatasetList.MODE mode = opendap.clients.odc.search.DatasetList.MODE.THREDDS; 
+				mSearchPanel_THREDDS = opendap.clients.odc.search.DatasetList.create( mode, sbError );
 				if( mSearchPanel_THREDDS == null ){
 					sbError.insert( 0, "Failed to create THREDDS search panel: " );
 					return null;
@@ -881,7 +882,7 @@ public class ApplicationController {
 		}
 	}
 
-	static boolean zDeletePreferenceObject( String sFileName, StringBuffer sbError ){
+	public static boolean zDeletePreferenceObject( String sFileName, StringBuffer sbError ){
 		try {
 			String sPreferencesDirectory = ConfigurationManager.getInstance().getProperty_PreferencesDirectory();
 			String sPath = sPreferencesDirectory + sFileName;
@@ -944,70 +945,6 @@ public class ApplicationController {
 			vUnexpectedError(ex, sbError);
 			return null;
 		}
-	}
-
-
-
-}
-
-class Message extends JPanel {
-	private static boolean zActive;
-	private static Message instance = null;
-	private static JDialog jd;
-	private static JTextArea jtaMessage;
-	private static JOptionPane jop;
-	private static JLabel labelSuppressionInfo;
-	public static void show( String sMessage ){
-
-		if( zActive ) return; // do not show two messages simultaneously
-
-		try {
-
-			zActive = true;
-
-			// setup picker dialog if it does not exist yet
-			if( instance == null ){
-				instance = new Message();
-				instance.setLayout(new BorderLayout());
-				jtaMessage = new JTextArea();
-				jtaMessage.setLineWrap(true);
-				labelSuppressionInfo = new JLabel( "To suppress error dialogs use config setting 'ShowErrorPopups'" ); 
-				JScrollPane jsp = new JScrollPane(jtaMessage);
-				instance.add( jsp, BorderLayout.CENTER );
-				instance.add( labelSuppressionInfo, BorderLayout.SOUTH ); 
-			}
-
-			// activate message box
-			jtaMessage.setText(sMessage);
-			jop = new JOptionPane(instance, JOptionPane.PLAIN_MESSAGE);
-			jd = jop.createDialog(ApplicationController.getInstance().getAppFrame(), "ODC Message");
-
-			int len = sMessage.length();
-			int iWidth, iHeight;
-			Dimension dimScreen = Toolkit.getDefaultToolkit().getScreenSize();
-			int screen_width = (int)dimScreen.getWidth();
-			int screen_height = (int)dimScreen.getHeight();
-			if( len < 120 ){
-				iWidth = 400;
-				iHeight = 160;
-			} else if( len < 1000 ) {
-				iWidth = 600;
-				iHeight = 400;
-			} else {
-				iWidth = (int)(dimScreen.getWidth() * .80f);
-				iHeight = (int)(dimScreen.getHeight() * .80f);
-			}
-			jd.setSize(new Dimension(iWidth, iHeight));
-			jd.setLocation((screen_width - iWidth)/2, (screen_height - iHeight)/2);
-
-			jd.setVisible( true );
-		} catch( Exception ex ) {
-			// ignore errors
-		} finally {
-			zActive = false;
-		}
-
-		return;
 	}
 
 }

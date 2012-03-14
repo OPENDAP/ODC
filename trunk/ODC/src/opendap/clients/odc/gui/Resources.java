@@ -36,7 +36,6 @@ import java.awt.Cursor;
 import javax.swing.ImageIcon;
 
 import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.ApplicationFrame;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.Utility;
 

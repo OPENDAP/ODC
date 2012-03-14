@@ -840,7 +840,7 @@ public class ConfigurationManager {
 
 	public String getDefault_DISPLAY_IconSize(){ return "16"; }
 
-	String getDefault_DIR_ImageCache(){
+	public String getDefault_DIR_ImageCache(){
 		String sWorkingDirectory = this.getBaseDirectory();
 		if( sWorkingDirectory == null ) sWorkingDirectory = "";
 		String sSeparator = System.getProperty(SYSTEM_PROPERTY_FileSeparator);
