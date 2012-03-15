@@ -357,18 +357,13 @@ public class Model_PlottableExpression {
 		return range;
 	}
 	
-	private int[][] maiPlotBuffer; // this is used to optimize the generation of the plot coordinates
-	                               // by providing a pre-plot of the curve so that the point discovery
-	                               // algorithm can determine if the point has already been plotted
-	                               // By doing this the step of eliminating redundant points can be avoided
-	                               // This results in a faster algorithm at the expense of allocating a big buffer.
 	public PlotCoordinates getPlotCoordinates( int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 		if( range == null ){
 			range = getPlotRange( sbError );
 			if( range == null ) return null;
 		}
 		PlotCoordinates coordinates = new PlotCoordinates();
-		maiPlotBuffer = new int[pxPlotWidth][pxPlotHeight];
+		coordinates.maiPlotBuffer = new int[pxPlotWidth][pxPlotHeight];
 		opendap.clients.odc.Interpreter interpreter = ApplicationController.getInstance().getInterpreter();
 		double dRangeX = range.dEndX - range.dBeginX;
 		double dRangeY = range.dEndY - range.dBeginY;
@@ -380,7 +375,8 @@ public class Model_PlottableExpression {
 				org.python.core.PyCode codeV = compiled_v.compiled_code;
 				zWriting = false;
 				int ctPoints = pxPlotWidth * pxPlotHeight;
-				coordinates.setCapacity( ctPoints );
+				coordinates.zIsFillPlot = true;
+				// coordinates.setCapacity( ctPoints ); // capacity is only set when plotting x-y pairs, not fill plots
 				double dX = 0;
 				double dY = 0;
 				double dV = 0;
@@ -420,7 +416,7 @@ public class Model_PlottableExpression {
 				int ctRenderedPoints = 0;
 				while( true ){  // two passes, one to count the number of points, the second to write the points
 					ctRenderedPoints = 0;
-					Utility_Array.clear( maiPlotBuffer );
+					Utility_Array.clear( coordinates.maiPlotBuffer );
 					for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){ // cycle through the dimensionless points and define points which are actually rendered
 						int x = coordinates.ax0[xPoint];
 						int y = coordinates.ay0[xPoint];
@@ -521,7 +517,7 @@ public class Model_PlottableExpression {
 				int ctRenderedPoints = 0;
 				while( true ){  // two passes, one to count the number of points, the second to write the points
 					ctRenderedPoints = 0;
-					Utility_Array.clear( maiPlotBuffer );
+					Utility_Array.clear( coordinates.maiPlotBuffer );
 					for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){ // cycle through the dimensionless points and define points which are actually rendered
 						int x = coordinates.ax0[xPoint];
 						int y = coordinates.ay0[xPoint];
@@ -672,7 +668,7 @@ public class Model_PlottableExpression {
 				break;
 			case Parametric:
 		}
-		maiPlotBuffer = null;
+		coordinates.maiPlotBuffer = null;
 		coordinates.zHasAlpha = true;
 		return coordinates;
 	}
@@ -720,8 +716,8 @@ public class Model_PlottableExpression {
 				(int)( 0xFF + 0xAA * Math.log( (dAntialiasingThreshold - distance)/dAntialiasingThreshold ) ) :
 				0xFF;
 		if( alpha <= 0 ) return 0; // do not plot totally transparent points
-		if( maiPlotBuffer[x][y] > 0 ){ // point has already been plotted
-			if( alpha > maiPlotBuffer[x][y] ){
+		if( coordinates.maiPlotBuffer[x][y] > 0 ){ // point has already been plotted
+			if( alpha > coordinates.maiPlotBuffer[x][y] ){
 				if( zWriting ){  // go back and update the coordinate list with the higher alpha
 					for( int xPriorPlottedPoint = xRenderedPoint - 1; xPriorPlottedPoint >= 0; xPriorPlottedPoint-- ){
 						if( 	coordinates.ax0_antialiased[xPriorPlottedPoint] == x &&
@@ -731,11 +727,11 @@ public class Model_PlottableExpression {
 						}
 					}
 				}
-				maiPlotBuffer[x][y] = alpha; // record the higher alpha
+				coordinates.maiPlotBuffer[x][y] = alpha; // record the higher alpha
 			}
 			return 0;
 		}
-		maiPlotBuffer[x][y] = alpha; // new point
+		coordinates.maiPlotBuffer[x][y] = alpha; // new point
 		if( zWriting ){
 			coordinates.ax0_antialiased[xRenderedPoint] = x;
 			coordinates.ay0_antialiased[xRenderedPoint] = y;
@@ -839,6 +835,15 @@ class PlotCoordinates {
 	boolean zHasAlpha = false;
 	boolean zHasColor = false;
 	int argbBaseColor = 0xFF000000; // solid black
+	boolean zIsFillPlot = false; // true if it is a pseudocolor--fills the whole plot area
+	
+	// in the case of fill plots the plot buffer will have the RGBA value of the plot
+	
+	int[][] maiPlotBuffer; // this is used to optimize the generation of the plot coordinates
+	                       // by providing a pre-plot of the curve so that the point discovery
+	                       // algorithm can determine if the point has already been plotted
+	                       // By doing this the step of eliminating redundant points can be avoided
+	                       // This results in a faster algorithm at the expense of allocating a big buffer.	
 	
 	// actual (dimensionless points)
 	int ctPoints;

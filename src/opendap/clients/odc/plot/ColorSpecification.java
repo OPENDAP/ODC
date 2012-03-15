@@ -1581,7 +1581,7 @@ Ranges:
 						break;
 					}
 					int iDataValue = aiData[xData];
-					for(int xMissing = 1; xMissing <= mctMissing; xMissing++){
+					for( int xMissing = 1; xMissing <= mctMissing; xMissing++ ){
 						if( iDataValue == aiMissing1[xMissing] ){
 							aiRGB[xRGB] = mrgbMissingColor;
 							break Ranges;
@@ -1656,6 +1656,42 @@ Ranges:
 		}
 		return aiRGB;
 	}
+
+	// this is used to render the expression fill plots (pseudocolors)
+	// the rendering buffer must already be allocated and ready to be written
+	void render1to1( int[] aiRGBA, double[] adData ){
+		int xRGB = 0;
+		int ctData = adData.length;
+		for( int xData = 0; xData < ctData; xData++ ){
+			int xRange = 0;
+Ranges:
+			while(true){
+				xRange++;
+				if( xRange > mctRanges ){
+					aiRGBA[xData] = 0xFFFFFFFF; // no color is defined for this value
+					break;
+				}
+				double dDataValue = adData[xData];
+				for(int xMissing = 1; xMissing <= mctMissing; xMissing++){
+					if( dDataValue == adMissing1[xMissing] ){
+						aiRGBA[xRGB] = mrgbMissingColor;
+						break Ranges;
+					}
+				}
+				if( dDataValue >= adDataFrom[xRange] && dDataValue <= adDataTo[xRange] ){
+					double dRangeWidth = adDataTo[xRange] - adDataFrom[xRange];
+					float fDataProportion;
+					if( dRangeWidth == 0 )
+						fDataProportion = -1;
+					else
+						fDataProportion = (float)((dDataValue - adDataFrom[xRange])/ (float)dRangeWidth);
+					aiRGBA[xRGB] = rgbGetForRange( fDataProportion, xRange );
+					break;
+				}
+			}
+		}
+	}	
+	
 //	void vGenerateProportionalRanges( double[] adData ){
 //		if( !mzProportional ){
 //			ApplicationController.getInstance().vShowError("System error: attempt to generate proportional ranges when CS is not proportional");
