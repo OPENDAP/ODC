@@ -49,7 +49,7 @@ public abstract class SearchInterface extends JPanel {
 		if( urls == null ){
 			ApplicationController.vShowError("failed to get selected urls for retrieval: " + sbError);
 		} else {
-			Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
+			Model_Retrieve retrieve_model = Model.get().getRetrieveModel();
 			Model_URLList urllist = retrieve_model.getURLList();
 			urllist.vDatasets_Add(urls);
 			ApplicationController.getInstance().getAppFrame().vActivateRetrievalPanel();

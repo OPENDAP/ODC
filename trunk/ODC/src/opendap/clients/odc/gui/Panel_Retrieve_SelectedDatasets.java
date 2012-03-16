@@ -40,6 +40,7 @@ import javax.swing.border.*;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.Continuation_DoCancel;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Model_Retrieve;
 import opendap.clients.odc.data.Model_URLList;
@@ -61,7 +62,7 @@ public class Panel_Retrieve_SelectedDatasets extends JPanel {
 
         try {
 
-			model = ApplicationController.getInstance().getRetrieveModel();
+			model = Model.get().getRetrieveModel();
 			if( model == null ){
 				sbError.append("no model");
 				return false;
@@ -69,7 +70,7 @@ public class Panel_Retrieve_SelectedDatasets extends JPanel {
 
 			// establish model
 //			Model_URLTable theListModel = new Model_URLTable(mjtableSelected, false, true, true); // old methodology
-			final Model_URLList theListModel = ApplicationController.getInstance().getRetrieveModel().getURLList();
+			final Model_URLList theListModel = Model.get().getRetrieveModel().getURLList();
 			if( theListModel == null ){ sbError.append("internal error: retrieve model does not exist"); return false; }
 			final Panel_URLList theListPanel = new Panel_URLList_JList( theListModel );
 			theListModel.setControl( theListPanel );
@@ -103,7 +104,7 @@ public class Panel_Retrieve_SelectedDatasets extends JPanel {
 						Model_Dataset[] aSelectedURLs = theListModel.getSelectedURLs( sbError_favorite );
 						if( aSelectedURLs == null ){
 							if( sbError_favorite.length() > 0 ){
-								ApplicationController.getInstance().vShowError( sbError_favorite.toString() );
+								ApplicationController.vShowError( sbError_favorite.toString() );
 							}
 							return;
 						}

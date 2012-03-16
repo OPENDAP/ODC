@@ -375,11 +375,20 @@ public class Model_PlottableExpression {
 				org.python.core.PyCode codeV = compiled_v.compiled_code;
 				zWriting = false;
 				int ctPoints = pxPlotWidth * pxPlotHeight;
+				long nMemoryRequired = ctPoints * 8;
 				coordinates.zIsFillPlot = true;
+				if( Utility.zMemoryCheck( nMemoryRequired ) ){
+					coordinates.madPlotBuffer = new double[ctPoints];
+				} else {
+					sbError.append( "unable to make pseudocolor/fill plot, insufficient memory; requires " + nMemoryRequired + " bytes; check help for increasing memory" );
+					return null;
+				}
 				// coordinates.setCapacity( ctPoints ); // capacity is only set when plotting x-y pairs, not fill plots
 				double dX = 0;
 				double dY = 0;
 				double dV = 0;
+				int xPlotBufferIndex = 0;
+				double dMissing = Double.NaN;
 				for( int x = 0; x < pxPlotWidth; x++ ){
 					for( int y = 0; y < pxPlotHeight; y++ ){
 						dX = range.dBeginX + x * dRangeX / dMax_x;
@@ -395,38 +404,15 @@ public class Model_PlottableExpression {
 						
 						PyObject pyobjectV = interpreter.zEval( codeV, sbError );
 						if( pyobjectV == null ){ // probably division by zero
-							continue;
-//							sbError.insert( 0, "failed to eval _y expression " +  compiled_y + ": " ); // TODO division by zero
-//							return null;
+							dV = dMissing;
+						} else {
+							dV = pyobjectV.asDouble();
 						}
-						dV = pyobjectV.asDouble();
-
-						// plot the point
-						coordinates.ax0[ctPoints] = x;
-						coordinates.ay0[ctPoints] = y;
-						coordinates.ax0_value[ctPoints] = dX;
-						coordinates.ay0_value[ctPoints] = dY;
+						xPlotBufferIndex = y * pxPlotWidth + x;
+						coordinates.madPlotBuffer[xPlotBufferIndex] = dV;
+						xPlotBufferIndex++;
 					}
 				}
-
-				// generate rendered points (antialiased or jagged)
-				zWriting = false;
-				boolean zAntialiased = true;
-				double dThickness_pixels = 1;
-				int ctRenderedPoints = 0;
-				while( true ){  // two passes, one to count the number of points, the second to write the points
-					ctRenderedPoints = 0;
-					Utility_Array.clear( coordinates.maiPlotBuffer );
-					for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){ // cycle through the dimensionless points and define points which are actually rendered
-						int x = coordinates.ax0[xPoint];
-						int y = coordinates.ay0[xPoint];
-						ctRenderedPoints += makePoint( coordinates, xPoint, x, y, ctRenderedPoints, dRangeX, dRangeY, pxPlotWidth, pxPlotHeight, dThickness_pixels, zWriting, 0 ); 
-					}
-					if( zWriting ) break;
-					coordinates.setCapacity_Rendered( ctRenderedPoints, zAntialiased );
-					zWriting = true;
-				}
-
 				break; }
 			case Cartesian:
 				org.python.core.PyCode codeY = compiled_y.compiled_code;
@@ -837,13 +823,15 @@ class PlotCoordinates {
 	int argbBaseColor = 0xFF000000; // solid black
 	boolean zIsFillPlot = false; // true if it is a pseudocolor--fills the whole plot area
 	
-	// in the case of fill plots the plot buffer will have the RGBA value of the plot
+	// in the case of fill plots the plot buffer will have the data value for each cell
+	double[] madPlotBuffer; 
 	
-	int[][] maiPlotBuffer; // this is used to optimize the generation of the plot coordinates
-	                       // by providing a pre-plot of the curve so that the point discovery
-	                       // algorithm can determine if the point has already been plotted
-	                       // By doing this the step of eliminating redundant points can be avoided
-	                       // This results in a faster algorithm at the expense of allocating a big buffer.	
+	// used for an XY plot
+	int[][] maiPlotBuffer;  // this is used to optimize the generation of the plot coordinates
+	                        // by providing a pre-plot of the curve so that the point discovery
+	                        // algorithm can determine if the point has already been plotted
+	                        // By doing this the step of eliminating redundant points can be avoided
+	                        // This results in a faster algorithm at the expense of allocating a big buffer.	
 	
 	// actual (dimensionless points)
 	int ctPoints;

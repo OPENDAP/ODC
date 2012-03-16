@@ -3,10 +3,10 @@ package opendap.clients.odc.data;
 /**
  * Title:        Model_URLTable
  * Description:  Models contents of retrieved datasets panel
- * Copyright:    Copyright (c) 2002-4
+ * Copyright:    Copyright (c) 2002-12
  * Company:      University of Rhode Island, Graduate School of Oceanography
  * @author       John Chamberlain
- * @version      2.59
+ * @version      3.08
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,7 @@ import opendap.clients.odc.OpendapConnection;
 import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
 import opendap.clients.odc.gui.Panel_Select_Favorites;
 import opendap.clients.odc.gui.Panel_Select_Recent;
+import opendap.clients.odc.Model;
 import opendap.dap.*;
 import java.awt.event.*;
 
@@ -114,11 +115,11 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 				    public void mousePressed( MouseEvent me ){
 						if( me.getClickCount() == 1 ){
 							int iRowSelected = Model_URLTable.this.mjtableControl.getSelectedRow();
-							Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
+							Model_Retrieve retrieve_model = Model.get().getRetrieveModel();
 							Model_Datasets urllist = retrieve_model.getURLList(); // xxx wrong
 							Model_Dataset urlSelected = null; // NONE OF THIS WORKS -- old logic urllist.getURL(iRowSelected);
 							if( urlSelected == null ){ // can happen because of a bug in the table component
-								ApplicationController.getInstance().getRetrieveModel().vClearSelection();
+								Model.get().getRetrieveModel().vClearSelection();
 								return;
 							}
 							StringBuffer sbError = new StringBuffer(100);
@@ -206,7 +207,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 		Model_Dataset urlFirstAdded = aURLsToAdd[0];
 		int xSelection = ctURLsExisting;
 		mjtableControl.getSelectionModel().setSelectionInterval( xSelection, xSelection );
-		ApplicationController.getInstance().getRetrieveModel().vShowURL( urlFirstAdded, null );
+		Model.get().getRetrieveModel().vShowURL( urlFirstAdded, null );
 
 // stop doing auto subset
 //		if( mzAutoSubset ){
@@ -219,13 +220,13 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 //						if( urlFirst == aDisplayedURLs[xURL] ){
 //							mjtableControl.getSelectionModel().setSelectionInterval(xURL, xURL); // apparently to select a row you pass the interval should be the desired row and the next row
 //							StringBuffer sbError = new StringBuffer(100);
-//							if( !ApplicationController.getInstance().getRetrieveModel().zShowURL(urlFirst, sbError) ){
+//							if( !Model.get().getRetrieveModel().zShowURL(urlFirst, sbError) ){
 //								ApplicationController.getInstance().vShowError("Subset display for URL " + urlFirst + " failed: " + sbError);
 //								return;
 //							}
 //						}
 //					}
-//					ApplicationController.getInstance().getRetrieveModel().vUpdateSelected();
+//					Model.get().getRetrieveModel().vUpdateSelected();
 //				}
 //				public void Cancel(){}
 //			};
@@ -271,7 +272,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
         } catch(Exception ex) {
 		   ApplicationController.vUnexpectedError( ex, "Unexpected error synchronizing display list");
 		} finally {
-			ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
+			Model.get().getRetrieveModel().vValidateRetrieval();
 		}
 	}
 
@@ -300,10 +301,10 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 			mjtableControl.setRowSelectionInterval(0, 0);
 			iRowSelected = 0;
 		}
-		Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
+		Model_Retrieve retrieve_model = Model.get().getRetrieveModel();
 		Model_Datasets urllist = retrieve_model.getURLList();
 		Model_Dataset urlSelected = urllist.getDisplayURL(iRowSelected);
-		ApplicationController.getInstance().getRetrieveModel().vShowURL(urlSelected, null);
+		Model.get().getRetrieveModel().vShowURL(urlSelected, null);
 	}
 
 	public void vDatasets_DeleteAll(){
@@ -314,7 +315,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 		fireTableDataChanged();
 		fireTableStructureChanged();
 		StringBuffer sb = new StringBuffer(80);
-		ApplicationController.getInstance().getRetrieveModel().vClearSelection();
+		Model.get().getRetrieveModel().vClearSelection();
 	}
 
 	public void vSelectedDatasets_Remove( int[] aiIndicesToRemove ){
@@ -373,7 +374,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 			fireTableDataChanged();
 			fireTableStructureChanged();
 			vUpdateSelectionAfterRemoval();
-			ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
+			Model.get().getRetrieveModel().vValidateRetrieval();
 		} catch(Exception ex) {
 			ApplicationController.getInstance().vShowError("unexpected error removing URLs: " + ex);
 		}
@@ -403,7 +404,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 		if( ctWarning > 1 ){
 			ApplicationController.vShowWarning("There were " + ctWarning + " URLs longer than 1 kilobyte");
 		}
-		ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
+		Model.get().getRetrieveModel().vValidateRetrieval();
 	}
 
 	private ArrayList<Model_Dataset> mlistKnownURLs = new ArrayList<Model_Dataset>();
@@ -450,12 +451,12 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 //								return;
 //							}
 //						}
-//		    			ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
+//		    			Model.get().getRetrieveModel().vValidateRetrieval();
 //					}
 //				}
 //				DodsURL urlSelected = Model_URLTable.this.getSelectedURL();
 //				if( urlSelected != null ){
-//					if( !ApplicationController.getInstance().getRetrieveModel().zShowURL(urlSelected, sbError) ){
+//					if( !Model.get().getRetrieveModel().zShowURL(urlSelected, sbError) ){
 //						ApplicationController.getInstance().vShowError("Subset display for selected URL failed: " + sbError);
 //						return;
 //					}
@@ -480,7 +481,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 					DATASET_TYPE eURLType = madodsurlSelected[i].getType();
 					String sBaseURL = madodsurlSelected[i].getBaseURL();
 					if( eURLType  == DATASET_TYPE.Directory ){
-						sBaseURL = ApplicationController.getInstance().getRetrieveModel().sFetchDirectoryTree_GetFirstFile( sBaseURL, null );
+						sBaseURL = Model.get().getRetrieveModel().sFetchDirectoryTree_GetFirstFile( sBaseURL, null );
 						if( sBaseURL == null ){
 							madodsurlSelected[i].setUnreachable(true, "could not find file in directory tree");
 							continue;
@@ -502,7 +503,7 @@ public class Model_URLTable extends javax.swing.table.AbstractTableModel impleme
 					}
 					int iDigest = sDDSText.hashCode();
 					madodsurlSelected[i].setDigest(iDigest);
-					ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
+					Model.get().getRetrieveModel().vValidateRetrieval();
 				}
 			} catch( Exception ex ) {
 				ApplicationController.vShowError("Unexpected error determing dataset types: " +  ex);

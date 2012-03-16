@@ -36,6 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 
 import opendap.clients.odc.ApplicationController;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.data.DatasetListRenderer;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Model_Datasets;
@@ -93,7 +94,7 @@ public class Panel_URLList_JList extends Panel_URLList {
 						} else {
 							return; // there can be entries in the list that are not URLs -- ignore them
 						}
-						Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
+						Model_Retrieve retrieve_model = Model.get().getRetrieveModel();
 						if( retrieve_model == null ){
 							ApplicationController.vShowError( "internal error: retrieval model does not exist for dataset activation" );
 							return;

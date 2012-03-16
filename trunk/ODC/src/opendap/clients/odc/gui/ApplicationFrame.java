@@ -34,6 +34,7 @@ package opendap.clients.odc.gui;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.IControlPanel;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.gui.Message;
 import opendap.clients.odc.TabbedPane_Focusable;
 import opendap.clients.odc.plot.*;
@@ -205,7 +206,7 @@ public class ApplicationFrame extends JFrame {
 		}
 		ApplicationController.getInstance().vShowStartupMessage("creating data viewer");
 		panelDataView = new Panel_View_Data();
-		if( !panelDataView._zInitialize( ApplicationController.getInstance().getDatasets(), sbError ) ){
+		if( !panelDataView._zInitialize( Model.get().getDatasets(), sbError ) ){
 			sbError.insert(0, "Failed to initialize data view panel: ");
 			return false;
 		}
@@ -229,7 +230,7 @@ public class ApplicationFrame extends JFrame {
 		}
 		ApplicationController.getInstance().vShowStartupMessage("creating retrieval panel");
 		jpanelRetrieve = new Panel_Retrieve();
-		if( !ApplicationController.getInstance().getRetrieveModel().zInitialize( jpanelRetrieve, sbError ) ){
+		if( ! Model.get().getRetrieveModel().zInitialize( jpanelRetrieve, sbError ) ){
 			sbError.insert(0, "Failed to initialize retrieval model: ");
 			return false;
 		}
@@ -392,12 +393,6 @@ public class ApplicationFrame extends JFrame {
 		}
 	}
 	
-	// This method is used to initialize parts of the interface that are dynamically sized but 
-	// are not subject to sizing by layout managers; an example would be slider positionings
-	private static void _vSetInitialSizings(){
-		
-	}	
-
 	public void vActivateRetrievalPanel(){
 		jtpMain.setSelectedIndex(1); // activate the retrieve tab
 	}

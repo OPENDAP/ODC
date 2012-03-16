@@ -36,6 +36,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import opendap.clients.odc.ApplicationController;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Model_Retrieve;
 
@@ -53,7 +54,7 @@ public class Panel_Retrieve_AdditionalCriteria extends JPanel {
 
         try {
 
-			model = ApplicationController.getInstance().getRetrieveModel();
+			model = Model.get().getRetrieveModel();
 			if( model == null ){
 				sbError.append("no model");
 				return false;
@@ -142,7 +143,7 @@ public class Panel_Retrieve_AdditionalCriteria extends JPanel {
 			ApplicationController.vUnexpectedError( e, sbError );
 			return false;
 		} finally {
-			ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
+			Model.get().getRetrieveModel().vValidateRetrieval();
 		}
     }
 
@@ -152,7 +153,7 @@ public class Panel_Retrieve_AdditionalCriteria extends JPanel {
 			mjtaInfo.setText(sInfo);
 			add(mjscrollInfo);
 			invalidate();
-			ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
+			Model.get().getRetrieveModel().vValidateRetrieval();
 		} catch(Exception ex) {
 			StringBuffer sbError = new StringBuffer("showing retrieve text");
 			ApplicationController.vUnexpectedError( ex, sbError );

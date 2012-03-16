@@ -35,6 +35,7 @@ import java.awt.event.*;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.DAP;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.data.Model_Retrieve;
 import opendap.dap.*;
 
@@ -189,7 +190,7 @@ public class VSelector_Generic extends VariableSelector {
 								VSelector_Generic.this.vAddNewConstraint();
 							}
 						}
-						ApplicationController.getInstance().getRetrieveModel().vUpdateSubset();
+						Model.get().getRetrieveModel().vUpdateSubset();
 					}
 				}
 			);
@@ -223,7 +224,7 @@ public class VSelector_Generic extends VariableSelector {
 			} else {
 				sValue = sText;
 			}
-			ApplicationController.getInstance().getRetrieveModel().vUpdateSubset();
+			Model.get().getRetrieveModel().vUpdateSubset();
 		}
 
 		void vReset(){

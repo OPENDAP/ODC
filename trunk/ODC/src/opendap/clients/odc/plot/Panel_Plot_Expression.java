@@ -43,25 +43,30 @@ public class Panel_Plot_Expression extends Panel_Plot {
 			sbError.insert( 0, "failed to get coordinates for plot dimensions (" + pxPlotWidth + ", " + pxPlotHeight +  "): " );
 			return false;
 		}
-		if( coordinates.zHasAlpha ){
-			if( coordinates.zHasColor ){
-			} else {
-				int argbBaseColor = coordinates.argbBaseColor;
-				for( int xPoint = 0; xPoint < coordinates.ctPoints_antialiased; xPoint++ ){
-					int argb = ( argbBaseColor & 0x00FFFFFF ) | ( coordinates.aAlpha[xPoint] << 24 ) ; // black
-					int x = coordinates.ax0_antialiased[xPoint];
-					int y = pxPlotHeight - coordinates.ay0_antialiased[xPoint] - 1;
-					bi.setRGB( x, y, argb );
-				}
-			}
+		if( coordinates.zIsFillPlot ){ // pseudocolor-type plot
+			ColorSpecification cs = null;
+			cs.render1to1( null, coordinates.madPlotBuffer );
 		} else {
-			if( coordinates.zHasColor ){
+			if( coordinates.zHasAlpha ){
+				if( coordinates.zHasColor ){
+				} else {
+					int argbBaseColor = coordinates.argbBaseColor;
+					for( int xPoint = 0; xPoint < coordinates.ctPoints_antialiased; xPoint++ ){
+						int argb = ( argbBaseColor & 0x00FFFFFF ) | ( coordinates.aAlpha[xPoint] << 24 ) ; // black
+						int x = coordinates.ax0_antialiased[xPoint];
+						int y = pxPlotHeight - coordinates.ay0_antialiased[xPoint] - 1;
+						bi.setRGB( x, y, argb );
+					}
+				}
 			} else {
-				int argb = coordinates.argbBaseColor;
-				for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){
-					int coordinateX = coordinates.ax0[xPoint];
-					int coordinateY = pxPlotHeight - coordinates.ay0[xPoint] - 1;
-					bi.setRGB( coordinateX, coordinateY, argb );
+				if( coordinates.zHasColor ){
+				} else {
+					int argb = coordinates.argbBaseColor;
+					for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){
+						int coordinateX = coordinates.ax0[xPoint];
+						int coordinateY = pxPlotHeight - coordinates.ay0[xPoint] - 1;
+						bi.setRGB( coordinateX, coordinateY, argb );
+					}
 				}
 			}
 		}

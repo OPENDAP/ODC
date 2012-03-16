@@ -60,7 +60,7 @@ public class ApplicationController {
 	public final String getAppVersion(){ return msAppVersion; }
 	public final String getAppReleaseDate(){ return msAppReleaseDate; }
 	public final String getVersionString(){ return "ODC " + msAppVersion; }
-	public final String getVersionString_FileFormat(){ return "ODC300"; }
+	public final String getVersionString_FileFormat(){ return "ODC308"; }
 
 	private ApplicationFrame appframe;
 	private InterprocessServer server;
@@ -69,15 +69,6 @@ public class ApplicationController {
 //	private opendap.clients.odc.geo.Geodesy geodesy;
 
 //	public final opendap.clients.odc.geo.Geodesy getGeodesy(){ return geodesy; }
-
-	private OutputEngine mOutputEngine;
-	public final OutputEngine getOutputEngine(){ return mOutputEngine; }
-
-	private Model_Retrieve mRetrieve;
-	public Model_Retrieve getRetrieveModel(){ return mRetrieve; }
-
-	private Model_LoadedDatasets mDatasets;
-	public Model_LoadedDatasets getDatasets(){ return mDatasets; }
 
 	public ArrayList<String> listStatusMessages = new ArrayList<String>();
 	public ArrayList<String> listWarnings = new ArrayList<String>();
@@ -143,9 +134,7 @@ public class ApplicationController {
 				thisInstance.vInterprocessServer_Start();
 			vSetSounds();
 			thisInstance.vShowStartupMessage("creating models");
-			thisInstance.mOutputEngine = new OutputEngine();
-			thisInstance.mRetrieve     = new Model_Retrieve();
-			thisInstance.mDatasets     = Model_LoadedDatasets._create();
+			Model.initialize();
 
 // exclude geodesy for this build
 //			thisInstance.vShowStartupMessage("initializing geodesy");

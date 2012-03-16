@@ -34,6 +34,7 @@ package opendap.clients.odc.gui;
 import javax.swing.*;
 
 import opendap.clients.odc.ApplicationController;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.data.Model_Retrieve;
 
 import java.awt.*;
@@ -50,7 +51,7 @@ public class Panel_Retrieve_Location extends JPanel {
 
         try {
 
-			model = ApplicationController.getInstance().getRetrieveModel();
+			model = Model.get().getRetrieveModel();
 			if( model == null ){
 				sbError.append("no model");
 				return false;

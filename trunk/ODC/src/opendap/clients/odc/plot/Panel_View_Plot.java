@@ -25,10 +25,10 @@ package opendap.clients.odc.plot;
 /**
  * Title:        Panel_View_Plot
  * Description:  Manages the plotting interface
- * Copyright:    Copyright (c) 2003-8
+ * Copyright:    Copyright (c) 2003-12
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.02
+ * @version      3.08
  */
 
 import opendap.dap.*;
@@ -113,7 +113,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	public static Panel_PlotAxes getPanel_PlotAxes(){
-		if( thisInstance.getActivePlottingDefinition() == null ){
+		if( Model.get().getPlotDataModel() == null ){
 		    return null;
 		} else {
 			return thisInstance.mDefinitionPanel.getPanel_PlotAxes();
@@ -121,7 +121,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	public static Panel_Thumbnails getPanel_Thumbnails(){
-		if( thisInstance.getActivePlottingDefinition() == null ){
+		if( Model.get().getPlotDataModel() == null ){
 		    return null;
 		} else {
 			return thisInstance.mDefinitionPanel.getPanel_Thumbnails();
@@ -129,7 +129,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	public static Panel_ColorSpecification getPanel_ColorSpecification(){
-		if( thisInstance.getActivePlottingDefinition() == null ){
+		if( Model.get().getPlotDataModel()== null ){
 		    return null;
 		} else {
 			return thisInstance.mDefinitionPanel.getPanel_ColorSpecification();
@@ -247,7 +247,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			// set up zoom actions
 			ActionListener listenerZoom = new ActionListener(){
 	    		public void actionPerformed(ActionEvent event) {
-					PlotEnvironment pd = getActivePlottingDefinition();
+					PlotEnvironment pd = Model.get().getPlotDataModel().getPlotEnvironment();
 					if( pd != null ){
 						PlotScale scale = pd.getScale();
 						if( scale != null ){
@@ -358,7 +358,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	void vPlot( Model_Dataset urlToPlot, Output_ToPlot.OutputTarget eTarget ){
-		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
+		Model_LoadedDatasets modelLoadedDatasets = Model.get().getDatasets();
 		for( int xListItem = 0; xListItem < modelLoadedDatasets.getSize(); xListItem++ ){
 			Model_Dataset urlCurrent = (Model_Dataset)modelLoadedDatasets.getElementAt(xListItem);
 			if( urlCurrent == urlToPlot ){
@@ -430,7 +430,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			final int[] aiSelected = jlistSelectedURLs.getSelectedIndices();
 			final boolean zMultiplot = ( jrbFromSelectedURL.isSelected() && aiSelected.length > 1 );
 			try {
-				final PlotEnvironment environment = getActivePlottingDefinition();
+				final PlotEnvironment environment = Model.get().getPlotDataModel().getPlotEnvironment();
 				if( environment == null ){
 					ApplicationController.vShowWarning("null definition encountered during multi-plot");
 					return false;
@@ -449,7 +449,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 							for( int xSelection = 0; xSelection < ctSelections; xSelection++ ){
 								vActivateListItem(aiSelected[xSelection]);
 								Thread.yield(); // allow swing events to occur after activation
-								Model_Dataset model = Panel_View_Plot.getPanel_Definition().modelActive;
+								Model_Dataset model = Model.get().getPlotDataModel();
 								final PlottingData pdat = Panel_View_Plot.getPanel_VariableTab().getPlottingData( sbError );
 								if( pdat == null ){
 									ApplicationController.vShowError_NoModal("Error plotting selection " + (xSelection+1) + " of " + ctSelections + ": " + sbError);
@@ -486,7 +486,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 						final Activity activitySinglePlot = new Activity();
 						Continuation_DoCancel con = new Continuation_DoCancel(){
 							public void Do(){
-								Model_Dataset model = Panel_View_Plot.getPanel_Definition().modelActive;
+								Model_Dataset model = Model.get().getPlotDataModel();
 								if( Output_ToPlot.zPlot( environment, model, pdat, eTarget, sbError) ){
 									if( eTarget == Output_ToPlot.OutputTarget.PreviewPane ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivatePreview();
 									if( eTarget == Output_ToPlot.OutputTarget.Thumbnail ) Panel_View_Plot.getInstance().mDefinitionPanel._vActivateThumbnails();
@@ -614,7 +614,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 		javax.swing.ButtonGroup bgSelectorOptions = new ButtonGroup();
 		bgSelectorOptions.add( jrbFromTable );
 		bgSelectorOptions.add( jrbFromSelectedURL );
-		jlistSelectedURLs.setModel( ApplicationController.getInstance().getDatasets() );
+		jlistSelectedURLs.setModel( Model.get().getDatasets() );
 
 		// dataset panel
 		mjpanelDatasets = new JPanel();
@@ -673,7 +673,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	void vActivateLastListItem(){
-		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
+		Model_LoadedDatasets modelLoadedDatasets = Model.get().getDatasets();
 		int ctItems = modelLoadedDatasets.getSize();
 		if( ctItems > 0 ){
 			vActivateListItem(ctItems - 1);
@@ -681,7 +681,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	void vActivateListItem( int xItem_0 ){
-		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
+		Model_LoadedDatasets modelLoadedDatasets = Model.get().getDatasets();
 		int ctItems = modelLoadedDatasets.getSize();
 		if( xItem_0 < 0 || xItem_0 >= ctItems ){
 			buttonInfo.setEnabled(false);
@@ -693,24 +693,24 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	}
 
 	void vSetDataToDefinition( int xDataset_0 ){
-		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
+		Model_LoadedDatasets modelLoadedDatasets = Model.get().getDatasets();
 		final Model_Dataset model = modelLoadedDatasets._get( xDataset_0 );		
 		int ePlotType = getPlotType();
 		mDefinitionPanel.setModel( model, ePlotType );
-		PlotEnvironment pd = mDefinitionPanel.getActivePlottingDefinition();
+		PlotEnvironment pd = model.getPlotEnvironment();
 		if( pd == null ) return;
 		pd.setColorSpecification( Panel_View_Plot.getPanel_ColorSpecification().getColorSpecification() );
 	}
 
 	void vSetDataToExpression( int xDataset_0 ){
 		// TODO
-		Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
+		Model_LoadedDatasets modelLoadedDatasets = Model.get().getDatasets();
 		final Model_Dataset url = modelLoadedDatasets._get( xDataset_0 );		
 		int ePlotType = getPlotType();
 		mDefinitionPanel.setModel( url, ePlotType );
-		PlotEnvironment pd = mDefinitionPanel.getActivePlottingDefinition();
+		PlotEnvironment pd = url.getPlotEnvironment();
 		if( pd == null ) return;
-		pd.setColorSpecification(Panel_View_Plot.getPanel_ColorSpecification().getColorSpecification());
+		pd.setColorSpecification( Panel_View_Plot.getPanel_ColorSpecification().getColorSpecification() );
 	}
 
 	public static int getPlotType(){
@@ -723,10 +723,6 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
         mPlotType = eTYPE;
 		mDefinitionPanel._setPlotType( eTYPE );
     }
-
-	PlotEnvironment getActivePlottingDefinition(){
-		return mDefinitionPanel.getActivePlottingDefinition();
-	}
 
 	int getSelectedSourceType(){
 		if( jrbFromTable.isSelected() ) return SOURCE_Table;
@@ -742,7 +738,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 	StringBuffer sbItem = new StringBuffer(80);
 	void source_Info( int xURL_0 ){
 		try {
-			Model_LoadedDatasets modelLoadedDatasets = ApplicationController.getInstance().getDatasets();
+			Model_LoadedDatasets modelLoadedDatasets = Model.get().getDatasets();
 			if( xURL_0 >= modelLoadedDatasets.getSize() || xURL_0 < 0){
 				ApplicationController.vShowError("system error; url index outside loaded range");
 				return;
@@ -1032,7 +1028,7 @@ class DataParameters {
 		if( zGotMVfromDAS ){
 			msMissingCode = "D";
 		} else {
-			PlotEnvironment def = Panel_View_Plot.getInstance().getActivePlottingDefinition();
+			PlotEnvironment def = Model.get().getPlotDataModel().getPlotEnvironment();
 			boolean zCalcMissingValues = true;
 			if( def != null ){
 				PlotOptions po = def.getOptions();

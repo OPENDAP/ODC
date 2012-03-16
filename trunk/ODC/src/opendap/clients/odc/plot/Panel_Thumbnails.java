@@ -35,6 +35,7 @@ import java.util.ArrayList;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.gui.Styles;
@@ -286,7 +287,7 @@ public class Panel_Thumbnails extends JPanel implements Printable, MouseListener
 		if( ctSelected == 0 ){
 			ApplicationController.vShowWarning("nothing to re-retrieve, no thumbnail is selected (use ctrl-click to select)");
 		} else {
-			opendap.clients.odc.data.Model_URLList urlList = ApplicationController.getInstance().getRetrieveModel().getURLList();
+			opendap.clients.odc.data.Model_URLList urlList = Model.get().getRetrieveModel().getURLList();
 			if( urlList == null ){
 				ApplicationController.vShowWarning("internal error, unable to re-retrieve, no URL list");
 			} else {

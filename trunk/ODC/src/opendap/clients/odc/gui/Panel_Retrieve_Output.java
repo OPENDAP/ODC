@@ -36,6 +36,7 @@ import javax.swing.*;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Model_Retrieve;
@@ -68,7 +69,7 @@ public class Panel_Retrieve_Output extends JPanel {
 
         try {
 
-			Model_Retrieve model = ApplicationController.getInstance().getRetrieveModel();
+			Model_Retrieve model = Model.get().getRetrieveModel();
 			if( model == null ){
 				sbError.append("no model");
 				return false;
@@ -126,7 +127,7 @@ public class Panel_Retrieve_Output extends JPanel {
 						if( sSelection == null ){
 							ApplicationController.vShowWarning("output selection model was unexpectedly missing");
 						} else if( sSelection.equalsIgnoreCase("Plotter") ){
-							if( !ApplicationController.getInstance().getOutputEngine().zOutputToPlotter(aURLs, buttonTarget, this, sbError) ){
+							if( ! Model.get().getOutputEngine().zOutputToPlotter(aURLs, buttonTarget, this, sbError) ){
 								ApplicationController.vShowError("Failed to output to plotter: " + sbError);
 							}
 						} else if( sSelection.equalsIgnoreCase("Text View") ){
@@ -136,19 +137,19 @@ public class Panel_Retrieve_Output extends JPanel {
 								try {
 									os.write( sRetrievePanelText.getBytes() );
 								} catch( Throwable t ) {
-									ApplicationController.getInstance().vShowError("Unexpected error trying to send retrieve panel text to Text View: " + t);
+									ApplicationController.vShowError("Unexpected error trying to send retrieve panel text to Text View: " + t);
 								}
 							} else {
-								if( !ApplicationController.getInstance().getOutputEngine().zOutputToTextView(aURLs, buttonTarget, this, sbError) ){
+								if( ! Model.get().getOutputEngine().zOutputToTextView(aURLs, buttonTarget, this, sbError) ){
 									ApplicationController.vShowError("Failed to output to text view: " + sbError);
 								}
 							}
 						} else if( sSelection.equalsIgnoreCase("Table View") ){
-							if( !ApplicationController.getInstance().getOutputEngine().zOutputToTableView(aURLs, buttonTarget, this, sbError) ){
+							if( ! Model.get().getOutputEngine().zOutputToTableView(aURLs, buttonTarget, this, sbError) ){
 								ApplicationController.vShowError("Failed to output to table view: " + sbError);
 							}
 						} else if( sSelection.equalsIgnoreCase("image") ){
-							if( !ApplicationController.getInstance().getOutputEngine().zOutputToImageViewer(aURLs, buttonTarget, this, sbError) ){
+							if( ! Model.get().getOutputEngine().zOutputToImageViewer(aURLs, buttonTarget, this, sbError) ){
 								ApplicationController.vShowError("Failed to output to image viewer: " + sbError);
 							}
 						} else if( sSelection.equalsIgnoreCase("file") ){
@@ -180,15 +181,15 @@ public class Panel_Retrieve_Output extends JPanel {
 							} else {
 								eFormat = OutputProfile.FORMAT_Data_ASCII_text; // default
 							}
-							if( ApplicationController.getInstance().getOutputEngine().zOutputToFile(aURLs, sPath, eFormat, buttonOutput, this, sbError) ){
-								ApplicationController.getInstance().vShowStatus("" + aURLs.length + " data set" + (aURLs.length==1?"":"s") + " sent to file " + sPath);
+							if( Model.get().getOutputEngine().zOutputToFile(aURLs, sPath, eFormat, buttonOutput, this, sbError) ){
+								ApplicationController.vShowStatus("" + aURLs.length + " data set" + (aURLs.length==1?"":"s") + " sent to file " + sPath);
 							} else {
 								ApplicationController.vShowError("Failed to output to file(s): " + sbError);
 							}
 						} else if( sSelection.equalsIgnoreCase("standard out") ){
 							OutputProfile op = new OutputProfile(aURLs, OutputProfile.TARGET_StandardOut, null, OutputProfile.FORMAT_URLs);
-							if( ApplicationController.getInstance().getOutputEngine().zOutputProfile( buttonTarget, this, op, sbError ) ){
-								ApplicationController.getInstance().vShowStatus("" + aURLs.length + " data set" + (aURLs.length==1?"":"s") + " sent to standard out");
+							if( Model.get().getOutputEngine().zOutputProfile( buttonTarget, this, op, sbError ) ){
+								ApplicationController.vShowStatus("" + aURLs.length + " data set" + (aURLs.length==1?"":"s") + " sent to standard out");
 							} else {
 								ApplicationController.vShowError("Failed to output to standard out: " + sbError);
 							}
