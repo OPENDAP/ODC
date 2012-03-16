@@ -36,6 +36,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import opendap.clients.odc.ApplicationController;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Model_Retrieve;
 import opendap.dap.*;
@@ -75,7 +76,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 			}
 			myParent = theParent;
 
-			model = ApplicationController.getInstance().getRetrieveModel();
+			model = Model.get().getRetrieveModel();
 			if( model == null ){
 				sbError.append("no model");
 				return false;
@@ -277,7 +278,7 @@ public class Panel_Retrieve_DDX extends JPanel {
 					urlDirectory.setConstraintExpression(sCE);
 					model.retrieve_panel.validate();
 				}
-				ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
+				Model.get().getRetrieveModel().vValidateRetrieval();
 				if( mURL != null ) model.setLocationString(mURL.getFullURL());
 			}
 		} catch(Exception ex) {

@@ -39,6 +39,7 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ByteCounter;
 import opendap.clients.odc.Catalog;
 import opendap.clients.odc.Continuation_DoCancel;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
 import opendap.clients.odc.IO;
 import opendap.clients.odc.OpendapConnection;
@@ -1380,7 +1381,7 @@ public class OutputEngine implements ByteCounter {
 	}
 
 	private boolean zAddToPlotter_Invoked( Model_Dataset url, StringBuffer sbError ){
-		ApplicationController.getInstance().getDatasets().addDataset( url );
+		Model.get().getDatasets().addDataset( url );
 		return true;
 	}
 

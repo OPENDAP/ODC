@@ -25,6 +25,7 @@ package opendap.clients.odc.gui;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Continuation_DoCancel;
 import opendap.clients.odc.DAP;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.Utility_String;
 import opendap.dap.*;
 import java.awt.*;
@@ -186,7 +187,7 @@ public class Panel_Retrieve_Dimension extends JPanel {
 				new FocusAdapter(){
 					public void focusLost(FocusEvent evt) {
 						mDoUpdate.Do();
-						ApplicationController.getInstance().getRetrieveModel().vUpdateSubset();
+						Model.get().getRetrieveModel().vUpdateSubset();
 					}
 				};
 			KeyListener kl =
@@ -195,7 +196,7 @@ public class Panel_Retrieve_Dimension extends JPanel {
 						int iKeyCode = ke.getKeyCode();
 						if( iKeyCode == KeyEvent.VK_ENTER )
 							mDoUpdate.Do();
-							ApplicationController.getInstance().getRetrieveModel().vUpdateSubset();
+							Model.get().getRetrieveModel().vUpdateSubset();
 					}
 				};
 
@@ -215,7 +216,7 @@ public class Panel_Retrieve_Dimension extends JPanel {
 				new ActionListener(){
 	    		    public void actionPerformed( java.awt.event.ActionEvent ae ){
 						mDoUpdate.Do();
-						ApplicationController.getInstance().getRetrieveModel().vUpdateSubset();
+						Model.get().getRetrieveModel().vUpdateSubset();
 		    		}
 			    }
 			);

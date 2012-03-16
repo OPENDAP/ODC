@@ -258,7 +258,7 @@ public class DatasetList extends SearchInterface {
 			StringBuffer sbError = new StringBuffer(80);
 			Model_Dataset[] urls = DatasetList.this.getURLs(sbError);
 			if( urls == null ) return;
-			Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
+			Model_Retrieve retrieve_model = Model.get().getRetrieveModel();
 			retrieve_model.getURLList().vDatasets_Add( urls );
 			ApplicationController.getInstance().getAppFrame().vActivateRetrievalPanel();
 
@@ -270,8 +270,8 @@ public class DatasetList extends SearchInterface {
 				if( modelURLList.get( iListIndex ) == urlFirst ){
 					panelList.vSelectIndex(iListIndex);
 					if( urlFirst.getType() == DATASET_TYPE.Data )
-						ApplicationController.getInstance().getRetrieveModel().getRetrievePanel().vShowDirectory( false ); // data URLs do not have directories
-					ApplicationController.getInstance().getRetrieveModel().vShowURL( urlFirst, null );
+						Model.get().getRetrieveModel().getRetrievePanel().vShowDirectory( false ); // data URLs do not have directories
+					Model.get().getRetrieveModel().vShowURL( urlFirst, null );
 				}
 			}
 		} catch( Throwable t ) {

@@ -210,7 +210,7 @@ class CommandListener extends Thread {
 			sCommand = sCommand.trim();
 			String sCommandUpper = sCommand.toUpperCase();
 			StringBuffer sbError = new StringBuffer(250);
-			Model_Retrieve retrieve_model = ApplicationController.getInstance().getRetrieveModel();
+			Model_Retrieve retrieve_model = Model.get().getRetrieveModel();
 			Model_URLList urllist = retrieve_model.getURLList();
 			if( urllist == null ){
 				String sError = "[Error: no url list]";
@@ -436,7 +436,7 @@ class CommandListener extends Thread {
 					Model_Dataset[] aURL = new Model_Dataset[1];
 					aURL[0] = model;
 					aURL[0].setTitle("[untitled]");
-					ApplicationController.getInstance().getRetrieveModel().getURLList().vDatasets_Add(aURL);
+					Model.get().getRetrieveModel().getURLList().vDatasets_Add(aURL);
 					writeLine( sType + " URL added: " + aURL[0].toString() );
 				}
 			} else if( sCommandUpper.startsWith("GETSELECTIONCOUNT")){
@@ -501,7 +501,7 @@ class CommandListener extends Thread {
 					ApplicationController.vShowError(sError);
 				} else {
 					OutputProfile op = new OutputProfile( aURLs, mos, OutputProfile.FORMAT_Data_ASCII_text, null);
-					if( !ApplicationController.getInstance().getOutputEngine().zOutputProfile(null, null, op, sbError) ){
+					if( ! Model.get().getOutputEngine().zOutputProfile(null, null, op, sbError) ){
 						String sError = "[Error: failed to output selected data: " + sbError + "]";
 						writeLine(sError);
 						ApplicationController.vShowError(sError);
@@ -517,7 +517,7 @@ class CommandListener extends Thread {
 					ApplicationController.vShowError(sError);
 				} else {
 					OutputProfile op = new OutputProfile( aURLs, mos, OutputProfile.FORMAT_Data_ASCII_records, FORMATTING_ResponseTermination);
-					if( !ApplicationController.getInstance().getOutputEngine().zOutputProfile(null, null, op, sbError) ){
+					if( ! Model.get().getOutputEngine().zOutputProfile(null, null, op, sbError) ){
 						String sError = "[Error: failed to output selected data: " + sbError + "]";
 						writeLine(sError);
 						ApplicationController.vShowError(sError);
@@ -533,7 +533,7 @@ class CommandListener extends Thread {
 					ApplicationController.vShowError(sError);
 				} else {
 					OutputProfile op = new OutputProfile( aURLs, mos, OutputProfile.FORMAT_Data_ASCII_text, null);
-					if( !ApplicationController.getInstance().getOutputEngine().zOutputProfile(null, null, op, sbError) ){
+					if( ! Model.get().getOutputEngine().zOutputProfile(null, null, op, sbError) ){
 						String sError = "[Error: failed to output all selected data: " + sbError + "]";
 						writeLine(sError);
 						ApplicationController.vShowError(sError);
@@ -599,7 +599,7 @@ class CommandListener extends Thread {
 								ApplicationController.vShowStatus("Info " + iURLIndex + " sent");
 							} else if( sCommandUpper.startsWith("GETDATA") ){
 								OutputProfile op = new OutputProfile( aURLsToOutput, mos, OutputProfile.FORMAT_Data_ASCII_text, null );
-								if( !ApplicationController.getInstance().getOutputEngine().zOutputProfile(null, null, op, sbError) ){
+								if( ! Model.get().getOutputEngine().zOutputProfile(null, null, op, sbError) ){
 									String sError = "[Error: failed to get data set #" + iURLIndex + " of selection: " + sbError + "]";
 									writeLine(sError);
 									ApplicationController.vShowError(sError);

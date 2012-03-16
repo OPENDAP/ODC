@@ -32,6 +32,7 @@ package opendap.clients.odc.gui;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.DAP;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Model_Retrieve;
 import opendap.dap.*;
@@ -93,7 +94,7 @@ public class Panel_DDSView extends JPanel {
 					return false;
 				}
 			} else {
-				Model_Retrieve rm = ApplicationController.getInstance().getRetrieveModel();
+				Model_Retrieve rm = Model.get().getRetrieveModel();
 				if( !zBuildInterface( listVariables, listQualifiedNames, das, zShowDescriptions, null, rm, sbError ) ){
 					sbError.insert(0, "building display interface: ");
 					return false;
@@ -443,7 +444,7 @@ public class Panel_DDSView extends JPanel {
 				vs.vUpdateStep( iStep );
 			}
 		}
-		if( zDoUpdate ) ApplicationController.getInstance().getRetrieveModel().vUpdateSubset();
+		if( zDoUpdate ) Model.get().getRetrieveModel().vUpdateSubset();
 	}
 
     public void vSelectAll( boolean z ) {

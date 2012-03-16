@@ -46,8 +46,6 @@ public class Panel_Definition extends JPanel {
 
 	private Panel_View_Plot mParent;
 
-	Model_Dataset modelActive = null;
-
 	private final Panel_VariableTab mpanelVariables = new Panel_VariableTab();
 	private final JTabbedPane mjtpPlotDefinition = new JTabbedPane();
 	private final Panel_PlotOptions mpanelOptions = new Panel_PlotOptions();
@@ -55,7 +53,7 @@ public class Panel_Definition extends JPanel {
 	private final Panel_PlotText mpanelText = new Panel_PlotText();
 	private final Panel_PlotAxes mpanelAxes = new Panel_PlotAxes();
 	private final PreviewPane mPreviewPane = new PreviewPane();
-	private final Panel_ColorSpecification mpanelColors = new Panel_ColorSpecification(this);
+	private final Panel_ColorSpecification mpanelColors = new Panel_ColorSpecification();
 	private final Panel_Thumbnails mpanelThumbnails = new Panel_Thumbnails(this);
 
 	public PreviewPane getPreviewPane(){ return mPreviewPane; }
@@ -113,11 +111,6 @@ public class Panel_Definition extends JPanel {
 		return true;
 	}
 
-	PlotEnvironment getActivePlottingDefinition(){
-		if( modelActive == null ) return null;
-		return modelActive.getPlotEnvironment();
-	}
-
 	public void _vActivateVariableSelector(){
 		mjtpPlotDefinition.setSelectedIndex(PANEL_INDEX_Variables);
 		Panel_View_Plot.getTN_Controls().setVisible(false);
@@ -142,6 +135,7 @@ public class Panel_Definition extends JPanel {
 	}
 
 	void _setPlotType( int ePlotType ){
+		Model_Dataset modelActive = Model.get().getPlotDataModel();
 		if( modelActive != null ){
 			modelActive.getPlotEnvironment().setPlotType( ePlotType );
 			mpanelVariables.vShowDDDSForm( ePlotType, modelActive );
@@ -164,7 +158,7 @@ public class Panel_Definition extends JPanel {
 				mpanelOptions.setPlotOptions( null );
 				mpanelVariables.vClear();
 			} else {
-				modelActive = model;
+				Model.get().setPlotDataModel( model );
 				PlotEnvironment pd = model.getPlotEnvironment();
 				mpanelOptions.setPlotOptions( pd.getOptions()); // must be done before cs is set
 				mpanelScale._setScale( pd.getScale());
@@ -243,12 +237,12 @@ class Panel_VariableTab extends JPanel {
 	}
 
 	void vClear(){
-		mParent.modelActive = null;
+		Model.get().setPlotDataModel( null );
 		removeAll();
 		revalidate();
 	}
 	void vShowMessage( String sMessage ){
-		mParent.modelActive = null;
+		Model.get().setPlotDataModel( null );
 		removeAll();
 		mlabelMessagePanelText.setText(sMessage);
 		add(mpanelMessage, BorderLayout.CENTER);

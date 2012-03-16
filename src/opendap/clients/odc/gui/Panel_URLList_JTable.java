@@ -36,6 +36,7 @@ import javax.swing.table.*;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Continuation_DoCancel;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.data.DatasetListRenderer;
 import opendap.clients.odc.data.Model_Datasets;
 
@@ -86,7 +87,7 @@ public class Panel_URLList_JTable extends JPanel {
 						// NO LONGER FUNCTIONAL -- ApplicationController.getInstance().getRetrieveModel().getURLList().vSelectedDatasets_Remove(aiSelectedToDelete);
 					} else if( ke.getKeyCode() == java.awt.event.KeyEvent.VK_F3 ){
 						StringBuffer sbError = new StringBuffer( 256 );
-						if( ApplicationController.getInstance().getRetrieveModel().zEnterURLByHand( null, sbError ) ){
+						if( Model.get().getRetrieveModel().zEnterURLByHand( null, sbError ) ){
 							// success
 						} else {
 							JOptionPane.showMessageDialog( Panel_URLList_JTable.this, "failed to initialize URL in table: " + sbError.toString() );

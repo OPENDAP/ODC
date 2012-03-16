@@ -33,6 +33,7 @@ package opendap.clients.odc.data;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.OpendapConnection;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
@@ -394,7 +395,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 				urlCurrent.setConstraintExpression(sConstraintExpression);
 				if( urlCurrent.getFullURL().length() > 1024 ){
 					ctWarning++;
-					ApplicationController.getInstance().vShowWarning("URL exceeds 1 kilobyte in length; may fail in some environments [" + urlCurrent.getFullURL().substring(0, 48) + "...]" );
+					ApplicationController.vShowWarning("URL exceeds 1 kilobyte in length; may fail in some environments [" + urlCurrent.getFullURL().substring(0, 48) + "...]" );
 				}
 			} else {
 				ApplicationController.vShowWarning("attempt to apply constraint expression to non-matching dataset [" + urlCurrent.getTitle() + "]");
@@ -403,7 +404,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		if( ctWarning > 1 ){
 			ApplicationController.vShowWarning("There were " + ctWarning + " URLs longer than 1 kilobyte");
 		}
-		ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
+		Model.get().getRetrieveModel().vValidateRetrieval();
 	}
 
 	class ListModelTypeChecker extends Thread {
@@ -419,7 +420,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 					DATASET_TYPE eURLType = madodsurlSelected[i].getType();
 					String sBaseURL = madodsurlSelected[i].getBaseURL();
 					if( eURLType  == DATASET_TYPE.Directory ){
-						sBaseURL = ApplicationController.getInstance().getRetrieveModel().sFetchDirectoryTree_GetFirstFile( sBaseURL, null );
+						sBaseURL = Model.get().getRetrieveModel().sFetchDirectoryTree_GetFirstFile( sBaseURL, null );
 						if( sBaseURL == null ){
 							madodsurlSelected[i].setUnreachable(true, "could not find file in directory tree");
 							continue;
@@ -442,7 +443,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 					}
 					int iDigest = sDDSText.hashCode();
 					madodsurlSelected[i].setDigest(iDigest);
-					ApplicationController.getInstance().getRetrieveModel().vValidateRetrieval();
+					Model.get().getRetrieveModel().vValidateRetrieval();
 				}
 			} catch( Exception ex ) {
 				ApplicationController.vUnexpectedError( ex, "Unexpected error determing dataset types" );

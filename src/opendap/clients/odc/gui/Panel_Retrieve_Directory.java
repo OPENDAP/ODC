@@ -39,6 +39,7 @@ import javax.swing.event.*;
 import opendap.clients.odc.Activity;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Continuation_DoCancel;
+import opendap.clients.odc.Model;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.data.DirectoryTreeNode;
 import opendap.clients.odc.data.Model_Dataset;
@@ -79,7 +80,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 
 		try {
 
-			modelRetrieve = ApplicationController.getInstance().getRetrieveModel();
+			modelRetrieve = Model.get().getRetrieveModel();
 			if( modelRetrieve == null ){
 				sbError.append("no retrieve model");
 				return false;
@@ -146,7 +147,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 								Continuation_DoCancel con =
 									new Continuation_DoCancel(){
 										public void Do(){
-											ApplicationController.getInstance().getRetrieveModel().vFetchDirectoryTree_LoadNode(node, sPageURL, 0, false, activityDirectoryNodeFetch);
+											Model.get().getRetrieveModel().vFetchDirectoryTree_LoadNode(node, sPageURL, 0, false, activityDirectoryNodeFetch);
 											try {
 												javax.swing.SwingUtilities.invokeAndWait(
 													new Runnable() {
@@ -371,7 +372,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 			mlistDirectory.setListData(aoEmpty);
 			mscrollpane_DirectoryTree.setViewportView( mtreeDirectory );
 			if( mtreeDirectory.getRowCount() > 0 ) mtreeDirectory.setSelectionRow(0); // select the root
-			ApplicationController.getInstance().getRetrieveModel().setLocationString(murlDirectory.getBaseURL());
+			Model.get().getRetrieveModel().setLocationString(murlDirectory.getBaseURL());
 			mParent.model.retrieve_panel.getPanelDDX().vClear();
 			return true;
 		} catch( Throwable t ) {
@@ -462,7 +463,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 		validate();
 		vUpdateDividerLocation();
 		final String sLocationURL = Utility.sConnectPaths( murlDirectory.getBaseURL(), "/", node.getPathString() );
-		ApplicationController.getInstance().getRetrieveModel().setLocationString( sLocationURL );
+		Model.get().getRetrieveModel().setLocationString( sLocationURL );
 	}
 
 	public Model_DirectoryTree getDirectoryTreeModel(){

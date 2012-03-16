@@ -28,7 +28,7 @@ public class PlotEnvironment {
 	final private PlotText mText = PlotText.create();
 	final private PlotOptions mOptions = new PlotOptions();
 	private PlotScale mScale = PlotScale.create();
-	private ColorSpecification mColorSpecification;
+	private ColorSpecification mColorSpecification = null;
 	private int mePlotType;
 	int getPlotType(){ return mePlotType; }
 	PlotAxes getAxes(){ return mAxes; }
