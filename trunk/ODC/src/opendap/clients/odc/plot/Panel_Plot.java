@@ -33,6 +33,7 @@ package opendap.clients.odc.plot;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.ConfigurationManager;
+import opendap.clients.odc.DAP;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.Utility_String;
 import opendap.clients.odc.gui.Resources;
@@ -57,11 +58,6 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 
 	private BufferedImage mbi = null;
 	protected boolean mzMode_FullScreen = false;
-
-	// data
-	protected IPlottable mPlottable;
-
-	protected int[] maiRGBArray = null;
 
 	PlotEnvironment environment = null;
 	protected ColorSpecification mColors = null;
@@ -92,7 +88,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 
 	abstract public String getDescriptor();
 	abstract public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError );
-	abstract public boolean zCreateRGBArray( int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError );
+	abstract public boolean zWriteRGBArray( int[] bi, int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError ); // this is separated out because it is used for thumbnails
 	
 	public static void main(String[] args) {
 		Frame frame = new Frame("Plot Demo");
@@ -105,7 +101,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		environment.getScale().setDataDimension( 600, 600 );
 		Panel_Plot_Surface demo_surface = new Panel_Plot_Surface( environment, sID, sCaption );
 		StringBuffer sbError = new StringBuffer();
-		if( ! demo_surface.zPlot( sbError ) ){
+		if( ! demo_surface.zPlot( null, sbError ) ){
 			System.err.println( "plot failed: " + sbError.toString() );
 		}
 		frame.add( demo_surface );
@@ -158,7 +154,6 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		return new Dimension( mpxPreferredWidth, mpxPreferredHeight );
     }
 
-	BufferedImage _getImage(){ return mbi; }
 	String _getID(){ return msID; }
 	String _getCaption(){ return msCaption; }
 
@@ -167,7 +162,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	// affine transforms); to deal with this the mazPagePrinted array is used, if a page is marked as
 	// printed it is not printed again
 	boolean[] mazPagePrinted = new boolean[2];
-	public int print( Graphics g, PageFormat page_format, int page_index ){
+	public int print( IPlottable data, Graphics g, PageFormat page_format, int page_index ){
 		if( page_index < 0 || page_index > 1 ){ // there will always be a page n+1
 			return java.awt.print.Printable.NO_SUCH_PAGE;
 		}
@@ -179,7 +174,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		try {
 			// todo use black and white / color models for bw printers
 			StringBuffer sbError = new StringBuffer( 250 );
-			if( ! zCreateImage( false, sbError ) ){
+			if( ! zCreateImage( data, sbError ) ){
 				ApplicationController.vShowError( "System error, unable to print, unable to create image: " + sbError.toString() );
 				return java.awt.print.Printable.NO_SUCH_PAGE;
 			}
@@ -196,25 +191,35 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		super.paintComponent(g);
 		try {
 			if( mbi != null ) ((Graphics2D)g).drawImage(mbi, null, 0, 0); // flip image to canvas
-		} catch(Exception ex) {
+		} catch( Exception ex ){
 			if( mzFatalError ) return; // got the training wheels on here todo
 			mzFatalError = true;
 			ApplicationController.vUnexpectedError(ex, "Error rendering plot image");
 		}
 	}
 
-	public boolean zPlot( StringBuffer sbError ){
+	public boolean zPlot( IPlottable data, StringBuffer sbError ){
 		try {
-			boolean zFill = (this instanceof Panel_Plot_Histogram);
-			return zCreateImage( zFill, sbError );
-		} catch(Throwable ex) {
-			ApplicationController.vUnexpectedError(ex, sbError);
+			return zCreateImage( data, sbError );
+		} catch( Throwable ex ){
+			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}
 
-	private boolean zCreateImage( boolean zFill, StringBuffer sbError ){
-
+	private boolean zCreateImage( IPlottable data, StringBuffer sbError ){
+		if( data == null ){
+			sbError.append("internal error, no plottable data supplied");
+			return false;
+		}
+		int iDataPoint_width = data.getDimension_x();
+		int iDataPoint_height = data.getDimension_y();
+		mScale.setDataDimension( iDataPoint_width, iDataPoint_height );
+//		mpxMargin_Top = mScale.getMarginTop_px();
+		mpxMargin_Right = mScale.getMarginRight_px();
+		mpxMargin_Bottom = mScale.getMarginBottom_px();
+		this.invalidate(); // when the canvas dimensions change, the layout is invalidated
+		
 		// standard scaled area
 		int pxCanvasWidth = mScale.getCanvas_Width_pixels();
 		int pxCanvasHeight = mScale.getCanvas_Height_pixels();
@@ -232,7 +237,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		}
 		
 		if( mOptions != null ){
-			mzBoxed = mOptions.getValue_boolean(PlotOptions.OPTION_Boxed);
+			mzBoxed = mOptions.getValue_boolean( PlotOptions.OPTION_Boxed );
 		}
 		
 		// special requirements
@@ -243,20 +248,14 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			if( pxPlotHeight < iVectorSize * 2 ) pxPlotHeight = iVectorSize * 2;
 		}
 
-		// establish scale
-		if( mPlottable == null ){
-			mScale.setDataDimension( pxPlotWidth, pxPlotHeight );  
-		} else {
-			mScale.setDataDimension( mPlottable.getDimension_x(), mPlottable.getDimension_y() );
-		}
+		mScale.setDataDimension( data.getDimension_x(), data.getDimension_y() );
 		layout.setOffsetHorizontal( mScale.getMarginLeft_px() );
 		layout.setOffsetVertical( mScale.getMarginTop_px() );
 		mpxMargin_Right  = mScale.getMarginRight_px();
 		mpxMargin_Bottom = mScale.getMarginBottom_px();		
 		
-		if( mbi == null ){
-			mbi = new BufferedImage( pxCanvasWidth, pxCanvasHeight, BufferedImage.TYPE_INT_ARGB );
-		}
+		mbi = new BufferedImage( pxCanvasWidth, pxCanvasHeight, BufferedImage.TYPE_INT_ARGB );
+
 		return zWriteImageBuffer( mbi, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError );
 	}
 
@@ -284,11 +283,6 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			if( !(this instanceof Panel_Plot_Histogram) ) vDrawAnnotations(g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight);
 			return true;
 		}
-	}
-
-	public int[] getRGBArray( int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
-		zCreateRGBArray(pxPlotWidth, pxPlotHeight, false, sbError);
-		return maiRGBArray;
 	}
 
 	protected boolean mzBoxed = true;
@@ -327,30 +321,6 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	private int mpxLegendWidth = 0;
 	private int mpxLegendKeyWidth = 10;
 
-	boolean setData( IPlottable plottable, StringBuffer sbError ){
-		if( plottable == null ){
-			sbError.append("internal error, no plottable data supplied");
-			return false;
-		}
-		mPlottable = plottable;
-		if( ! zUpdateDimensions( mPlottable.getDimension_x(), mPlottable.getDimension_y(), sbError ) ){
-			sbError.insert( 0, "error updating dimensions (" + mPlottable.getDimension_x() + ", " + mPlottable.getDimension_y() + "): " );
-			return false;
-		}
-		return true;
-	}
-
-	boolean zUpdateDimensions( int iDataPoint_width, int iDataPoint_height, StringBuffer sbError){
-		mScale.setDataDimension( iDataPoint_width, iDataPoint_height );
-//		layout. = mScale.getMarginLeft_px();
-//		mpxMargin_Top = mScale.getMarginTop_px();
-		mpxMargin_Right = mScale.getMarginRight_px();
-		mpxMargin_Bottom = mScale.getMarginBottom_px();
-		this.invalidate(); // when the canvas dimensions change, the layout is invalidated
-		mbi = null;
-		return true;
-	}
-	
 	PlotText mText = null;
 	public PlotText getText(){ return mText; }
 	void setText( PlotText pt ){
@@ -892,6 +862,82 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		return 1;
 	}
 
+	void vShowDataMicroscope( int xPlot, int yPlot ){
+		if( plottableData == null ) return;
+		int iDataDim_Width = plottableData.getDimension_x();
+		int iDataDim_Height = plottableData.getDimension_y();
+
+		// determine data coordinates
+		int xClick = xPlot * iDataDim_Width / mpxRenderedPlotWidth;
+		int yClick = yPlot * iDataDim_Height / mpxRenderedPlotHeight;
+
+		// render colors and store values
+		int[] aRGB = new int[36];
+		String[] as = new String[36];
+		switch( plottableData.getDataType() ){
+			case DAP.DATA_TYPE_Float32:
+				for( int xDataWidth = 0; xDataWidth < 6; xDataWidth++ ){
+					for( int xDataHeight = 0; xDataHeight < 6; xDataHeight++ ){
+						int xRGB = 6 * xDataHeight + xDataWidth;
+						int xData = iDataDim_Width * (yClick + xDataHeight) + (xClick + xDataWidth);
+						if( xData < 0 || xData > plottableData.getFloatArray().length ){
+							as[xRGB] = null;
+						} else {
+							as[xRGB] = Float.toString( plottableData.getFloatArray()[xData] );
+						}
+					}
+				}
+				aRGB = mColors.aiRender( plottableData.getFloatArray(), 6, 6, 6, 6, false, msbError);
+				if( aRGB == null ){
+					msbError.setLength(0);
+					return;  // todo errors
+				}
+				break;
+			case DAP.DATA_TYPE_Float64:
+				break;
+			case DAP.DATA_TYPE_Byte:
+			case DAP.DATA_TYPE_Int16:
+				break;
+			case DAP.DATA_TYPE_UInt16:
+			case DAP.DATA_TYPE_Int32:
+				break;
+			case DAP.DATA_TYPE_UInt32:
+				break;
+		}
+
+//		final Panel_Microscope microscope = new Panel_Microscope();
+//		final JOptionPane jop = new JOptionPane(microscope, JOptionPane.INFORMATION_MESSAGE);
+//		final JDialog jd = jop.createDialog(ApplicationController.getInstance().getAppFrame(), "Data Microscope ( " + xPlot + ", " + yPlot + " )");
+//		microscope.set(aRGB, as);
+//		jd.setVisible( true );
+	}
+
+	/** Do not use this currently because we need to receive mouse events
+	 *  to trap mouse click on full screen. revisit later
+
+	// Mouse motion interface
+	public void mouseMoved(MouseEvent evt){
+	}
+
+	// Mouse listener interface
+	public void mousePressed(MouseEvent evt){
+	}
+
+	public void mouseDragged(MouseEvent evt){
+	}
+
+	public void mouseReleased(MouseEvent evt){
+	}
+
+	public void mouseEntered(MouseEvent evt) { }
+	public void mouseExited(MouseEvent evt) { }
+	public void mouseClicked(MouseEvent evt){
+		int xPX = evt.getX();
+		int yPX = evt.getY();
+		if( xPX > mpxMargin_Left && xPX < (mpxRenderedCanvasWidth - mpxMargin_Right) && yPX > mpxMargin_Top && yPX < (mpxRenderedCanvasHeight - mpxMargin_Bottom) )
+		    vShowDataMicroscope( xPX - mpxMargin_Left, yPX - mpxMargin_Top );
+	}
+	 */
 
 }
 
