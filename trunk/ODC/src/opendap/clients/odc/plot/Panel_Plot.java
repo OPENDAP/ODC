@@ -99,7 +99,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		PlotEnvironment environment = new PlotEnvironment();
 		environment.getScale().setOutputTarget( OutputTarget.NewWindow );
 		environment.getScale().setDataDimension( 600, 600 );
-		Panel_Plot_Surface demo_surface = new Panel_Plot_Surface( environment, sID, sCaption );
+		Plot_Surface demo_surface = new Plot_Surface( environment, sID, sCaption );
 		StringBuffer sbError = new StringBuffer();
 		if( ! demo_surface.zPlot( null, sbError ) ){
 			System.err.println( "plot failed: " + sbError.toString() );

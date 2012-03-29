@@ -1365,17 +1365,73 @@ public class ColorSpecification extends AbstractListModel {
 		return (zIncludes0 && zIncludes1);
 	}
 
+	int getColorForValue( float fDataValue ){
+		int iDataType = getDataType();
+		if( iDataType != DATA_TYPE_Float32 ){
+			ApplicationController.vShowError("cannot get float-based color for type " + DAP.getType_String(getDataType()));
+			return 0;
+		}
+		int xRange = 0;
+		while( true ){
+			xRange++;
+			if( xRange > mctRanges ){
+				return 0xFFFFFFFF; // no color is defined for this value
+			}
+			for(int xMissing = 1; xMissing <= mctMissing; xMissing++){
+				if( fDataValue == afMissing1[xMissing] ){
+					return mrgbMissingColor;
+				}
+			}
+			if( fDataValue >= afDataFrom[xRange] && fDataValue <= afDataTo[xRange] ){
+				float fRangeWidth = afDataTo[xRange] - afDataFrom[xRange];
+				float fDataProportion;
+				if( fRangeWidth == 0 )
+					fDataProportion = -1;
+				else
+					fDataProportion = (fDataValue - afDataFrom[xRange])/ fRangeWidth;
+				return rgbGetForRange( fDataProportion, xRange );
+			}
+		}
+	}
+
+	int getColorForValue( double dDataValue ){
+		int iDataType = getDataType();
+		if( iDataType != DATA_TYPE_Float64 ){
+			ApplicationController.vShowError("cannot get double-based color for type " + DAP.getType_String(getDataType()));
+			return 0;
+		}
+		int xRange = 0;
+		while( true ){
+			xRange++;
+			if( xRange > mctRanges ){
+				return 0xFFFFFFFF; // no color is defined for this value
+			}
+			for(int xMissing = 1; xMissing <= mctMissing; xMissing++){
+				if( dDataValue == adMissing1[xMissing] ){
+					return mrgbMissingColor;
+				}
+			}
+			if( dDataValue >= adDataFrom[xRange] && dDataValue <= adDataTo[xRange] ){
+				double dRangeWidth = adDataTo[xRange] - adDataFrom[xRange];
+				float fDataProportion;
+				if( dRangeWidth == 0 )
+					fDataProportion = -1;
+				else
+					fDataProportion = (float)((dDataValue - adDataFrom[xRange])/ (float)dRangeWidth);
+				return rgbGetForRange( fDataProportion, xRange );
+			}
+		}
+	}
+		
 // todo we are redundantly calculating the data proportion for each range
 // on every data point; instead we should store the data proportion for each
 // range when the range is set
-	int[] aiRender( float[] afData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage, StringBuffer sbError ){
+	void render( int[] aiRGB, float[] afData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage ){
 		int iDataType = getDataType();
 		if( iDataType != DATA_TYPE_Float32 ){
 			ApplicationController.vShowError("cannot render float data for type " + DAP.getType_String(getDataType()));
-			return null;
+			return;
 		}
-		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
-		int[] aiRGB = new int[pxWidth * pxHeight];
 		final boolean zScale = ( iDataWidth != pxWidth || iDataHeight != pxHeight );
 		int xDataWidth, xDataHeight;
 		int xRGB = 0;
@@ -1420,21 +1476,19 @@ public class ColorSpecification extends AbstractListModel {
 				}
 			}
 		}
-		return aiRGB;
+		return;
 	}
 
 	// averaging not implemented currently
 	// Cartesian Presentation: the data origin is in document orientation. In other words the
 	// the first element is at the upper left. When plotted a cartesian coordinate system is
 	// used with the first element at the lower left.
-	int[] aiRender( double[] adData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage, StringBuffer sbError ){
+	void render( int[] aiRGB, double[] adData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage ){
 		int iDataType = getDataType();
 		if( iDataType != DATA_TYPE_Float64 ){
 			ApplicationController.vShowError("cannot render double data for type " + DAP.getType_String(getDataType()));
-			return null;
+			return;
 		}
-		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
-		int[] aiRGB = new int[pxWidth * pxHeight];
 		final boolean zScale = ( iDataWidth != pxWidth || iDataHeight != pxHeight );
 		int xDataWidth, xDataHeight;
 		int xRGB = 0;
@@ -1479,17 +1533,15 @@ public class ColorSpecification extends AbstractListModel {
 				}
 			}
 		}
-		return aiRGB;
+		return;
 	}
 
-	int[] aiRender( short[] ashData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage, StringBuffer sbError ){
+	void render( int[] aiRGB, short[] ashData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage ){
 		int iDataType = getDataType();
 		if( iDataType != DATA_TYPE_Byte && iDataType != DATA_TYPE_Int16 ){
 			ApplicationController.vShowError("cannot render short data for type " + DAP.getType_String(getDataType()));
-			return null;
+			return;
 		}
-		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
-		int[] aiRGB = new int[pxWidth * pxHeight];
 		final boolean zScale = ( iDataWidth != pxWidth || iDataHeight != pxHeight );
 		int xDataWidth, xDataHeight;
 		int xData = 0;
@@ -1534,16 +1586,14 @@ public class ColorSpecification extends AbstractListModel {
 				}
 			}
 		}
-		return aiRGB;
+		return;
 	}
-	int[] aiRender( int[] aiData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage, StringBuffer sbError ){
-		if( !Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
+	void render( int[] aiRGB, int[] aiData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage ){
 		int iDataType = getDataType();
 		if( iDataType != DATA_TYPE_Int32 && iDataType != DATA_TYPE_UInt16 ){
-			sbError.append("cannot render int data for type " + DAP.getType_String(iDataType));
-			return null;
+			ApplicationController.vShowError( "cannot render int data for type " + DAP.getType_String(iDataType) );
+			return;
 		}
-		int[] aiRGB = new int[pxWidth * pxHeight];
 		final boolean zScale = ( iDataWidth != pxWidth || iDataHeight != pxHeight );
 		int xDataWidth, xDataHeight;
 		int xRGB = 0;
@@ -1588,16 +1638,14 @@ Ranges:
 				}
 			}
 		}
-		return aiRGB;
+		return;
 	}
-	int[] aiRender( long[] anData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage, StringBuffer sbError ){
-		if( ! Utility.zMemoryCheck(pxWidth * pxHeight, 4, sbError) ) return null;
+	void render( int[] aiRGB, long[] anData, int iDataWidth, int iDataHeight, int pxWidth, int pxHeight, boolean zAverage ){
 		int iDataType = getDataType();
 		if( iDataType != DATA_TYPE_UInt32 ){
-			sbError.append("cannot render long data for type " + DAP.getType_String(iDataType));
-			return null;
+			ApplicationController.vShowError( "cannot render long data for type " + DAP.getType_String(iDataType) );
+			return;
 		}
-		int[] aiRGB = new int[pxWidth * pxHeight];
 		final boolean zScale = ( iDataWidth != pxWidth || iDataHeight != pxHeight );
 		int xDataWidth, xDataHeight;
 		int xRGB = 0;
@@ -1642,7 +1690,7 @@ Ranges:
 				}
 			}
 		}
-		return aiRGB;
+		return;
 	}
 
 	// this is used to render the expression fill plots (pseudocolors)
