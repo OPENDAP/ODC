@@ -888,13 +888,14 @@ public class Output_ToPlot {
 					Panel_View_Plot.getPreviewPane().setContent(panelPlot);
 					int pxThumbnailWidth = panelPlot.getPlotOptions().get(PlotOptions.OPTION_ThumbnailWidth).getValue_int();
 					int pxThumbnailHeight = panelPlot.mPlottable.getDimension_y() * pxThumbnailWidth / panelPlot.mPlottable.getDimension_x();
-					int[] rgb_array = panelPlot.getRGBArray(pxThumbnailWidth, pxThumbnailHeight, sbError);
+					int[] rgb_array = new int[ pxThumbnailWidth * pxThumbnailHeight ]; // TODO re use buffer
+					panelPlot.zWriteRGBArray( rgb_array, pxThumbnailWidth, pxThumbnailHeight, false, sbError);
 					if( rgb_array == null ){
 						sbError.append("Unable to generate plot: " + sbError);
 						return false;
 					}
 					BufferedImage biThumbnail = new BufferedImage(pxThumbnailWidth, pxThumbnailHeight, BufferedImage.TYPE_INT_ARGB);
-					biThumbnail.setRGB(0, 0, pxThumbnailWidth, pxThumbnailHeight, rgb_array, 0, pxThumbnailWidth);
+					biThumbnail.setRGB( 0, 0, pxThumbnailWidth, pxThumbnailHeight, rgb_array, 0, pxThumbnailWidth );
 					Graphics g = biThumbnail.getGraphics();
 					g.setColor(Color.BLACK);
 					g.drawRect(0, 0, pxThumbnailWidth - 1, pxThumbnailHeight - 1);
