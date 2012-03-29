@@ -3,10 +3,10 @@ package opendap.clients.odc.plot;
 /**
  * Title:        Panel_Plot_Surface
  * Description:  Plots surfaces
- * Copyright:    Copyright (c) 2010
+ * Copyright:    Copyright (c) 2010-2012
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.06
+ * @version      3.08
  */
 
 import opendap.clients.odc.ApplicationController;
@@ -25,7 +25,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 
-class Panel_Plot_Surface extends Panel_Plot {
+class Plot_Surface extends Plot {
 
 	public enum SURFACE_TYPE {
 		Line,
@@ -33,9 +33,7 @@ class Panel_Plot_Surface extends Panel_Plot {
 		Shaded
 	};
 
-	Panel_Plot_Surface( PlotEnvironment environment, String sID, String sCaption ){
-		super( environment, sID, sCaption );
-	}
+	private Plot_Surface(){}
 
 	public String getDescriptor(){ return "S"; }
 

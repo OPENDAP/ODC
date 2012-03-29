@@ -10,7 +10,7 @@ import org.python.core.PyObject;
 // This panel is added to whatever output context is determined by Output_ToPlot
 // For example, if the output is delivered to the Data Preview Pane then it goes to the content pane of PreviewPane
 
-public class Panel_Plot_Expression extends Panel_Plot {
+public class Plot_Expression extends Plot {
 	Model_PlottableExpression model;
 	PlotCoordinates coordinates = null;
 	private int mpxPlotHeight = 0;   // this is here for the microscope, but should be removed TODO
@@ -20,9 +20,7 @@ public class Panel_Plot_Expression extends Panel_Plot {
 	private org.python.core.PyCode pycodeExpression_y = null;
 	private org.python.core.PyCode pycodeExpression_z = null;
 		
-	Panel_Plot_Expression( PlotEnvironment environment, String sID, String sCaption ){
-		super( environment, sID, sCaption );
-	}
+	Plot_Expression(){}
 
 	public boolean setExpressionModel( Model_PlottableExpression model, StringBuffer sbError ){
 		if( model == null ){
