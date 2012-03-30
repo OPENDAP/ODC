@@ -11,6 +11,7 @@ package opendap.clients.odc.plot;
 
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Utility;
+import opendap.clients.odc.Utility_Geometry;
 import opendap.clients.odc.DAP;
 import opendap.clients.odc.data.Model_Dataset;
 
@@ -54,7 +55,7 @@ class Plot_Vector extends Plot {
 	// When the image is generated only one arrow is drawn per vector region, a region
 	// being a square with the size of the nominal maximum arrow. To find the net magnitude for
 	// the arrow, all the vectors in the region are averaged.
-	public void render( int[] raster, int pxPlotWidth, int pxPlotHeight ){
+	public boolean render( int[] raster, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
 		// determine vector size in pixels
 		int iVectorSize;
@@ -85,8 +86,8 @@ class Plot_Vector extends Plot {
 			}
 		}
 		if( mUmax == 0 || mVmax == 0 ){
-			// TODO sbError.append( "umax and/or vmax is zero" );
-			return;
+			sbError.append( "umax and/or vmax is zero" );
+			return false;
 		}
 		iArrowSize_U /= fPlotScaleX; // if the plot is bigger then the sample size should be smaller (and vice versa)
 		iArrowSize_V /= fPlotScaleY;
@@ -159,7 +160,7 @@ AbortVector:
 			}
 		}
 
-		return;
+		return true;
 	}
 
 	boolean getUV( StringBuffer sbError ){
@@ -441,34 +442,11 @@ AbortVector:
 		int x6 = x1 + x5;
 		int y6 = y1 + y5;
 
-		vDrawLineToRaster( raster, pxWidth, pxHeight, x1,y1,x2,y2, iRGBA ); // line
-		vDrawLineToRaster( raster, pxWidth, pxHeight, x2,y2,x4,y4, iRGBA); // blade left
-		vDrawLineToRaster( raster, pxWidth, pxHeight, x2,y2,x6,y6, iRGBA); // blade right
+		Utility_Geometry.vDrawLineToRaster( raster, pxWidth, pxHeight, x1,y1,x2,y2, iRGBA ); // line
+		Utility_Geometry.vDrawLineToRaster( raster, pxWidth, pxHeight, x2,y2,x4,y4, iRGBA); // blade left
+		Utility_Geometry.vDrawLineToRaster( raster, pxWidth, pxHeight, x2,y2,x6,y6, iRGBA); // blade right
 
 	}
 
-	void vDrawLineToRaster( int[] raster, int pxWidth, int pxHeight, int x1, int y1, int x2, int y2, int iRGBA  ){
-		int iRasterMax = raster.length - 1;
-		if( x1 <= x2 ){
-			if( y1 <= y2 ){
-				if( x2 - x1 > y2 - y1 ){
-					float slope = 
-					for( int x = x1; x <= x2; x++ ){
-						if( x < 0 || x >= pxWidth ) continue; // must do these checks because arrow bounds could exceed plot area
-						
-						if( y < 0 || y >= pxHeight ) continue; // must do these checks because arrow bounds could exceed plot area
-						int iRasterCoordinate = x + y * pxWidth;
-						if( iRasterCoordinate > iRasterMax ) continue;
-						raster[iRasterCoordinate] = iRGBA;
-					}
-				}
-			} else {
-			}
-		} else {
-			if( y1 <= y2 ){
-			} else {
-			}
-		}
-	}
 }
 

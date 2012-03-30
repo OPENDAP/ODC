@@ -27,7 +27,7 @@ class Plot_Pseudocolor extends Plot {
 		return plot;
 	}
 
-	public void render( int[] raster, int pxPlotWidth, int pxPlotHeight ){
+	public boolean render( int[] raster, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 		int iDataDim_Width = data.getDimension_x();
 		int iDataDim_Height = data.getDimension_y();
 		boolean zAveraged = false; // TODO
@@ -50,6 +50,7 @@ class Plot_Pseudocolor extends Plot {
 				cs.render( raster, data.getLongArray(), iDataDim_Width, iDataDim_Height, pxPlotWidth, pxPlotHeight, zAveraged );
 				break;
 		}
+		return true;
 	}
 	
 }

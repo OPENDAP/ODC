@@ -37,9 +37,7 @@ class Plot_Surface extends Plot {
 
 	public String getDescriptor(){ return "S"; }
 
-	public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
-
-		Graphics2D g2 = (Graphics2D)bi.getGraphics();
+	public void render( int[] raster, int pxPlotWidth, int pxPlotHeight ){
 
 		int iRangeDivisions = 100;
 		int iAngularDivisions = 50;
@@ -93,10 +91,11 @@ class Plot_Surface extends Plot {
 //		float fScale = 5;
 		
 		// make lines
+		int iRGBA = 0; // black ? TODO
 		ArrayList<Line> listLines = new ArrayList<Line>();
-		listLines.add( Line.create( "x", 0, 0, 0, 500, 0, 0, Color.black ) );  // x-axis 
-		listLines.add( Line.create( "y", 0, 0, 0, 0, 500, 0, Color.black ) );  // y-axis 
-		listLines.add( Line.create( "z", 0, 0, 0, 0, 0, 500, Color.black ) );  // z-axis 
+		listLines.add( Line.create( "x", 0, 0, 0, 500, 0, 0, iRGBA ) );  // x-axis 
+		listLines.add( Line.create( "y", 0, 0, 0, 0, 500, 0, iRGBA ) );  // y-axis 
+		listLines.add( Line.create( "z", 0, 0, 0, 0, 0, 500, iRGBA ) );  // z-axis 
 		
 		// projection parameters
 		double dScaleX = 1;
@@ -131,26 +130,27 @@ class Plot_Surface extends Plot {
 			int y1 = (int)( salpha * line.x1 + sbeta * line.y1 + dScaleZ * line.z1 );
 			int x2 = (int)( calpha * line.x2 - cbeta * line.y2 );
 			int y2 = (int)( salpha * line.x2 + sbeta * line.y2 + dScaleZ * line.z2 );
-			listProjectedLines.add( Line.create( line.sLabel, x1, y1, 0, x2, y2, 0, line.color ) ); 
+			listProjectedLines.add( Line.create( line.sLabel, x1, y1, 0, x2, y2, 0, line.iRGBA ) ); 
 		}
 		
 		// draw lines
 		for( Line line : listProjectedLines ){
-			g2.setColor( line.color );
-			g2.drawLine( line.x1, line.y1, line.x2, line.y2 );
-			System.out.format( "drew line %s %d %d %d %d\n", line.sLabel, line.x1, line.y1, line.x2, line.y2 ); 
+			Utility_Geometry.vDrawLineToRaster( raster, pxPlotWidth, pxPlotHeight, line.x1, line.y1, line.x2, line.y2, line.iRGBA );
+			// System.out.format( "drew line %s %d %d %d %d\n", line.sLabel, line.x1, line.y1, line.x2, line.y2 ); 
 		}
 		
 		// draw points
 //		for( int xAngle = 1; xAngle <= iAngularDivisions; xAngle++ ){
+		/*
 		for( int xAngle = iAngularDivisions; xAngle >= 1; xAngle-- ){
 			g2.setColor( Color.white );
 			g2.fillPolygon( aiX[xAngle - 1], aiY_fill[xAngle - 1], iRangeDivisions );
 			g2.setColor( Color.black );
 			g2.drawPolyline( aiX[xAngle - 1], aiY[xAngle - 1], iRangeDivisions );
 		}
+		*/
 		
-		return true;
+		return;
 	}
 
 	public boolean zCreateRGBArray(int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError){
@@ -168,8 +168,8 @@ class Line {
 	int y2;
 	int z1;
 	int z2;
-	Color color;
-	public static Line create( String sLabel, int x1, int y1, int z1, int x2, int y2, int z2, Color color ){
+	int iRGBA;
+	public static Line create( String sLabel, int x1, int y1, int z1, int x2, int y2, int z2, int iRGBA ){
 		Line new_line = new Line();
 		new_line.sLabel = sLabel;
 		new_line.x1 = x1;
