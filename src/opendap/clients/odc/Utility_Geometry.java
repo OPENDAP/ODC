@@ -97,17 +97,17 @@ public class Utility_Geometry {
 		return Math.atan( tangent );
 	}
 
-	public static void vDrawPolylineToRaster( int[] raster, int pxWidth, int pxHeight, int[] aiXcoordinates, int[] aiYcoordinates, int iRGBA  ){
+	public static void drawPolylineToRaster( int[] raster, int pxWidth, int pxHeight, int[] aiXcoordinates, int[] aiYcoordinates, int iRGBA  ){
 		for( int xSegment = 1; xSegment < aiXcoordinates.length; xSegment++ ){
 			int x1 = aiXcoordinates[xSegment - 1];
 			int y1 = aiYcoordinates[xSegment - 1];
 			int x2 = aiXcoordinates[xSegment];
 			int y2 = aiYcoordinates[xSegment];
-			vDrawLineToRaster( raster, pxWidth, pxHeight, x1, x2, y1, y2, iRGBA );
+			drawLineToRaster( raster, pxWidth, pxHeight, x1, x2, y1, y2, iRGBA );
 		}
 	}
 	
-	public static void vDrawLineToRaster( int[] raster, int pxWidth, int pxHeight, int x1, int y1, int x2, int y2, int iRGBA  ){
+	public static void drawLineToRaster( int[] raster, int pxWidth, int pxHeight, int x1, int y1, int x2, int y2, int iRGBA  ){
 		int iRasterLength = raster.length;
 		int xLittleStep = 0;
 		int xBigStep = 0;
@@ -163,6 +163,48 @@ public class Utility_Geometry {
 			}
 		}
 	
+	}
+	
+	public static void drawOrthogonalLineX( int[] raster, int pxWidth, int pxHeight, int x, int y1, int y2, int iRGBA  ){
+		int maxRasterValue = raster.length - 1;
+		if( y1 < y2 ){
+			for( int y = y1; y <= y2; y++ ){
+				int iRasterCoordinate = x + y * pxWidth;
+				if( iRasterCoordinate < 0 || iRasterCoordinate > maxRasterValue ) continue;
+				raster[iRasterCoordinate] = iRGBA;
+			}
+		} else {
+			for( int y = y2; y <= y1; y++ ){
+				int iRasterCoordinate = x + y * pxWidth;
+				if( iRasterCoordinate < 0 || iRasterCoordinate > maxRasterValue ) continue;
+				raster[iRasterCoordinate] = iRGBA;
+			}
+		}
+	}
+
+	public static void drawOrthogonalLineY( int[] raster, int pxWidth, int pxHeight, int x1, int x2, int y, int iRGBA  ){
+		int maxRasterValue = raster.length - 1;
+		if( x1 < x2 ){
+			for( int x = x1; x <= x2; x++ ){
+				int iRasterCoordinate = x + y * pxWidth;
+				if( iRasterCoordinate < 0 || iRasterCoordinate > maxRasterValue ) continue;
+				raster[iRasterCoordinate] = iRGBA;
+			}
+		} else {
+			for( int x = x2; x <= x1; x++ ){
+				int iRasterCoordinate = x + y * pxWidth;
+				if( iRasterCoordinate < 0 || iRasterCoordinate > maxRasterValue ) continue;
+				raster[iRasterCoordinate] = iRGBA;
+			}
+		}
+	}
+
+	// from corner to corner
+	public static void drawRectangle( int[] raster, int pxWidth, int pxHeight, int x1, int y1, int x2, int y2, int iRGBA  ){
+		drawOrthogonalLineX( raster, pxWidth, pxHeight, x1, y1, y2, iRGBA  );
+		drawOrthogonalLineX( raster, pxWidth, pxHeight, x2, y1, y2, iRGBA  );
+		drawOrthogonalLineY( raster, pxWidth, pxHeight, x1, x2, y1, iRGBA  );
+		drawOrthogonalLineY( raster, pxWidth, pxHeight, x1, x2, y2, iRGBA  );
 	}
 	
 }

@@ -13,6 +13,7 @@ import org.python.core.PyObject;
 public class Plot_Expression extends Plot {
 	Model_PlottableExpression model;
 	PlotCoordinates coordinates = null;
+	ColorSpecification cs = null;
 	private int mpxPlotHeight = 0;   // this is here for the microscope, but should be removed TODO
 	private String msExpression = null;
 	private org.python.core.PyCode pycodeExpression = null;
@@ -22,6 +23,14 @@ public class Plot_Expression extends Plot {
 		
 	Plot_Expression(){}
 
+	public static Plot_Expression create( PlotEnvironment environment, Model_PlottableExpression model, String sCaption, StringBuffer sbError ){
+		Plot_Expression plot = new Plot_Expression();
+		// plot.data = data;
+		plot.cs = environment.getColorSpecification();
+		plot.msCaption = sCaption;
+		return plot;
+	}
+	
 	public boolean setExpressionModel( Model_PlottableExpression model, StringBuffer sbError ){
 		if( model == null ){
 			sbError.append( "expression model missing" );
@@ -252,25 +261,6 @@ public class Plot_Expression extends Plot {
 	int[][] aRGB = new int[iMicroscopeWidth][iMicroscopeHeight];               // the raster that the microscope will display
 	String[][] asData = new String[iMicroscopeWidth][iMicroscopeHeight];       // the data values as strings
 
-	public void mouseClicked( java.awt.event.MouseEvent evt){
-		int mpxMargin_Left = 10;
-		int mpxMargin_Top =  10;
-		int xPX = evt.getX();
-		int yPX = evt.getY();
-	    vUpdateMicroscopeArrays( xPX - mpxMargin_Left, yPX - mpxMargin_Top, mpxPlotHeight );
-		activateMicroscope( aRGB, asData, iMicroscopeWidth, iMicroscopeHeight );
-	}
-
-	public void mouseMoved( java.awt.event.MouseEvent evt ){ // TODO move functionality to panel plot
-		if( ! _isMicroscopeActive() ) return;
-		int mpxMargin_Left = 10;
-		int mpxMargin_Top =  10;
-		int xPX = evt.getX();
-		int yPX = evt.getY();
-	    vUpdateMicroscopeArrays( xPX - mpxMargin_Left, yPX - mpxMargin_Top, mpxPlotHeight );
-		Panel_Microscope.microscope._update( aRGB, asData );
-	}
-	
 	void vUpdateMicroscopeArrays( int xClick, int yClick, int pxPlotHeight ){
 		if( coordinates == null ) return;
 		for( int x = 0; x < iMicroscopeWidth; x++ ){

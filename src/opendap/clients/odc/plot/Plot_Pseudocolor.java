@@ -13,17 +13,17 @@ import opendap.clients.odc.DAP;
 
 class Plot_Pseudocolor extends Plot {
 
-	private IPlottable data = null; // needed for data microscope
 	private ColorSpecification cs = null;
 	
 	private Plot_Pseudocolor(){}
 
 	public String getDescriptor(){ return "P"; }
 
-	public static Plot_Pseudocolor create( PlotEnvironment environment, IPlottable data, StringBuffer sbError ){
+	public static Plot_Pseudocolor create( PlotEnvironment environment, IPlottable data, String sCaption, StringBuffer sbError ){
 		Plot_Pseudocolor plot = new Plot_Pseudocolor();
 		plot.data = data;
 		plot.cs = environment.getColorSpecification();
+		plot.msCaption = sCaption;
 		return plot;
 	}
 

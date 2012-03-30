@@ -9,21 +9,9 @@ package opendap.clients.odc.plot;
  * @version      3.08
  */
 
-import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.Utility;
-import opendap.clients.odc.DAP;
 import opendap.clients.odc.Utility_Geometry;
-import opendap.clients.odc.data.Model_Dataset;
 
 import java.util.ArrayList;
-import java.awt.event.*;
-import java.awt.*;
-import java.awt.image.*;
-
-//import javax.media.opengl.GL2;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.io.*;
 
 class Plot_Surface extends Plot {
 
@@ -35,9 +23,14 @@ class Plot_Surface extends Plot {
 
 	private Plot_Surface(){}
 
+	public static Plot_Surface create(){
+		Plot_Surface plot = new Plot_Surface();
+		return plot;
+	}
+	
 	public String getDescriptor(){ return "S"; }
 
-	public void render( int[] raster, int pxPlotWidth, int pxPlotHeight ){
+	public boolean render( int[] raster, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
 		int iRangeDivisions = 100;
 		int iAngularDivisions = 50;
@@ -135,7 +128,7 @@ class Plot_Surface extends Plot {
 		
 		// draw lines
 		for( Line line : listProjectedLines ){
-			Utility_Geometry.vDrawLineToRaster( raster, pxPlotWidth, pxPlotHeight, line.x1, line.y1, line.x2, line.y2, line.iRGBA );
+			Utility_Geometry.drawLineToRaster( raster, pxPlotWidth, pxPlotHeight, line.x1, line.y1, line.x2, line.y2, line.iRGBA );
 			// System.out.format( "drew line %s %d %d %d %d\n", line.sLabel, line.x1, line.y1, line.x2, line.y2 ); 
 		}
 		
@@ -150,7 +143,7 @@ class Plot_Surface extends Plot {
 		}
 		*/
 		
-		return;
+		return true;
 	}
 
 	public boolean zCreateRGBArray(int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError){
