@@ -27,7 +27,7 @@ class Plot_Vector extends Plot {
 	private ColorSpecification cs = null;
 	private PlotOptions po = null;
 
-	public static Plot_Vector create( PlotEnvironment environment, IPlottable data, StringBuffer sbError ){
+	public static Plot_Vector create( PlotEnvironment environment, IPlottable data, String sCaption, StringBuffer sbError ){
 		Plot_Vector plot = new Plot_Vector();
 		if( data.getDataType() == 0 ){
 			sbError.append( "data type undefined" );
@@ -36,6 +36,7 @@ class Plot_Vector extends Plot {
 		plot.data = data;
 		plot.cs = environment.getColorSpecification();
 		plot.po = environment.getOptions();
+		plot.msCaption = sCaption;
 		return plot;
 	}	
 	
@@ -442,9 +443,9 @@ AbortVector:
 		int x6 = x1 + x5;
 		int y6 = y1 + y5;
 
-		Utility_Geometry.vDrawLineToRaster( raster, pxWidth, pxHeight, x1,y1,x2,y2, iRGBA ); // line
-		Utility_Geometry.vDrawLineToRaster( raster, pxWidth, pxHeight, x2,y2,x4,y4, iRGBA); // blade left
-		Utility_Geometry.vDrawLineToRaster( raster, pxWidth, pxHeight, x2,y2,x6,y6, iRGBA); // blade right
+		Utility_Geometry.drawLineToRaster( raster, pxWidth, pxHeight, x1,y1,x2,y2, iRGBA ); // line
+		Utility_Geometry.drawLineToRaster( raster, pxWidth, pxHeight, x2,y2,x4,y4, iRGBA); // blade left
+		Utility_Geometry.drawLineToRaster( raster, pxWidth, pxHeight, x2,y2,x6,y6, iRGBA); // blade right
 
 	}
 

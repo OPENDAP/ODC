@@ -68,11 +68,12 @@ class Plot_Line extends Plot {
 	private int mpxAxisOffsetHeight = 1; // TODO
 	private int mpxAxisOffsetWidth = 1; // TODO
 	
-	public static Plot_Line create( PlotEnvironment environment, IPlottable data, StringBuffer sbError ){
+	public static Plot_Line create( PlotEnvironment environment, IPlottable data, String sCaption, StringBuffer sbError ){
 		Plot_Line plot = new Plot_Line();
 		plot.data = data;
 		plot.cs = environment.getColorSpecification();
 		plot.po = environment.getOptions();
+		plot.msCaption = sCaption;
 		return plot;
 	}
 
@@ -271,7 +272,7 @@ class Plot_Line extends Plot {
 
 		// the data point width/height is purely conventional because the points may be
 		// overlapping etc; in any case the practice here is to default to a square graph
-		if( !zUpdateDimensions(iSeriesLength, iSeriesLength, sbError) ) return false;
+		// TODO determine dimensions if( !zUpdateDimensions( iSeriesLength, iSeriesLength, sbError ) ) return false;
 
 		// the axes can only be set after the dimensions are established
 //		setAxisVertical(maxisY);
@@ -415,7 +416,7 @@ class Plot_Line extends Plot {
 				int[] aiXcoordinates = aiXsegments[xSegment];
 				int[] aiYcoordinates = aiYsegments[xSegment];
 				if( mezShowLines ){
-					Utility_Geometry.vDrawPolylineToRaster( raster, pxPlotWidth, pxPlotHeight, aiXcoordinates, aiYcoordinates, iRGBA );
+					Utility_Geometry.drawPolylineToRaster( raster, pxPlotWidth, pxPlotHeight, aiXcoordinates, aiYcoordinates, iRGBA );
 				}
 				/* TODO
 				if( mezShowPoints ){

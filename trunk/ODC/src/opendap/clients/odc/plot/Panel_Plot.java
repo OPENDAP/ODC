@@ -1,25 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////
-// This file is part of the OPeNDAP Data Connector project.
-//
-// Copyright (c) 2007-2010 OPeNDAP, Inc.
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 2.1 of the License, or (at your option) any later version.
-//
-// This library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public
-// License along with this library; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//
-// You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
-/////////////////////////////////////////////////////////////////////////////
-
 package opendap.clients.odc.plot;
 
 /**
@@ -50,16 +28,18 @@ import javax.swing.*;
 
 import java.util.ArrayList;
 
-abstract class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotionListener, Scrollable {
+class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotionListener, Scrollable {
 
 	public final static boolean DEBUG_Layout = false;
 
 	public final static double TwoPi = 2d * 3.14159d;
 	public final static String TEXT_ID_CaptionColorBar = "CaptionColorbar";
 
-	private Plot plot = null;
-	
 	private BufferedImage mbi = null;
+	private ArrayList<int[]> listPlotBuffers = new ArrayList<int[]>(); 
+	private ArrayList<Plot> listPlots = new ArrayList<Plot>(); 
+	private Plot plotPrimary = null;
+	
 	protected boolean mzMode_FullScreen = false;
 
 	PlotEnvironment environment = null;
@@ -81,19 +61,20 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	
 	// layout
 	protected PlotLayout layout = PlotLayout.create( PlotLayout.LayoutStyle.PlotArea );
-	protected int mpxMargin_Right = 60;
-	protected int mpxMargin_Bottom = 60;
+	protected int mpxMargin_Right = 0;
+	protected int mpxMargin_Left = 0;
+	protected int mpxMargin_Top = 0;
+	protected int mpxMargin_Bottom = 0;
 
 	private static int miSessionCount = 0;
 	final private static String FORMAT_ID_date = "yyyyMMdd";
 	private String msID;
 	private String msCaption = null;
 
-	abstract public String getDescriptor();
-	abstract public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError );
-	abstract public boolean zWriteRGBArray( int[] bi, int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError ); // this is separated out because it is used for thumbnails
-	
+	private Panel_Plot(){} // see create() method
+
 	public static void main(String[] args) {
+		StringBuffer sbError = new StringBuffer();
 		Frame frame = new Frame("Plot Demo");
 		frame.setSize( 600, 600 );
 		PlotScale scale = PlotScale.create();
@@ -102,12 +83,12 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		PlotEnvironment environment = new PlotEnvironment();
 		environment.getScale().setOutputTarget( OutputTarget.NewWindow );
 		environment.getScale().setDataDimension( 600, 600 );
-		Plot_Surface demo_surface = new Plot_Surface( environment, sID, sCaption );
-		StringBuffer sbError = new StringBuffer();
-		if( ! demo_surface.zPlot( null, sbError ) ){
+		Plot_Surface demo_surface = Plot_Surface.create();
+		Panel_Plot panel = Panel_Plot.create( environment, demo_surface, sbError );
+		if( panel == null ){
 			System.err.println( "plot failed: " + sbError.toString() );
 		}
-		frame.add( demo_surface );
+		frame.add( panel );
 		frame.addWindowListener( new WindowAdapter(){
 			public void windowClosing(WindowEvent e) {
 				new Thread(new Runnable() {
@@ -120,12 +101,20 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		frame.setVisible( true );
 	}
 	
-	Panel_Plot( PlotEnvironment environment, String sID_descriptive, String sCaption ){
-		if( environment == null ){
-			ApplicationController.vShowError( "system error, invalid plot panel, no environment" );
-			return;
+	public static Panel_Plot create( PlotEnvironment environment, Plot plot, StringBuffer sbError ){
+		if( plot == null ){
+			sbError.append( "no plot supplied" );
+			return null;
 		}
-		this.environment = environment;
+		String sID_descriptive = plot.getDescriptor() + Utility.getCurrentDate( FORMAT_ID_date );
+		Panel_Plot panel = new Panel_Plot();
+		if( environment == null ){
+			sbError.append( "system error, invalid plot panel, no environment" );
+			return null;
+		}
+		panel.plotPrimary = plot;
+		panel.listPlots.add( plot );
+		panel.environment = environment;
 		if( miSessionCount == 0 ){ // update from properties
 			if( ConfigurationManager.getInstance() == null ){
 				miSessionCount = 0;
@@ -139,14 +128,12 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		if( miSessionCount < 1000 ) iCountWidth = 3;
 		else if( miSessionCount < 100000 ) iCountWidth = 5;
 		else iCountWidth = 10;
-		if( sID_descriptive == null ){ // descriptive portion of id is generated from date and type
-			sID_descriptive = Utility.getCurrentDate( FORMAT_ID_date );
-		}
-		msID = sID_descriptive + "-" + getDescriptor() + "-" + Utility_String.sFormatFixedRight( miSessionCount, iCountWidth, '0' ); // append plot count to ID descriptive string
-		mScale = environment.getScale();
-		msCaption = sCaption;
-		addMouseListener( this );
-		addMouseMotionListener( this );
+		panel.msID = sID_descriptive + "-" + Utility_String.sFormatFixedRight( miSessionCount, iCountWidth, '0' ); // append plot count to ID descriptive string
+		panel.mScale = environment.getScale();
+		panel.msCaption = "???";
+		panel.addMouseListener( panel );
+		panel.addMouseMotionListener( panel );
+		return panel;
 	}
 
 	// this is needed to tell any container how big the panel wants to be
@@ -165,7 +152,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	// affine transforms); to deal with this the mazPagePrinted array is used, if a page is marked as
 	// printed it is not printed again
 	boolean[] mazPagePrinted = new boolean[2];
-	public int print( IPlottable data, Graphics g, PageFormat page_format, int page_index ){
+	public int print( Graphics g, PageFormat page_format, int page_index ){
 		if( page_index < 0 || page_index > 1 ){ // there will always be a page n+1
 			return java.awt.print.Printable.NO_SUCH_PAGE;
 		}
@@ -177,7 +164,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		try {
 			// todo use black and white / color models for bw printers
 			StringBuffer sbError = new StringBuffer( 250 );
-			if( ! zCreateImage( data, sbError ) ){
+			if( ! zPlot( sbError ) ){
 				ApplicationController.vShowError( "System error, unable to print, unable to create image: " + sbError.toString() );
 				return java.awt.print.Printable.NO_SUCH_PAGE;
 			}
@@ -201,65 +188,44 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		}
 	}
 
-	public boolean zPlot( IPlottable data, StringBuffer sbError ){
+	public boolean zPlot( StringBuffer sbError ){
 		try {
-			return zCreateImage( data, sbError );
+			if( plotPrimary == null ){
+				sbError.append("internal error, no plot defined");
+				return false;
+			}
+			int iDataPoint_width = plotPrimary.data.getDimension_x();
+			int iDataPoint_height = plotPrimary.data.getDimension_y();
+			mScale.setDataDimension( iDataPoint_width, iDataPoint_height );
+			mpxMargin_Top = mScale.getMarginTop_px();
+			mpxMargin_Bottom = mScale.getMarginBottom_px();
+			mpxMargin_Right = mScale.getMarginRight_px();
+			mpxMargin_Left = mScale.getMarginLeft_px();
+			this.invalidate(); // when the canvas dimensions change, the layout is invalidated
+			layout.setOffsetHorizontal( mScale.getMarginLeft_px() );
+			layout.setOffsetVertical( mScale.getMarginTop_px() );
+			
+			// standard scaled area
+			int pxCanvasWidth = mScale.getCanvas_Width_pixels();
+			int pxCanvasHeight = mScale.getCanvas_Height_pixels();
+			int pxPlotWidth = mScale.getPlot_Width_pixels();
+			int pxPlotHeight = mScale.getPlot_Height_pixels();
+	
+			if( pxCanvasWidth == 0 || pxCanvasHeight == 0 ){
+				sbError.append( "invalid scale, canvas width/height cannot be <= 0" );
+				return false;
+			}
+	
+			if( pxPlotWidth == 0 || pxPlotHeight == 0 ){
+				sbError.append( "invalid scale, plot width/height cannot be <= 0" );
+				return false;
+			}
+			mbi = new BufferedImage( pxCanvasWidth, pxCanvasHeight, BufferedImage.TYPE_INT_ARGB );
+			return zWriteImageBuffer( mbi, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError );
 		} catch( Throwable ex ){
 			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
-	}
-
-	private boolean zCreateImage( IPlottable data, StringBuffer sbError ){
-		if( data == null ){
-			sbError.append("internal error, no plottable data supplied");
-			return false;
-		}
-		int iDataPoint_width = data.getDimension_x();
-		int iDataPoint_height = data.getDimension_y();
-		mScale.setDataDimension( iDataPoint_width, iDataPoint_height );
-//		mpxMargin_Top = mScale.getMarginTop_px();
-		mpxMargin_Right = mScale.getMarginRight_px();
-		mpxMargin_Bottom = mScale.getMarginBottom_px();
-		this.invalidate(); // when the canvas dimensions change, the layout is invalidated
-		
-		// standard scaled area
-		int pxCanvasWidth = mScale.getCanvas_Width_pixels();
-		int pxCanvasHeight = mScale.getCanvas_Height_pixels();
-		int pxPlotWidth = mScale.getPlot_Width_pixels();
-		int pxPlotHeight = mScale.getPlot_Height_pixels();
-
-		if( pxCanvasWidth == 0 || pxCanvasHeight == 0 ){
-			sbError.append( "invalid scale, canvas width/height cannot be <= 0" );
-			return false;
-		}
-
-		if( pxPlotWidth == 0 || pxPlotHeight == 0 ){
-			sbError.append( "invalid scale, plot width/height cannot be <= 0" );
-			return false;
-		}
-		
-		if( mOptions != null ){
-			mzBoxed = mOptions.getValue_boolean( PlotOptions.OPTION_Boxed );
-		}
-		
-		// special requirements
-		if( this instanceof Panel_Plot_Vector ){
-			PlotOptions po = this.getPlotOptions();
-			int iVectorSize = 10;
-			if( po != null ) iVectorSize = po.getValue_int(PlotOptions.OPTION_VectorSize);
-			if( pxPlotHeight < iVectorSize * 2 ) pxPlotHeight = iVectorSize * 2;
-		}
-
-		mScale.setDataDimension( data.getDimension_x(), data.getDimension_y() );
-		layout.setOffsetHorizontal( mScale.getMarginLeft_px() );
-		layout.setOffsetVertical( mScale.getMarginTop_px() );
-		mpxMargin_Right  = mScale.getMarginRight_px();
-		mpxMargin_Bottom = mScale.getMarginBottom_px();		
-		
-		mbi = new BufferedImage( pxCanvasWidth, pxCanvasHeight, BufferedImage.TYPE_INT_ARGB );
-
-		return zWriteImageBuffer( mbi, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError );
 	}
 
 	private boolean zWriteImageBuffer( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
@@ -268,28 +234,24 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 			return false;
 		} else {
 			Graphics2D g2 = (Graphics2D)mbi.getGraphics();
-			g2.setColor(mcolorBackground);
-			g2.fillRect(0,0,pxCanvasWidth,pxCanvasHeight); // draw background
-//			int pxPlotLeft = layout.getLocation_Horizontal( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
-//			int pxPlotTop  = layout.getLocation_Vertical( pxCanvasWidth, pxCanvasHeight, 0, 0, pxPlotWidth, pxPlotHeight );
-//			g2.setClip(pxPlotLeft, pxPlotTop, pxPlotWidth, pxPlotHeight);
+			g2.setColor( mcolorBackground );
+			g2.fillRect( 0, 0, pxCanvasWidth, pxCanvasHeight ); // draw background
 			mpxPreferredWidth = pxCanvasWidth;
 			mpxPreferredHeight = pxCanvasHeight;
-			BufferedImage bi_plot = new BufferedImage( pxPlotWidth, pxPlotHeight, BufferedImage.TYPE_INT_ARGB );
-			if( ! zGenerateImage( bi_plot, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError ) ){
-				sbError.insert( 0, "failed to generate image: " );
-				return false;
+			for( Plot plot : listPlots ){
+				int iRasterLength = pxPlotWidth * pxPlotHeight; 
+				int[] raster = new int[ iRasterLength ];
+				listPlotBuffers.add( raster );
+				if( ! plot.render( raster, pxPlotWidth, pxPlotHeight, sbError ) ){
+					sbError.insert( 0, "failed to render plot: " );
+					return false;
+				}
+				mbi.setRGB( mpxMargin_Left, mpxMargin_Right, pxPlotWidth, pxPlotHeight, raster, 0, pxPlotWidth );
 			}
-			g2.drawImage( bi_plot, 15, 15, null );
-			g2.setClip( 0, 0, pxCanvasWidth, pxCanvasHeight);
-			 // TODO regularize histograms
-			if( !(this instanceof Panel_Plot_Histogram) ) vDrawAnnotations(g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight);
 			return true;
 		}
 	}
 
-	protected boolean mzBoxed = true;
-	boolean getBoxed(){ return mzBoxed; }
 //	int getCanvasWidth(){ return this.mpxCanvasWidth; }
 //	int getCanvasHeight(){ return this.mpxCanvasHeight; }
 //	int getMarginPixels_Top(){ return mpxMargin_Top; }
@@ -351,8 +313,6 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	}
 
 	private void vDrawCoastline( Graphics2D g2, int pxPlotWidth, int pxPlotHeight ){
-		if( ! (this instanceof Panel_Plot_Pseudocolor) &&
-		    ! (this instanceof Panel_Plot_Vector) ) return;
 		if( mOptions != null ){
 			if( !mOptions.getValue_boolean(PlotOptions.OPTION_ShowCoastLine) ) return;
 		}
@@ -396,16 +356,11 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 //g2.setColor(Color.BLACK);
 
 	private void vDrawBorders( Graphics2D g2, int pxPlotWidth, int pxPlotHeight){
-		if( mzBoxed ){
-
-			int pxAxisLength_horizontal = pxPlotWidth;
-			int pxAxisLength_vertical = pxPlotHeight;
-
-			int xBox      = 10; // mpxMargin_Left;
-			int yBox      = 10; // mpxMargin_Top;
+		if( mOptions.getValue_boolean( PlotOptions.OPTION_Boxed ) ){
+			int xBox      = mpxMargin_Left;
+			int yBox      = mpxMargin_Top;
 			int widthBox  = pxPlotWidth + 20;
 			int heightBox = pxPlotHeight + 20;
-
 			g2.setColor(Color.black);
 			g2.fillRect(xBox, yBox, widthBox - 1, 1); // top
 			g2.fillRect(xBox, yBox, 1, heightBox - 1); // left
@@ -476,7 +431,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		if( iLength == 0 ) iLength = iDefaultLength;
 
 		// draw appropriate kind of legend
-		if( this instanceof Panel_Plot_Line ){
+		if( plotPrimary instanceof Plot_Line ){
 			vDrawLegend_Lines( g2, font, iLength, iRotation, layout, hObject, vObject, widthObject, heightObject );
 		} else {
 			vDrawLegend_Colorbar( g2, font, iLength, iRotation, layout, hObject, vObject, widthObject, heightObject );
@@ -484,9 +439,9 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	}
 
 	protected void vDrawLegend_Lines( Graphics2D g2, Font font, int iLength, int iRotation, PlotLayout layout, int hObject, int vObject, int widthObject, int heightObject ){
-		Panel_Plot_Line panel = (Panel_Plot_Line)this;
-		Color[] colors = panel.getColors();
-		String[] captions = panel.getCaptions();
+		Plot_Line plotLine = (Plot_Line)plotPrimary;
+		Color[] colors = plotLine.getColors();
+		String[] captions = plotLine.getCaptions();
 		int ctLines = colors.length - 1;
 		int ctDefinedCaptions = 0;
 		for( int xCaption = 1; xCaption <= ctLines; xCaption++ ){
@@ -843,14 +798,17 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	public void mouseEntered(MouseEvent evt) { }
 	public void mouseExited(MouseEvent evt) { }
 	public void mouseClicked( MouseEvent evt ){
-		if( plot instanceof Plot_Histogram ) handleMouseClicked( evt );
-		if( plot instanceof Plot_Expression ){
+		if( plotPrimary instanceof Plot_Histogram ){
+			Plot_Histogram histogram = (Plot_Histogram)plotPrimary;
+			histogram.handleMouseClicked( evt );
+		} else if( plotPrimary instanceof Plot_Expression ){
+			Plot_Expression expression = (Plot_Expression)plotPrimary;
 			int mpxMargin_Left = 10;
 			int mpxMargin_Top =  10;
 			int xPX = evt.getX();
 			int yPX = evt.getY();
-		    vUpdateMicroscopeArrays( xPX - mpxMargin_Left, yPX - mpxMargin_Top, mpxPlotHeight );
-			activateMicroscope( aRGB, asData, iMicroscopeWidth, iMicroscopeHeight );
+		    expression.vUpdateMicroscopeArrays( xPX - mpxMargin_Left, yPX - mpxMargin_Top, mScale.getPlot_Height_pixels() );
+//			activateMicroscope( aRGB, asData, iMicroscopeWidth, iMicroscopeHeight );
 		}
 	}
 
@@ -875,14 +833,14 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 		return 1;
 	}
 
-	void vShowDataMicroscope( int xPlot, int yPlot ){
+	void vShowDataMicroscope( IPlottable plottableData, int xPlot, int yPlot ){
 		if( plottableData == null ) return;
 		int iDataDim_Width = plottableData.getDimension_x();
 		int iDataDim_Height = plottableData.getDimension_y();
 
 		// determine data coordinates
-		int xClick = xPlot * iDataDim_Width / mpxRenderedPlotWidth;
-		int yClick = yPlot * iDataDim_Height / mpxRenderedPlotHeight;
+		int xClick = xPlot * iDataDim_Width / mScale.getPlot_Width_pixels();
+		int yClick = yPlot * iDataDim_Height / mScale.getPlot_Height_pixels();
 
 		// render colors and store values
 		int[] aRGB = new int[36];
@@ -900,11 +858,7 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 						}
 					}
 				}
-				aRGB = mColors.aiRender( plottableData.getFloatArray(), 6, 6, 6, 6, false, msbError);
-				if( aRGB == null ){
-					msbError.setLength(0);
-					return;  // todo errors
-				}
+				mColors.render( aRGB, plottableData.getFloatArray(), 6, 6, 6, 6, false );
 				break;
 			case DAP.DATA_TYPE_Float64:
 				break;

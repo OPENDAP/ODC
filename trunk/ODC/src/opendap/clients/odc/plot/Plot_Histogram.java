@@ -14,7 +14,6 @@ import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.gui.Styles;
 
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.awt.*;
 
 import javax.swing.*;
@@ -102,11 +101,12 @@ class Plot_Histogram extends Plot {
 
 	//int getGraphOffsetPixels(){ return mpxGraphOffset; }
 	//void setGraphOffsetPixels( int iPixels ){ mpxGraphOffset = iPixels; }
-	public static Plot_Histogram create( PlotEnvironment environment, IPlottable data, StringBuffer sbError ){
+	public static Plot_Histogram create( PlotEnvironment environment, IPlottable data, String sCaption, StringBuffer sbError ){
 		Plot_Histogram plot = new Plot_Histogram();
 		plot.data = data;
 		plot.cs = environment.getColorSpecification();
 		plot.po = environment.getOptions();
+		plot.msCaption = sCaption;
 		return plot;
 	}
 
@@ -746,12 +746,12 @@ class Plot_Histogram extends Plot {
 			return false; // nothing to graph
 		}
 
-		g2.setFont(Styles.fontSansSerif10);
-		FontMetrics mfontmetricsSansSerif10 = g2.getFontMetrics(Styles.fontSansSerif10);
+//		g2.setFont(Styles.fontSansSerif10);
+//		FontMetrics mfontmetricsSansSerif10 = g2.getFontMetrics(Styles.fontSansSerif10);
 
 		// draw y-axis (vertical)
+		int pxVerticalAxisHeight = pxPlotWidth;
 		/*  TODO
-		int pxVerticalAxisHeight = pxCanvasHeight - mpxMargin_Top - mpxMargin_Bottom;
 		if( pxVerticalAxisHeight < 10 ){ // abort - canvas too small
 			sbError.append( "Error generating histogram, canvas is too small." );
 			return false;
@@ -834,9 +834,9 @@ class Plot_Histogram extends Plot {
 				int pxRectHeight = Math.round((float)maiClassSize1[xBar] * (float)pxVerticalAxisHeight / (float)miVerticalScale);
 				int offRectTop = mpxMargin_Top + pxVerticalAxisHeight - pxRectHeight;
 				if( pxRectWidth == 1 )
-				    g2.drawLine(offBarLeft, offRectTop, offBarLeft, offRectTop + pxRectHeight - 1);
+				    Utility_Geometry.drawLineToRaster( raster, pxPlotWidth, pxPlotHeight, offBarLeft, offRectTop, offBarLeft, offRectTop + pxRectHeight - 1, iRGBA );
 				else
-					g2.drawRect(offBarLeft, offRectTop, pxRectWidth, pxRectHeight - 1);
+				    Utility_Geometry.drawRectangle( raster, pxPlotWidth, pxPlotHeight, offBarLeft, offRectTop, offBarLeft + pxRectWidth - 1, offRectTop + pxRectHeight - 1, iRGBA );
 
 				// store these coordinates for mouse events
 				mxRectTopLeft[xBar] = offBarLeft;
@@ -848,6 +848,7 @@ class Plot_Histogram extends Plot {
 		}
 
 		// draw horizontal ticks and labels (follows pattern of graph drawing)
+		/* TODO should be done with new axis capability
 		int iLabelHeight_SanSerif10 = mfontmetricsSansSerif10.getAscent();
 		if( mpxMargin_Bottom > mpxTickMajorLength + iLabelHeight_SanSerif10 + 4 ){ // otherwise there is no room for ticks
 
@@ -874,6 +875,7 @@ class Plot_Histogram extends Plot {
 		// draw external labels
 		mText.remove(TEXT_ID_CaptionColorBar); // there may be a pre-existing, automatically generated caption
 		vDrawText(g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight);
+		*/
 		
 		return true;
 	}

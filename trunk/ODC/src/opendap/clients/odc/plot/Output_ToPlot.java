@@ -277,10 +277,11 @@ public class Output_ToPlot {
 			PlotOptions po = environment.getOptions();
 
 			// initialize panel
-			Panel_Plot_Line panelPL = new Panel_Plot_Line( environment, null, sCaption );
-			panelPL.setColors(cs);
-			panelPL.setOptions(po);
-			panelPL.setText(pt);
+			Plot_Line plot = Plot_Line.create( environment, null, sCaption, sbError );
+			if( plot == null ){
+				sbError.insert( 0, "unable to create line plot: " );
+				return false;
+			}
 
 			// add variables to it
 			// line plots should have a variable and a mapping; scatter plots should have pairs of variables
@@ -393,12 +394,12 @@ public class Output_ToPlot {
 			}
 
 			// set data (will generate the line points)
-			if( !panelPL.setLineData( environment.getScale(), listSeries_Y, listSeries_X, listCaptions_X, listCaptions_Y, DAP.DATA_TYPE_Float64, sCaption_axis_Y, sCaption_axis_X, sbError) ){
+			if( !plot.setLineData( environment.getScale(), listSeries_Y, listSeries_X, listCaptions_X, listCaptions_Y, DAP.DATA_TYPE_Float64, sCaption_axis_Y, sCaption_axis_X, sbError) ){
 				sbError.insert(0, "Error setting line data: ");
 				return false;
 			}
 
-			return zPlot( panelPL, model, eOutputOption, sbError );
+			return zPlot( plot, model, eOutputOption, sbError );
 		} catch(Exception ex) {
 			sbError.append("While building line plot: ");
 			ApplicationController.vUnexpectedError(ex, sbError);
