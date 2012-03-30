@@ -16,11 +16,18 @@ import opendap.clients.odc.gui.Styles;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.*;
+
 import javax.swing.*;
+
 import java.io.*;
+import java.util.ArrayList;
 
 class Plot_Histogram extends Plot {
 
+	private IPlottable data = null; // needed for data microscope
+	private ColorSpecification cs = null;
+	private PlotOptions po = null;
+	
 	private final static int DEFAULT_BAR_COUNT = 16;
 
 	private final static int MAX_REPORT_LINES = 2400;
@@ -95,8 +102,15 @@ class Plot_Histogram extends Plot {
 
 	//int getGraphOffsetPixels(){ return mpxGraphOffset; }
 	//void setGraphOffsetPixels( int iPixels ){ mpxGraphOffset = iPixels; }
+	public static Plot_Histogram create( PlotEnvironment environment, IPlottable data, StringBuffer sbError ){
+		Plot_Histogram plot = new Plot_Histogram();
+		plot.data = data;
+		plot.cs = environment.getColorSpecification();
+		plot.po = environment.getOptions();
+		return plot;
+	}
 
-	boolean setData( PlotScale scale, int eTYPE, Object[] eggData, Object[] eggMissing, PlotOptions plot_options, StringBuffer sbError ){
+	boolean setData( PlotScale scale, int eTYPE, Object[] eggData, Object[] eggMissing, StringBuffer sbError ){
 		try {
 			int pxCanvasWidth = scale.getCanvas_Width_pixels();
 			int pxPlotWidth = scale.getPlot_Width_pixels();
@@ -363,15 +377,14 @@ class Plot_Histogram extends Plot {
 					}
 					break;
 			}
-			setOptions(plot_options);
-			if (plot_options == null) {
+			if( po == null ){
 				setClass_Count(DEFAULT_BAR_COUNT, pxCanvasWidth); // the bar count affects the vertical scale
 			} else {
-				int iClassCount = plot_options.getValue_int(PlotOptions.OPTION_HistogramClassCount);
+				int iClassCount = po.getValue_int(PlotOptions.OPTION_HistogramClassCount);
 				if( iClassCount <= 0 ){
 					setClass_Minimum(pxPlotWidth);
 				} else {
-					setClass_Count(iClassCount, pxPlotWidth);
+					setClass_Count( iClassCount, pxPlotWidth );
 				}
 			}
 			return true;
@@ -719,26 +732,14 @@ class Plot_Histogram extends Plot {
 		return 3;
 	}
 
-	boolean getBoxed(){ return mzBoxed; }
-	void setBoxed( boolean zBoxed ){ mzBoxed = zBoxed; }
-	int getMarginPixels_Top(){ return mpxMargin_Top; }
-	int getMarginPixels_Bottom(){ return mpxMargin_Bottom; }
-	int getMarginPixels_Left(){ return mpxMargin_Left; }
-	int getMarginPixels_Right(){ return mpxMargin_Right; }
-	void setMarginPixels_Top( int iPixels ){ mpxMargin_Top =  iPixels; }
-	void setMarginPixels_Bottom( int iPixels ){ mpxMargin_Bottom =  iPixels; }
-	void setMarginPixels_Left( int iPixels ){ mpxMargin_Left =  iPixels; }
-	void setMarginPixels_Right( int iPixels ){ mpxMargin_Right =  iPixels; }
-
 	private String msLabel_HorizontalAxis = null;
 	private String msLabel_Title = null;
 	void setLabel_HorizontalAxis( String sText ){ msLabel_HorizontalAxis = sText; }
 	void setLabel_Title( String sText ){ msLabel_Title = sText; }
 
-	public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean render( int[] raster, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
-		Graphics2D g2 = (Graphics2D)bi.getGraphics();
-		g2.setColor(Color.black);
+		int iRGBA = Color.black.getRGB();
 
 		if( miClassCount == 0 ){
 			sbError.append("Error generating histogram, class count was 0. Data set may be empty.");
@@ -749,14 +750,17 @@ class Plot_Histogram extends Plot {
 		FontMetrics mfontmetricsSansSerif10 = g2.getFontMetrics(Styles.fontSansSerif10);
 
 		// draw y-axis (vertical)
+		/*  TODO
 		int pxVerticalAxisHeight = pxCanvasHeight - mpxMargin_Top - mpxMargin_Bottom;
 		if( pxVerticalAxisHeight < 10 ){ // abort - canvas too small
 			sbError.append( "Error generating histogram, canvas is too small." );
 			return false;
 		}
 		g2.drawRect( mpxMargin_Left, mpxMargin_Top, mpxAxisThickness, pxVerticalAxisHeight );
+		*/
 
 		// draw vertical ticks and labels
+		/* TODO should be handled by plot interface not here
 		if( mpxMargin_Left > mpxTickMajorLength + 2 ){ // otherwise there is no room for ticks
 			int iMaxLabelWidth = mfontmetricsSansSerif10.stringWidth(Integer.toString(this.miVerticalScale)) + mpxVerticalTick_LabelOffset;
 			int iLabelHalfHeight = mfontmetricsSansSerif10.getAscent() / 2;
@@ -795,7 +799,9 @@ class Plot_Histogram extends Plot {
 				}
 			}
 		}
+		*/
 
+/* should be handled by plot interface TODO		
 		// draw x-axis (horizontal)
 		int pxHorizontalAxisWidth = pxCanvasWidth - mpxMargin_Left - mpxMargin_Right;
 		if( pxHorizontalAxisWidth < 10 ){
@@ -816,6 +822,7 @@ class Plot_Histogram extends Plot {
 			// draw box top
 			g2.drawRect(mpxMargin_Left, mpxMargin_Top, pxHorizontalAxisWidth, mpxAxisThickness);
 		}
+*/
 
 		// draw class rectangles
 		int pxGraphWidth = pxPlotWidth - mpxGraphOffset*2;
@@ -884,40 +891,6 @@ class Plot_Histogram extends Plot {
 				if( index == 0 ) return 0;
 				else return 26;
 			default: return 0d;
-		}
-	}
-
-	// Mouse motion interface
-	public void mouseMoved(MouseEvent evt){
-	}
-
-	// Mouse listener interface
-	public void mousePressed(MouseEvent evt){
-	}
-
-	public void mouseDragged(MouseEvent evt){
-	}
-
-	public void mouseReleased(MouseEvent evt){
-	}
-
-	public void mouseEntered(MouseEvent evt) { }
-	public void mouseExited(MouseEvent evt) { }
-	public void mouseClicked(MouseEvent evt){
-		int xPX = evt.getX();
-		int yPX = evt.getY();
-		for( int xClass = 1; xClass <= miClassCount; xClass++ ){
-			if( xPX >= mxRectTopLeft[xClass] &&
-				xPX <= mxRectBottomLeft[xClass] &&
-				yPX >= myRectTopLeft[xClass] &&
-			    yPX <= myRectBottomLeft[xClass] ){
-					vShowClassInfo( xClass );
-					return;
-			}
-		}
-		Component compParent = ApplicationController.getInstance().getAppFrame();
-		if( JOptionPane.showConfirmDialog(compParent,"Do you want to send a report to the text view?","Histogram Report", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION ){
-			vSendReport();
 		}
 	}
 
@@ -1154,6 +1127,24 @@ class Plot_Histogram extends Plot {
 			case DAP.DATA_TYPE_String:
 				return masMissing[xMissing];
 			default: return "?";
+		}
+	}
+	
+	public void handleMouseClicked( MouseEvent evt ){
+		int xPX = evt.getX();
+		int yPX = evt.getY();
+		for( int xClass = 1; xClass <= miClassCount; xClass++ ){
+			if( xPX >= mxRectTopLeft[xClass] &&
+				xPX <= mxRectBottomLeft[xClass] &&
+				yPX >= myRectTopLeft[xClass] &&
+			    yPX <= myRectBottomLeft[xClass] ){
+					vShowClassInfo( xClass );
+					return;
+			}
+		}
+		Component compParent = ApplicationController.getInstance().getAppFrame();
+		if( JOptionPane.showConfirmDialog(compParent,"Do you want to send a report to the text view?","Histogram Report", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION ){
+			vSendReport();
 		}
 	}
 

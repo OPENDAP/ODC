@@ -12,6 +12,7 @@ package opendap.clients.odc.plot;
 import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.DAP;
+import opendap.clients.odc.Utility_Geometry;
 import opendap.clients.odc.data.Model_Dataset;
 
 import java.util.ArrayList;
@@ -29,6 +30,10 @@ class Plot_Line extends Plot {
 	public final static int TYPE_Scatter = 2;
 	public final static int TYPE_HiLo = 3;
 
+	private IPlottable data = null; // needed for data microscope
+	private ColorSpecification cs = null;
+	private PlotOptions po = null;
+	
 	Plot_Line(){}
 
 	public String getDescriptor(){ return "L"; }
@@ -63,11 +68,18 @@ class Plot_Line extends Plot {
 	private int mpxAxisOffsetHeight = 1; // TODO
 	private int mpxAxisOffsetWidth = 1; // TODO
 	
+	public static Plot_Line create( PlotEnvironment environment, IPlottable data, StringBuffer sbError ){
+		Plot_Line plot = new Plot_Line();
+		plot.data = data;
+		plot.cs = environment.getColorSpecification();
+		plot.po = environment.getOptions();
+		return plot;
+	}
+
 	// there can be either one mapping egg in which case all data is mapped to it, or there can be one mapping
 	// for each series; or it can be null (and the x-values will be 1, 2, 3, 4 etc)
 	/** currently the series eggs must contain arrays of doubles */
 	boolean setLineData( PlotScale scale, ArrayList list_eggSeriesY, ArrayList list_eggSeriesX, ArrayList listCaptions_X, ArrayList listCaptions_Y, int eDataType_Lines, String sCaptionY, String sCaptionX, StringBuffer sbError ){
-		PlotOptions po = getPlotOptions();
 		if( po == null ){
 			miCircleSize = 5;
 			mezShowLines = true;
@@ -390,40 +402,35 @@ class Plot_Line extends Plot {
 	float[] mafV = null;
 	float mUmax;
 	float mVmax; // will be * PX_MAX_VECTOR squared
-	public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean render( int[] raster, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
 		int pxCircleOffset = miCircleSize / 2;
 
-		Graphics2D g2 = (Graphics2D)bi.getGraphics();
-
 		// draw plot
 		for( int xLine = 1; xLine <= mctLines; xLine++ ){
-			g2.setColor(maColors1[xLine]);
+			int iRGBA = maColors1[xLine].getRGB();
 			int[][] aiXsegments = mapxX1[xLine];
 			int[][] aiYsegments = mapxY1[xLine];
 			for( int xSegment = 1; xSegment < aiXsegments.length; xSegment++ ){
 				int[] aiXcoordinates = aiXsegments[xSegment];
 				int[] aiYcoordinates = aiYsegments[xSegment];
 				if( mezShowLines ){
-					g2.drawPolyline(aiXcoordinates, aiYcoordinates, aiXcoordinates.length);
+					Utility_Geometry.vDrawPolylineToRaster( raster, pxPlotWidth, pxPlotHeight, aiXcoordinates, aiYcoordinates, iRGBA );
 				}
+				/* TODO
 				if( mezShowPoints ){
 					for( int xData = 0; xData < aiXcoordinates.length; xData++ ){
 						g2.fillOval(aiXcoordinates[xData] - pxCircleOffset, aiYcoordinates[xData] - pxCircleOffset, miCircleSize, miCircleSize);
 					}
 				}
+				*/
 			}
 		}
 
-		// todo why is this here?
+		// TODO why is this here?
 		int pxAxisLength_horizontal = pxPlotWidth + mpxAxisOffsetWidth;
 		int pxAxisLength_vertical = pxPlotHeight + mpxAxisOffsetHeight;
 		return true;
-	}
-
-	public boolean zCreateRGBArray(int pxWidth, int pxHeight, boolean zAveraged, StringBuffer sbError){
-		sbError.append("internal error, rgb array creation not applicable to plot line");
-		return false;
 	}
 
 }

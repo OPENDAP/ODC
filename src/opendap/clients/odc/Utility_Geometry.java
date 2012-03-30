@@ -96,5 +96,73 @@ public class Utility_Geometry {
 		if( tangent < 0 ) tangent = tangent * -1;
 		return Math.atan( tangent );
 	}
+
+	public static void vDrawPolylineToRaster( int[] raster, int pxWidth, int pxHeight, int[] aiXcoordinates, int[] aiYcoordinates, int iRGBA  ){
+		for( int xSegment = 1; xSegment < aiXcoordinates.length; xSegment++ ){
+			int x1 = aiXcoordinates[xSegment - 1];
+			int y1 = aiYcoordinates[xSegment - 1];
+			int x2 = aiXcoordinates[xSegment];
+			int y2 = aiYcoordinates[xSegment];
+			vDrawLineToRaster( raster, pxWidth, pxHeight, x1, x2, y1, y2, iRGBA );
+		}
+	}
+	
+	public static void vDrawLineToRaster( int[] raster, int pxWidth, int pxHeight, int x1, int y1, int x2, int y2, int iRGBA  ){
+		int iRasterLength = raster.length;
+		int xLittleStep = 0;
+		int xBigStep = 0;
+		int x = x1;
+		int y = y1;
+		int iBigStep, iLittleStep;
+		int diffX, diffY;
+		int stepX, stepY;
+		
+		// parametize
+		if( x1 <= x2 ){
+			diffX = x2 - x1;
+			stepX = 1;
+			if( y1 <= y2 ){
+				diffY = y2 - y1;
+				stepY = 1;
+			} else {
+				diffY = y1 - y2;
+				stepY = -1;
+			}
+		} else {
+			diffX = x1 - x2;
+			stepX = -1;
+			if( y1 <= y2 ){
+				diffY = y2 - y1;
+				stepY = 1;
+			} else {
+				diffY = y1 - y2;
+				stepY = -1;
+			}
+		}
+		int iXY = diffX * diffY;
+		if( diffX > diffY ){
+			iBigStep = diffX;
+			iLittleStep = diffY;
+		} else {
+			iBigStep = diffY;
+			iLittleStep = diffX;
+		}
+
+		// draw line
+		xBigStep = iBigStep;
+		while( true ){
+			if( xLittleStep > iXY ) break;
+			int iRasterCoordinate = x + y * pxWidth;
+			if( x >= 0 && x < pxWidth && y >= 0 && y < pxHeight && iRasterCoordinate < iRasterLength ) // must do these checks because arrow bounds could exceed plot area
+				raster[iRasterCoordinate] = iRGBA;
+			xLittleStep += iLittleStep;
+			if( diffX > diffY ) x += stepX; else y += stepY;
+			if( xLittleStep >= xBigStep ){
+				if( diffX > diffY ) y += stepY; else x += stepX;
+				xBigStep += iBigStep;
+			}
+		}
+	
+	}
 	
 }

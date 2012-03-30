@@ -47,6 +47,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.print.*;
 
 import javax.swing.*;
+
 import java.util.ArrayList;
 
 abstract class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotionListener, Scrollable {
@@ -56,6 +57,8 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	public final static double TwoPi = 2d * 3.14159d;
 	public final static String TEXT_ID_CaptionColorBar = "CaptionColorbar";
 
+	private Plot plot = null;
+	
 	private BufferedImage mbi = null;
 	protected boolean mzMode_FullScreen = false;
 
@@ -839,7 +842,17 @@ abstract class Panel_Plot extends JPanel implements Printable, MouseListener, Mo
 	public void mouseReleased(MouseEvent evt){ }
 	public void mouseEntered(MouseEvent evt) { }
 	public void mouseExited(MouseEvent evt) { }
-	public void mouseClicked(MouseEvent evt){ }
+	public void mouseClicked( MouseEvent evt ){
+		if( plot instanceof Plot_Histogram ) handleMouseClicked( evt );
+		if( plot instanceof Plot_Expression ){
+			int mpxMargin_Left = 10;
+			int mpxMargin_Top =  10;
+			int xPX = evt.getX();
+			int yPX = evt.getY();
+		    vUpdateMicroscopeArrays( xPX - mpxMargin_Left, yPX - mpxMargin_Top, mpxPlotHeight );
+			activateMicroscope( aRGB, asData, iMicroscopeWidth, iMicroscopeHeight );
+		}
+	}
 
 	// Scrollable interface
 	public Dimension getPreferredScrollableViewportSize(){

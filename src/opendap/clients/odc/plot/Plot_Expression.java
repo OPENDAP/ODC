@@ -33,8 +33,7 @@ public class Plot_Expression extends Plot {
 	
 	public String getDescriptor(){ return "E"; }
 
-	// overrides method in Panel_Plot
-	public boolean zGenerateImage( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean render( int[] raster, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 		coordinates = model.getPlotCoordinates( pxPlotWidth, pxPlotHeight, sbError );
 		mpxPlotHeight = pxPlotHeight;
 		if( coordinates == null ){
@@ -53,7 +52,7 @@ public class Plot_Expression extends Plot {
 						int argb = ( argbBaseColor & 0x00FFFFFF ) | ( coordinates.aAlpha[xPoint] << 24 ) ; // black
 						int x = coordinates.ax0_antialiased[xPoint];
 						int y = pxPlotHeight - coordinates.ay0_antialiased[xPoint] - 1;
-						bi.setRGB( x, y, argb );
+						raster[ x + y * pxPlotHeight ] = argb;
 					}
 				}
 			} else {
@@ -63,7 +62,7 @@ public class Plot_Expression extends Plot {
 					for( int xPoint = 0; xPoint < coordinates.ctPoints; xPoint++ ){
 						int coordinateX = coordinates.ax0[xPoint];
 						int coordinateY = pxPlotHeight - coordinates.ay0[xPoint] - 1;
-						bi.setRGB( coordinateX, coordinateY, argb );
+						raster[ coordinateX + coordinateY * pxPlotHeight ] = argb;
 					}
 				}
 			}
