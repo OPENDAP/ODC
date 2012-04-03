@@ -170,11 +170,11 @@ public class Output_ToPlot {
 	}
 
 	public static boolean zPlot( PlotEnvironment environment, final Model_Dataset model, final PlottingData pdat, final OutputTarget eOutputOption, final StringBuffer sbError){
-		final int ePlotType = environment.getPlotType();
 		if( environment == null ){
 			sbError.append("internal error, no plotting definition");
 			return false;
 		}
+		final int ePlotType = environment.getPlotType();
 		ColorSpecification       cs = environment.getColorSpecification();
 		final PlotScale          ps = environment.getScale();
 		final PlotOptions        po = environment.getOptions();
