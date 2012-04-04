@@ -25,10 +25,10 @@ package opendap.clients.odc.plot;
 /**
  * Title:        Output_ToPlot
  * Description:  Methods to generate plotting output
- * Copyright:    Copyright (c) 2002-2011
+ * Copyright:    Copyright (c) 2002-2012
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.02
+ * @version      3.08
  */
 
 import java.util.*;
@@ -46,6 +46,7 @@ import opendap.clients.odc.*;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Script;
 import opendap.clients.odc.gui.Resources;
+import opendap.clients.odc.plot.PlotEnvironment.PLOT_TYPE;
 import opendap.dap.*;
 
 /** The plot types have the following requirements:
@@ -74,17 +75,6 @@ line:
 */
 
 public class Output_ToPlot {
-
-    public final static int PLOT_TYPE_Pseudocolor = 1;
-    public final static int PLOT_TYPE_Vector = 2;
-    public final static int PLOT_TYPE_XY = 3;
-    public final static int PLOT_TYPE_Histogram = 4;
-    public final static String[] asPLOT_TYPES = {
-        "Pseudocolor",
-        "Vector",
-        "XY",
-        "Histogram"
-    };
 
     public enum OutputTarget {
     	PreviewPane,
@@ -174,7 +164,7 @@ public class Output_ToPlot {
 			sbError.append("internal error, no plotting definition");
 			return false;
 		}
-		final int ePlotType = environment.getPlotType();
+		final PLOT_TYPE ePlotType = environment.getPlotType();
 		ColorSpecification       cs = environment.getColorSpecification();
 		final PlotScale          ps = environment.getScale();
 		final PlotOptions        po = environment.getOptions();
@@ -228,7 +218,7 @@ public class Output_ToPlot {
 			}
 
 			boolean zResult;
-			if( ePlotType == PLOT_TYPE_XY ){ // all variables on same plot
+			if( ePlotType == PLOT_TYPE.XY ){ // all variables on same plot
 				return zPlot_XY( environment, model, sCaption, pdat, varAxisX, varAxisY, eOutputOption, sbError);
 			} else { // each variable goes on a different plot
 				for( int xVariable = 1; xVariable <= ctVariable; xVariable++ ){
@@ -236,15 +226,21 @@ public class Output_ToPlot {
 					PlottingVariable pv2 = pdat.getVariable2(xVariable);
 					if( ctVariable > 1 && eOutputOption == OutputTarget.Thumbnail ) sCaption = pv1.getSliceCaption();
 					switch(ePlotType){
-						case PLOT_TYPE_Histogram:
+						case Histogram:
 							zResult = zPlot_Histogram( environment, model, sCaption, pv1, eOutputOption, xVariable, ctVariable, sbError);
 							break;
-						case PLOT_TYPE_Pseudocolor:
+						case Pseudocolor:
 							zResult = zPlot_PseudoColor( environment, model, sCaption, pv1, varAxisX, varAxisY, eOutputOption, xVariable, ctVariable, sbError);
 							break;
-						case PLOT_TYPE_Vector:
+						case Vector:
 							zResult = zPlot_Vector( environment, model, sCaption, pv1, pv2, varAxisX, varAxisY, eOutputOption, xVariable, ctVariable, sbError);
 							break;
+						case XY:
+							sbError.append( "not applicable" );
+							return false;
+						case Surface:
+							sbError.append( "plot type not implemented " + ePlotType );
+							return false;
 						default:
 							sbError.append("unknown plot type " + ePlotType);
 							return false;
@@ -787,7 +783,7 @@ public class Output_ToPlot {
 					scale = panelPlot.getPlotScale();
 					if( (float)scale.getCanvas_Width_pixels() > .9f * SCREEN_Width ||
 					    (float)scale.getCanvas_Height_pixels() > .9f * SCREEN_Height ){
-						if( iFrameNumber == 1 ) frame.setSize(SCREEN_Width, SCREEN_Height);
+						if( iFrameNumber == 1 ) frame.setSize( SCREEN_Width, SCREEN_Height );
 						JScrollPane jspNew = new JScrollPane(panelPlot);
 						compToAdd = jspNew;
 					} else {
@@ -849,7 +845,7 @@ public class Output_ToPlot {
 						sbError.insert(0, "plotting to preview pane: ");
 						return false;
 					}
-					if( iFrameNumber > 1 ) Thread.sleep(miMultisliceDelay); // wait for two seconds before continuing
+					if( iFrameNumber > 1 ) Thread.sleep( miMultisliceDelay ); // wait for two seconds before continuing
 					Panel_View_Plot.getPreviewPane().setContent(panelPlot);
 					Thread.yield();
 					sOutput = "preview pane";

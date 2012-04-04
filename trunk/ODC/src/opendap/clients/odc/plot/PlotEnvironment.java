@@ -23,19 +23,26 @@
 package opendap.clients.odc.plot;
 
 public class PlotEnvironment {
+    public enum PLOT_TYPE {
+    	Pseudocolor,
+    	Vector,
+    	XY,
+    	Surface,
+    	Histogram
+    }
 	private String msPlotID;
 	final private PlotAxes mAxes = PlotAxes.create();
 	final private PlotText mText = PlotText.create();
 	final private PlotOptions mOptions = new PlotOptions();
 	private PlotScale mScale = PlotScale.create();
 	private ColorSpecification mColorSpecification = null;
-	private int mePlotType;
-	int getPlotType(){ return mePlotType; }
+	private PLOT_TYPE mePlotType;
+	PLOT_TYPE getPlotType(){ return mePlotType; }
 	PlotAxes getAxes(){ return mAxes; }
 	PlotText getText(){ return mText; }
 	PlotScale getScale(){ return mScale; }
 	PlotOptions getOptions(){ return mOptions; }
-	void setPlotType( int ePLOT_TYPE ){ mePlotType = ePLOT_TYPE; }
+	void setPlotType( PLOT_TYPE ePLOT_TYPE ){ mePlotType = ePLOT_TYPE; }
 	ColorSpecification getColorSpecification(){ return mColorSpecification; }
 	void setColorSpecification( ColorSpecification cs ){
 		mColorSpecification = cs;
