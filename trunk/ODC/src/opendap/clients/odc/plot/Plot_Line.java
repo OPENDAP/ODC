@@ -6,23 +6,15 @@ package opendap.clients.odc.plot;
  * Copyright:    Copyright (c) 2002-12
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
- * @version      3.08
+ * @version      3.09
  */
 
-import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.Utility;
 import opendap.clients.odc.DAP;
 import opendap.clients.odc.Utility_Geometry;
-import opendap.clients.odc.data.Model_Dataset;
 
 import java.util.ArrayList;
-import java.awt.event.*;
 import java.awt.*;
-import java.awt.image.*;
-
-import javax.swing.*;
-import javax.swing.border.*;
-import java.io.*;
 
 class Plot_Line extends Plot {
 

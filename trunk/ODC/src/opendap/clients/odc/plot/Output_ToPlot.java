@@ -87,7 +87,7 @@ public class Output_ToPlot {
     	ExpressionPreview
     };
 
-	private static final javax.swing.JWindow windowFullScreen_final = new javax.swing.JWindow(ApplicationController.getInstance().getAppFrame());
+	private static final javax.swing.JWindow windowFullScreen_final = new javax.swing.JWindow( ApplicationController.getInstance().getAppFrame() );
 	private static final int SCREEN_Width = Toolkit.getDefaultToolkit().getScreenSize().width;
 	private static final int SCREEN_Height = Toolkit.getDefaultToolkit().getScreenSize().height;
 	private static JFileChooser jfc;
@@ -95,6 +95,10 @@ public class Output_ToPlot {
 	private static int miMultisliceDelay = 150;
 
 	public static javax.swing.JFrame mPlotFrame = null;
+	public static Panel_Plot mExternalWindowPanel = null;
+	public static Panel_Plot mFullScreenPanel = null;
+	public static PlotEnvironment mExternalWindowEnvironment = null;
+	public static PlotEnvironment mFullScreenEnvironment = null;
 	private final static int EXTERNAL_WINDOW_Width = 650;
 	private final static int EXTERNAL_WINDOW_Height = 600;
 
@@ -743,31 +747,37 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot( Panel_Plot panelPlot, Model_Dataset model, OutputTarget eOutputOption, StringBuffer sbError ){
-		return zPlot( panelPlot, model, eOutputOption, 1, 1, sbError );
+	static boolean zPlot( PlotEnvironment environment, Plot plot, Model_Dataset model, OutputTarget eOutputOption, StringBuffer sbError ){
+		return zPlot( environment, plot, model, eOutputOption, 1, 1, sbError );
 	}
 
-	static boolean zPlot( Panel_Plot panelPlot, Model_Dataset model, OutputTarget eOutputOption, int iFrameNumber, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot( PlotEnvironment environment, Plot plot, Model_Dataset model, OutputTarget eOutputOption, int iFrameNumber, int ctFrames, StringBuffer sbError ){
 		try {
 			PlotScale scale;
 			String sOutput;
+			Panel_Plot plot_panel;
 			switch( eOutputOption ){
-				case ExternalWindow:
+				
+				case ExternalWindow: // use the existing external window
+				case NewWindow: // create a new window
 					if( iFrameNumber > 1 ) Thread.sleep(miMultisliceDelay); // wait for two seconds before continuing
-					sOutput = "the external window";
-				case NewWindow:
-					sOutput = "new window";
 
-					if( !panelPlot.zPlot(sbError) ){
-						sbError.insert(0, "plotting to " + sOutput + ": ");
-						return false;
-					}
-
+					// establish frame
 					JFrame frame;
 				    if( eOutputOption == OutputTarget.ExternalWindow ){
+				    	sOutput = "the external window";
 						frame = mPlotFrame;
-						frame.getContentPane().removeAll();
-					} else { // new window
+						if( mExternalWindowPanel == null || mExternalWindowEnvironment != environment ){
+							plot_panel = Panel_Plot.create( environment, plot, sbError );
+							if( plot_panel == null ){
+								sbError.insert( 0, "failed to create fresh plot panel for external window: " );
+								return false;
+							}
+						} else {
+							plot_panel = mExternalWindowPanel;
+						}
+					} else {
+						sOutput = "new window";
 						frame = new javax.swing.JFrame();
 						frame.getContentPane().setLayout(new java.awt.BorderLayout());
 						frame.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -778,52 +788,81 @@ public class Output_ToPlot {
 							}
 						});
 						Resources.iconAdd(frame);
-					}
-					JComponent compToAdd;
-					scale = panelPlot.getPlotScale();
-					if( (float)scale.getCanvas_Width_pixels() > .9f * SCREEN_Width ||
-					    (float)scale.getCanvas_Height_pixels() > .9f * SCREEN_Height ){
-						if( iFrameNumber == 1 ) frame.setSize( SCREEN_Width, SCREEN_Height );
-						JScrollPane jspNew = new JScrollPane(panelPlot);
-						compToAdd = jspNew;
-					} else {
-						if( iFrameNumber == 1 ){
-							int iExtraWidth = ApplicationController.getInstance().getFrame_ExtraWidth();
-	    					int iExtraHeight = ApplicationController.getInstance().getFrame_ExtraHeight();
-		    				int iFrameWidth = scale.getCanvas_Width_pixels() + iExtraWidth;
-			    			int iFrameHeight = scale.getCanvas_Height_pixels() + iExtraHeight;
-				    		frame.setSize(iFrameWidth, iFrameHeight);
+						plot_panel = Panel_Plot.create( environment, plot, sbError );
+					    JComponent compToAdd;
+						scale = plot_panel.getPlotScale();
+						if( (float)scale.getCanvas_Width_pixels() > .9f * SCREEN_Width ||
+						    (float)scale.getCanvas_Height_pixels() > .9f * SCREEN_Height ){
+							if( iFrameNumber == 1 ) frame.setSize( SCREEN_Width, SCREEN_Height );
+							JScrollPane jspNew = new JScrollPane( plot_panel );
+							compToAdd = jspNew;
+						} else {
+							if( iFrameNumber == 1 ){
+								int iExtraWidth = ApplicationController.getInstance().getFrame_ExtraWidth();
+		    					int iExtraHeight = ApplicationController.getInstance().getFrame_ExtraHeight();
+			    				int iFrameWidth = scale.getCanvas_Width_pixels() + iExtraWidth;
+				    			int iFrameHeight = scale.getCanvas_Height_pixels() + iExtraHeight;
+					    		frame.setSize(iFrameWidth, iFrameHeight);
+							}
+							compToAdd = plot_panel;
 						}
-						compToAdd = panelPlot;
+						frame.getContentPane().add( compToAdd, BorderLayout.CENTER );
 					}
-				    if( eOutputOption == OutputTarget.ExternalWindow ) frame.getContentPane().removeAll();
-					frame.getContentPane().add(compToAdd, BorderLayout.CENTER);
-					frame.setVisible(true);
-					Thread.yield();
-					break;
-				case FullScreen:
-
-					if( !panelPlot.zPlot(sbError) ){
-						sbError.insert(0, "plotting to full screen: ");
+					if( ! plot_panel.zPlot( sbError ) ){
+						sbError.insert(0, "plotting to " + sOutput + ": ");
 						return false;
 					}
 
-					if( iFrameNumber > 1 ) Thread.sleep(miMultisliceDelay); // wait for two seconds before continuing
+					frame.setVisible( true );
+					Thread.yield();
+					break;
+					
+				case FullScreen:
 					sOutput = "full screen";
-					scale = panelPlot.getPlotScale();
-					int iPanelWidth = scale.getCanvas_Width_pixels();
-					int iPanelHeight = scale.getCanvas_Height_pixels();
-					java.awt.Container container = windowFullScreen_final.getContentPane();
-					container.removeAll();
-					container.add(panelPlot);
-					Utility.vCenterComponent(panelPlot, iPanelWidth, iPanelHeight, SCREEN_Width, SCREEN_Height);
-					container.setBackground(panelPlot.getColor_Background());
-					windowFullScreen_final.setVisible(true);
+					boolean zNewFullScreenPanelCreated = false;
+					if( mFullScreenPanel == null ){
+						plot_panel = Panel_Plot.create( environment, plot, sbError );
+						zNewFullScreenPanelCreated = true;
+					} else {
+						if( mFullScreenEnvironment == environment ){
+							plot_panel = mFullScreenPanel; 
+						} else {
+							plot_panel = Panel_Plot.create( environment, plot, sbError );
+							zNewFullScreenPanelCreated = true;
+						}
+					}
+					if( plot_panel == null ){
+						sbError.insert( 0, "failed to create panel for full screen plot" );
+						return false;
+					}
+					mFullScreenPanel = plot_panel; 
+					mFullScreenEnvironment = environment;
+					if( ! plot_panel.zPlot( sbError ) ){
+						sbError.insert(0, "plotting to full screen: ");
+						return false;
+					}
+					if( iFrameNumber > 1 ) Thread.sleep(miMultisliceDelay); // wait for two seconds before continuing
+					if( zNewFullScreenPanelCreated ){
+						scale = plot_panel.getPlotScale();
+						int iPanelWidth = scale.getCanvas_Width_pixels();
+						int iPanelHeight = scale.getCanvas_Height_pixels();
+						java.awt.Container container = windowFullScreen_final.getContentPane();
+						container.removeAll();
+						container.add( plot_panel );
+						Utility.vCenterComponent( plot_panel, iPanelWidth, iPanelHeight, SCREEN_Width, SCREEN_Height );
+						container.setBackground( plot_panel.getColor_Background() );
+						windowFullScreen_final.setVisible(true);
+					}
 					Thread.yield();
 					windowFullScreen_final.requestFocus(); // so window can handle key strokes
 					break;
 				case Print:
-					RepaintManager theRepaintManager = RepaintManager.currentManager(panelPlot);
+					plot_panel = Panel_Plot.create( environment, plot, sbError );
+					if( plot_panel == null ){
+						sbError.insert( 0, "failed to create panel for printing" );
+						return false;
+					}
+					RepaintManager theRepaintManager = RepaintManager.currentManager( plot_panel );
 					try {
 						theRepaintManager.setDoubleBufferingEnabled(false);  // turn off double buffering
 						PrinterJob printer_job = PrinterJob.getPrinterJob();
@@ -832,7 +871,7 @@ public class Output_ToPlot {
 						if( page_format_user == page_format_default ){
 							return true; // user cancelled action
 						} else {
-							printer_job.setPrintable(panelPlot);
+							printer_job.setPrintable( plot_panel );
 							printer_job.print();
 						}
 						sOutput = "printer " + " " + printer_job.getPrintService().getName() + " job " + printer_job.getJobName() ;
@@ -841,31 +880,31 @@ public class Output_ToPlot {
 					}
 					break;
 				case PreviewPane:
-					if( !panelPlot.zPlot(sbError) ){
+					sOutput = "preview pane";
+					if( ! plot_panel.zPlot(sbError) ){
 						sbError.insert(0, "plotting to preview pane: ");
 						return false;
 					}
 					if( iFrameNumber > 1 ) Thread.sleep( miMultisliceDelay ); // wait for two seconds before continuing
-					Panel_View_Plot.getPreviewPane().setContent(panelPlot);
+					Panel_View_Plot.getPreviewPane().setContent( plot_panel );
 					Thread.yield();
-					sOutput = "preview pane";
 					break;
 				case ExpressionPreview:
-					if( !panelPlot.zPlot(sbError) ){
+					sOutput = "expression preview pane";
+					if( ! plot_panel.zPlot(sbError) ){
 						sbError.insert(0, "plotting to expression preview pane: ");
 						return false;
 					}
 					if( iFrameNumber > 1 ) Thread.sleep(miMultisliceDelay); // wait for two seconds before continuing
 					ApplicationController.getInstance().getAppFrame().getDataViewer()._getPreviewPane().setContent( panelPlot );
 					Thread.yield();
-					sOutput = "expression preview pane";
 					break;
 				case File_PNG:
-					if( !panelPlot.zPlot(sbError) ){
+					if( ! plot_panel.zPlot(sbError) ){
 						sbError.insert(0, "plotting to buffer for image: ");
 						return false;
 					}
-					java.awt.image.RenderedImage imagePlot = panelPlot._getImage();
+					java.awt.image.RenderedImage imagePlot = plot_panel._getImage();
 					if( imagePlot == null ){
 						sbError.append("internal error, no image");
 						return false;
@@ -882,11 +921,11 @@ public class Output_ToPlot {
 					break;
 				case Thumbnail:
 					Panel_Thumbnails panelThumbnails = Panel_View_Plot.getPanel_Thumbnails();
-					Panel_View_Plot.getPreviewPane().setContent(panelPlot);
-					int pxThumbnailWidth = panelPlot.getPlotOptions().get(PlotOptions.OPTION_ThumbnailWidth).getValue_int();
-					int pxThumbnailHeight = panelPlot.mPlottable.getDimension_y() * pxThumbnailWidth / panelPlot.mPlottable.getDimension_x();
+					Panel_View_Plot.getPreviewPane().setContent( plot_panel );
+					int pxThumbnailWidth = plot_panel.getPlotOptions().get(PlotOptions.OPTION_ThumbnailWidth).getValue_int();
+					int pxThumbnailHeight = plot_panel.mPlottable.getDimension_y() * pxThumbnailWidth / plot_panel.mPlottable.getDimension_x();
 					int[] rgb_array = new int[ pxThumbnailWidth * pxThumbnailHeight ]; // TODO re use buffer
-					panelPlot.zWriteRGBArray( rgb_array, pxThumbnailWidth, pxThumbnailHeight, false, sbError);
+					plot_panel.zWriteRGBArray( rgb_array, pxThumbnailWidth, pxThumbnailHeight, false, sbError);
 					if( rgb_array == null ){
 						sbError.append("Unable to generate plot: " + sbError);
 						return false;
@@ -896,7 +935,7 @@ public class Output_ToPlot {
 					Graphics g = biThumbnail.getGraphics();
 					g.setColor(Color.BLACK);
 					g.drawRect(0, 0, pxThumbnailWidth - 1, pxThumbnailHeight - 1);
-					panelThumbnails.addThumbnail( model, panelPlot._getCaption(), biThumbnail );
+					panelThumbnails.addThumbnail( model, plot_panel._getCaption(), biThumbnail );
 					panelThumbnails.revalidate();
 					sOutput = "thumbnail";
 					break;
@@ -907,9 +946,9 @@ public class Output_ToPlot {
 			if( iFrameNumber < ctFrames ){
 				ApplicationController.vShowStatus_NoCache("plot frame " + iFrameNumber + " / " + ctFrames);
 			} else if( ctFrames > 1 ) {
-				ApplicationController.vShowStatus("Plotted " + ctFrames + " frames " + panelPlot._getID() + " to " + sOutput);
+				ApplicationController.vShowStatus("Plotted " + ctFrames + " frames " + plot_panel._getID() + " to " + sOutput);
 			} else {
-				ApplicationController.vShowStatus("Plotted " + panelPlot._getID() + " to " + sOutput);
+				ApplicationController.vShowStatus("Plotted " + plot_panel._getID() + " to " + sOutput);
 			}
 			return true;
 		} catch(Exception ex) {
