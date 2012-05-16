@@ -118,10 +118,10 @@ Thread.dumpStack();
 	}
 
 	boolean zLoadVariables( DataDDS ddds, DAS das, int size, StringBuffer sbError ){
-		return zLoadVariables( ddds, das, 0, size, sbError ); // plot type is ignored if size > 0 todo make more robust
+		return zLoadVariables( ddds, das, PlotEnvironment.PLOT_TYPE.Pseudocolor, size, sbError ); // plot type is ignored if size > 0 todo make more robust
 	}
 
-	boolean zLoadVariables( DataDDS ddds, DAS das, int ePLOT_TYPE, int size, StringBuffer sbError ){
+	boolean zLoadVariables( DataDDS ddds, DAS das, PlotEnvironment.PLOT_TYPE ePLOT_TYPE, int size, StringBuffer sbError ){
 		try {
 			if( ddds == null ){ sbError.append("data DDS missing"); return false; }
 			ArrayList<VariableSpecification> listVariableSpecs = new ArrayList<VariableSpecification>();
@@ -185,7 +185,7 @@ Thread.dumpStack();
 	// Sequences
 	// sequences are stored in a VariableSpec by specifying the BaseType of the root sequence
 	// and then the path to the non-sequence variable; the node name is stored for the root sequence
-	private boolean zDiscoverVariables_recursion( int ePLOT_TYPE, int size, String sNodeName, Enumeration enumVariables, DAS das, ArrayList<VariableSpecification> listVariableSpecs, StringBuffer sbError ){
+	private boolean zDiscoverVariables_recursion( PlotEnvironment.PLOT_TYPE ePLOT_TYPE, int size, String sNodeName, Enumeration enumVariables, DAS das, ArrayList<VariableSpecification> listVariableSpecs, StringBuffer sbError ){
 		try {
 		    Enumeration enumChildVariables = null;
 			while( enumVariables.hasMoreElements() ){
@@ -218,12 +218,12 @@ Thread.dumpStack();
 						if( iEffectiveDimCount != 1 ) continue; // not a valid map array
 						if( darray.getFirstDimension().getSize() != size ) continue; // not a matching map array
 					} else {
-						switch(ePLOT_TYPE){
-							case Output_ToPlot.PLOT_TYPE_Histogram: // any
-							case Output_ToPlot.PLOT_TYPE_XY: // 1- or 2-D
-							case Output_ToPlot.PLOT_TYPE_Vector: // 1- or 2-D
+						switch( ePLOT_TYPE ){
+							case Histogram: // any
+							case XY: // 1- or 2-D
+							case Vector: // 1- or 2-D
 								break;
-							case Output_ToPlot.PLOT_TYPE_Pseudocolor: // 1 2-D
+							case Pseudocolor: // 1 2-D
 								if( iEffectiveDimCount >= 2 ) break; else continue;
 						}
 					}

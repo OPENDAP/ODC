@@ -464,7 +464,7 @@ public class ApplicationController {
 	public Model_Dataset[] getSelectedThumbs(){
 		if( getAppFrame() == null ) return null;
 		if( getAppFrame().getPlotter() == null ) return null;
-		return opendap.clients.odc.plot.Panel_View_Plot.getPanel_Thumbnails().getSelectedURLs0();
+		return opendap.clients.odc.plot.Panel_View_Plot._getPanel_Thumbnails().getSelectedURLs0();
 	}
 
 	public java.io.OutputStream getTextViewerOS(){

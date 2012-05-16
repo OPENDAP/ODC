@@ -526,7 +526,7 @@ public class PlotScale {
 				return miDataWidth + (int)mfMarginLeft + (int)mfMarginRight; // cannot figure out this size ahead of time
 			case PreviewPane:
 				// Dimension dimView = Output_ToPlot.mPreviewScrollPane.getSize(); // does not work: .getViewport().getViewSize();
-				Dimension dimView = Panel_View_Plot.getPreviewPane().getSize();
+				Dimension dimView = Panel_View_Plot._getPreviewScrollPane().getSize();
 //				Dimension dimTabbed = Panel_View_Plot.getTabbedPane().getSize();
 				int iPreviewPaneWidth = (int)dimView.getWidth();
 //				int iTabbedPaneWidth = (int)dimTabbed.getWidth();
@@ -558,7 +558,7 @@ public class PlotScale {
 			case Print:
 				return miDataHeight + (int)mfMarginTop + (int)mfMarginBottom; // cannot figure out this size ahead of time
 			case PreviewPane:
-				Dimension dimView = Panel_View_Plot.getPreviewPane().getSize();
+				Dimension dimView = Panel_View_Plot._getPreviewScrollPane().getSize();
 				int iPreviewPaneHeight = (int)dimView.getHeight();
 				return iPreviewPaneHeight;
 			case ExpressionPreview:

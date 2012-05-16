@@ -73,7 +73,7 @@ import java.util.ArrayList;
  * 
  *   Panel_VarView (North)
  *   Panel_View_Variable (South) (contains Panel_Edit_ViewArray)
- *     or panelPreviewPane
+ *     or opendap.clients.odc.plot.PreviewPane (panelPreviewPane)
  *     
  * variable activation:
  * 
@@ -449,7 +449,7 @@ class Model_DataView {
 		} else {
 			StringBuffer sbError = new StringBuffer( 256 );
 			opendap.clients.odc.plot.Panel_View_Plot plotter = ApplicationController.getInstance().getAppFrame().getPlotter();
-			if( ! plotter.zPlotExpressionToPreview( modelActive, sbError ) ){
+			if( ! plotter._zPlotExpressionToPreview( modelActive, sbError ) ){
 				ApplicationController.vShowError( "Failed to plot expression " + this.modelActive.getTitle() + ": " + sbError );
 				return;
 			}

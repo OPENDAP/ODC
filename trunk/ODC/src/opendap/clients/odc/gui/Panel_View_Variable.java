@@ -33,6 +33,7 @@ import  org.python.core.PyObject;
 // right click to resize stuff
 // be able to record and store presentation info in class below
 
+// Parent: Panel_View_Data
 // contains Panel_Edit_ViewArray and a command panel
 
 public class Panel_View_Variable extends JPanel implements java.awt.event.ComponentListener, java.awt.event.FocusListener {

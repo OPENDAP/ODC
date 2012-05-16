@@ -21,10 +21,12 @@ class Plot_Surface extends Plot {
 		Shaded
 	};
 
-	private Plot_Surface(){}
+	private Plot_Surface( PlotEnvironment environment ){
+		super( environment );		
+	}
 
-	public static Plot_Surface create(){
-		Plot_Surface plot = new Plot_Surface();
+	public static Plot_Surface create( PlotEnvironment environment ){
+		Plot_Surface plot = new Plot_Surface( environment );
 		return plot;
 	}
 	

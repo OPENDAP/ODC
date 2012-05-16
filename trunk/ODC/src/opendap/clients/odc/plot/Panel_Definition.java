@@ -56,7 +56,7 @@ public class Panel_Definition extends JPanel {
 	private final Panel_ColorSpecification mpanelColors = new Panel_ColorSpecification();
 	private final Panel_Thumbnails mpanelThumbnails = new Panel_Thumbnails(this);
 
-	public PreviewPane getPreviewPane(){ return mPreviewPane; }
+	public PreviewPane getPreviewScrollPane(){ return mPreviewPane; }
 	public Panel_VariableTab getPanel_Variables(){ return mpanelVariables; }
 	public Panel_PlotScale getPanel_PlotScale(){ return mpanelScale; }
 	public Panel_PlotText getPanel_PlotText(){ return mpanelText; }
@@ -73,7 +73,7 @@ public class Panel_Definition extends JPanel {
 		}
 		mParent = parent;
 
-		if( !mpanelVariables.zInitialize( this, sbError) ){
+		if( ! mpanelVariables.zInitialize( this, sbError) ){
 			sbError.insert(0, "Failed to initialize variable panel: ");
 			return false;
 		}
@@ -97,9 +97,9 @@ public class Panel_Definition extends JPanel {
 			new ChangeListener(){
 			    public void stateChanged( ChangeEvent e ){
 					if( mjtpPlotDefinition.getSelectedIndex() == 6){
-						Panel_View_Plot.getTN_Controls().setVisible(true);
+						Panel_View_Plot._getTN_Controls().setVisible(true);
 					} else {
-						Panel_View_Plot.getTN_Controls().setVisible(false);
+						Panel_View_Plot._getTN_Controls().setVisible(false);
 					}
 				}
 			}
@@ -113,28 +113,28 @@ public class Panel_Definition extends JPanel {
 
 	public void _vActivateVariableSelector(){
 		mjtpPlotDefinition.setSelectedIndex(PANEL_INDEX_Variables);
-		Panel_View_Plot.getTN_Controls().setVisible(false);
+		Panel_View_Plot._getTN_Controls().setVisible(false);
 	}
 
 	public void _vActivatePreview(){
 		mjtpPlotDefinition.setSelectedIndex(PANEL_INDEX_Preview);
-		Panel_View_Plot.getTN_Controls().setVisible(false);
+		Panel_View_Plot._getTN_Controls().setVisible(false);
 		mjtpPlotDefinition.invalidate();
 		this.validate();
 	}
 
 	public void _vActivateThumbnails(){
 		mjtpPlotDefinition.setSelectedIndex(PANEL_INDEX_Thumbnails);
-		Panel_View_Plot.getTN_Controls().setVisible(true);
+		Panel_View_Plot._getTN_Controls().setVisible(true);
 		mjtpPlotDefinition.invalidate();
 		this.validate();
 	}
 
 	void _vClear(){
-		setModel( null, 0 );
+		setModel( null, PlotEnvironment.getDefaultPlotType() );
 	}
 
-	void _setPlotType( int ePlotType ){
+	void _setPlotType( PlotEnvironment.PLOT_TYPE ePlotType ){
 		Model_Dataset modelActive = Model.get().getPlotDataModel();
 		if( modelActive != null ){
 			modelActive.getPlotEnvironment().setPlotType( ePlotType );
@@ -143,7 +143,7 @@ public class Panel_Definition extends JPanel {
 	}
 
 	boolean zSetting = false;
-	void setModel( Model_Dataset model, int ePlotType ){
+	void setModel( Model_Dataset model, PlotEnvironment.PLOT_TYPE ePlotType ){
 		if( zSetting ){ // reentrant
 			System.err.println( "internal error, setData in Panel_Definition is re-entrant" );
 			Thread.dumpStack();
@@ -152,7 +152,7 @@ public class Panel_Definition extends JPanel {
 		zSetting = true;
 		try {
 			if( model == null ){
-				mParent.setPlottingEnabled( false );
+				mParent._setPlottingEnabled( false );
 				mpanelScale._setScale( null );
 				mpanelText.setPlotText( null );
 				mpanelOptions.setPlotOptions( null );
@@ -163,7 +163,7 @@ public class Panel_Definition extends JPanel {
 				mpanelOptions.setPlotOptions( pd.getOptions()); // must be done before cs is set
 				mpanelScale._setScale( pd.getScale());
 				mpanelText.setPlotText( pd.getText());
-				mParent.setPlottingEnabled( true );
+				mParent._setPlottingEnabled( true );
 				pd.setPlotType( ePlotType );
 				mpanelVariables.vShowDDDSForm( ePlotType, model );
 				vRefresh();
@@ -248,7 +248,7 @@ class Panel_VariableTab extends JPanel {
 		add(mpanelMessage, BorderLayout.CENTER);
 		revalidate();
 	}
-	void vShowDDDSForm( int ePlotType, Model_Dataset model ){
+	void vShowDDDSForm( PlotEnvironment.PLOT_TYPE ePlotType, Model_Dataset model ){
 		if( model == null ){
 			removeAll();  // TODO
 			return;

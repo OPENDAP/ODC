@@ -20,7 +20,9 @@ import java.awt.image.BufferedImage;
 
 class Plot_Vector extends Plot {
 
-	private Plot_Vector(){}
+	private Plot_Vector( PlotEnvironment environment ){
+		super( environment );		
+	}
 	public String getDescriptor(){ return "V"; }
 
 	private IPlottable data = null; // needed for data microscope
@@ -28,7 +30,7 @@ class Plot_Vector extends Plot {
 	private PlotOptions po = null;
 
 	public static Plot_Vector create( PlotEnvironment environment, IPlottable data, String sCaption, StringBuffer sbError ){
-		Plot_Vector plot = new Plot_Vector();
+		Plot_Vector plot = new Plot_Vector( environment );
 		if( data.getDataType() == 0 ){
 			sbError.append( "data type undefined" );
 			return null; // nothing to plot

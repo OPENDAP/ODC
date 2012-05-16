@@ -20,11 +20,13 @@ public class Plot_Expression extends Plot {
 	private org.python.core.PyCode pycodeExpression_x = null;
 	private org.python.core.PyCode pycodeExpression_y = null;
 	private org.python.core.PyCode pycodeExpression_z = null;
-		
-	Plot_Expression(){}
+
+	private Plot_Expression( PlotEnvironment environment ){
+		super( environment );		
+	}
 
 	public static Plot_Expression create( PlotEnvironment environment, Model_PlottableExpression model, String sCaption, StringBuffer sbError ){
-		Plot_Expression plot = new Plot_Expression();
+		Plot_Expression plot = new Plot_Expression( environment );
 		// plot.data = data;
 		plot.cs = environment.getColorSpecification();
 		plot.msCaption = sCaption;

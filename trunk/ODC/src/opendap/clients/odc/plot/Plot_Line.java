@@ -26,7 +26,9 @@ class Plot_Line extends Plot {
 	private ColorSpecification cs = null;
 	private PlotOptions po = null;
 	
-	Plot_Line(){}
+	private Plot_Line( PlotEnvironment environment ){
+		super( environment );		
+	}
 
 	public String getDescriptor(){ return "L"; }
 
@@ -61,7 +63,7 @@ class Plot_Line extends Plot {
 	private int mpxAxisOffsetWidth = 1; // TODO
 	
 	public static Plot_Line create( PlotEnvironment environment, IPlottable data, String sCaption, StringBuffer sbError ){
-		Plot_Line plot = new Plot_Line();
+		Plot_Line plot = new Plot_Line( environment );
 		plot.data = data;
 		plot.cs = environment.getColorSpecification();
 		plot.po = environment.getOptions();

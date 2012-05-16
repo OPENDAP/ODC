@@ -37,8 +37,7 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 
 	private BufferedImage mbi = null;
 	private ArrayList<int[]> listPlotBuffers = new ArrayList<int[]>(); 
-	private ArrayList<Plot> listPlots = new ArrayList<Plot>(); 
-	private Plot plotPrimary = null;
+	private ArrayList<Plot> listPlots = new ArrayList<Plot>();
 	
 	protected boolean mzMode_FullScreen = false;
 
@@ -83,8 +82,8 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		PlotEnvironment environment = new PlotEnvironment();
 		environment.getScale().setOutputTarget( OutputTarget.NewWindow );
 		environment.getScale().setDataDimension( 600, 600 );
-		Plot_Surface demo_surface = Plot_Surface.create();
-		Panel_Plot panel = Panel_Plot.create( environment, demo_surface, sbError );
+		Plot_Surface demo_surface = Plot_Surface.create( environment );
+		Panel_Plot panel = Panel_Plot._create( sbError );
 		if( panel == null ){
 			System.err.println( "plot failed: " + sbError.toString() );
 		}
@@ -101,36 +100,8 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		frame.setVisible( true );
 	}
 	
-	public static Panel_Plot create( PlotEnvironment environment, Plot plot, StringBuffer sbError ){
-		if( plot == null ){
-			sbError.append( "no plot supplied" );
-			return null;
-		}
-		String sID_descriptive = plot.getDescriptor() + Utility.getCurrentDate( FORMAT_ID_date );
+	public static Panel_Plot _create( StringBuffer sbError ){
 		Panel_Plot panel = new Panel_Plot();
-		if( environment == null ){
-			sbError.append( "system error, invalid plot panel, no environment" );
-			return null;
-		}
-		panel.plotPrimary = plot;
-		panel.listPlots.add( plot );
-		panel.environment = environment;
-		if( miSessionCount == 0 ){ // update from properties
-			if( ConfigurationManager.getInstance() == null ){
-				miSessionCount = 0;
-			} else {
-				miSessionCount = ConfigurationManager.getInstance().getProperty_PlotCount();
-			}
-		}
-		miSessionCount++;
-		if( ConfigurationManager.getInstance() != null ) ConfigurationManager.getInstance().setOption(ConfigurationManager.PROPERTY_COUNT_Plots, Integer.toString(miSessionCount));
-		int iCountWidth;
-		if( miSessionCount < 1000 ) iCountWidth = 3;
-		else if( miSessionCount < 100000 ) iCountWidth = 5;
-		else iCountWidth = 10;
-		panel.msID = sID_descriptive + "-" + Utility_String.sFormatFixedRight( miSessionCount, iCountWidth, '0' ); // append plot count to ID descriptive string
-		panel.mScale = environment.getScale();
-		panel.msCaption = "???";
 		panel.addMouseListener( panel );
 		panel.addMouseMotionListener( panel );
 		return panel;
@@ -144,8 +115,8 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		return new Dimension( mpxPreferredWidth, mpxPreferredHeight );
     }
 
-	String _getID(){ return msID; }
-	String _getCaption(){ return msCaption; }
+	public final String _getID(){ return msID; }
+	public final String _getCaption(){ return msCaption; }
 
 	// the way printing works is that the printer keeps asking for pages and when you return no_such_page it stops
 	// in the current implementation the Java printer always asks for the same page twice (with different
@@ -163,11 +134,6 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		}
 		try {
 			// todo use black and white / color models for bw printers
-			StringBuffer sbError = new StringBuffer( 250 );
-			if( ! zPlot( sbError ) ){
-				ApplicationController.vShowError( "System error, unable to print, unable to create image: " + sbError.toString() );
-				return java.awt.print.Printable.NO_SUCH_PAGE;
-			}
 			((Graphics2D)g).drawImage(mbi, null, 0, 0); // flip image to printer
 			return java.awt.print.Printable.PAGE_EXISTS;
 		} catch(Exception ex) {
@@ -188,14 +154,41 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		}
 	}
 
-	public boolean zPlot( StringBuffer sbError ){
-		try {
-			if( plotPrimary == null ){
-				sbError.append("internal error, no plot defined");
-				return false;
+	public RenderedImage _getRenderedImage(){ return mbi; }
+
+	// draws a full rendering of annotations and one or more plots
+	public boolean _zComposeRendering( Plot plot, StringBuffer sbError ){
+		if( miSessionCount == 0 ){ // update from properties
+			if( ConfigurationManager.getInstance() == null ){
+				miSessionCount = 0;
+			} else {
+				miSessionCount = ConfigurationManager.getInstance().getProperty_PlotCount();
 			}
-			int iDataPoint_width = plotPrimary.data.getDimension_x();
-			int iDataPoint_height = plotPrimary.data.getDimension_y();
+		}
+		miSessionCount++;
+		if( ConfigurationManager.getInstance() != null ) ConfigurationManager.getInstance().setOption(ConfigurationManager.PROPERTY_COUNT_Plots, Integer.toString(miSessionCount));
+		int iCountWidth;
+		if( miSessionCount < 1000 ) iCountWidth = 3;
+		else if( miSessionCount < 100000 ) iCountWidth = 5;
+		else iCountWidth = 10;
+		String sID_descriptive = plot.getDescriptor() + Utility.getCurrentDate( FORMAT_ID_date );
+		msID = sID_descriptive + "-" + Utility_String.sFormatFixedRight( miSessionCount, iCountWidth, '0' ); // append plot count to ID descriptive string
+		if( environment == null ){
+			sbError.append( "system error, invalid plot panel, no environment" );
+			return false;
+		}
+		return _zPlot( plot, sbError );
+	}
+	
+	// draws a single plot into the designated plot area
+	public boolean _zPlot( Plot plot, StringBuffer sbError ){
+		if( plot == null ){
+			sbError.append( "no plot supplied" );
+			return false;
+		}
+		try {
+			int iDataPoint_width = plot.data.getDimension_x();
+			int iDataPoint_height = plot.data.getDimension_y();
 			mScale.setDataDimension( iDataPoint_width, iDataPoint_height );
 			mpxMargin_Top = mScale.getMarginTop_px();
 			mpxMargin_Bottom = mScale.getMarginBottom_px();
@@ -221,14 +214,14 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 				return false;
 			}
 			mbi = new BufferedImage( pxCanvasWidth, pxCanvasHeight, BufferedImage.TYPE_INT_ARGB );
-			return zWriteImageBuffer( mbi, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError );
+			return _zWriteImageBuffer( mbi, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError );
 		} catch( Throwable ex ){
 			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}
 
-	private boolean zWriteImageBuffer( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean _zWriteImageBuffer( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 		if( bi == null ){
 			sbError.append( "internal error, no buffer (out of memory?)" );
 			return false;
@@ -431,15 +424,17 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		if( iLength == 0 ) iLength = iDefaultLength;
 
 		// draw appropriate kind of legend
+		// TODO
+		/*
 		if( plotPrimary instanceof Plot_Line ){
 			vDrawLegend_Lines( g2, font, iLength, iRotation, layout, hObject, vObject, widthObject, heightObject );
 		} else {
 			vDrawLegend_Colorbar( g2, font, iLength, iRotation, layout, hObject, vObject, widthObject, heightObject );
 		}
+		*/
 	}
 
-	protected void vDrawLegend_Lines( Graphics2D g2, Font font, int iLength, int iRotation, PlotLayout layout, int hObject, int vObject, int widthObject, int heightObject ){
-		Plot_Line plotLine = (Plot_Line)plotPrimary;
+	protected void vDrawLegend_Lines( Plot_Line plotLine, Graphics2D g2, Font font, int iLength, int iRotation, PlotLayout layout, int hObject, int vObject, int widthObject, int heightObject ){
 		Color[] colors = plotLine.getColors();
 		String[] captions = plotLine.getCaptions();
 		int ctLines = colors.length - 1;
@@ -798,18 +793,18 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 	public void mouseEntered(MouseEvent evt) { }
 	public void mouseExited(MouseEvent evt) { }
 	public void mouseClicked( MouseEvent evt ){
-		if( plotPrimary instanceof Plot_Histogram ){
-			Plot_Histogram histogram = (Plot_Histogram)plotPrimary;
-			histogram.handleMouseClicked( evt );
-		} else if( plotPrimary instanceof Plot_Expression ){
-			Plot_Expression expression = (Plot_Expression)plotPrimary;
-			int mpxMargin_Left = 10;
-			int mpxMargin_Top =  10;
-			int xPX = evt.getX();
-			int yPX = evt.getY();
-		    expression.vUpdateMicroscopeArrays( xPX - mpxMargin_Left, yPX - mpxMargin_Top, mScale.getPlot_Height_pixels() );
-//			activateMicroscope( aRGB, asData, iMicroscopeWidth, iMicroscopeHeight );
-		}
+		
+	// TODO needs to be region sensitive // plot sensitive
+	// if in histogram area or if in expressin area
+/*
+		histogram.handleMouseClicked( evt );
+
+				int mpxMargin_Left = 10;
+				int mpxMargin_Top =  10;
+				int xPX = evt.getX();
+				int yPX = evt.getY();
+			    expression.vUpdateMicroscopeArrays( xPX - mpxMargin_Left, yPX - mpxMargin_Top, mScale.getPlot_Height_pixels() );
+	*/
 	}
 
 	// Scrollable interface

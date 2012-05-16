@@ -15,12 +15,14 @@ class Plot_Pseudocolor extends Plot {
 
 	private ColorSpecification cs = null;
 	
-	private Plot_Pseudocolor(){}
+	private Plot_Pseudocolor( PlotEnvironment environment ){
+		super( environment );
+	}
 
 	public String getDescriptor(){ return "P"; }
 
 	public static Plot_Pseudocolor create( PlotEnvironment environment, IPlottable data, String sCaption, StringBuffer sbError ){
-		Plot_Pseudocolor plot = new Plot_Pseudocolor();
+		Plot_Pseudocolor plot = new Plot_Pseudocolor( environment );
 		plot.data = data;
 		plot.cs = environment.getColorSpecification();
 		plot.msCaption = sCaption;

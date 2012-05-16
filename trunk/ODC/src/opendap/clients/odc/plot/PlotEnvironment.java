@@ -22,13 +22,19 @@
 
 package opendap.clients.odc.plot;
 
+import opendap.clients.odc.Utility_String;
+
 public class PlotEnvironment {
-    public enum PLOT_TYPE {
-    	Pseudocolor,
-    	Vector,
-    	XY,
-    	Surface,
-    	Histogram
+	public enum PLOT_TYPE {
+		Pseudocolor,
+		Vector,
+		XY,
+		Surface,
+		Histogram
+    }
+	public static PLOT_TYPE getDefaultPlotType(){ return PLOT_TYPE.Pseudocolor; }
+	public static String[] getPlotTypeDisplayList(){
+    	return opendap.clients.odc.Utility_String.enumToStringArray( PLOT_TYPE.values() );
     }
 	private String msPlotID;
 	final private PlotAxes mAxes = PlotAxes.create();
