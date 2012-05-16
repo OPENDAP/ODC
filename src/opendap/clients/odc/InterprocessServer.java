@@ -661,7 +661,7 @@ class CommandListener extends Thread {
 				}
 				ApplicationController.getInstance().getAppFrame().getTableViewer().vSetData(data);
 			} else if( sCommandUpper.startsWith("TESTLAYOUT") ){ // test routine
-				opendap.clients.odc.plot.Panel_View_Plot.vTestLayout();
+				opendap.clients.odc.plot.Panel_View_Plot._vTestLayout();
 				writeLine("layout tester launched");
 			} else if( sCommandUpper.startsWith( "GETIP" ) ){
 				String sURL = "http://ttools.kattare.com/IPLookup/servlet/iplookup.IPLookupServlet3";

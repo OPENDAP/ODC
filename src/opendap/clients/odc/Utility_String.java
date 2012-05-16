@@ -712,4 +712,11 @@ ScanForStartOfMatch:
 		return s.substring( 0, iCharacters - 1 );
 	}
 	
+	public static <T extends Enum<T>> String[] enumToStringArray( T[] values ){
+		int i = 0;
+		String[] as = new String[values.length];
+		for( T value: values ) as[i++] = value.name();
+		return as;
+	}
+
 }

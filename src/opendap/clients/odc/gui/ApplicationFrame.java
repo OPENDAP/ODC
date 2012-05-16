@@ -224,7 +224,7 @@ public class ApplicationFrame extends JFrame {
 		}
 		ApplicationController.getInstance().vShowStartupMessage("creating plotter");
 		panelPlotter = new opendap.clients.odc.plot.Panel_View_Plot();
-		if( !panelPlotter.zInitialize(sbError) ){
+		if( !panelPlotter._zInitialize( sbError ) ){
 			ApplicationController.vShowWarning("Failed to initialize plotter: " + sbError);
 			sbError.setLength(0);
 		}
@@ -430,7 +430,7 @@ public class ApplicationFrame extends JFrame {
 				public void run(){
 					jtpMain.setSelectedIndex(2); // activate the view tab
 					jtpView.setSelectedIndex(4); // activate the plotting tab
-					Panel_View_Plot.getPanel_Definition()._vActivateVariableSelector();
+					Panel_View_Plot._getPanel_Definition()._vActivateVariableSelector();
 				}
 			}
 		);

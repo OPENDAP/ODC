@@ -60,7 +60,7 @@ public class Panel_Variables extends JPanel {
 		return true;
 	}
 
-	boolean zShowDataDDS( int ePlotType, DataDDS ddds, DAS das, PlotOptions po, StringBuffer sbError ){
+	boolean zShowDataDDS( PlotEnvironment.PLOT_TYPE ePlotType, DataDDS ddds, DAS das, PlotOptions po, StringBuffer sbError ){
 		if( ddds == null ){
 			sbError.append("no data DDS provided");
 			return false;
@@ -70,7 +70,7 @@ public class Panel_Variables extends JPanel {
 		// definition then do not change the selector, just update the data set
 		// this allows multiple datasets with the same DDS to be thumbnailed all at once
 		// using the same settings
- 		if( mvselector != null && mvselector.zCompareData(ddds, ePlotType) ){
+ 		if( mvselector != null && mvselector.zCompareData( ddds, ePlotType ) ){
 			if( mvselector.setData( ddds, das, ePlotType, sbError ) ){
 				if( mvselector.zSetModelValueSpecifications( sbError ) ){
 					mvselector.vUpdateModels();
@@ -89,7 +89,7 @@ public class Panel_Variables extends JPanel {
 			// update the selector so that it lists them; a VariableSpecification is an
 			// object that stores information about where a variable is inside of a DataDDS
 			// as well as ancillary information about the variable
-			if( !mvselector.zShowVariableChoices(ePlotType, ddds, das, po, sbError) ){
+			if( !mvselector.zShowVariableChoices( ePlotType, ddds, das, po, sbError ) ){
 				sbError.insert(0, "failed to initialize variable selector: ");
 				return false;
 			}
@@ -113,7 +113,7 @@ public class Panel_Variables extends JPanel {
 	// Sequences
 	// sequences are stored in a VariableSpec by specifying the BaseType of the root sequence
 	// and then the path to the non-sequence variable; the node name is store for the root sequence
-	private boolean zDiscoverVariables_recursion( int ePLOT_TYPE, int size, String sNodeName, Enumeration enumVariables, DAS das, ArrayList listVariableSpecs, StringBuffer sbError ){
+	private boolean zDiscoverVariables_recursion( PlotEnvironment.PLOT_TYPE ePLOT_TYPE, int size, String sNodeName, Enumeration enumVariables, DAS das, ArrayList listVariableSpecs, StringBuffer sbError ){
 		try {
 		    Enumeration enumChildVariables = null;
 			while( enumVariables.hasMoreElements() ){
@@ -155,12 +155,12 @@ public class Panel_Variables extends JPanel {
 						if( iEffectiveDimCount != 1 ) continue; // not a valid map array
 						if( darray.getFirstDimension().getSize() != size ) continue; // not a matching map array
 					} else {
-						switch(ePLOT_TYPE){
-							case Output_ToPlot.PLOT_TYPE_Histogram: // any
-							case Output_ToPlot.PLOT_TYPE_XY: // 1- or 2-D
-							case Output_ToPlot.PLOT_TYPE_Vector: // 1- or 2-D
+						switch( ePLOT_TYPE ){
+							case Histogram: // any
+							case XY: // 1- or 2-D
+							case Vector: // 1- or 2-D
 								break;
-							case Output_ToPlot.PLOT_TYPE_Pseudocolor: // 1 2-D
+							case Pseudocolor: // 1 2-D
 								if( iEffectiveDimCount >= 2 ) break; else continue;
 						}
 					}
@@ -185,7 +185,7 @@ public class Panel_Variables extends JPanel {
 		}
 	}
 
-	boolean zDiscoverVariables_sequence( int ePLOT_TYPE, VariableSpecification vsSequence, ArrayList listVariableSpecs, StringBuffer sbError ){
+	boolean zDiscoverVariables_sequence( PlotEnvironment.PLOT_TYPE ePLOT_TYPE, VariableSpecification vsSequence, ArrayList listVariableSpecs, StringBuffer sbError ){
 	    DSequence sequence = (DSequence)vsSequence.getArrayTable(sbError).bt;
 		int xPath = 1;
 		BaseType btPathCursor = sequence;
@@ -242,12 +242,12 @@ public class Panel_Variables extends JPanel {
 					   btField instanceof DString   // will try to convert to number
 					  ){
 				int ctDims = vsNewLevel.getDimCount();
-				switch(ePLOT_TYPE){
-					case Output_ToPlot.PLOT_TYPE_Histogram: // any
-					case Output_ToPlot.PLOT_TYPE_XY: // 1- or 2-D
-					case Output_ToPlot.PLOT_TYPE_Vector: // 1- or 2-D
+				switch( ePLOT_TYPE ){
+					case Histogram: // any
+					case XY: // 1- or 2-D
+					case Vector: // 1- or 2-D
 						break;
-					case Output_ToPlot.PLOT_TYPE_Pseudocolor: // 1 2-D
+					case Pseudocolor: // 1 2-D
 						if( ctDims >= 2 ) break; else continue;
 				}
 				if( zSequenceHasOnlyOneRow( vsNewLevel, sbError ) ) continue; // ignore
@@ -284,7 +284,7 @@ public class Panel_Variables extends JPanel {
 class VSelector_Plot_Schematic extends JPanel {
 
 	// data
-	private int mePLOT_TYPE;
+	private PlotEnvironment.PLOT_TYPE mePLOT_TYPE;
 	PlotVariables mPlotVariables;
 	private Model_Variables mVariablesModel =  null;
 
@@ -308,7 +308,7 @@ class VSelector_Plot_Schematic extends JPanel {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
 		if( mpanelY == null || mpanelX == null || mpanelV == null ) return;
-		if( mePLOT_TYPE != Output_ToPlot.PLOT_TYPE_Histogram ){
+		if( mePLOT_TYPE != PlotEnvironment.PLOT_TYPE.Histogram ){
 			g2.setColor(Color.BLACK);
 			int pxWidth = 4;
 
@@ -358,7 +358,7 @@ class VSelector_Plot_Schematic extends JPanel {
 
 	Model_Variables getModel(){ return this.mVariablesModel; }
 
-	boolean setData( DataDDS ddds, DAS das, int ePlotType, StringBuffer sbError ){
+	boolean setData( DataDDS ddds, DAS das, PlotEnvironment.PLOT_TYPE ePlotType, StringBuffer sbError ){
 		if( mPlotVariables == null ) mPlotVariables = new PlotVariables();
 		return mPlotVariables.zLoadVariables( ddds, das, ePlotType, 0, sbError );
 	}
@@ -372,7 +372,7 @@ class VSelector_Plot_Schematic extends JPanel {
 	// Determines the style of the interface and populates it with the possible variables.
 	// There are three modes or styles or interface: 0-dimensional, 1-dimensional or 2-dimensional.
 	// For example, histogram uses a 0-dimensional style wheras a pseudocolor uses a 2D one.
-	boolean zShowVariableChoices( int ePLOT_TYPE, DataDDS ddds, DAS das, final PlotOptions po, StringBuffer sbError ){
+	boolean zShowVariableChoices( PlotEnvironment.PLOT_TYPE ePLOT_TYPE, DataDDS ddds, DAS das, final PlotOptions po, StringBuffer sbError ){
 		try {
 
 			mePLOT_TYPE = ePLOT_TYPE;
@@ -382,16 +382,16 @@ class VSelector_Plot_Schematic extends JPanel {
 			}
 
 			switch( ePLOT_TYPE ){
-				case Output_ToPlot.PLOT_TYPE_Histogram:
+				case Histogram:
 					this.mVariablesModel = new Model_Variables( false, false );
 					break;
-				case Output_ToPlot.PLOT_TYPE_Pseudocolor:
+				case Pseudocolor:
 					this.mVariablesModel = new Model_Variables( false, true );
 					break;
-				case Output_ToPlot.PLOT_TYPE_Vector:
+				case Vector:
 					this.mVariablesModel = new Model_Variables( true, true );
 					break;
-				case Output_ToPlot.PLOT_TYPE_XY:
+				case XY:
 					this.mVariablesModel = new Model_Variables( true, true );
 					break;
 				default:
@@ -402,7 +402,7 @@ class VSelector_Plot_Schematic extends JPanel {
 			this.removeAll(); // todo re-use axes etc
 
 			// the axes need to exist before the values are initialized
-			if( ePLOT_TYPE != Output_ToPlot.PLOT_TYPE_Histogram ){
+			if( ePLOT_TYPE != PlotEnvironment.PLOT_TYPE.Histogram ){
 
 				// x-axis
 				mvarpanelXAxis = new VSelector_Plot_Axis( this, this.getModel().getModel_Axis_X() );
@@ -424,9 +424,9 @@ class VSelector_Plot_Schematic extends JPanel {
 
 			// determine mode
 			int ctDimensions;
-			if( ePLOT_TYPE == Output_ToPlot.PLOT_TYPE_Histogram ){
+			if( ePLOT_TYPE == PlotEnvironment.PLOT_TYPE.Histogram ){
 				ctDimensions = 0;
-			} else if( ePLOT_TYPE == Output_ToPlot.PLOT_TYPE_XY ){
+			} else if( ePLOT_TYPE == PlotEnvironment.PLOT_TYPE.XY ){
 				ctDimensions = 1;
 			} else {
 				ctDimensions = 2;
@@ -437,9 +437,9 @@ class VSelector_Plot_Schematic extends JPanel {
 //			masLabels1 = masLabels1_buffer;
 //			maVariables1 = maVariables1_buffer;
 			String sLabel = "Choose Values:";
-			if( ePLOT_TYPE == Output_ToPlot.PLOT_TYPE_Vector ){
+			if( ePLOT_TYPE == PlotEnvironment.PLOT_TYPE.Vector ){
 				sLabel = "U:";
-			} else if( ePLOT_TYPE == Output_ToPlot.PLOT_TYPE_XY ){
+			} else if( ePLOT_TYPE == PlotEnvironment.PLOT_TYPE.XY ){
 				sLabel = "Y Variable:";
 			}
 			boolean zShowTransforms = true;
@@ -447,7 +447,7 @@ class VSelector_Plot_Schematic extends JPanel {
 			boolean zNoneAreIndexes = false;
 			boolean zXonly = false;
 			boolean zYonly = false;
-			if( ePLOT_TYPE == Output_ToPlot.PLOT_TYPE_XY ){
+			if( ePLOT_TYPE == PlotEnvironment.PLOT_TYPE.XY ){
 				zYonly = true;
 				zNoneAreIndexes = true;
 			}
@@ -462,9 +462,9 @@ class VSelector_Plot_Schematic extends JPanel {
 				mvarpanelValues2 = new VSelector_Plot_Values( this, this.getModel().getModel_Variable2() );
 				String sLabel2;
 				switch( ePLOT_TYPE ){
-					case Output_ToPlot.PLOT_TYPE_Vector:
+					case Vector:
 						sLabel2 = "V:"; break;
-					case Output_ToPlot.PLOT_TYPE_XY:
+					case XY:
 						sLabel2 = "X Variable:";
 						break;
 					default:
@@ -474,7 +474,7 @@ class VSelector_Plot_Schematic extends JPanel {
 				zShowTransforms = false;
 				zAllowCaptions  = false;
 				zNoneAreIndexes = false;
-				if( ePLOT_TYPE == Output_ToPlot.PLOT_TYPE_XY ){
+				if( ePLOT_TYPE == PlotEnvironment.PLOT_TYPE.XY ){
 	    			zYonly = false;
 	    			zXonly = true;
 					zNoneAreIndexes = true;
@@ -509,7 +509,7 @@ class VSelector_Plot_Schematic extends JPanel {
 			// setup graphics
 			setBackground(Color.WHITE);
 			JPanel panelXYOptions = null;
-			if( ePLOT_TYPE == Output_ToPlot.PLOT_TYPE_XY ){
+			if( ePLOT_TYPE == PlotEnvironment.PLOT_TYPE.XY ){
 				final JCheckBox jcheckShowLines = new JCheckBox("Show Lines");
 				final JCheckBox jcheckShowPoints = new JCheckBox("Show Points");
 				jcheckShowLines.setOpaque(false);
@@ -551,7 +551,7 @@ class VSelector_Plot_Schematic extends JPanel {
 				panelXYOptions.add(jcheckShowPoints);
 			}
 
-			if( ePLOT_TYPE == Output_ToPlot.PLOT_TYPE_XY ){
+			if( ePLOT_TYPE == PlotEnvironment.PLOT_TYPE.XY ){
 				mpanelY = mvarpanelValues1;
 				mpanelX = mvarpanelValues2;
 				mpanelV = panelXYOptions;
@@ -576,7 +576,7 @@ class VSelector_Plot_Schematic extends JPanel {
 			gbc.gridx = 1; gbc.gridy = 0;
 			this.add(Box.createVerticalStrut(20), gbc);
 
-			if( ePLOT_TYPE != Output_ToPlot.PLOT_TYPE_Histogram ){
+			if( ePLOT_TYPE != PlotEnvironment.PLOT_TYPE.Histogram ){
 				gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.0;
 				add(mpanelY, gbc);
 				gbc.gridx = 2; gbc.gridy = 1; gbc.weightx = 0.0;
@@ -586,9 +586,9 @@ class VSelector_Plot_Schematic extends JPanel {
 			add(mpanelV, gbc);
 			gbc.gridx = 3; gbc.gridy = 2; gbc.weightx = 0.0;
 			this.add(Box.createVerticalStrut(50), gbc);
-			if( ePLOT_TYPE != Output_ToPlot.PLOT_TYPE_Histogram ){
+			if( ePLOT_TYPE != PlotEnvironment.PLOT_TYPE.Histogram ){
 				gbc.gridx = 3; gbc.gridy = 3; gbc.weightx = 0.0;
-				if( ePLOT_TYPE == Output_ToPlot.PLOT_TYPE_Vector ) gbc.gridwidth = 2;
+				if( ePLOT_TYPE == PlotEnvironment.PLOT_TYPE.Vector ) gbc.gridwidth = 2;
 				add(mpanelX, gbc);
 				gbc.gridx = 3; gbc.gridy = 4;
 				this.add(Box.createVerticalGlue(), gbc);
@@ -603,7 +603,7 @@ class VSelector_Plot_Schematic extends JPanel {
 		}
 	}
 
-	boolean zCompareData( DataDDS ddds, int ePLOT_TYPE ){
+	boolean zCompareData( DataDDS ddds, PlotEnvironment.PLOT_TYPE ePLOT_TYPE ){
 		if( ePLOT_TYPE != mePLOT_TYPE ) return false;
 		return DAP.zCompareDDS( ddds, mPlotVariables.getDDDS() );
 	}
@@ -702,12 +702,12 @@ class VSelector_Plot_Schematic extends JPanel {
 		boolean zSetVariable_1_Specification = false;
 		boolean zSetVariable_2_Specification = false;
 		switch( this.mePLOT_TYPE ){
-			case Output_ToPlot.PLOT_TYPE_Histogram:
-			case Output_ToPlot.PLOT_TYPE_Pseudocolor:
+			case Histogram:
+			case Pseudocolor:
 				zSetVariable_1_Specification = true;
 				break;
-			case Output_ToPlot.PLOT_TYPE_Vector:
-			case Output_ToPlot.PLOT_TYPE_XY:
+			case Vector:
+			case XY:
 				zSetVariable_1_Specification = true;
 				zSetVariable_2_Specification = true;
 				break;
@@ -741,7 +741,7 @@ class VSelector_Plot_Schematic extends JPanel {
 			return;
 		} else {
 
-			if( this.mePLOT_TYPE == Output_ToPlot.PLOT_TYPE_Histogram ){
+			if( this.mePLOT_TYPE == PlotEnvironment.PLOT_TYPE.Histogram ){
 				this.getModel().getModel_Variable1().setUseEntireVariable( true ); // all that needs to be done
 				return;
 			} else {
@@ -1360,7 +1360,7 @@ class VSelector_Plot_Values extends JPanel {
 			}
 			if( dim.com_jrbY.isSelected() ) lenY = dim.getModel().getSize();
 		}
-		Panel_PlotScale panel_scale = Panel_View_Plot.getPanel_PlotScale();
+		Panel_PlotScale panel_scale = Panel_View_Plot._getPanel_PlotScale();
 		PlotScale scale = panel_scale._getScale();
 		scale.setDataDimension(lenX, lenY);
 	}
@@ -1636,7 +1636,7 @@ class VSelector_Plot_Values extends JPanel {
 		int eTYPE = DAP.getDArrayType((DArray)bt); // assumes DArray TODO
 		int xDimX = getDimX();
 		int xDimY = getDimY();
-		DataParameters dp = Panel_View_Plot.getDataParameters();
+		DataParameters dp = Panel_View_Plot._getDataParameters();
 		if( dp.zCompare(bt, xDimX, xDimY) ){
 			if( panelMissingValues.getUseMissing() ){
 				// the hand-entered values will be used
@@ -1655,12 +1655,12 @@ class VSelector_Plot_Values extends JPanel {
 				int iDimYsize = (dimY == null) ? 1 : dimY.getModel().getSize();
 
 				// update axes settings
-				Panel_PlotAxes axes = Panel_View_Plot.getPanel_PlotAxes();
+				Panel_PlotAxes axes = Panel_View_Plot._getPanel_PlotAxes();
 				axes.getAxisParameters_X().vSetDimSize(iDimXsize);
 				axes.getAxisParameters_Y().vSetDimSize(iDimYsize);
 
 				// update scale settings
-				PlotScale scale = Panel_View_Plot.getPanel_PlotScale()._getScale();
+				PlotScale scale = Panel_View_Plot._getPanel_PlotScale()._getScale();
 				if( scale == null ){
 					// ApplicationController.vShowWarning("no plot scale exists during parameters update");
 				} else {
@@ -2079,7 +2079,7 @@ class Panel_MissingValues extends JPanel {
 					if( checkUseMissing.isSelected() ){
 						Panel_MissingValues.this.jlabelMethodCode.setText("M"); // manual
 					} else {
-						DataParameters dp = Panel_View_Plot.getDataParameters();
+						DataParameters dp = Panel_View_Plot._getDataParameters();
 						int eTYPE = dp.getTYPE();
 						setMissingValues(dp.getMissingEgg(), eTYPE, dp.getMissingMethodCode());
 					}
@@ -2114,7 +2114,7 @@ class Panel_MissingValues extends JPanel {
 					ArrayTable at = vs.getArrayTable(sbError);
 					if( at == null ) return;
 					BaseType btValues = at.bt;
-					DataParameters dp = Panel_View_Plot.getDataParameters();
+					DataParameters dp = Panel_View_Plot._getDataParameters();
 					if( dp.zLoad(btValues, mOwner.getDimX(), mOwner.getDimY(), null, null, sbError) ){
 						int iDataWidth = dp.getDim1Length();
 					} else {
@@ -2235,7 +2235,7 @@ class Panel_MissingValues extends JPanel {
 			if( eggMissing == null ){
 				ApplicationController.vShowError("Error converting missing doubles to " + eTYPE + ": " + sbError);
 			}
- 			Panel_View_Plot.getDataParameters().setMissingEgg(eggMissing); // need to set dp egg so that NewCS creation can pick up manually generated egg
+ 			Panel_View_Plot._getDataParameters().setMissingEgg(eggMissing); // need to set dp egg so that NewCS creation can pick up manually generated egg
 			setMissingValues( eggMissing, eTYPE, sMethodCode );
 		} catch(Exception ex) {
 			ApplicationController.vUnexpectedError(ex, sbError);
@@ -2254,10 +2254,10 @@ class Panel_MissingValues extends JPanel {
 			sMissingText = DAP.getValueString(eggMissing, eTYPE);
 		}
 		jtfMissingValues.setText(sMissingText);
-		Panel_View_Plot.getDataParameters().setMissingEgg(eggMissing);
+		Panel_View_Plot._getDataParameters().setMissingEgg(eggMissing);
 		if( sMethodCode.equals("M") ){
 			checkUseMissing.setSelected(true);
-			Panel_View_Plot.getPanel_ColorSpecification().setMissingValueText(sMissingText); // if the missing string was changed manually then update the color spec also
+			Panel_View_Plot._getPanel_ColorSpecification().setMissingValueText(sMissingText); // if the missing string was changed manually then update the color spec also
 		}
 		jlabelMethodCode.setText(sMethodCode);
 	}

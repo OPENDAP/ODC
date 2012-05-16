@@ -1,28 +1,36 @@
 package opendap.clients.odc.plot;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.Color;
+import java.awt.Graphics;
 
 import javax.swing.Box;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 public class PreviewPane extends JScrollPane {
-	JPanel panelBlank;
+	java.awt.Color colorBackground = Color.WHITE;
+	Panel_Plot panel = null;
 	public PreviewPane(){
 		setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		panelBlank = new JPanel();
-		panelBlank.setLayout(new BorderLayout());
-		panelBlank.add(Box.createGlue(), BorderLayout.CENTER);
-		setClear();
+		StringBuffer sbError = new StringBuffer();
+		panel = Panel_Plot._create( sbError );
+		panel.setLayout( new BorderLayout() );
+		panel.add(Box.createGlue(), BorderLayout.CENTER);
+		_setContent_Default();
+		_clear();
 	}
-	void setClear(){
-		setViewportView(panelBlank);
+	public void _clear(){
+		Graphics g = panel.getGraphics();
+		g.setColor( colorBackground );
+		g.fillRect( 0, 0, getWidth(), getHeight() );
 		revalidate();
 	}
-	void setContent( Component c ){
-		setViewportView( c );
-		revalidate();
+	public Panel_Plot _getCanvas(){ return panel; }
+	public void _setContent_Default(){
+		setViewportView( panel );
+	}
+	public void _setContent( java.awt.Component component ){
+		setViewportView( component );
 	}
 }

@@ -14,6 +14,9 @@ import opendap.clients.odc.ApplicationController;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
 
+// grandparent: Panel_View_Data
+// parent: Panel_Define_Expression
+
 public class Panel_Edit_Expression extends JPanel {
 	private Model_Dataset mModel;
 	private Panel_Define_Expression mParent;

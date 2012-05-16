@@ -138,7 +138,7 @@ public class ColorSpecification extends AbstractListModel {
 			this.setMissing( null, miDataType, 0x00000000 );
 		}
 		miDataType = eDataType;
-		Panel_ColorSpecification panel_cs = Panel_View_Plot.getPanel_ColorSpecification();
+		Panel_ColorSpecification panel_cs = Panel_View_Plot._getPanel_ColorSpecification();
 		if( panel_cs != null ) panel_cs.vUpdateInfo();
 	}
 
@@ -1145,7 +1145,7 @@ public class ColorSpecification extends AbstractListModel {
 
 	void vGenerateCG_Banded(int ctBands){
 		if( ctBands < 1 ) return;
-		DataParameters dp = Panel_View_Plot.getDataParameters();
+		DataParameters dp = Panel_View_Plot._getDataParameters();
 
 		// vary hue and saturation (go from magenta to red, ie down)
 		int iHue = 0xDF; int fHueInterval = (int)((float)0xDF / (float)(ctBands - 1)); // subtract one so that endpoints are both included
@@ -1252,7 +1252,7 @@ public class ColorSpecification extends AbstractListModel {
 		}
 	}
 	void vGenerateCG_Band( float fProFrom, float fProTo, int iColorFrom, int iColorTo, int iColorStep, int iHue, int iSat, int iBri ){
-		DataParameters dp = Panel_View_Plot.getDataParameters();
+		DataParameters dp = Panel_View_Plot._getDataParameters();
 		StringBuffer sbError = new StringBuffer(250);
 		boolean zFireEvent = true;
 		switch( miDataType ){

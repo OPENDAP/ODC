@@ -95,8 +95,10 @@ public class Output_ToPlot {
 	private static int miMultisliceDelay = 150;
 
 	public static javax.swing.JFrame mPlotFrame = null;
-	public static Panel_Plot mExternalWindowPanel = null;
-	public static Panel_Plot mFullScreenPanel = null;
+	public static Panel_Plot mPanel_ExternalWindow = null;
+	public static Panel_Plot mPanel_FullScreen = null;
+	public static Panel_Plot mPanel_Print = null;
+	public static Panel_Plot mPanel_Image = null;
 	public static PlotEnvironment mExternalWindowEnvironment = null;
 	public static PlotEnvironment mFullScreenEnvironment = null;
 	private final static int EXTERNAL_WINDOW_Width = 650;
@@ -168,11 +170,10 @@ public class Output_ToPlot {
 			sbError.append("internal error, no plotting definition");
 			return false;
 		}
-		final PLOT_TYPE ePlotType = environment.getPlotType();
+		final PlotEnvironment.PLOT_TYPE ePlotType = environment.getPlotType();
 		ColorSpecification       cs = environment.getColorSpecification();
 		final PlotScale          ps = environment.getScale();
 		final PlotOptions        po = environment.getOptions();
-		final PlotText    plot_text = environment.getText();
 		try {
 
 			if( pdat == null ){
@@ -272,9 +273,6 @@ public class Output_ToPlot {
 
 	static boolean zPlot_XY( PlotEnvironment environment, Model_Dataset model, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, OutputTarget eOutputOption, StringBuffer sbError ){
 		try {
-			ColorSpecification cs = environment.getColorSpecification();
-			PlotText pt = environment.getText();
-			PlotOptions po = environment.getOptions();
 
 			// initialize panel
 			Plot_Line plot = Plot_Line.create( environment, null, sCaption, sbError );
@@ -344,7 +342,7 @@ public class Output_ToPlot {
 				sCaption_Y_units = pv1.getDataUnits();
 				Object[] eggLineData = pv1.getDataEgg();
 				Object[] eggMissing = pv1.getMissingEgg();
-				if( eggMissing == null ) eggMissing = Panel_View_Plot.getDataParameters().getMissingEgg();
+				if( eggMissing == null ) eggMissing = Panel_View_Plot._getDataParameters().getMissingEgg();
 				double[] adValue = DAP.convertToDouble(eggLineData, pv1.getDataType(), eggMissing, sbError);
 				if( adValue == null ){
 					sbError.insert(0, "Failed to convert data from variable " + xVariable + " to doubles: ");
@@ -365,7 +363,7 @@ public class Output_ToPlot {
 				sCaption_X_units = pv2.getDataUnits();
 				Object[] eggLineData = pv2.getDataEgg();
 				Object[] eggMissing = pv2.getMissingEgg();
-				if( eggMissing == null ) eggMissing = Panel_View_Plot.getDataParameters().getMissingEgg();
+				if( eggMissing == null ) eggMissing = Panel_View_Plot._getDataParameters().getMissingEgg();
 				double[] adValue = DAP.convertToDouble(eggLineData, pv2.getDataType(), eggMissing, sbError);
 				if( adValue == null ){
 					sbError.insert(0, "Failed to convert data from variable " + xVariable + " to doubles: ");
@@ -399,7 +397,7 @@ public class Output_ToPlot {
 				return false;
 			}
 
-			return zPlot( plot, model, eOutputOption, sbError );
+			return zPlot( environment, plot, model, eOutputOption, sbError );
 		} catch(Exception ex) {
 			sbError.append("While building line plot: ");
 			ApplicationController.vUnexpectedError(ex, sbError);
@@ -414,15 +412,10 @@ public class Output_ToPlot {
 //     1 x/y/slice       n slices
 //       n slices        n slices    (number of slices must match for both variables)
 
-	static boolean zPlot_Expression( PlotEnvironment environment, Model_Dataset model, OutputTarget eOutputOption, String sCaption, StringBuffer sbError ){
+	static boolean zPlot_Expression( PlotEnvironment environment, final Model_Dataset model, OutputTarget eOutputOption, String sCaption, StringBuffer sbError ){
 		try {
-			Panel_Plot_Expression panelPE = new Panel_Plot_Expression( environment, null, sCaption );
-			ColorSpecification cs = environment.getColorSpecification();
-			PlotText pt = environment.getText();
-			PlotOptions po = environment.getOptions();
-			panelPE.setColors(cs);
-			panelPE.setOptions(po);
-			panelPE.setText(pt);
+
+			// generate expression model from script
 			if( model.getType() != Model_Dataset.DATASET_TYPE.PlottableExpression && model.getType() != Model_Dataset.DATASET_TYPE.Text ){
 				sbError.append( "dataset model is not a plottable expression" );
 				return false;
@@ -443,6 +436,12 @@ public class Output_ToPlot {
 				sbError.insert( 0, "failed to create expression model: " );
 				return false;
 			}
+
+			Plot_Expression plot = Plot_Expression.create( environment, modelExpression, sCaption, sbError );
+			if( plot == null ){
+				sbError.insert( 0, "failed to generate plot from model" );
+				return false;
+			}
 			PlotAxes axes = environment.getAxes();
 			PlotRange range = modelExpression.getPlotRange(sbError);
 			if( range == null ) return false;
@@ -456,11 +455,7 @@ public class Output_ToPlot {
 				axisDefaultY.setRangeY( range );
 				axisDefaultY.setActive( true );
 			}
-			if( ! panelPE.setExpressionModel( modelExpression, sbError ) ){
-				sbError.insert( 0, "error setting expression model: " );
-				return false;
-			}
-			return zPlot( panelPE, model, eOutputOption, sbError );
+			return zPlot( environment, plot, model, eOutputOption, sbError );
 		} catch(Exception ex) {
 			sbError.append("While building expression plot: ");
 			ApplicationController.vUnexpectedError(ex, sbError);
@@ -484,7 +479,13 @@ public class Output_ToPlot {
 			Object[] eggHistogramData = pv.getDataEgg();
 			Object[] eggHistogramMissing = pv.getMissingEgg();
 
-			Panel_Plot_Histogram plotHistogram = new Panel_Plot_Histogram( environment, null, sCaption );
+			IPlottable plottableData = null; // TODO
+			Plot_Histogram plot = Plot_Histogram.create( environment, plottableData, sCaption, sbError );
+			if( plot == null ){
+				sbError.insert( 0, "failed to generate histogram plot from data: " );
+				return false;
+			}
+			/*
 			plotHistogram.setText(pt);
 			plotHistogram.setBoxed(false);
 			plotHistogram.setMarginPixels_Top( 50 );
@@ -500,7 +501,8 @@ public class Output_ToPlot {
 				sbError.insert(0, "failed to set data for histogram of " + iDataPointCount + " values: ");
 				return false;
 			}
-			return zPlot( plotHistogram, model, eOutputOption, iFrame, ctFrames, sbError );
+			*/
+			return zPlot( environment, plot, model, eOutputOption, sbError );
 		} catch(Exception ex) {
 			sbError.append("While building histogram: ");
 			ApplicationController.vUnexpectedError(ex, sbError);
@@ -512,7 +514,6 @@ public class Output_ToPlot {
 		try {
 
 			ColorSpecification cs = environment.getColorSpecification();
-			PlotText pt = environment.getText();
 			PlotOptions po = environment.getOptions();
 			int eDATA_TYPE   = pv.getDataType();
 
@@ -539,7 +540,6 @@ public class Output_ToPlot {
 				sbError.append("cannot plot pseudocolor with width " + iWidth + " and height " + iHeight + "; data must be two-dimensional");
 				return false;
 			}
-			Panel_Plot_Pseudocolor panelPC;
 			if( eOutputOption == OutputTarget.Thumbnail ){
 				int pxThumbnailWidth = po.get(PlotOptions.OPTION_ThumbnailWidth).getValue_int();
 				int pxThumbnailHeight = iHeight * pxThumbnailWidth / iWidth;
@@ -548,26 +548,21 @@ public class Output_ToPlot {
 				psThumbnail.setPixelWidth_PlotArea( pxThumbnailWidth );
 				psThumbnail.setPixelHeight_PlotArea( pxThumbnailHeight );
 				environment.setScale( psThumbnail );
-				panelPC = new Panel_Plot_Pseudocolor( environment, null, sCaption );
-			} else {
-				panelPC = new Panel_Plot_Pseudocolor( environment, null, sCaption );
 			}
-			panelPC.setColors(cs);
-			panelPC.setText(pt);
-			panelPC.setOptions(po);
 
 			// set data
 			Object[] eggData = pv.getDataEgg();
-			PlottableData plottable = new PlottableData();
-			if( ! plottable.setPlotData( eDATA_TYPE, eggData, null, null, null, iWidth, iHeight, sbError) ){
+			PlottableData plottableData = PlottableData.create( eDATA_TYPE, eggData, null, null, null, iWidth, iHeight, sbError );
+			if( plottableData == null ){
 				sbError.insert(0, "Failed to set pseudocolor data (type " + DAP.getType_String(eDATA_TYPE) + ") with width " + iWidth + " and height " + iHeight + ": ");
 				return false;
 			}
-			if( !panelPC.setData( plottable, sbError) ){
+			Plot_Pseudocolor plot = Plot_Pseudocolor.create( environment, plottableData, sCaption, sbError );
+			if( plot == null ){
 				sbError.insert(0, "Failed to set pseudocolor data (type " + DAP.getType_String(eDATA_TYPE) + ") with width " + iWidth + " and height " + iHeight + ": ");
 				return false;
 			}
-
+			
 			// set axes
 			if( eOutputOption == OutputTarget.Thumbnail ){
 				// do not set axes
@@ -626,9 +621,9 @@ public class Output_ToPlot {
 				}
 			}
 
-			panelPC.setLabel_Values(pv.getDataCaption());
+			// TODO plot.setLabel_Values( pv.getDataCaption() );
 
-			return zPlot( panelPC, model, eOutputOption, iFrame, ctFrames, sbError );
+			return zPlot( environment, plot, model, eOutputOption, iFrame, ctFrames, sbError );
 		} catch(Exception ex) {
 			sbError.append("While building pseudocolor plot: ");
 			ApplicationController.vUnexpectedError(ex, sbError);
@@ -638,10 +633,7 @@ public class Output_ToPlot {
 
 	static boolean zPlot_Vector( PlotEnvironment environment, Model_Dataset model, String sCaption, PlottingVariable pv, PlottingVariable pv2, VariableInfo varAxisX, VariableInfo varAxisY, OutputTarget eOutputOption, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
-			ColorSpecification cs = environment.getColorSpecification();
-			PlotText pt = environment.getText();
-			PlotOptions po = environment.getOptions();
-			Panel_Plot_Vector panelVector = new Panel_Plot_Vector( environment, null, sCaption );
+			
 			if( pv == null || pv2 == null ){
 				sbError.append("a vector plot requires exactly two variables");
 				return false;
@@ -678,13 +670,18 @@ public class Output_ToPlot {
 			Object[] eggDataV = pv2.getDataEgg();
 			Object[] eggMissingU = pv.getMissingEgg();
 			Object[] eggMissingV = pv2.getMissingEgg();
-			PlottableData plottable = new PlottableData();
-			if( ! plottable.setPlotData( eDATA_TYPE, eggDataU, eggMissingU, eggDataV, eggMissingV, iWidth, iHeight, sbError) ){
-				sbError.insert(0, "Failed to set data type " + DAP.getType_String(eDATA_TYPE) + " with width " + iWidth + " and height " + iHeight + " for vector plot: ");
+			
+
+			// create the data bundle
+			Object[] eggData = pv.getDataEgg();
+			PlottableData plottableData = PlottableData.create( eDATA_TYPE, eggData, null, null, null, iWidth, iHeight, sbError );
+			if( plottableData == null ){
+				sbError.insert(0, "Failed to set pseudocolor data (type " + DAP.getType_String(eDATA_TYPE) + ") with width " + iWidth + " and height " + iHeight + ": ");
 				return false;
 			}
-			if( ! panelVector.setData( plottable, sbError) ){
-				sbError.insert(0, "Failed to set plottable data for vector plot: ");
+			Plot_Vector plot = Plot_Vector.create( environment, plottableData, sCaption, sbError );
+			if( plot == null ){
+				sbError.insert(0, "Failed to set pseudocolor data (type " + DAP.getType_String(eDATA_TYPE) + ") with width " + iWidth + " and height " + iHeight + ": ");
 				return false;
 			}
 
@@ -736,10 +733,7 @@ public class Output_ToPlot {
 //				sbError.append("can only plot vector data with two dimensions");
 //				return false;
 //			}
-			panelVector.setColors(cs);
-			panelVector.setOptions(po);
-			panelVector.setText(pt);
-			return zPlot( panelVector, model, eOutputOption, iFrame, ctFrames, sbError );
+			return zPlot( environment, plot, model, eOutputOption, iFrame, ctFrames, sbError );
 		} catch(Exception ex) {
 			sbError.append("While building vector plot: ");
 			ApplicationController.vUnexpectedError(ex, sbError);
@@ -755,7 +749,7 @@ public class Output_ToPlot {
 		try {
 			PlotScale scale;
 			String sOutput;
-			Panel_Plot plot_panel;
+			Panel_Plot plot_panel = null;
 			switch( eOutputOption ){
 				
 				case ExternalWindow: // use the existing external window
@@ -767,14 +761,14 @@ public class Output_ToPlot {
 				    if( eOutputOption == OutputTarget.ExternalWindow ){
 				    	sOutput = "the external window";
 						frame = mPlotFrame;
-						if( mExternalWindowPanel == null || mExternalWindowEnvironment != environment ){
-							plot_panel = Panel_Plot.create( environment, plot, sbError );
+						if( mPanel_ExternalWindow == null || mExternalWindowEnvironment != environment ){
+							plot_panel = Panel_Plot._create( sbError );
 							if( plot_panel == null ){
 								sbError.insert( 0, "failed to create fresh plot panel for external window: " );
 								return false;
 							}
 						} else {
-							plot_panel = mExternalWindowPanel;
+							plot_panel = mPanel_ExternalWindow;
 						}
 					} else {
 						sOutput = "new window";
@@ -788,7 +782,7 @@ public class Output_ToPlot {
 							}
 						});
 						Resources.iconAdd(frame);
-						plot_panel = Panel_Plot.create( environment, plot, sbError );
+						plot_panel = Panel_Plot._create( sbError );
 					    JComponent compToAdd;
 						scale = plot_panel.getPlotScale();
 						if( (float)scale.getCanvas_Width_pixels() > .9f * SCREEN_Width ||
@@ -808,7 +802,7 @@ public class Output_ToPlot {
 						}
 						frame.getContentPane().add( compToAdd, BorderLayout.CENTER );
 					}
-					if( ! plot_panel.zPlot( sbError ) ){
+					if( ! plot_panel._zComposeRendering( plot, sbError ) ){
 						sbError.insert(0, "plotting to " + sOutput + ": ");
 						return false;
 					}
@@ -820,14 +814,14 @@ public class Output_ToPlot {
 				case FullScreen:
 					sOutput = "full screen";
 					boolean zNewFullScreenPanelCreated = false;
-					if( mFullScreenPanel == null ){
-						plot_panel = Panel_Plot.create( environment, plot, sbError );
+					if( mPanel_FullScreen == null ){
+						plot_panel = Panel_Plot._create( sbError );
 						zNewFullScreenPanelCreated = true;
 					} else {
 						if( mFullScreenEnvironment == environment ){
-							plot_panel = mFullScreenPanel; 
+							plot_panel = mPanel_FullScreen; 
 						} else {
-							plot_panel = Panel_Plot.create( environment, plot, sbError );
+							plot_panel = Panel_Plot._create( sbError );
 							zNewFullScreenPanelCreated = true;
 						}
 					}
@@ -835,9 +829,9 @@ public class Output_ToPlot {
 						sbError.insert( 0, "failed to create panel for full screen plot" );
 						return false;
 					}
-					mFullScreenPanel = plot_panel; 
+					mPanel_FullScreen = plot_panel; 
 					mFullScreenEnvironment = environment;
-					if( ! plot_panel.zPlot( sbError ) ){
+					if( ! plot_panel._zComposeRendering( plot, sbError ) ){
 						sbError.insert(0, "plotting to full screen: ");
 						return false;
 					}
@@ -857,9 +851,13 @@ public class Output_ToPlot {
 					windowFullScreen_final.requestFocus(); // so window can handle key strokes
 					break;
 				case Print:
-					plot_panel = Panel_Plot.create( environment, plot, sbError );
+					plot_panel = Panel_Plot._create( sbError );
 					if( plot_panel == null ){
 						sbError.insert( 0, "failed to create panel for printing" );
+						return false;
+					}
+					if( ! plot_panel._zComposeRendering( plot, sbError ) ){
+						sbError.insert( 0, "failed to create rendering for printer" );
 						return false;
 					}
 					RepaintManager theRepaintManager = RepaintManager.currentManager( plot_panel );
@@ -881,30 +879,39 @@ public class Output_ToPlot {
 					break;
 				case PreviewPane:
 					sOutput = "preview pane";
-					if( ! plot_panel.zPlot(sbError) ){
+					plot_panel = Panel_View_Plot._getPreviewScrollPane()._getCanvas();
+					if( iFrameNumber > 1 ) Thread.sleep( miMultisliceDelay ); // wait for two seconds before continuing
+					if( ! plot_panel._zComposeRendering( plot, sbError ) ){
 						sbError.insert(0, "plotting to preview pane: ");
 						return false;
 					}
-					if( iFrameNumber > 1 ) Thread.sleep( miMultisliceDelay ); // wait for two seconds before continuing
-					Panel_View_Plot.getPreviewPane().setContent( plot_panel );
 					Thread.yield();
 					break;
 				case ExpressionPreview:
 					sOutput = "expression preview pane";
-					if( ! plot_panel.zPlot(sbError) ){
+					plot_panel = Panel_View_Plot._getPreviewScrollPane()._getCanvas();
+					if( iFrameNumber > 1 ) Thread.sleep( miMultisliceDelay ); // wait for two seconds before continuing
+					if( ! plot_panel._zComposeRendering( plot, sbError ) ){
 						sbError.insert(0, "plotting to expression preview pane: ");
 						return false;
 					}
-					if( iFrameNumber > 1 ) Thread.sleep(miMultisliceDelay); // wait for two seconds before continuing
-					ApplicationController.getInstance().getAppFrame().getDataViewer()._getPreviewPane().setContent( panelPlot );
+					if( iFrameNumber > 1 ) Thread.sleep( miMultisliceDelay ); // wait for two seconds before continuing
+					ApplicationController.getInstance().getAppFrame().getDataViewer()._getPreviewPane()._setContent_Default();
 					Thread.yield();
 					break;
 				case File_PNG:
-					if( ! plot_panel.zPlot(sbError) ){
+					sOutput = "image file";
+					if( mPanel_Image == null ){
+						plot_panel = Panel_Plot._create( sbError );
+						mPanel_Image = plot_panel;
+					} else {
+						plot_panel = mPanel_Image;
+					}
+					if( ! plot_panel._zComposeRendering( plot, sbError ) ){
 						sbError.insert(0, "plotting to buffer for image: ");
 						return false;
 					}
-					java.awt.image.RenderedImage imagePlot = plot_panel._getImage();
+					java.awt.image.RenderedImage imagePlot = plot_panel._getRenderedImage();
 					if( imagePlot == null ){
 						sbError.append("internal error, no image");
 						return false;
@@ -913,21 +920,20 @@ public class Output_ToPlot {
 					int iState = jfc.showDialog(ApplicationController.getInstance().getAppFrame(), "Create File");
 					File file = jfc.getSelectedFile();
 					if (file == null || iState != JFileChooser.APPROVE_OPTION) return true; // user cancel
-					if( !javax.imageio.ImageIO.write(imagePlot, "png", file) ){
-						sbError.append("error writing file " + file);
+					if( !javax.imageio.ImageIO.write( imagePlot, "png", file ) ){
+						sbError.append( "error writing file " + file );
 						return false;
 					}
 					sOutput = "PNG file " + file;
 					break;
 				case Thumbnail:
-					Panel_Thumbnails panelThumbnails = Panel_View_Plot.getPanel_Thumbnails();
-					Panel_View_Plot.getPreviewPane().setContent( plot_panel );
-					int pxThumbnailWidth = plot_panel.getPlotOptions().get(PlotOptions.OPTION_ThumbnailWidth).getValue_int();
-					int pxThumbnailHeight = plot_panel.mPlottable.getDimension_y() * pxThumbnailWidth / plot_panel.mPlottable.getDimension_x();
+					Panel_Thumbnails panelThumbnails = Panel_View_Plot._getPanel_Thumbnails();
+					Panel_View_Plot._getPreviewScrollPane()._setContent( panelThumbnails );
+					int pxThumbnailWidth = plot.environment.getOptions().get(PlotOptions.OPTION_ThumbnailWidth).getValue_int();
+					int pxThumbnailHeight = plot.data.getDimension_y() * pxThumbnailWidth / plot.data.getDimension_x();
 					int[] rgb_array = new int[ pxThumbnailWidth * pxThumbnailHeight ]; // TODO re use buffer
-					plot_panel.zWriteRGBArray( rgb_array, pxThumbnailWidth, pxThumbnailHeight, false, sbError);
-					if( rgb_array == null ){
-						sbError.append("Unable to generate plot: " + sbError);
+					if( ! plot.render( rgb_array, pxThumbnailWidth, pxThumbnailHeight, sbError ) ){
+						sbError.append("Failed to render thumbnail: " + sbError);
 						return false;
 					}
 					BufferedImage biThumbnail = new BufferedImage(pxThumbnailWidth, pxThumbnailHeight, BufferedImage.TYPE_INT_ARGB);
@@ -935,7 +941,7 @@ public class Output_ToPlot {
 					Graphics g = biThumbnail.getGraphics();
 					g.setColor(Color.BLACK);
 					g.drawRect(0, 0, pxThumbnailWidth - 1, pxThumbnailHeight - 1);
-					panelThumbnails.addThumbnail( model, plot_panel._getCaption(), biThumbnail );
+					panelThumbnails.addThumbnail( model, plot.getCaption(), biThumbnail );
 					panelThumbnails.revalidate();
 					sOutput = "thumbnail";
 					break;

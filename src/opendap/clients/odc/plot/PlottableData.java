@@ -13,6 +13,8 @@ import opendap.clients.odc.DAP;
 
 public class PlottableData implements IPlottable {
 
+	private PlottableData(){}
+	
 	private int miDataType = 0; // 0 = no data, see opendap.clients.odc.DAP for constants
 	private short[] mashData = null; // byte and int16
 	private int[] maiData = null; // uint16 and int32
@@ -99,51 +101,63 @@ public class PlottableData implements IPlottable {
 		return 0;
 	}
 
-	boolean setPlotData( int eTYPE, Object[] eggData, Object[] eggMissing, Object[] eggData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+	static PlottableData create( int eTYPE, Object[] eggData, Object[] eggMissing, Object[] eggData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
 		if( iWidth <= 0 || iHeight <= 0 ){
 			sbError.append("Width " + iWidth + " and Height " + iHeight + " cannot be zero or negative.");
-			return false;
+			return null;
 		}
+		PlottableData data = new PlottableData();
 		if( eggData2 == null ){
 			switch( eTYPE ){
 				case DAP.DATA_TYPE_Byte:
 				case DAP.DATA_TYPE_Int16:
-					return setTypedPlotData( eTYPE, (short[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					data.createTypedPlotData( eTYPE, (short[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					break;
 				case DAP.DATA_TYPE_UInt16:
 				case DAP.DATA_TYPE_Int32:
-					return setTypedPlotData( eTYPE, (int[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					data.createTypedPlotData( eTYPE, (int[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					break;
 				case DAP.DATA_TYPE_UInt32:
-					return setTypedPlotData( (long[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					data.createTypedPlotData( (long[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					break;
 				case DAP.DATA_TYPE_Float32:
-					return setTypedPlotData( (float[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					data.createTypedPlotData( (float[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					break;
 				case DAP.DATA_TYPE_Float64:
-					return setTypedPlotData( (double[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					data.createTypedPlotData( (double[])eggData[0], eggMissing, null, eggMissing2, iWidth, iHeight, sbError );
+					break;
 				default:
 					sbError.append("Data type " + eTYPE + " not supported by pseudocolor plotter");
-					return false;
+					return null;
 			}
 		} else {
 			switch( eTYPE ){
 				case DAP.DATA_TYPE_Byte:
 				case DAP.DATA_TYPE_Int16:
-					return setTypedPlotData( eTYPE, (short[])eggData[0], eggMissing, (short[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					data.createTypedPlotData( eTYPE, (short[])eggData[0], eggMissing, (short[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					break;
 				case DAP.DATA_TYPE_UInt16:
 				case DAP.DATA_TYPE_Int32:
-					return setTypedPlotData( eTYPE, (int[])eggData[0], eggMissing, (int[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					data.createTypedPlotData( eTYPE, (int[])eggData[0], eggMissing, (int[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					break;
 				case DAP.DATA_TYPE_UInt32:
-					return setTypedPlotData( (long[])eggData[0], eggMissing, (long[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					data.createTypedPlotData( (long[])eggData[0], eggMissing, (long[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					break;
 				case DAP.DATA_TYPE_Float32:
-					return setTypedPlotData( (float[])eggData[0], eggMissing, (float[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					data.createTypedPlotData( (float[])eggData[0], eggMissing, (float[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					break;
 				case DAP.DATA_TYPE_Float64:
-					return setTypedPlotData( (double[])eggData[0], eggMissing, (double[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					data.createTypedPlotData( (double[])eggData[0], eggMissing, (double[])eggData2[0], eggMissing2, iWidth, iHeight, sbError );
+					break;
 				default:
 					sbError.append("Data type " + eTYPE + " not supported by pseudocolor plotter");
-					return false;
+					return null;
 			}
 		}
+		return data;
 	}
 
-	boolean setTypedPlotData( int eTYPE, short[] ashortData, Object[] eggMissing, short[] ashortData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+	private void createTypedPlotData( int eTYPE, short[] ashortData, Object[] eggMissing, short[] ashortData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
 		miDataType = eTYPE;
 		mashData = ashortData;
 		mashData2 = ashortData2;
@@ -155,9 +169,9 @@ public class PlottableData implements IPlottable {
 			mashMissing2 = (short[])eggMissing2[0];
 			mctMissing2 = mashMissing2.length - 1;
 		}
-		return setPlotDimensions( iWidth, iHeight, sbError );
+		setPlotDimensions( iWidth, iHeight );
 	}
-	boolean setTypedPlotData( int eTYPE, int[] aiData, Object[] eggMissing, int[] aiData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+	private void createTypedPlotData( int eTYPE, int[] aiData, Object[] eggMissing, int[] aiData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
 		miDataType = eTYPE;
 		maiData = aiData;
 		maiData2 = aiData2;
@@ -169,9 +183,9 @@ public class PlottableData implements IPlottable {
 			maiMissing2 = (int[])eggMissing2[0];
 			mctMissing2 = maiMissing2.length - 1;
 		}
-		return setPlotDimensions( iWidth, iHeight, sbError );
+		setPlotDimensions( iWidth, iHeight );
 	}
-	boolean setTypedPlotData( long[] anData, Object[] eggMissing, long[] anData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+	private void createTypedPlotData( long[] anData, Object[] eggMissing, long[] anData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
 		miDataType = DAP.DATA_TYPE_UInt32;
 		manData = anData;
 		manData2 = anData2;
@@ -183,9 +197,9 @@ public class PlottableData implements IPlottable {
 			manMissing2 = (long[])eggMissing2[0];
 			mctMissing2 = manMissing2.length - 1;
 		}
-		return setPlotDimensions( iWidth, iHeight, sbError );
+		setPlotDimensions( iWidth, iHeight );
 	}
-	boolean setTypedPlotData( float[] afData, Object[] eggMissing, float[] afData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+	private void createTypedPlotData( float[] afData, Object[] eggMissing, float[] afData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
 		miDataType = DAP.DATA_TYPE_Float32;
 		mafData = afData;
 		mafData2 = afData2;
@@ -197,9 +211,10 @@ public class PlottableData implements IPlottable {
 			mafMissing2 = (float[])eggMissing2[0];
 			mctMissing2 = mafMissing2.length - 1;
 		}
-		return setPlotDimensions( iWidth, iHeight, sbError );
+		setPlotDimensions( iWidth, iHeight );
 	}
-	boolean setTypedPlotData( double[] adData, Object[] eggMissing, double[] adData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+	private void createTypedPlotData( double[] adData, Object[] eggMissing, double[] adData2, Object[] eggMissing2, int iWidth, int iHeight, StringBuffer sbError ){
+		PlottableData data = new PlottableData();
 		miDataType = DAP.DATA_TYPE_Float64;
 		madData = adData;
 		madData2 = adData2;
@@ -211,13 +226,13 @@ public class PlottableData implements IPlottable {
 			madMissing2 = (double[])eggMissing2[0];
 			mctMissing2 = madMissing2.length - 1;
 		}
-		return setPlotDimensions( iWidth, iHeight, sbError );
+		setPlotDimensions( iWidth, iHeight );
+		return;
 	}
 	
-	boolean setPlotDimensions( int iWidth, int iHeight, StringBuffer sbError ){
+	private void setPlotDimensions( int iWidth, int iHeight ){
 		mDimension_x = iWidth;
 		mDimension_y = iHeight;
-		return true;
 	}
 
 	

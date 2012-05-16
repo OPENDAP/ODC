@@ -610,7 +610,7 @@ public class Panel_ColorSpecification extends JPanel implements IRangeChanged {
 			mlabelTypeMismatchWarning.setVisible(false);
 		} else {
 			mlistEntries.setEnabled(true);
-			int eDataType_Active = Panel_View_Plot.getDataParameters().getTYPE();
+			int eDataType_Active = Panel_View_Plot._getDataParameters().getTYPE();
 			int eDataType_CS     = mColorSpecification.getDataType();
 			mlabelDataType.setText("Data Type: " + DAP.getType_String( eDataType_CS ));
 			if( eDataType_Active == 0 || eDataType_Active == eDataType_CS ){
@@ -622,7 +622,7 @@ public class Panel_ColorSpecification extends JPanel implements IRangeChanged {
 		}
 	}
 	void vNewCS(){
-		DataParameters dp = Panel_View_Plot.getDataParameters();
+		DataParameters dp = Panel_View_Plot._getDataParameters();
 		String sName = JOptionPane.showInputDialog( ApplicationController.getInstance().getAppFrame(), "Enter name for new color specification: ");
 		if( sName == null ) return;
 		StringBuffer sbError = new StringBuffer(80);
