@@ -28,48 +28,14 @@ import javax.swing.*;
 
 import java.util.ArrayList;
 
-class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotionListener, Scrollable {
+class Panel_Composition extends JPanel implements Printable, MouseListener, MouseMotionListener, Scrollable {
 
+	Composition composition = null;
 	public final static boolean DEBUG_Layout = false;
-
 	public final static double TwoPi = 2d * 3.14159d;
 	public final static String TEXT_ID_CaptionColorBar = "CaptionColorbar";
 
-	private BufferedImage mbi = null;
-	private ArrayList<int[]> listPlotBuffers = new ArrayList<int[]>(); 
-	private ArrayList<Plot> listPlots = new ArrayList<Plot>();
-	
-	protected boolean mzMode_FullScreen = false;
-
-	protected ColorSpecification mColors = null;
-	protected GeoReference mGeoReference = null;   // these two items should be combined
-	protected Model_Projection mProjection = null;
-	
-	// legend
-	protected int mpxLegend_X = 0;
-	protected int mpxLegend_Y = 0;
-	protected int mpxLegend_Width = 0;
-	protected int mpxLegend_Height = 0;
-
-	// scale
-	protected int mpxScale_X = 0;
-	protected int mpxScale_Y = 0;
-	protected int mpxScale_Width = 0;
-	protected int mpxScale_Height = 0;
-	
-	// layout
-	protected PlotLayout layout = PlotLayout.create( PlotLayout.LayoutStyle.PlotArea );
-	protected int mpxMargin_Right = 0;
-	protected int mpxMargin_Left = 0;
-	protected int mpxMargin_Top = 0;
-	protected int mpxMargin_Bottom = 0;
-
-	private static int miSessionCount = 0;
-	final private static String FORMAT_ID_date = "yyyyMMdd";
-	private String msID;
-	private String msCaption = null;
-
-	private Panel_Plot(){} // see create() method
+	private Panel_Composition(){} // see create() method
 
 	public static void main(String[] args) {
 		StringBuffer sbError = new StringBuffer();
@@ -82,7 +48,7 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		environment.getScale().setOutputTarget( OutputTarget.NewWindow );
 		environment.getScale().setDataDimension( 600, 600 );
 		Plot_Surface demo_surface = Plot_Surface.create( environment );
-		Panel_Plot panel = Panel_Plot._create( sbError );
+		Panel_Composition panel = Panel_Composition._create( sbError );
 		if( panel == null ){
 			System.err.println( "plot failed: " + sbError.toString() );
 		}
@@ -99,8 +65,8 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		frame.setVisible( true );
 	}
 	
-	public static Panel_Plot _create( StringBuffer sbError ){
-		Panel_Plot panel = new Panel_Plot();
+	public static Panel_Composition _create( StringBuffer sbError ){
+		Panel_Composition panel = new Panel_Composition();
 		panel.addMouseListener( panel );
 		panel.addMouseMotionListener( panel );
 		return panel;
@@ -114,9 +80,6 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		return new Dimension( mpxPreferredWidth, mpxPreferredHeight );
     }
 
-	public final String _getID(){ return msID; }
-	public final String _getCaption(){ return msCaption; }
-
 	// the way printing works is that the printer keeps asking for pages and when you return no_such_page it stops
 	// in the current implementation the Java printer always asks for the same page twice (with different
 	// affine transforms); to deal with this the mazPagePrinted array is used, if a page is marked as
@@ -127,13 +90,9 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 			return java.awt.print.Printable.NO_SUCH_PAGE;
 		}
 		if( mazPagePrinted[page_index] ) return java.awt.print.Printable.NO_SUCH_PAGE; // already printed this page
-		if( mScale == null ){
-			ApplicationController.vShowError("System error, unable to print, no scale defined.");
-			return java.awt.print.Printable.NO_SUCH_PAGE;
-		}
 		try {
 			// todo use black and white / color models for bw printers
-			((Graphics2D)g).drawImage(mbi, null, 0, 0); // flip image to printer
+			((Graphics2D)g).drawImage( composition.getBuffer(), null, 0, 0); // flip image to printer
 			return java.awt.print.Printable.PAGE_EXISTS;
 		} catch(Exception ex) {
 			ApplicationController.vUnexpectedError(ex, "While trying to print");
@@ -145,7 +104,7 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		try {
-			if( mbi != null ) ((Graphics2D)g).drawImage(mbi, null, 0, 0); // flip image to canvas
+			if( composition != null && composition.getBuffer() != null ) ((Graphics2D)g).drawImage( composition.getBuffer(), null, 0, 0); // flip image to canvas
 		} catch( Exception ex ){
 			if( mzFatalError ) return; // got the training wheels on here todo
 			mzFatalError = true;
@@ -153,34 +112,20 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		}
 	}
 
-	public RenderedImage _getRenderedImage(){ return mbi; }
-
 	// draws a full rendering of annotations and one or more plots
-	public boolean _zComposeRendering( Plot plot, PlotEnvironment environment, StringBuffer sbError ){
-		if( miSessionCount == 0 ){ // update from properties
-			if( ConfigurationManager.getInstance() == null ){
-				miSessionCount = 0;
-			} else {
-				miSessionCount = ConfigurationManager.getInstance().getProperty_PlotCount();
+	public boolean _zRenderComposition( Composition composition, StringBuffer sbError ){
+		for( Plot plot : composition.getPlotList() ){
+			if( ! _zPlot( plot, sbError ) ){
+				sbError.append( "error rendering plot " +  plot.getDescriptor() );
+				return false;
 			}
 		}
-		miSessionCount++;
-		if( ConfigurationManager.getInstance() != null ) ConfigurationManager.getInstance().setOption(ConfigurationManager.PROPERTY_COUNT_Plots, Integer.toString(miSessionCount));
-		int iCountWidth;
-		if( miSessionCount < 1000 ) iCountWidth = 3;
-		else if( miSessionCount < 100000 ) iCountWidth = 5;
-		else iCountWidth = 10;
-		String sID_descriptive = plot.getDescriptor() + Utility.getCurrentDate( FORMAT_ID_date );
-		msID = sID_descriptive + "-" + Utility_String.sFormatFixedRight( miSessionCount, iCountWidth, '0' ); // append plot count to ID descriptive string
-		if( environment == null ){
-			sbError.append( "system error trying to compose rendering (Panel_Plot), no environment" );
-			return false;
-		}
-		return _zPlot( plot, sbError );
+		vAnnotateComposition(); 
+		return true;
 	}
 	
 	// draws a single plot into the designated plot area
-	public boolean _zPlot( Plot plot, StringBuffer sbError ){
+	public boolean _zPlot( Plot plot, BufferedImage bi, StringBuffer sbError ){
 		if( plot == null ){
 			sbError.append( "no plot supplied" );
 			return false;
@@ -188,58 +133,42 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		try {
 			int iDataPoint_width = plot.data.getDimension_x();
 			int iDataPoint_height = plot.data.getDimension_y();
-			mScale.setDataDimension( iDataPoint_width, iDataPoint_height );
-			mpxMargin_Top = mScale.getMarginTop_px();
-			mpxMargin_Bottom = mScale.getMarginBottom_px();
-			mpxMargin_Right = mScale.getMarginRight_px();
-			mpxMargin_Left = mScale.getMarginLeft_px();
+			PlotScale scale = plot.environment.getScale();
+			scale.setDataDimension( iDataPoint_width, iDataPoint_height );
 			this.invalidate(); // when the canvas dimensions change, the layout is invalidated
-			layout.setOffsetHorizontal( mScale.getMarginLeft_px() );
-			layout.setOffsetVertical( mScale.getMarginTop_px() );
+			
+			// determine offset
+			int pxOffset_left = scale.getMarginLeft_px();
+			int pxOffset_top  = scale.getMarginTop_px();
+			plot.layout.setOffsetHorizontal( pxOffset_left );
+			plot.layout.setOffsetVertical( pxOffset_top );
 			
 			// standard scaled area
-			int pxCanvasWidth = mScale.getCanvas_Width_pixels();
-			int pxCanvasHeight = mScale.getCanvas_Height_pixels();
-			int pxPlotWidth = mScale.getPlot_Width_pixels();
-			int pxPlotHeight = mScale.getPlot_Height_pixels();
-	
-			if( pxCanvasWidth == 0 || pxCanvasHeight == 0 ){
-				sbError.append( "invalid scale, canvas width/height cannot be <= 0" );
-				return false;
-			}
-	
+			int pxPlotWidth = scale.getPlot_Width_pixels();
+			int pxPlotHeight = scale.getPlot_Height_pixels();	
 			if( pxPlotWidth == 0 || pxPlotHeight == 0 ){
 				sbError.append( "invalid scale, plot width/height cannot be <= 0" );
 				return false;
 			}
-			mbi = new BufferedImage( pxCanvasWidth, pxCanvasHeight, BufferedImage.TYPE_INT_ARGB );
-			return _zWriteImageBuffer( mbi, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight, sbError );
+			
+			return _zWritePlotToImageBuffer( plot, bi, pxOffset_left, pxOffset_top, pxPlotWidth, pxPlotHeight, sbError );
 		} catch( Throwable ex ){
 			ApplicationController.vUnexpectedError( ex, sbError );
 			return false;
 		}
 	}
 
-	public boolean _zWriteImageBuffer( BufferedImage bi, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean _zWritePlotToImageBuffer( Plot plot, BufferedImage bi, int pxOffset_left, int pxOffset_top, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 		if( bi == null ){
 			sbError.append( "internal error, no buffer (out of memory?)" );
 			return false;
 		} else {
-			Graphics2D g2 = (Graphics2D)mbi.getGraphics();
-			g2.setColor( mcolorBackground );
-			g2.fillRect( 0, 0, pxCanvasWidth, pxCanvasHeight ); // draw background
-			mpxPreferredWidth = pxCanvasWidth;
-			mpxPreferredHeight = pxCanvasHeight;
-			for( Plot plot : listPlots ){
-				int iRasterLength = pxPlotWidth * pxPlotHeight; 
-				int[] raster = new int[ iRasterLength ];
-				listPlotBuffers.add( raster );
-				if( ! plot.render( raster, pxPlotWidth, pxPlotHeight, sbError ) ){
-					sbError.insert( 0, "failed to render plot: " );
-					return false;
-				}
-				mbi.setRGB( mpxMargin_Left, mpxMargin_Right, pxPlotWidth, pxPlotHeight, raster, 0, pxPlotWidth );
+			int[] raster = plot.render( pxPlotWidth, pxPlotHeight, sbError );
+			if( raster == null ){
+				sbError.insert( 0, "failed to render plot: " );
+				return false;
 			}
+			bi.setRGB( pxOffset_left, pxOffset_top, pxPlotWidth, pxPlotHeight, raster, 0, pxPlotWidth );
 			return true;
 		}
 	}
@@ -288,20 +217,21 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 	protected PlotOptions getPlotOptions(){ return mOptions; }
 	void setOptions( PlotOptions po ){ mOptions = po; }
 
-	private PlotScale mScale = null;
-	PlotScale getPlotScale(){ return mScale; }
-
 	int mpxAxis_Horizontal_X, mpxAxis_Horizontal_Y, mpxAxis_Horizontal_width, mpxAxis_Horizontal_height;
 	int mpxAxis_Vertical_X, mpxAxis_Vertical_Y, mpxAxis_Vertical_width, mpxAxis_Vertical_height;
 
+	protected void vAnnotateComposition( Graphics2D g2 ){
+	}
+	
+	
 	// the order of the annotations is important because they can be positioned relative to each other
-	protected void vDrawAnnotations(Graphics2D g2, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
-		vDrawCoastline(g2, pxPlotWidth, pxPlotHeight);
-		vDrawBorders(g2, pxPlotWidth, pxPlotHeight);
-		vDrawAxes(g2, pxPlotWidth, pxPlotHeight);
-		vDrawLegend(g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
-		vDrawScale(g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
-		vDrawText(g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
+	protected void vDrawAnnotations( Graphics2D g2, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
+		vDrawCoastline( g2, pxPlotWidth, pxPlotHeight);
+		vDrawBorders( g2, pxPlotWidth, pxPlotHeight);
+		vDrawAxes( g2, pxPlotWidth, pxPlotHeight);
+		vDrawLegend( g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
+		vDrawScale( g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
+		vDrawText( g2, pxCanvasWidth, pxCanvasHeight, pxPlotWidth, pxPlotHeight );
 	}
 
 	private void vDrawCoastline( Graphics2D g2, int pxPlotWidth, int pxPlotHeight ){
@@ -326,7 +256,7 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		Coastline.vDrawCoastline(g2, xPlotArea_LowerLeft, yPlotArea_LowerLeft, pxPlotWidth, pxPlotHeight, mGeoReference);
 	}
 
-	protected void vDrawAxes( Graphics2D g2, int pxPlotWidth, int pxPlotHeight ){
+	protected void vDrawAxes( Graphics2D g2, PlotScale scale ){
 		StringBuffer sbError = new StringBuffer();
 		ArrayList<PlotAxis> listAxes = environment.getAxes()._getActive();
 		for( int xAxis = 0; xAxis < listAxes.size(); xAxis++ ){

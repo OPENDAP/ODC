@@ -13,12 +13,12 @@ public class TextStyle {
 	static Font[] FONT_Defaults = new Font[7];
 	static {
 		FONT_Defaults[0] = Styles.fontFixed12;
-		FONT_Defaults[PlotLayout.LAYOUT_OBJECT.Canvas.ordinal() + 1] = Styles.fontSansSerif14;
-		FONT_Defaults[PlotLayout.LAYOUT_OBJECT.Plot.ordinal() + 1] = Styles.fontSansSerif14;
-		FONT_Defaults[PlotLayout.LAYOUT_OBJECT.AxisHorizontal.ordinal() + 1] = Styles.fontSansSerif12;
-		FONT_Defaults[PlotLayout.LAYOUT_OBJECT.AxisVertical.ordinal() + 1] = Styles.fontSansSerif12;
-		FONT_Defaults[PlotLayout.LAYOUT_OBJECT.Legend.ordinal() + 1] = Styles.fontSansSerif10;
-		FONT_Defaults[PlotLayout.LAYOUT_OBJECT.Scale.ordinal() + 1] = Styles.fontSansSerif8;
+		FONT_Defaults[PlotLayout.RELATIVE_OBJECT.Canvas.ordinal() + 1] = Styles.fontSansSerif14;
+		FONT_Defaults[PlotLayout.RELATIVE_OBJECT.Plot.ordinal() + 1] = Styles.fontSansSerif14;
+		FONT_Defaults[PlotLayout.RELATIVE_OBJECT.AxisHorizontal.ordinal() + 1] = Styles.fontSansSerif12;
+		FONT_Defaults[PlotLayout.RELATIVE_OBJECT.AxisVertical.ordinal() + 1] = Styles.fontSansSerif12;
+		FONT_Defaults[PlotLayout.RELATIVE_OBJECT.Legend.ordinal() + 1] = Styles.fontSansSerif10;
+		FONT_Defaults[PlotLayout.RELATIVE_OBJECT.Scale.ordinal() + 1] = Styles.fontSansSerif8;
 	}
 	static Color COLOR_Default = Color.BLACK;
 	private LayoutStyle layout_style = LayoutStyle.Axis_X;

@@ -24,7 +24,7 @@ package opendap.clients.odc.plot;
 
 /**
  * Title:        PlotLayout
- * Description:  Support for defining color ranges
+ * Description:  Support for defining layout of elements on a plot
  * Copyright:    Copyright (c) 2003-2011
  * Company:      OPeNDAP
  * @author       John Chamberlain
@@ -44,7 +44,7 @@ import java.awt.*;
 
 class PlotLayout {
 
-	public enum LAYOUT_OBJECT {
+	public enum RELATIVE_OBJECT { // this layout is relative to which object
 		Canvas,
 		Plot,
 		AxisHorizontal,
@@ -55,7 +55,7 @@ class PlotLayout {
 	public final static String[] AS_Object = { "Canvas", "Plot", "Horizontal Axis", "Vertical Axis", "Legend", "Scale" };
 	public final static String[] AS_Object_NoScale = { "Canvas", "Plot", "Axis Horizontal", "Axis Vertical", "Legend" };
 	public final static String[] AS_Object_NoLegend = { "Canvas", "Plot", "Axis Horizontal", "Axis Vertical" };
-	String getObject_String( LAYOUT_OBJECT e ){
+	String getObject_String( RELATIVE_OBJECT e ){
 		return AS_Object[ e.ordinal() ];
 	}
 
@@ -75,21 +75,21 @@ class PlotLayout {
 		return AS_Orientation[ e.ordinal() ];
 	}
 
-	private LAYOUT_OBJECT meObject = LAYOUT_OBJECT.Plot;
+	private RELATIVE_OBJECT meObject = RELATIVE_OBJECT.Plot;
 	private ORIENTATION meOrientation = ORIENTATION.TopLeft;
 	private ORIENTATION meAlignment = ORIENTATION.TopLeft; // uses orientation constants
 	private int mpxOffsetHorizontal = 0;
 	private int mpxOffsetVertical = 0;
 	private int miRotation = 0;
 
-	public LAYOUT_OBJECT getObject(){ return meObject; }
+	public RELATIVE_OBJECT getObject(){ return meObject; }
 	public ORIENTATION getOrientation(){ return meOrientation; }
 	public ORIENTATION getAlignment(){ return meAlignment; }
 	public int getOffsetHorizontal(){ return mpxOffsetHorizontal; }
 	public int getOffsetVertical(){ return mpxOffsetVertical; }
 	public int getRotation(){ return miRotation; }
 
-	public void setObject( LAYOUT_OBJECT e ){ meObject = e; }
+	public void setObject( RELATIVE_OBJECT e ){ meObject = e; }
 	public void setOrientation( ORIENTATION i ){ meOrientation = i; }
 	public void setAlignment( ORIENTATION i ){ meAlignment = i; }
 	public void setOffsetHorizontal( int i ){ mpxOffsetHorizontal = i; }
@@ -109,7 +109,7 @@ class PlotLayout {
 		PlotLayout layout = new PlotLayout();
 		switch( eDEFAULT_STYLE ){
 			case PlotArea:
-				layout.meObject = LAYOUT_OBJECT.Canvas;
+				layout.meObject = RELATIVE_OBJECT.Canvas;
 				layout.meOrientation = ORIENTATION.TopLeft;
 				layout.meAlignment = ORIENTATION.TopLeft; // uses orientation constants
 				layout.mpxOffsetHorizontal = 70;
@@ -117,7 +117,7 @@ class PlotLayout {
 				layout.miRotation = 0;
 				break;
 			case Legend:
-				layout.meObject = LAYOUT_OBJECT.Plot;
+				layout.meObject = RELATIVE_OBJECT.Plot;
 				layout.meOrientation = ORIENTATION.TopRight;
 				layout.meAlignment = ORIENTATION.TopLeft; // uses orientation constants
 				layout.mpxOffsetHorizontal = 10;
@@ -125,7 +125,7 @@ class PlotLayout {
 				layout.miRotation = 270;
 				break;
 			case Scale:
-				layout.meObject = LAYOUT_OBJECT.Plot;
+				layout.meObject = RELATIVE_OBJECT.Plot;
 				layout.meOrientation = ORIENTATION.BottomRight;
 				layout.meAlignment = ORIENTATION.BottomRight; // uses orientation constants
 				layout.mpxOffsetHorizontal = -10;
@@ -433,7 +433,7 @@ class Panel_PlotLayout extends JPanel {
 			new ActionListener(){
 				public void actionPerformed(ActionEvent event) {
 					int xSelected = jcbObject.getSelectedIndex();
-					mPlotLayout.setObject( PlotLayout.LAYOUT_OBJECT.values()[xSelected] );
+					mPlotLayout.setObject( PlotLayout.RELATIVE_OBJECT.values()[xSelected] );
 				}
 			}
 		);
@@ -601,7 +601,7 @@ class PlotLayout_TestCanvas extends JPanel {
 				g2.drawString("Y-Axis", iObjectX - 20, iObjectY + iObjectHeight + 40);
 				break;
 		}
-		Panel_Plot.vDrawText( g2, "Layout Location", opendap.clients.odc.gui.Styles.fontSansSerifBold12, Color.RED, mPlotLayout, iObjectX, iObjectY, iObjectWidth, iObjectHeight, true );
+		Panel_Composition.vDrawText( g2, "Layout Location", opendap.clients.odc.gui.Styles.fontSansSerifBold12, Color.RED, mPlotLayout, iObjectX, iObjectY, iObjectWidth, iObjectHeight, true );
 	}
 
 }
