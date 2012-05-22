@@ -18,7 +18,6 @@ public class PreviewPane extends JScrollPane {
 		panel.setLayout( new BorderLayout() );
 		panel.add(Box.createGlue(), BorderLayout.CENTER);
 		_setContent_Default();
-		_clear();
 	}
 	public void _clear(){
 		Graphics g = panel.getGraphics();
