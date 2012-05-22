@@ -41,7 +41,6 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 	
 	protected boolean mzMode_FullScreen = false;
 
-	PlotEnvironment environment = null;
 	protected ColorSpecification mColors = null;
 	protected GeoReference mGeoReference = null;   // these two items should be combined
 	protected Model_Projection mProjection = null;
@@ -157,7 +156,7 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 	public RenderedImage _getRenderedImage(){ return mbi; }
 
 	// draws a full rendering of annotations and one or more plots
-	public boolean _zComposeRendering( Plot plot, StringBuffer sbError ){
+	public boolean _zComposeRendering( Plot plot, PlotEnvironment environment, StringBuffer sbError ){
 		if( miSessionCount == 0 ){ // update from properties
 			if( ConfigurationManager.getInstance() == null ){
 				miSessionCount = 0;
@@ -174,7 +173,7 @@ class Panel_Plot extends JPanel implements Printable, MouseListener, MouseMotion
 		String sID_descriptive = plot.getDescriptor() + Utility.getCurrentDate( FORMAT_ID_date );
 		msID = sID_descriptive + "-" + Utility_String.sFormatFixedRight( miSessionCount, iCountWidth, '0' ); // append plot count to ID descriptive string
 		if( environment == null ){
-			sbError.append( "system error, invalid plot panel, no environment" );
+			sbError.append( "system error trying to compose rendering (Panel_Plot), no environment" );
 			return false;
 		}
 		return _zPlot( plot, sbError );
