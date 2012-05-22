@@ -14,7 +14,6 @@ public class Plot_Expression extends Plot {
 	Model_PlottableExpression model;
 	PlotCoordinates coordinates = null;
 	ColorSpecification cs = null;
-	private int mpxPlotHeight = 0;   // this is here for the microscope, but should be removed TODO
 	private String msExpression = null;
 	private org.python.core.PyCode pycodeExpression = null;
 	private org.python.core.PyCode pycodeExpression_x = null;
@@ -46,7 +45,6 @@ public class Plot_Expression extends Plot {
 
 	public boolean render( int[] raster, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 		coordinates = model.getPlotCoordinates( pxPlotWidth, pxPlotHeight, sbError );
-		mpxPlotHeight = pxPlotHeight;
 		if( coordinates == null ){
 			sbError.insert( 0, "failed to get coordinates for plot dimensions (" + pxPlotWidth + ", " + pxPlotHeight +  "): " );
 			return false;
