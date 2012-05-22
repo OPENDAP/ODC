@@ -95,10 +95,10 @@ public class Output_ToPlot {
 	private static int miMultisliceDelay = 150;
 
 	public static javax.swing.JFrame mPlotFrame = null;
-	public static Panel_Plot mPanel_ExternalWindow = null;
-	public static Panel_Plot mPanel_FullScreen = null;
-	public static Panel_Plot mPanel_Print = null;
-	public static Panel_Plot mPanel_Image = null;
+	public static Panel_Composition mPanel_ExternalWindow = null;
+	public static Panel_Composition mPanel_FullScreen = null;
+	public static Panel_Composition mPanel_Print = null;
+	public static Panel_Composition mPanel_Image = null;
 	public static PlotEnvironment mExternalWindowEnvironment = null;
 	public static PlotEnvironment mFullScreenEnvironment = null;
 	private final static int EXTERNAL_WINDOW_Width = 650;
@@ -749,7 +749,7 @@ public class Output_ToPlot {
 		try {
 			PlotScale scale;
 			String sOutput;
-			Panel_Plot plot_panel = null;
+			Panel_Composition plot_panel = null;
 			switch( eOutputOption ){
 				
 				case ExternalWindow: // use the existing external window
@@ -762,7 +762,7 @@ public class Output_ToPlot {
 				    	sOutput = "the external window";
 						frame = mPlotFrame;
 						if( mPanel_ExternalWindow == null || mExternalWindowEnvironment != environment ){
-							plot_panel = Panel_Plot._create( sbError );
+							plot_panel = Panel_Composition._create( sbError );
 							if( plot_panel == null ){
 								sbError.insert( 0, "failed to create fresh plot panel for external window: " );
 								return false;
@@ -782,9 +782,9 @@ public class Output_ToPlot {
 							}
 						});
 						Resources.iconAdd(frame);
-						plot_panel = Panel_Plot._create( sbError );
+						plot_panel = Panel_Composition._create( sbError );
 					    JComponent compToAdd;
-						scale = plot_panel.getPlotScale();
+						scale = plot.environment.getScale();
 						if( (float)scale.getCanvas_Width_pixels() > .9f * SCREEN_Width ||
 						    (float)scale.getCanvas_Height_pixels() > .9f * SCREEN_Height ){
 							if( iFrameNumber == 1 ) frame.setSize( SCREEN_Width, SCREEN_Height );
@@ -815,13 +815,13 @@ public class Output_ToPlot {
 					sOutput = "full screen";
 					boolean zNewFullScreenPanelCreated = false;
 					if( mPanel_FullScreen == null ){
-						plot_panel = Panel_Plot._create( sbError );
+						plot_panel = Panel_Composition._create( sbError );
 						zNewFullScreenPanelCreated = true;
 					} else {
 						if( mFullScreenEnvironment == environment ){
 							plot_panel = mPanel_FullScreen; 
 						} else {
-							plot_panel = Panel_Plot._create( sbError );
+							plot_panel = Panel_Composition._create( sbError );
 							zNewFullScreenPanelCreated = true;
 						}
 					}

@@ -103,7 +103,7 @@ public class PlotAxis {
 			PlotTextItem text = axis.listAxisText.getNew(TEXT_ID_Caption);
 			text.setString( sCaption );
 			PlotLayout layout = text.getPlotLayout();
-			layout.setObject( PlotLayout.LAYOUT_OBJECT.AxisHorizontal );
+			layout.setObject( PlotLayout.RELATIVE_OBJECT.AxisHorizontal );
 			layout.setOrientation( PlotLayout.ORIENTATION.BottomMiddle);
 			layout.setAlignment( PlotLayout.ORIENTATION.TopMiddle);
 			layout.setOffsetVertical(5);
@@ -122,7 +122,7 @@ public class PlotAxis {
 			PlotTextItem text = axis.listAxisText.getNew(TEXT_ID_Caption);
 			text.setString( sCaption );
 			PlotLayout layout = text.getPlotLayout();
-			layout.setObject( PlotLayout.LAYOUT_OBJECT.AxisVertical );
+			layout.setObject( PlotLayout.RELATIVE_OBJECT.AxisVertical );
 			layout.setOrientation( PlotLayout.ORIENTATION.LeftMiddle);
 			layout.setAlignment( PlotLayout.ORIENTATION.RightMiddle);
 			layout.setOffsetHorizontal(-10);
