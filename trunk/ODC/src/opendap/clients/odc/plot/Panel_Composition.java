@@ -31,12 +31,11 @@ import java.util.ArrayList;
 class Panel_Composition extends JPanel implements Printable, MouseListener, MouseMotionListener, Scrollable {
 
 	Composition composition = null;
-	public final static boolean DEBUG_Layout = false;
-	public final static double TwoPi = 2d * 3.14159d;
-	public final static String TEXT_ID_CaptionColorBar = "CaptionColorbar";
 
 	private Panel_Composition(){} // see create() method
 
+	public Composition getCurrentComposition(){ return composition; }
+	
 	public static void main(String[] args) {
 		StringBuffer sbError = new StringBuffer();
 		Frame frame = new Frame("Plot Demo");
@@ -45,9 +44,10 @@ class Panel_Composition extends JPanel implements Printable, MouseListener, Mous
 		String sID = "demo_id";
 		String sCaption = "demo plot";
 		PlotEnvironment environment = new PlotEnvironment();
+		PlotLayout layout = PlotLayout.create( PlotLayout.LayoutStyle.PlotArea );
 		environment.getScale().setOutputTarget( OutputTarget.NewWindow );
 		environment.getScale().setDataDimension( 600, 600 );
-		Plot_Surface demo_surface = Plot_Surface.create( environment );
+		Plot_Surface demo_surface = Plot_Surface.create( environment, layout );
 		Panel_Composition panel = Panel_Composition._create( sbError );
 		if( panel == null ){
 			System.err.println( "plot failed: " + sbError.toString() );
@@ -72,12 +72,9 @@ class Panel_Composition extends JPanel implements Printable, MouseListener, Mous
 		return panel;
 	}
 
-	// this is needed to tell any container how big the panel wants to be
-	// the preferred values should be set whenever an image is generated (see vGenerateImage)
-	protected int mpxPreferredWidth = 250;
-	protected int mpxPreferredHeight = 250;
     public Dimension getPreferredSize() {
-		return new Dimension( mpxPreferredWidth, mpxPreferredHeight );
+    	if( composition == null ) return new Dimension( 250, 250 ); 
+		return composition.getLayout().getCompositionDimensions();
     }
 
 	// the way printing works is that the printer keeps asking for pages and when you return no_such_page it stops
@@ -112,118 +109,7 @@ class Panel_Composition extends JPanel implements Printable, MouseListener, Mous
 		}
 	}
 
-	// draws a full rendering of annotations and one or more plots
-	public boolean _zRenderComposition( Composition composition, StringBuffer sbError ){
-		for( Plot plot : composition.getPlotList() ){
-			if( ! _zPlot( plot, sbError ) ){
-				sbError.append( "error rendering plot " +  plot.getDescriptor() );
-				return false;
-			}
-		}
-		vAnnotateComposition(); 
-		return true;
-	}
-	
-	// draws a single plot into the designated plot area
-	public boolean _zPlot( Plot plot, BufferedImage bi, StringBuffer sbError ){
-		if( plot == null ){
-			sbError.append( "no plot supplied" );
-			return false;
-		}
-		try {
-			int iDataPoint_width = plot.data.getDimension_x();
-			int iDataPoint_height = plot.data.getDimension_y();
-			PlotScale scale = plot.environment.getScale();
-			scale.setDataDimension( iDataPoint_width, iDataPoint_height );
-			this.invalidate(); // when the canvas dimensions change, the layout is invalidated
-			
-			// determine offset
-			int pxOffset_left = scale.getMarginLeft_px();
-			int pxOffset_top  = scale.getMarginTop_px();
-			plot.layout.setOffsetHorizontal( pxOffset_left );
-			plot.layout.setOffsetVertical( pxOffset_top );
-			
-			// standard scaled area
-			int pxPlotWidth = scale.getPlot_Width_pixels();
-			int pxPlotHeight = scale.getPlot_Height_pixels();	
-			if( pxPlotWidth == 0 || pxPlotHeight == 0 ){
-				sbError.append( "invalid scale, plot width/height cannot be <= 0" );
-				return false;
-			}
-			
-			return _zWritePlotToImageBuffer( plot, bi, pxOffset_left, pxOffset_top, pxPlotWidth, pxPlotHeight, sbError );
-		} catch( Throwable ex ){
-			ApplicationController.vUnexpectedError( ex, sbError );
-			return false;
-		}
-	}
 
-	public boolean _zWritePlotToImageBuffer( Plot plot, BufferedImage bi, int pxOffset_left, int pxOffset_top, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
-		if( bi == null ){
-			sbError.append( "internal error, no buffer (out of memory?)" );
-			return false;
-		} else {
-			int[] raster = plot.render( pxPlotWidth, pxPlotHeight, sbError );
-			if( raster == null ){
-				sbError.insert( 0, "failed to render plot: " );
-				return false;
-			}
-			bi.setRGB( pxOffset_left, pxOffset_top, pxPlotWidth, pxPlotHeight, raster, 0, pxPlotWidth );
-			return true;
-		}
-	}
-
-//	int getCanvasWidth(){ return this.mpxCanvasWidth; }
-//	int getCanvasHeight(){ return this.mpxCanvasHeight; }
-//	int getMarginPixels_Top(){ return mpxMargin_Top; }
-//	int getMarginPixels_Left(){ return mpxMargin_Left; }
-//	int getMarginPixels_Bottom(){ return mpxMargin_Bottom; }
-//	int getMarginPixels_Right(){ return mpxMargin_Right; }
-//	void setMarginPixels_Top( int iPixels ){ mpxMargin_Top =  iPixels; }
-//	void setMarginPixels_Bottom( int iPixels ){ mpxMargin_Bottom =  iPixels; }
-//	void setMarginPixels_Left( int iPixels ){ mpxMargin_Left =  iPixels; }
-//	void setMarginPixels_Right( int iPixels ){ mpxMargin_Right =  iPixels; }
-
-	private String msLabel_HorizontalAxis = null;
-	private String msLabel_VerticalAxis = null;
-	private String msLabel_Title = null;
-	private String msLabel_Values = null;
-	private String msLabel_Units = null;
-	void setLabel_HorizontalAxis( String sText ){ msLabel_HorizontalAxis = sText; }
-	void setLabel_VerticalAxis( String sText ){ msLabel_HorizontalAxis = sText; }
-	void setLabel_Title( String sText ){ msLabel_Title = sText; }
-	void setLabel_Values( String sText ){ msLabel_Values = sText; }
-	void setLabel_Units( String sText ){ msLabel_Units = sText; }
-
-	// colors
-	protected Color mcolorBackground = Color.WHITE;  // todo make into a parameter
-	void setColor_Background( Color color ){ mcolorBackground = color; }
-	Color getColor_Background(){ return mcolorBackground; }
-	void setColors( ColorSpecification cs ){ mColors = cs; }
-
-	// legend parameters
-	private boolean mzHasLegend = true;
-	private int mpxLegendHeight = 0;
-	private int mpxLegendWidth = 0;
-	private int mpxLegendKeyWidth = 10;
-
-	PlotText mText = null;
-	public PlotText getText(){ return mText; }
-	void setText( PlotText pt ){
-		mText = pt;
-	}
-
-	private PlotOptions mOptions = null;
-	protected PlotOptions getPlotOptions(){ return mOptions; }
-	void setOptions( PlotOptions po ){ mOptions = po; }
-
-	int mpxAxis_Horizontal_X, mpxAxis_Horizontal_Y, mpxAxis_Horizontal_width, mpxAxis_Horizontal_height;
-	int mpxAxis_Vertical_X, mpxAxis_Vertical_Y, mpxAxis_Vertical_width, mpxAxis_Vertical_height;
-
-	protected void vAnnotateComposition( Graphics2D g2 ){
-	}
-	
-	
 	// the order of the annotations is important because they can be positioned relative to each other
 	protected void vDrawAnnotations( Graphics2D g2, int pxCanvasWidth, int pxCanvasHeight, int pxPlotWidth, int pxPlotHeight ){
 		vDrawCoastline( g2, pxPlotWidth, pxPlotHeight);
@@ -620,6 +506,7 @@ class Panel_Composition extends JPanel implements Printable, MouseListener, Mous
 
 	}
 
+	public final static double TwoPi = 2d * 3.14159d;
 	public static void vDrawText( Graphics2D g2, String sText, Font font, Color color, PlotLayout layout, int hObject, int vObject, int widthObject, int heightObject, boolean zShowBoundingBox ){
 		FontMetrics fm = g2.getFontMetrics(font);
 		int pxWidth = fm.stringWidth( sText );

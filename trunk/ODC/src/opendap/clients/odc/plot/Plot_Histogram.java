@@ -36,8 +36,8 @@ class Plot_Histogram extends Plot {
 	private final static Dimension MIN_DIMENSION = new Dimension(200, 400);
 	private String mDisplay_sMessage = null;
 
-	private Plot_Histogram( PlotEnvironment environment ){
-		super( environment );		
+	private Plot_Histogram( PlotEnvironment environment, PlotLayout layout ){
+		super( environment, layout );		
 	}
 
 	public String getDescriptor(){ return "H"; }
@@ -103,8 +103,8 @@ class Plot_Histogram extends Plot {
 
 	//int getGraphOffsetPixels(){ return mpxGraphOffset; }
 	//void setGraphOffsetPixels( int iPixels ){ mpxGraphOffset = iPixels; }
-	public static Plot_Histogram create( PlotEnvironment environment, IPlottable data, String sCaption, StringBuffer sbError ){
-		Plot_Histogram plot = new Plot_Histogram( environment );
+	public static Plot_Histogram create( PlotEnvironment environment, PlotLayout layout, IPlottable data, String sCaption, StringBuffer sbError ){
+		Plot_Histogram plot = new Plot_Histogram( environment, layout );
 		plot.data = data;
 		plot.cs = environment.getColorSpecification();
 		plot.po = environment.getOptions();
@@ -739,7 +739,7 @@ class Plot_Histogram extends Plot {
 	void setLabel_HorizontalAxis( String sText ){ msLabel_HorizontalAxis = sText; }
 	void setLabel_Title( String sText ){ msLabel_Title = sText; }
 
-	public boolean render( int[] raster, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean render( int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
 		int iRGBA = Color.black.getRGB();
 

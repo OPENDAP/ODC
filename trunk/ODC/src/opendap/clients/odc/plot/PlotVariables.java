@@ -36,6 +36,8 @@ import opendap.clients.odc.*;
 import java.util.*;
 import opendap.dap.*;
 
+// This is used for the variable selection part of the interface
+
 /** The plot types have the following requirements:
 
 pseudocolor/contour:

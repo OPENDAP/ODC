@@ -20,12 +20,12 @@ public class Plot_Expression extends Plot {
 	private org.python.core.PyCode pycodeExpression_y = null;
 	private org.python.core.PyCode pycodeExpression_z = null;
 
-	private Plot_Expression( PlotEnvironment environment ){
-		super( environment );		
+	private Plot_Expression( PlotEnvironment environment, PlotLayout layout ){
+		super( environment, layout );		
 	}
 
-	public static Plot_Expression create( PlotEnvironment environment, Model_PlottableExpression model, String sCaption, StringBuffer sbError ){
-		Plot_Expression plot = new Plot_Expression( environment );
+	public static Plot_Expression create( PlotEnvironment environment, PlotLayout layout, Model_PlottableExpression model, String sCaption, StringBuffer sbError ){
+		Plot_Expression plot = new Plot_Expression( environment, layout );
 		// plot.data = data;
 		plot.cs = environment.getColorSpecification();
 		plot.msCaption = sCaption;
@@ -43,14 +43,14 @@ public class Plot_Expression extends Plot {
 	
 	public String getDescriptor(){ return "E"; }
 
-	public boolean render( int[] raster, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean render( int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 		coordinates = model.getPlotCoordinates( pxPlotWidth, pxPlotHeight, sbError );
 		if( coordinates == null ){
 			sbError.insert( 0, "failed to get coordinates for plot dimensions (" + pxPlotWidth + ", " + pxPlotHeight +  "): " );
 			return false;
 		}
 		if( coordinates.zIsFillPlot ){ // pseudocolor-type plot
-			ColorSpecification cs = null;
+			ColorSpecification cs = null; // TODO
 			cs.render1to1( null, coordinates.madPlotBuffer );
 		} else {
 			if( coordinates.zHasAlpha ){

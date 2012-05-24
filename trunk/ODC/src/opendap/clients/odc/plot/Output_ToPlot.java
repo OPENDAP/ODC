@@ -165,9 +165,13 @@ public class Output_ToPlot {
 		}
 	}
 
-	public static boolean zPlot( PlotEnvironment environment, final Model_Dataset model, final PlottingData pdat, final OutputTarget eOutputOption, final StringBuffer sbError){
-		if( environment == null ){
-			sbError.append("internal error, no plotting definition");
+	public static boolean zPlot( Composition composition, final Model_Dataset model, final OutputTarget eOutputOption, final StringBuffer sbError){
+		if( composition == null ){
+			sbError.append("internal error, no composition");
+			return false;
+		}
+		if( model == null ){
+			sbError.append("internal error, no data model");
 			return false;
 		}
 		final PlotEnvironment.PLOT_TYPE ePlotType = environment.getPlotType();
@@ -224,7 +228,7 @@ public class Output_ToPlot {
 
 			boolean zResult;
 			if( ePlotType == PLOT_TYPE.XY ){ // all variables on same plot
-				return zPlot_XY( environment, model, sCaption, pdat, varAxisX, varAxisY, eOutputOption, sbError);
+				return zPlot_XY( environment, layout, model, sCaption, pdat, varAxisX, varAxisY, eOutputOption, sbError);
 			} else { // each variable goes on a different plot
 				for( int xVariable = 1; xVariable <= ctVariable; xVariable++ ){
 					PlottingVariable pv1 = pdat.getVariable1(xVariable);
@@ -232,13 +236,13 @@ public class Output_ToPlot {
 					if( ctVariable > 1 && eOutputOption == OutputTarget.Thumbnail ) sCaption = pv1.getSliceCaption();
 					switch(ePlotType){
 						case Histogram:
-							zResult = zPlot_Histogram( environment, model, sCaption, pv1, eOutputOption, xVariable, ctVariable, sbError);
+							zResult = zPlot_Histogram( environment, layout, model, sCaption, pv1, eOutputOption, xVariable, ctVariable, sbError);
 							break;
 						case Pseudocolor:
-							zResult = zPlot_PseudoColor( environment, model, sCaption, pv1, varAxisX, varAxisY, eOutputOption, xVariable, ctVariable, sbError);
+							zResult = zPlot_PseudoColor( environment, layout, model, sCaption, pv1, varAxisX, varAxisY, eOutputOption, xVariable, ctVariable, sbError);
 							break;
 						case Vector:
-							zResult = zPlot_Vector( environment, model, sCaption, pv1, pv2, varAxisX, varAxisY, eOutputOption, xVariable, ctVariable, sbError);
+							zResult = zPlot_Vector( environment, layout, model, sCaption, pv1, pv2, varAxisX, varAxisY, eOutputOption, xVariable, ctVariable, sbError);
 							break;
 						case XY:
 							sbError.append( "not applicable" );
@@ -271,11 +275,11 @@ public class Output_ToPlot {
 //     1 x/y/slice       n slices
 //       n slices        n slices    (number of slices must match for both variables)
 
-	static boolean zPlot_XY( PlotEnvironment environment, Model_Dataset model, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, OutputTarget eOutputOption, StringBuffer sbError ){
+	static boolean zPlot_XY( PlotEnvironment environment, PlotLayout layout, Model_Dataset model, String sCaption, PlottingData pdat, VariableInfo varAxisX, VariableInfo varAxisY, OutputTarget eOutputOption, StringBuffer sbError ){
 		try {
 
 			// initialize panel
-			Plot_Line plot = Plot_Line.create( environment, null, sCaption, sbError );
+			Plot_Line plot = Plot_Line.create( environment, layout, null, sCaption, sbError );
 			if( plot == null ){
 				sbError.insert( 0, "unable to create line plot: " );
 				return false;
@@ -412,7 +416,7 @@ public class Output_ToPlot {
 //     1 x/y/slice       n slices
 //       n slices        n slices    (number of slices must match for both variables)
 
-	static boolean zPlot_Expression( PlotEnvironment environment, final Model_Dataset model, OutputTarget eOutputOption, String sCaption, StringBuffer sbError ){
+	static boolean zPlot_Expression( PlotEnvironment environment, PlotLayout layout, final Model_Dataset model, OutputTarget eOutputOption, String sCaption, StringBuffer sbError ){
 		try {
 
 			// generate expression model from script
@@ -437,7 +441,7 @@ public class Output_ToPlot {
 				return false;
 			}
 
-			Plot_Expression plot = Plot_Expression.create( environment, modelExpression, sCaption, sbError );
+			Plot_Expression plot = Plot_Expression.create( environment, layout, modelExpression, sCaption, sbError );
 			if( plot == null ){
 				sbError.insert( 0, "failed to generate plot from model" );
 				return false;
@@ -463,7 +467,7 @@ public class Output_ToPlot {
 		}
 	}
 	
-	static boolean zPlot_Histogram( PlotEnvironment environment, Model_Dataset model, String sCaption, PlottingVariable pv, OutputTarget eOutputOption, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_Histogram( PlotEnvironment environment, PlotLayout layout, Model_Dataset model, String sCaption, PlottingVariable pv, OutputTarget eOutputOption, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
 			PlotOptions po = environment.getOptions();
 			PlotText pt = environment.getText();
@@ -480,7 +484,7 @@ public class Output_ToPlot {
 			Object[] eggHistogramMissing = pv.getMissingEgg();
 
 			IPlottable plottableData = null; // TODO
-			Plot_Histogram plot = Plot_Histogram.create( environment, plottableData, sCaption, sbError );
+			Plot_Histogram plot = Plot_Histogram.create( environment, layout, plottableData, sCaption, sbError );
 			if( plot == null ){
 				sbError.insert( 0, "failed to generate histogram plot from data: " );
 				return false;
@@ -510,128 +514,10 @@ public class Output_ToPlot {
 		}
 	}
 
-	static boolean zPlot_PseudoColor( PlotEnvironment environment, Model_Dataset model, String sCaption, PlottingVariable pv, VariableInfo varAxisX, VariableInfo varAxisY, OutputTarget eOutputOption, int iFrame, int ctFrames, StringBuffer sbError ){
-		try {
-
-			ColorSpecification cs = environment.getColorSpecification();
-			PlotOptions po = environment.getOptions();
-			int eDATA_TYPE   = pv.getDataType();
-
-			// setup generated cs if necessary
-			if( cs == null ){
-				cs = new ColorSpecification("[system generated]", eDATA_TYPE);
-				int iDefaultMissingColor = 0xFF0000FF;
-				// cs.setMissing( Panel_View_Plot.getDataParameters().getMissingEgg(), eDATA_TYPE, iDefaultMissingColor );
-				cs.setMissing( pv.getMissingEgg(), eDATA_TYPE, iDefaultMissingColor );
-				if( !cs.setStandardColors(ColorSpecification.COLOR_STYLE_Default, sbError) ){
-					sbError.insert(0, "Failed to create default standard colors: ");
-					return false;
-				}
-			} else {
-				if( cs.getDataType() != eDATA_TYPE ){
-					sbError.append("Color specification type (" + DAP.getType_String(eDATA_TYPE) + ") does not match data type (" +  DAP.getType_String(eDATA_TYPE) + "); see help topic color specification for more information");
-					return false;
-				}
-			}
-
-			int iWidth       = pv.getDimLength(1);
-			int iHeight      = pv.getDimLength(2);
-			if( iWidth <= 1 || iHeight <=1 ){
-				sbError.append("cannot plot pseudocolor with width " + iWidth + " and height " + iHeight + "; data must be two-dimensional");
-				return false;
-			}
-			if( eOutputOption == OutputTarget.Thumbnail ){
-				int pxThumbnailWidth = po.get(PlotOptions.OPTION_ThumbnailWidth).getValue_int();
-				int pxThumbnailHeight = iHeight * pxThumbnailWidth / iWidth;
-				PlotScale psThumbnail = PlotScale.create();
-				psThumbnail.setScaleMode( PlotScale.SCALE_MODE.PlotArea );
-				psThumbnail.setPixelWidth_PlotArea( pxThumbnailWidth );
-				psThumbnail.setPixelHeight_PlotArea( pxThumbnailHeight );
-				environment.setScale( psThumbnail );
-			}
-
-			// set data
-			Object[] eggData = pv.getDataEgg();
-			PlottableData plottableData = PlottableData.create( eDATA_TYPE, eggData, null, null, null, iWidth, iHeight, sbError );
-			if( plottableData == null ){
-				sbError.insert(0, "Failed to set pseudocolor data (type " + DAP.getType_String(eDATA_TYPE) + ") with width " + iWidth + " and height " + iHeight + ": ");
-				return false;
-			}
-			Plot_Pseudocolor plot = Plot_Pseudocolor.create( environment, plottableData, sCaption, sbError );
-			if( plot == null ){
-				sbError.insert(0, "Failed to set pseudocolor data (type " + DAP.getType_String(eDATA_TYPE) + ") with width " + iWidth + " and height " + iHeight + ": ");
-				return false;
-			}
-			
-			// set axes
-			if( eOutputOption == OutputTarget.Thumbnail ){
-				// do not set axes
-			} else {
-				if( pv.getDimCount() == 2 ){
-					PlotAxis axisHorizontal = PlotAxis.createLinear_X( "X-Axis", 0, 0 );
-					if( varAxisX == null ){ // todo resolve reversals/inversions
-						axisHorizontal = null;
-					} else {
-						if( varAxisX.getUseIndex() ) {
-//							axisHorizontal = PlotAxis.();
-//							axisHorizontal.setIndexed(1, iWidth);
-//							axisHorizontal.setCaption("[indexed]");
-						} else {
-//							axisHorizontal = new PlotAxis();
-//							String sNameX = varAxisX.getName();
-//							String sLongNameX = varAxisX.getLongName();
-//							String sUserCaptionX = varAxisX.getUserCaption();
-//							String sUnitsX = varAxisX.getUnits();
-//							Object[] eggAxisX = varAxisX.getValueEgg();
-//							axisHorizontal.setValues(eggAxisX, varAxisX.getDataType(), false);
-//							String sCaptionAxisX = (sUserCaptionX != null ? sUserCaptionX : sLongNameX != null ? sLongNameX : sNameX) +
-//												    (sUnitsX == null ? "" : sUnitsX);
-//							axisHorizontal.setCaption(sCaptionAxisX);
-						}
-					}
-					PlotAxis axisVertical = PlotAxis.createLinear_Y( "Y-Axis", 0, 0 );
-					if( varAxisY == null ){
-						axisVertical = null;
-					} else {
-//						String sName = varAxisY.getName();
-//						String sUnits = varAxisY.getUnits();
-						if( varAxisY.getUseIndex() ) {
-//							axisVertical = new PlotAxis();
-//							axisVertical.setIndexed(1, iHeight);
-//							axisVertical.setCaption("[indexed]");
-						} else {
-//							axisVertical = new PlotAxis();
-//							Object[] eggAxisY = varAxisY.getValueEgg();
-//							axisVertical.setValues(eggAxisY, varAxisY.getDataType(), true);
-//							String sNameY = varAxisY.getName();
-//							String sLongNameY = varAxisY.getLongName();
-//							String sUserCaptionY = varAxisY.getUserCaption();
-//							String sUnitsY = varAxisY.getUnits();
-//							axisVertical.setValues(eggAxisY, varAxisY.getDataType(), false);
-//							String sCaptionAxisY = (sUserCaptionY != null ? sUserCaptionY : sLongNameY != null ? sLongNameY : sNameY) +
-//												    (sUnitsY == null ? "" : sUnitsY);
-//							axisVertical.setCaption(sCaptionAxisY);
-						}
-					}
-//					panelPC.setAxisHorizontal(axisHorizontal);
-//					panelPC.setAxisVertical(axisVertical);
-				} else {
-					sbError.append("can only plot pseudocolor data with two axes");
-					return false;
-				}
-			}
-
-			// TODO plot.setLabel_Values( pv.getDataCaption() );
-
-			return zPlot( environment, plot, model, eOutputOption, iFrame, ctFrames, sbError );
-		} catch(Exception ex) {
-			sbError.append("While building pseudocolor plot: ");
-			ApplicationController.vUnexpectedError(ex, sbError);
-			return false;
-		}
+	static boolean zPlot_PseudoColor( PlotEnvironment environment, PlotLayout layout, Model_Dataset model, String sCaption, PlottingVariable pv, VariableInfo varAxisX, VariableInfo varAxisY, OutputTarget eOutputOption, int iFrame, int ctFrames, StringBuffer sbError ){
 	}
 
-	static boolean zPlot_Vector( PlotEnvironment environment, Model_Dataset model, String sCaption, PlottingVariable pv, PlottingVariable pv2, VariableInfo varAxisX, VariableInfo varAxisY, OutputTarget eOutputOption, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_Vector( PlotEnvironment environment, PlotLayout layout, Model_Dataset model, String sCaption, PlottingVariable pv, PlottingVariable pv2, VariableInfo varAxisX, VariableInfo varAxisY, OutputTarget eOutputOption, int iFrame, int ctFrames, StringBuffer sbError ){
 		try {
 			
 			if( pv == null || pv2 == null ){
@@ -679,7 +565,7 @@ public class Output_ToPlot {
 				sbError.insert(0, "Failed to set pseudocolor data (type " + DAP.getType_String(eDATA_TYPE) + ") with width " + iWidth + " and height " + iHeight + ": ");
 				return false;
 			}
-			Plot_Vector plot = Plot_Vector.create( environment, plottableData, sCaption, sbError );
+			Plot_Vector plot = Plot_Vector.create( environment, layout, plottableData, sCaption, sbError );
 			if( plot == null ){
 				sbError.insert(0, "Failed to set pseudocolor data (type " + DAP.getType_String(eDATA_TYPE) + ") with width " + iWidth + " and height " + iHeight + ": ");
 				return false;
@@ -962,198 +848,6 @@ public class Output_ToPlot {
 			ApplicationController.vUnexpectedError(ex, sbError);
 			return false;
 		}
-	}
-
-}
-
-class PlottingData {
-	public final static int AXES_None = 0;
-	public final static int AXES_Linear = 1;
-	public final static int AXES_Mapped = 2;
-	private int mctDimensions;
-	private int[] maiDim_TYPE1;
-	private int mAXES_TYPE;
-	private ArrayList<PlottingVariable> listVariables1 = new ArrayList<PlottingVariable>();
-	private ArrayList<PlottingVariable> listVariables2 = new ArrayList<PlottingVariable>();
-	private VariableInfo mvarAxis_X = null;
-	private VariableInfo mvarAxis_Y = null;
-	VariableInfo getAxis_X(){ return mvarAxis_X; }
-	VariableInfo getAxis_Y(){ return mvarAxis_Y; }
-	void setAxis_X(VariableInfo var, boolean zUseIndex){
-		mvarAxis_X = var;
-		if( zUseIndex ) var.setUseIndex();
-	}
-	void setAxis_Y(VariableInfo var, boolean zUseIndex){
-		mvarAxis_Y = var;
-		if( zUseIndex ) var.setUseIndex();
-	}
-	void vInitialize( int ctDimensions, int iAXES_TYPE ){
-		mctDimensions = ctDimensions;
-		mAXES_TYPE = iAXES_TYPE;
-	}
-	boolean zAddVariable( Object[] eggData1, Object[] eggData2, int eDataType1, int eDataType2, int[] aiDimLength1, Object[] eggMissing1, Object[] eggMissing2, String sDataCaption1, String sDataCaption2, String sDataUnits1, String sDataUnits2, String sSliceCaption1, String sSliceCaption2, StringBuffer sbError ){
-		if( eggData1 == null && eggData2 == null ){ sbError.append("data egg not supplied"); return false; }
-		if( eggData1 != null ){
-			if( eggData1[0] == null ){ sbError.append("data egg 1 is empty"); return false; }
-	        if( eggData1 != null && eggData1.length != 1 ){ sbError.append("data egg 1 does not have exactly one element"); return false; }
-			if( eggMissing1 != null ) if( eggMissing1.length != 1 ){ sbError.append("missing egg 1 does not have exactly one element"); return false; }
-			PlottingVariable pv = new PlottingVariable();
-	    	if( !pv.zSet(eDataType1, eggData1, aiDimLength1, eggMissing1, sDataCaption1, sDataUnits1, sSliceCaption1, sbError) ) return false;
-		    listVariables1.add( pv );
-		}
-		if( eggData2 != null ){
-			if( eggData2[0] == null ){ sbError.append("data egg 2 is empty"); return false; }
-	        if( eggData2 != null && eggData2.length != 1 ){ sbError.append("data egg 2 does not have exactly one element"); return false; }
-		    if( eggMissing2 != null ) if( eggMissing2.length != 1 ){ sbError.append("missing egg 2 does not have exactly one element"); return false; }
-			PlottingVariable pv2 = new PlottingVariable();
-			if( !pv2.zSet(eDataType2, eggData2, aiDimLength1, eggMissing2, sDataCaption2, sDataUnits2, sSliceCaption2, sbError) ) return false;
-			listVariables2.add( pv2 );
-		}
-		return true;
-	}
-	int getDimensionCount(){ return mctDimensions; }
-	int getAxesTYPE(){ return mAXES_TYPE; }
-	int getVariable1Count(){ return listVariables1.size(); }
-	int getVariable2Count(){ return listVariables2.size(); }
-	int getVariableCount(){ if( listVariables1.size() == 0 ) return listVariables2.size(); else return listVariables1.size(); }
-	PlottingVariable getVariable_Primary(){
-		if( getVariable1Count() > 0 ) return getVariable1(1);
-		return getVariable2(1);
-	}
-	PlottingVariable getVariable1(int xVariable1){
-		if( xVariable1 < 1 || xVariable1 > listVariables1.size() ) return null;
-		return (PlottingVariable)listVariables1.get( xVariable1 - 1);
-	}
-	PlottingVariable getVariable2(int xVariable1){
-		if( xVariable1 < 1 || xVariable1 > listVariables2.size() ) return null;
-		return (PlottingVariable)listVariables2.get( xVariable1 - 1);
-	}
-	String getAxesTYPE_S(){
-		switch(mAXES_TYPE){
-			case AXES_None: return "None";
-			case AXES_Linear: return "Linear";
-			case AXES_Mapped: return "Mapped";
-			default: return "[unknown " + mAXES_TYPE + "]";
-		}
-	}
-	public String toString(){
-		StringBuffer sb = new StringBuffer(120);
-		sb.append("PlottingData (axes: " + getAxesTYPE_S() + ", dims: " + mctDimensions);
-		sb.append(" {");
-		for( int xDim = 1; xDim <= mctDimensions; xDim++ ){
-			if( xDim > 1 ) sb.append(", ");
-			sb.append( DAP.getType_String(maiDim_TYPE1[xDim]) );
-		}
-		sb.append("} variable count " + getVariableCount() + ":\n");
-		for( int xVar = 1; xVar <= getVariableCount(); xVar++ ){
-			PlottingVariable pv = getVariable1(xVar);
-			sb.append("var " + xVar + ": " + pv);
-		}
-		return sb.toString();
-	}
-
-}
-
-class PlottingVariable {
-	private int meDataType; // see DAP for types
-	private int[] maiDimLength1; // all four of these arrays must have same length
-	private Object[] meggData; // the egg containing the data
-	private Object[] meggMissing1; // the egg containing the missing values in a one-based linear array
-	private String msDataCaption;
-	private String msDataUnits;
-	private String msSliceCaption;
-
-	/** the egg containing the missing values is a one-based linear array which can be null */
-	boolean zSet( int eDataType, Object[] eggData, int[] aiDimLength1, Object[] eggMissing, String sDataCaption, String sDataUnits, String sSliceCaption, StringBuffer sbError ){
-		if( eggData == null ){
-			sbError.append("no egg supplied");
-			return false;
-		}
-		if( eggData[0] == null ){
-			sbError.append("egg is empty");
-			return false;
-		}
-		meggData = eggData;
-		meggMissing1 = eggMissing;
-		meDataType = eDataType;
-		maiDimLength1 = aiDimLength1;
-		msDataCaption = sDataCaption;
-		msDataUnits = sDataUnits;
-		msSliceCaption = sSliceCaption;
-		return true;
-	}
-	String getDataCaption(){ return msDataCaption; }
-	String getDataUnits(){ return msDataUnits; }
-	String getSliceCaption(){ return msSliceCaption; }
-	Object[] getDataEgg(){ return meggData; }
-	Object[] getMissingEgg(){ return meggMissing1; }
-	void setMissingEgg( Object[] eggMissing1 ){ meggMissing1 = eggMissing1; }
-	int getDataType(){ return meDataType; }
-	int getDimCount(){ return maiDimLength1[0]; }
-	int getDimLength( int xDim1 ){
-		if( maiDimLength1 == null ) return 0;
-		if( xDim1 < 1 || xDim1 >= maiDimLength1.length ) return 0;
-		return maiDimLength1[xDim1];
-	}
-	public String toString(){
-		StringBuffer sb = new StringBuffer(120);
-		sb.append("PlottingVariable type: " + DAP.getType_String(meDataType) + " dims: {");
-		for( int xDim = 0; xDim < maiDimLength1.length; xDim++ ){
-			if( xDim > 0 ) sb.append(",");
-			sb.append(" " + maiDimLength1[xDim]);
-		}
-		sb.append(" } \n");
-		sb.append("data caption: " + msDataCaption + "\n");
-		sb.append("data units: " + msDataUnits + "\n");
-		sb.append("slice caption: " + msSliceCaption + "\n");
-		if( meggMissing1 != null ){
-			sb.append(" missing: {");
-			int len;
-			switch( meDataType ){
-				case DAP.DATA_TYPE_Byte:
-					byte[] ab = (byte[])meggMissing1[0];
-					len = ab.length;
-					for( int xMissing = 1; xMissing < len; xMissing++ ) sb.append(" " + ab[xMissing]);
-					break;
-				case DAP.DATA_TYPE_Int16:
-					short[] ash = (short[])meggMissing1[0];
-					len = ash.length;
-					for( int xMissing = 1; xMissing < len; xMissing++ ) sb.append(" " + ash[xMissing]);
-					break;
-				case DAP.DATA_TYPE_Int32:
-					int[] ai = (int[])meggMissing1[0];
-					len = ai.length;
-					for( int xMissing = 1; xMissing < len; xMissing++ ) sb.append(" " + ai[xMissing]);
-					break;
-				case DAP.DATA_TYPE_UInt16:
-					ash = (short[])meggMissing1[0];
-					len = ash.length;
-					for( int xMissing = 1; xMissing < len; xMissing++ ) sb.append(" " + DAP.toSigned(ash[xMissing]));
-					break;
-				case DAP.DATA_TYPE_UInt32:
-					ai = (int[])meggMissing1[0];
-					len = ai.length;
-					for( int xMissing = 1; xMissing < len; xMissing++ ) sb.append(" " + DAP.toSigned(ai[xMissing]));
-					break;
-				case DAP.DATA_TYPE_Float32:
-					float[] af = (float[])meggMissing1[0];
-					len = af.length;
-					for( int xMissing = 1; xMissing < len; xMissing++ ) sb.append(" " + af[xMissing]);
-					break;
-				case DAP.DATA_TYPE_Float64:
-					double[] ad = (double[])meggMissing1[0];
-					len = ad.length;
-					for( int xMissing = 1; xMissing < len; xMissing++ ) sb.append(" " + ad[xMissing]);
-					break;
-				case DAP.DATA_TYPE_String:
-					String[] as = (String[])meggMissing1[0];
-					len = as.length;
-					for( int xMissing = 1; xMissing < len; xMissing++ ) sb.append(" \"" + as[xMissing] + "\"");
-					break;
-			}
-			sb.append(" } ");
-		}
-		return sb.toString();
 	}
 
 }

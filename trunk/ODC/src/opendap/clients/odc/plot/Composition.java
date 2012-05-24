@@ -1,6 +1,8 @@
 package opendap.clients.odc.plot;
 
 import java.awt.image.BufferedImage;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import opendap.clients.odc.ConfigurationManager;
@@ -10,41 +12,20 @@ import opendap.clients.odc.Utility_String;
 public class Composition {
 	private Composition(){}
 	
-	private ArrayList<Plot> listPlots = new ArrayList<Plot>();
+	private CompositionLayout layout = null;
+	private ArrayList<CompositionElement> listElements = new ArrayList<CompositionElement>();
 
-	public ArrayList<Plot> getPlotList(){ return listPlots; }
-	
+	public CompositionLayout getLayout(){ return layout; }
+	public ArrayList<CompositionElement> getElementList(){ return listElements; }
+
 	private BufferedImage mbi = null;
-	BufferedImage getBuffer(){ return mbi; }
-	BufferedImage getBuffer( int pxCanvas_width, int pxCanvas_height ){
-		if( mbi == null || mbi.getWidth() != pxCanvas_width || mbi.getHeight() != pxCanvas_height ){
-			mbi = new BufferedImage( pxCanvas_width, pxCanvas_height, BufferedImage.TYPE_INT_ARGB );
+	BufferedImage getBuffer(){
+		Dimension dim = layout.getCompositionDimensions();
+		if( mbi == null || mbi.getWidth() != dim.getWidth() || mbi.getHeight() != dim.getHeight() ){
+			mbi = new BufferedImage( dim.width, dim.height, BufferedImage.TYPE_INT_ARGB );
 		}
 		return mbi;
 	}
-	
-	// legend
-	protected int mpxLegend_X = 0;
-	protected int mpxLegend_Y = 0;
-	protected int mpxLegend_Width = 0;
-	protected int mpxLegend_Height = 0;
-
-	// scale
-	protected int mpxScale_X = 0;
-	protected int mpxScale_Y = 0;
-	protected int mpxScale_Width = 0;
-	protected int mpxScale_Height = 0;
-	
-	// layout
-	protected PlotLayout layout = PlotLayout.create( PlotLayout.LayoutStyle.PlotArea );
-	protected int mpxMargin_Right = 0;
-	protected int mpxMargin_Left = 0;
-	protected int mpxMargin_Top = 0;
-	protected int mpxMargin_Bottom = 0;
-
-	protected ColorSpecification mColors = null;
-	protected GeoReference mGeoReference = null;   // these two items should be combined
-	protected Model_Projection mProjection = null;
 	
 	private String msID;
 	private String msCaption = null;
@@ -84,7 +65,25 @@ public class Composition {
 			sID_descriptive = "multiplot_" + listPlots.get(0).getDescriptor() + Utility.getCurrentDate( FORMAT_ID_date );
 		}
 		composition.msID = sID_descriptive + "-" + Utility_String.sFormatFixedRight( miSessionCount, iCountWidth, '0' ); // append plot count to ID descriptive string
+		
+		composition.layout = CompositionLayout.create();
+		
 		return composition;
 	}
-
+	
+	// draws a full rendering of annotations and one or more plots
+	public boolean _zRender( StringBuffer sbError ){
+		BufferedImage bi = getBuffer();
+		for( CompositionElement element : getElementList() ){
+			Rectangle rectRenderingLocation = layout.getElementLayout( element );
+			if( ! element.zRender( bi, rectRenderingLocation, sbError ) ){
+				sbError.append( "error rendering composition element " +  element.getDescriptor() );
+				return false;
+			}
+		}
+		return true;
+	}
+	
 }
+
+

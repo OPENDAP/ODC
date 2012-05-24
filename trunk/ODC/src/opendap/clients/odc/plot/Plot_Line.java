@@ -26,8 +26,8 @@ class Plot_Line extends Plot {
 	private ColorSpecification cs = null;
 	private PlotOptions po = null;
 	
-	private Plot_Line( PlotEnvironment environment ){
-		super( environment );		
+	private Plot_Line( PlotEnvironment environment, PlotLayout layout ){
+		super( environment, layout );		
 	}
 
 	public String getDescriptor(){ return "L"; }
@@ -62,8 +62,8 @@ class Plot_Line extends Plot {
 	private int mpxAxisOffsetHeight = 1; // TODO
 	private int mpxAxisOffsetWidth = 1; // TODO
 	
-	public static Plot_Line create( PlotEnvironment environment, IPlottable data, String sCaption, StringBuffer sbError ){
-		Plot_Line plot = new Plot_Line( environment );
+	public static Plot_Line create( PlotEnvironment environment, PlotLayout layout, IPlottable data, String sCaption, StringBuffer sbError ){
+		Plot_Line plot = new Plot_Line( environment, layout );
 		plot.data = data;
 		plot.cs = environment.getColorSpecification();
 		plot.po = environment.getOptions();
@@ -397,7 +397,7 @@ class Plot_Line extends Plot {
 	float[] mafV = null;
 	float mUmax;
 	float mVmax; // will be * PX_MAX_VECTOR squared
-	public boolean render( int[] raster, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean render( int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
 		int pxCircleOffset = miCircleSize / 2;
 

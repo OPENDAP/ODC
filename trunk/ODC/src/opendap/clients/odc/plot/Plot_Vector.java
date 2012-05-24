@@ -20,8 +20,8 @@ import java.awt.image.BufferedImage;
 
 class Plot_Vector extends Plot {
 
-	private Plot_Vector( PlotEnvironment environment ){
-		super( environment );		
+	private Plot_Vector( PlotEnvironment environment, PlotLayout layout ){
+		super( environment, layout );		
 	}
 	public String getDescriptor(){ return "V"; }
 
@@ -29,8 +29,8 @@ class Plot_Vector extends Plot {
 	private ColorSpecification cs = null;
 	private PlotOptions po = null;
 
-	public static Plot_Vector create( PlotEnvironment environment, IPlottable data, String sCaption, StringBuffer sbError ){
-		Plot_Vector plot = new Plot_Vector( environment );
+	public static Plot_Vector create( PlotEnvironment environment, PlotLayout layout, IPlottable data, String sCaption, StringBuffer sbError ){
+		Plot_Vector plot = new Plot_Vector( environment, layout );
 		if( data.getDataType() == 0 ){
 			sbError.append( "data type undefined" );
 			return null; // nothing to plot
@@ -58,7 +58,7 @@ class Plot_Vector extends Plot {
 	// When the image is generated only one arrow is drawn per vector region, a region
 	// being a square with the size of the nominal maximum arrow. To find the net magnitude for
 	// the arrow, all the vectors in the region are averaged.
-	public boolean render( int[] raster, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean render( int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
 		// determine vector size in pixels
 		int iVectorSize;
