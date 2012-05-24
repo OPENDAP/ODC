@@ -11,7 +11,7 @@ package opendap.clients.odc.plot;
 
 import opendap.clients.odc.DAP;
 
-public class PlottableData implements IPlottable {
+public class PlottableData implements IPlottableVariable {
 
 	private PlottableData(){}
 	

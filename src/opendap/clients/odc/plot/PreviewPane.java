@@ -9,12 +9,12 @@ import javax.swing.JScrollPane;
 
 public class PreviewPane extends JScrollPane {
 	java.awt.Color colorBackground = Color.WHITE;
-	Panel_Plot panel = null;
+	Panel_Composition panel = null;
 	public PreviewPane(){
 		setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		StringBuffer sbError = new StringBuffer();
-		panel = Panel_Plot._create( sbError );
+		panel = Panel_Composition._create( sbError );
 		panel.setLayout( new BorderLayout() );
 		panel.add(Box.createGlue(), BorderLayout.CENTER);
 		_setContent_Default();
@@ -25,7 +25,7 @@ public class PreviewPane extends JScrollPane {
 		g.fillRect( 0, 0, getWidth(), getHeight() );
 		revalidate();
 	}
-	public Panel_Plot _getCanvas(){ return panel; }
+	public Panel_Composition _getCanvas(){ return panel; }
 	public void _setContent_Default(){
 		setViewportView( panel );
 	}

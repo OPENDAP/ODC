@@ -146,7 +146,7 @@ public class Panel_Microscope extends JPanel implements MouseListener {
 			};
 			frameMicroscope.addWindowListener( listenerCloser );
 		}
-		frameMicroscope.setTitle( "Data Microscope: " + panelHost._getCaption() );
+		frameMicroscope.setTitle( "Data Microscope: " + panelHost.getCurrentComposition()._getCaption() );
 		frameMicroscope.setVisible( true );
 		frameMicroscope.pack();
 	}

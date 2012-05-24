@@ -21,18 +21,18 @@ class Plot_Surface extends Plot {
 		Shaded
 	};
 
-	private Plot_Surface( PlotEnvironment environment ){
-		super( environment );		
+	private Plot_Surface( PlotEnvironment environment, PlotLayout layout ){
+		super( environment, layout );		
 	}
 
-	public static Plot_Surface create( PlotEnvironment environment ){
-		Plot_Surface plot = new Plot_Surface( environment );
+	public static Plot_Surface create( PlotEnvironment environment, PlotLayout layout ){
+		Plot_Surface plot = new Plot_Surface( environment, layout );
 		return plot;
 	}
 	
 	public String getDescriptor(){ return "S"; }
 
-	public boolean render( int[] raster, int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
+	public boolean render( int pxPlotWidth, int pxPlotHeight, StringBuffer sbError ){
 
 		int iRangeDivisions = 100;
 		int iAngularDivisions = 50;

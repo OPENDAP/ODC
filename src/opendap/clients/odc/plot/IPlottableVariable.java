@@ -1,6 +1,6 @@
 package opendap.clients.odc.plot;
 
-public interface IPlottable {
+public interface IPlottableVariable {
 	int getDataType();
 	int getDataElementCount();
 	short[] getShortArray();

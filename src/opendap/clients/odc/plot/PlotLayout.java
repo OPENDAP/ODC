@@ -523,7 +523,7 @@ class Test_PlotLayout extends JFrame {
 					vUpdateCanvas();
 				}
 			};
-		panelLayout = new Panel_PlotLayout(Panel_PlotLayout.MODE_Full, test_button);
+		panelLayout = new Panel_PlotLayout( Panel_PlotLayout.MODE_Full, test_button );
 		panelLayout.setPlotLayout(mPlotLayout);
 		panelCanvas = new PlotLayout_TestCanvas(mPlotLayout);
 		panelCanvas.setPreferredSize(new Dimension(400, 300));
