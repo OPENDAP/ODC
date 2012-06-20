@@ -848,15 +848,10 @@ public class Utility {
 			return false;
 		}
 
-
 		// open file
 		java.io.FileOutputStream fos = null;
 		try {
 		    fos = new java.io.FileOutputStream(file);
-			if( fos == null ){
-				sbError.append("failed to open file, empty stream");
-				return false;
-			}
 		} catch(Exception ex) {
 			sbError.append("failed to open file for writing: " + ex);
 			return false;
@@ -894,10 +889,6 @@ public class Utility {
 		java.io.FileOutputStream fos = null;
 		try {
 		    fos = new java.io.FileOutputStream(file);
-			if( fos == null ){
-				sbError.append("failed to open file, empty stream");
-				return false;
-			}
 		} catch(Exception ex) {
 			sbError.append("failed to open file for writing: " + ex);
 			return false;
