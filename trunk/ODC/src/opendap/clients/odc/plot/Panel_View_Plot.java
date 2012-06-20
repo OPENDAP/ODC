@@ -37,6 +37,7 @@ import opendap.clients.odc.data.Model_LoadedDatasets;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.gui.Resources;
 import opendap.clients.odc.gui.Styles;
+import opendap.clients.odc.plot.Output_ToPlot.OutputTarget;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -392,9 +393,10 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 					Output_ToPlot.OutputTarget eOutputOption = Output_ToPlot.OutputTarget.ExpressionPreview;
 					PlotScale ps = environment.getScale();
 					ps.setOutputTarget( eOutputOption );
+					PlotLayout layout = PlotLayout.create( PlotLayout.LayoutStyle.PlotArea );
 
 					// plot
-					if( Output_ToPlot.zPlot_Expression( environment, model, eOutputOption, sCaption, sbError_plot ) ){
+					if( Output_ToPlot.zPlot_Expression( environment, layout, model, eOutputOption, sCaption, sbError_plot ) ){
 						Panel_View_Plot._getInstance().mDefinitionPanel._vActivatePreview();
 					} else {
 						ApplicationController.vShowError( "Error plotting expression: " + sbError_plot );
