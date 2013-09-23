@@ -61,7 +61,7 @@ public class CompositionLayout {
 		return new Dimension( 0, 0 );
 	}
 	
-	public Rectangle getElementLayout( CompositionElement element ){
+	public Rectangle getElementLayout( Plot element ){
 		switch( getScaleMode() ){
 			case CompositionFitsWindow:
 				; break;

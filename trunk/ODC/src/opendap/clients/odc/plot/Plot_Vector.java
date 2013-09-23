@@ -55,6 +55,11 @@ class Plot_Vector extends Plot {
 	
 	StringBuffer msbError = new StringBuffer();
 
+	public boolean draw( StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
+
 	// When the image is generated only one arrow is drawn per vector region, a region
 	// being a square with the size of the nominal maximum arrow. To find the net magnitude for
 	// the arrow, all the vectors in the region are averaged.
@@ -171,16 +176,16 @@ AbortVector:
 		int iDataDim_Width = data.getDimension_x();
 		int iDataDim_Height = data.getDimension_y();
 		
-		short[] ashData = data.getShortArray();
-		int[] aiData = data.getIntArray();
-		long[] anData = data.getLongArray();
-		float[] afData = data.getFloatArray();
-		double[] adData = data.getDoubleArray();
-		short[] ashData2 = data.getShortArray2();
-		int[] aiData2 = data.getIntArray2();
-		long[] anData2 = data.getLongArray2();
-		float[] afData2 = data.getFloatArray2();
-		double[] adData2 = data.getDoubleArray2();
+		short[] ashData = null; // ??? data.getShortArray();
+		int[] aiData = null; // ??? data.getIntArray();
+		long[] anData = null; // ??? data.getLongArray();
+		float[] afData = null; // ??? data.getFloatArray();
+		double[] adData = null; // ??? data.getDoubleArray();
+		short[] ashData2 = null; // ??? data.getShortArray2();
+		int[] aiData2 = null; // ??? data.getIntArray2();
+		long[] anData2 = null; // ??? data.getLongArray2();
+		float[] afData2 = null; // ??? data.getFloatArray2();
+		double[] adData2 = null; // ??? data.getDoubleArray2();
 		
 		// validate that U matches V
 		boolean zUmatchesV = false;
@@ -230,7 +235,7 @@ AbortVector:
 				for( int xData = 0; xData < lenData; xData++ ){
 					int xMissing = 1;
 					while( true ){
-						if( xMissing > data.getMissingCount1() ){
+						if( xMissing > 0 ){// ??? data.getMissingCount1() ){
 							ctU++;
 							mafU[xData] = (float)ashData[xData];
 							if( mafU[xData] > 0 ) fTotalU += mafU[xData]; else fTotalU -= mafU[xData]; // total of absolute value
@@ -238,7 +243,7 @@ AbortVector:
 							else if( mafU[xData]*-1 > mUmax ) mUmax = mafU[xData]*-1;
 							break;
 						}
-						if( ashData[xData] == data.getMissingShort1()[xMissing] ){
+						if( ashData[xData] == 0 ){ // ??? data.getMissingShort1()[xMissing] ){
 							mafU[xData] = Float.NaN;
 							break;
 						}
@@ -246,7 +251,7 @@ AbortVector:
 					}
 					xMissing = 1;
 					while( true ){
-						if( xMissing > data.getMissingCount1() ){
+						if( xMissing > 0 ){// ??? data.getMissingCount1() ){
 							ctV++;
 							mafV[xData] = (float)ashData2[xData];
 							if( mafV[xData] > 0 ) fTotalV += mafV[xData]; else fTotalV -= mafV[xData]; // total of absolute value
@@ -254,7 +259,7 @@ AbortVector:
 							else if( mafV[xData]*-1 > mVmax ) mVmax = mafV[xData]*-1;
 							break;
 						}
-						if( ashData2[xData] == data.getMissingShort2()[xMissing] ){
+						if( ashData2[xData] == 0 ){ // ??? data.getMissingShort2()[xMissing] ){
 							mafV[xData] = Float.NaN;
 							break;
 						}
@@ -270,7 +275,7 @@ AbortVector:
 				for( int xData = 0; xData < lenData; xData++ ){
 					int xMissing = 1;
 					while( true ){
-						if( xMissing > data.getMissingCount1() ){
+						if( xMissing > 0 ){ // ??? data.getMissingCount1() ){
 							ctU++;
 							mafU[xData] = (float)(aiData[xData]);
 							if( mafU[xData] > 0 ) fTotalU += mafU[xData]; else fTotalU -= mafU[xData]; // total of absolute value
@@ -278,7 +283,7 @@ AbortVector:
 							else if( mafU[xData]*-1 > mUmax ) mUmax = mafU[xData]*-1;
 							break;
 						}
-						if( aiData[xData] == data.getMissingInt2()[xMissing] ){
+						if( aiData[xData] == 0 ){ // ??? data.getMissingInt2()[xMissing] ){
 							mafU[xData] = Float.NaN;
 							break;
 						}
@@ -286,7 +291,7 @@ AbortVector:
 					}
 					xMissing = 1;
 					while( true ){
-						if( xMissing > data.getMissingCount2() ){
+						if( xMissing > 0 ){ // ??? data.getMissingCount2() ){
 							ctV++;
 							mafV[xData] = (float)(aiData2[xData]);
 							if( mafV[xData] > 0 ) fTotalV += mafV[xData]; else fTotalV -= mafV[xData]; // total of absolute value
@@ -294,7 +299,7 @@ AbortVector:
 							else if( mafV[xData]*-1 > mVmax ) mVmax = mafV[xData]*-1;
 							break;
 						}
-						if( aiData2[xData] == data.getMissingInt2()[xMissing] ){
+						if( aiData2[xData] == 0 ){ // ??? data.getMissingInt2()[xMissing] ){
 							mafV[xData] = Float.NaN;
 							break;
 						}
@@ -306,7 +311,7 @@ AbortVector:
 				for( int xData = 0; xData < lenData; xData++ ){
 					int xMissing = 1;
 					while( true ){
-						if( xMissing > data.getMissingCount1() ){
+						if( xMissing > 0 ){ // ??? data.getMissingCount1() ){
 							ctU++;
 							mafU[xData] = (float)(anData[xData]);
 							if( mafU[xData] > 0 ) fTotalU += mafU[xData]; else fTotalU -= mafU[xData]; // total of absolute value
@@ -314,7 +319,7 @@ AbortVector:
 							else if( mafU[xData]*-1 > mUmax ) mUmax = mafU[xData]*-1;
 							break;
 						}
-						if( anData[xData] == data.getMissingLong2()[xMissing] ){
+						if( anData[xData] == 0 ){ // ??? data.getMissingLong2()[xMissing] ){
 							mafU[xData] = Float.NaN;
 							break;
 						}
@@ -322,7 +327,7 @@ AbortVector:
 					}
 					xMissing = 1;
 					while( true ){
-						if( xMissing > data.getMissingCount2() ){
+						if( xMissing > 0 ){ // ??? data.getMissingCount2() ){
 							ctV++;
 							mafV[xData] = (float)(anData2[xData]);
 							if( mafV[xData] > 0 ) fTotalV += mafV[xData]; else fTotalV -= mafV[xData]; // total of absolute value
@@ -330,7 +335,7 @@ AbortVector:
 							else if( mafV[xData]*-1 > mVmax ) mVmax = mafV[xData]*-1;
 							break;
 						}
-						if( anData2[xData] == data.getMissingLong2()[xMissing] ){
+						if( anData2[xData] == 0 ){ // ??? data.getMissingLong2()[xMissing] ){
 							mafV[xData] = Float.NaN;
 							break;
 						}
@@ -342,7 +347,7 @@ AbortVector:
 				for( int xData = 0; xData < lenData; xData++ ){
 					int xMissing = 1;
 					while( true ){
-						if( xMissing > data.getMissingCount1() ){
+						if( xMissing > 0 ){ // ??? data.getMissingCount1() ){
 							ctU++;
 							mafU[xData] = afData[xData];
 							if( mafU[xData] > 0 ) fTotalU += mafU[xData]; else fTotalU -= mafU[xData]; // total of absolute value
@@ -350,7 +355,7 @@ AbortVector:
 							else if( mafU[xData]*-1 > mUmax ) mUmax = mafU[xData]*-1;
 							break;
 						}
-						if( afData[xData] == data.getMissingFloat1()[xMissing] ){
+						if( afData[xData] == 0 ){ // ??? data.getMissingFloat1()[xMissing] ){
 							mafU[xData] = Float.NaN;
 							break;
 						}
@@ -358,7 +363,7 @@ AbortVector:
 					}
 					xMissing = 1;
 					while( true ){
-						if( xMissing > data.getMissingCount2() ){
+						if( xMissing > 0 ){ // ??? data.getMissingCount2() ){
 							ctV++;
 							mafV[xData] = afData2[xData];
 							if( mafV[xData] > 0 ) fTotalV += mafV[xData]; else fTotalV -= mafV[xData]; // total of absolute value
@@ -366,7 +371,7 @@ AbortVector:
 							else if( mafV[xData]*-1 > mVmax ) mVmax = mafV[xData]*-1;
 							break;
 						}
-						if( afData2[xData] == data.getMissingFloat2()[xMissing] ){
+						if( afData2[xData] == 0 ){ // ??? data.getMissingFloat2()[xMissing] ){
 							mafV[xData] = Float.NaN;
 							break;
 						}
@@ -378,7 +383,7 @@ AbortVector:
 				for( int xData = 0; xData < lenData; xData++ ){
 					int xMissing = 1;
 					while( true ){
-						if( xMissing > data.getMissingCount1() ){
+						if( xMissing > 0 ){ // ??? data.getMissingCount1() ){
 							ctU++;
 							mafU[xData] = (float)adData[xData];
 							if( mafU[xData] > 0 ) fTotalU += mafU[xData]; else fTotalU -= mafU[xData]; // total of absolute value
@@ -386,7 +391,7 @@ AbortVector:
 							else if( mafU[xData]*-1 > mUmax ) mUmax = mafU[xData]*-1;
 							break;
 						}
-						if( adData[xData] == data.getMissingDouble1()[xMissing] ){
+						if( adData[xData] == 0 ){ // ??? data.getMissingDouble1()[xMissing] ){
 							mafU[xData] = Float.NaN;
 							break;
 						}
@@ -394,7 +399,7 @@ AbortVector:
 					}
 					xMissing = 1;
 					while( true ){
-						if( xMissing > data.getMissingCount2() ){
+						if( xMissing > 0 ){ // ??? data.getMissingCount2() ){
 							ctV++;
 							mafV[xData] = (float)adData2[xData];
 							if( mafV[xData] > 0 ) fTotalV += mafV[xData]; else fTotalV -= mafV[xData]; // total of absolute value
@@ -402,7 +407,7 @@ AbortVector:
 							else if( mafV[xData]*-1 > mVmax ) mVmax = mafV[xData]*-1;
 							break;
 						}
-						if( adData2[xData] == data.getMissingDouble2()[xMissing] ){
+						if( adData2[xData] == 0 ){ // ???? data.getMissingDouble2()[xMissing] ){
 							mafV[xData] = Float.NaN;
 							break;
 						}

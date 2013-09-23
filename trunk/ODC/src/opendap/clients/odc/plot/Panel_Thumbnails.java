@@ -34,20 +34,15 @@ package opendap.clients.odc.plot;
 import java.util.ArrayList;
 
 import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.ConfigurationManager;
 import opendap.clients.odc.Model;
-import opendap.clients.odc.Utility;
 import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.gui.Styles;
 
 import java.awt.event.*;
 import java.awt.*;
 import java.awt.image.*;
-import java.awt.geom.AffineTransform;
 import java.awt.print.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.io.*;
 
 public class Panel_Thumbnails extends JPanel implements Printable, MouseListener {
 
@@ -326,7 +321,7 @@ public class Panel_Thumbnails extends JPanel implements Printable, MouseListener
 	}
 
 	private void vClickPlot(Thumbnail tn){
-		Panel_View_Plot._getInstance()._vPlot( tn.url, Output_ToPlot.OutputTarget.ExternalWindow );
+		Panel_View_Plot._getInstance()._vPlot( tn.url, Visualizer.OutputTarget.ExternalWindow );
 	}
 
 	// Mouse motion interface

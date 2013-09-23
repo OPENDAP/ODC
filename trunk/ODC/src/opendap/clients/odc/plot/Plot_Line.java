@@ -32,6 +32,11 @@ class Plot_Line extends Plot {
 
 	public String getDescriptor(){ return "L"; }
 
+	public boolean draw( StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
+
 	// series
 	private int mctLines = 0;
 	private int[][][] mapxX1 = null;
