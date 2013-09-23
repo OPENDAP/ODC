@@ -27,7 +27,7 @@ public class Panel_Rendering extends JPanel implements Printable, MouseListener,
 		environment.getScale().setDataDimension( 600, 600 );
 		Plot_Surface demo_surface = Plot_Surface.create( environment, layout );
 		Composition composition = Composition.create( demo_surface );
-		Panel_Composition panel = Panel_Composition._create( composition, sbError );
+		Panel_Composition panel = Panel_Composition._create( sbError );
 		if( panel == null ){
 			System.err.println( "plot failed: " + sbError.toString() );
 		}

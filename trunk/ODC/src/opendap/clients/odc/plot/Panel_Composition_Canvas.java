@@ -8,6 +8,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import javax.swing.*;
 
+// central panel of Panel_Composition
+
 public class Panel_Composition_Canvas extends JPanel implements MouseListener, MouseMotionListener, Scrollable {
 	private Composition composition;
 

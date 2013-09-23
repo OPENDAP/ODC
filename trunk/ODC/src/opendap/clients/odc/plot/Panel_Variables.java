@@ -49,6 +49,12 @@ import opendap.dap.*;
 // plotted using the selected plot type (ie, histogram, pseudocolor etc) and updates the
 // variable selector VSelector_Plot_Schematic to show the variable choices and their parameters.
 
+/*
+	Panel_VariableTab
+		Panel_Variables
+			VSelector_Plot_Schematic
+ */
+
 public class Panel_Variables extends JPanel {
 	VSelector_Plot_Schematic mvselector;
     public Panel_Variables() {}
@@ -56,7 +62,7 @@ public class Panel_Variables extends JPanel {
 		setLayout(new BorderLayout());
 		VSelector_Plot_Schematic vselector_new = new VSelector_Plot_Schematic();
 		mvselector = vselector_new;
-		add(mvselector, BorderLayout.CENTER);
+		add( mvselector, BorderLayout.CENTER );
 		return true;
 	}
 

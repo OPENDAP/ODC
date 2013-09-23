@@ -47,6 +47,11 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 
+/*
+	NORTH: jpanelDatasets, panelCommand
+	CENTER: Panel_Definition
+ */
+
 public class Panel_View_Plot extends JPanel implements IControlPanel {
 
 	private static Panel_View_Plot thisInstance;
@@ -180,8 +185,8 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 			// Create command panel
 			ApplicationController.getInstance().vShowStartupMessage("creating plotter panels");
 			JPanel panelCommand = new JPanel();
-			panelCommand.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-			Styles.vApply(Styles.STYLE_BigBlueButton, buttonPlot);
+			panelCommand.setBorder( BorderFactory.createEmptyBorder(4, 4, 4, 4) );
+			Styles.vApply( Styles.STYLE_BigBlueButton, buttonPlot );
 			buttonPlot.addActionListener(
 				new ActionListener(){
 					public void actionPerformed(ActionEvent e) {
@@ -219,7 +224,7 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 
 			// create zoom control
 			ApplicationController.getInstance().vShowStartupMessage("creating plotter zoom control");
-			panelZoom.setLayout(new BoxLayout(panelZoom, BoxLayout.X_AXIS));
+			panelZoom.setLayout( new BoxLayout( panelZoom, BoxLayout.X_AXIS ) );
 			final JButton buttonZoom_In = new JButton("+");
 			final JButton buttonZoom_Out = new JButton("-");
 			final JButton buttonZoom_Maximize = new JButton("MAX");
@@ -318,12 +323,12 @@ public class Panel_View_Plot extends JPanel implements IControlPanel {
 
 			JPanel jpanelNorth = new JPanel();
 			jpanelNorth.setLayout(new BoxLayout(jpanelNorth, BoxLayout.Y_AXIS));
-			jpanelNorth.add(mjpanelDatasets);
-			jpanelNorth.add(panelCommand);
+			jpanelNorth.add( mjpanelDatasets );
+			jpanelNorth.add( panelCommand );
 
-			this.setLayout(new BorderLayout());
-			this.add(jpanelNorth, BorderLayout.NORTH);
-			this.add(mDefinitionPanel, BorderLayout.CENTER);
+			this.setLayout( new BorderLayout() );
+			this.add( jpanelNorth, BorderLayout.NORTH );
+			this.add( mDefinitionPanel, BorderLayout.CENTER );
 			// this.add(jpanelInstructions, BorderLayout.SOUTH); // leave out the instructions for now
 
 			mDefinitionPanel._vClear();
