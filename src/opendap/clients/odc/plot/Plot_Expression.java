@@ -7,7 +7,7 @@ import opendap.clients.odc.ApplicationController;
 
 import org.python.core.PyObject;
 
-// This panel is added to whatever output context is determined by Output_ToPlot
+// This panel is added to whatever output context is determined by Visualizer
 // For example, if the output is delivered to the Data Preview Pane then it goes to the content pane of PreviewPane
 
 public class Plot_Expression extends Plot {
@@ -22,6 +22,11 @@ public class Plot_Expression extends Plot {
 
 	private Plot_Expression( PlotEnvironment environment, PlotLayout layout ){
 		super( environment, layout );		
+	}
+
+	public boolean draw( StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
 	}
 
 	public static Plot_Expression create( PlotEnvironment environment, PlotLayout layout, Model_PlottableExpression model, String sCaption, StringBuffer sbError ){

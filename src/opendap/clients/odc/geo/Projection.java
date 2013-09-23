@@ -19,7 +19,10 @@ abstract public class Projection<T extends Projection> {
 		return true;
 	}
 	abstract public ProjectionType getProjectionType();
-	
+
+	public double[] getMapping_Latitude(){ return null; } // TODO
+	public double[] getMapping_Longitude(){ return null; }
+
 	static public Projection getOutput( JNIEngine geotrans_engine, Projection.ProjectionType projection, StringBuffer sbError ){
 		switch( projection ){
 			case Geocentric:               // x: y: z

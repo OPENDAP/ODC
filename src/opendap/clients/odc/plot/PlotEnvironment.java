@@ -23,6 +23,9 @@
 package opendap.clients.odc.plot;
 
 import opendap.clients.odc.Utility_String;
+import opendap.clients.odc.geo.Projection;
+
+import java.awt.*;
 
 public class PlotEnvironment {
 	public enum PLOT_TYPE {
@@ -41,24 +44,39 @@ public class PlotEnvironment {
 	final private PlotText mText = PlotText.create();
 	final private PlotOptions mOptions = new PlotOptions();
 	private PlotScale mScale = PlotScale.create();
+	private GeoReference mGeoReference = null;
+	private Projection mProjection = null;
 	private ColorSpecification mColorSpecification = null;
+	private Color mBackgroundColor = null;
 	private PLOT_TYPE mePlotType;
-	PLOT_TYPE getPlotType(){ return mePlotType; }
-	PlotAxes getAxes(){ return mAxes; }
-	PlotText getText(){ return mText; }
-	PlotScale getScale(){ return mScale; }
-	PlotOptions getOptions(){ return mOptions; }
-	void setPlotType( PLOT_TYPE ePLOT_TYPE ){ mePlotType = ePLOT_TYPE; }
-	ColorSpecification getColorSpecification(){ return mColorSpecification; }
-	void setColorSpecification( ColorSpecification cs ){
+	public PLOT_TYPE getPlotType(){ return mePlotType; }
+	public PlotAxes getAxes(){ return mAxes; }
+	public PlotText getText(){ return mText; }
+	public PlotScale getScale(){ return mScale; }
+	public PlotOptions getOptions(){ return mOptions; }
+	public void setPlotType( PLOT_TYPE ePLOT_TYPE ){ mePlotType = ePLOT_TYPE; }
+	public GeoReference getGeoReference(){ return mGeoReference; }
+	public void setGeoReference( GeoReference gr ){
+		mGeoReference = gr;
+	}
+	public Projection getProjection(){ return mProjection; }
+	public void setProjection( Projection p ){
+		mProjection = p;
+	}
+	public ColorSpecification getColorSpecification(){ return mColorSpecification; }
+	public void setColorSpecification( ColorSpecification cs ){
 		mColorSpecification = cs;
 	}
-	void setScale( PlotScale ps ){
+	public 	void setScale( PlotScale ps ){
 		mScale = ps;
 	}
-	String getPlotID(){ return msPlotID; }
-	void setPlotID(String s){ msPlotID = s; }
-	void setDimensionalType( int TYPE ){}
+	public String getPlotID(){ return msPlotID; }
+	public void setPlotID(String s){ msPlotID = s; }
+	public void setDimensionalType( int TYPE ){}
+	public Color getBackgroundColor(){ return mBackgroundColor; }
+	public void setBackgroundColor( Color c ){
+		mBackgroundColor = c;
+	}
 	
 //	void vGenerateText(){
 //		getText().removeAll();

@@ -14,7 +14,7 @@ public class PreviewPane extends JScrollPane {
 		setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		StringBuffer sbError = new StringBuffer();
-		panel = Panel_Composition._create( sbError );
+		panel = Panel_Composition._create( null, sbError );
 		panel.setLayout( new BorderLayout() );
 		panel.add(Box.createGlue(), BorderLayout.CENTER);
 		_setContent_Default();

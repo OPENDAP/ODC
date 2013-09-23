@@ -47,7 +47,7 @@ public class Panel_Microscope extends JPanel implements MouseListener {
 
 	final public static Panel_Microscope microscope = new Panel_Microscope();
 	public static JFrame frameMicroscope = null;
-	public static Panel_Composition panelHost = null;
+	public static Panel_Rendering panelHost = null;
 	
 	BufferedImage mbi = null;
 	int mpxCanvasWidth;
@@ -133,7 +133,7 @@ public class Panel_Microscope extends JPanel implements MouseListener {
 
 	}
 
-	public static void _activate( Panel_Composition host, int[][] aRGB, String[][] asData, int iMicroscopeWidth, int iMicroscopeHeight ){
+	public static void _activate( Panel_Rendering host, int[][] aRGB, String[][] asData, int iMicroscopeWidth, int iMicroscopeHeight ){
 		microscope._set( aRGB, asData, iMicroscopeWidth, iMicroscopeHeight );
 		panelHost = host;
 		if( frameMicroscope == null ){

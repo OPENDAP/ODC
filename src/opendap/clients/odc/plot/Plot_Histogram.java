@@ -40,6 +40,11 @@ class Plot_Histogram extends Plot {
 		super( environment, layout );		
 	}
 
+	public boolean draw( StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
+
 	public String getDescriptor(){ return "H"; }
 
 	// Histogram Data

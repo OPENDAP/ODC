@@ -21,6 +21,11 @@ class Plot_Surface extends Plot {
 		Shaded
 	};
 
+	public boolean draw( StringBuffer sbError ){
+		sbError.append( "not implemented" );
+		return false;
+	}
+
 	private Plot_Surface( PlotEnvironment environment, PlotLayout layout ){
 		super( environment, layout );		
 	}

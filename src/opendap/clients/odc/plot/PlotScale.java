@@ -75,7 +75,7 @@ public class PlotScale {
 	public final static int PX_DEFAULT_MARGIN = 50;
 
 	// independent values
-	Output_ToPlot.OutputTarget meOutputOption;
+	Renderer.OutputTarget meOutputOption;
 	int miDataWidth;  // the number of data elements in the x-dimension
 	int miDataHeight; // the number of data elements in the y-dimension
 	int dpiOutput;
@@ -105,7 +105,7 @@ public class PlotScale {
 	
 	public static final PlotScale create(){ // set defaults
 		PlotScale ps = new PlotScale();
-		ps.meOutputOption = Output_ToPlot.OutputTarget.PreviewPane;
+		ps.meOutputOption = Renderer.OutputTarget.PreviewPane;
 		ps.dpiOutput = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
 		ps.miMarginLeft = 65;
 		ps.miMarginTop = PX_DEFAULT_MARGIN;
@@ -159,7 +159,7 @@ public class PlotScale {
 
 	/**************** Active Accessors ************************/
 
-	void setOutputTarget( Output_ToPlot.OutputTarget eOutputOption ){
+	void setOutputTarget( Renderer.OutputTarget eOutputOption ){
 		meOutputOption = eOutputOption;
 		vCalculatePlotDimensions();
 	}
@@ -516,7 +516,7 @@ public class PlotScale {
 		if( dimOutput != null ) return dimOutput.width;
 		switch( meOutputOption ){
 			case ExternalWindow:
-				return Output_ToPlot.mPlotFrame.getWidth();
+				return Renderer.mCompositionFrame.getWidth();
 			case NewWindow:
 				return miDataWidth + (int)mfMarginLeft + (int)mfMarginRight;
 			case FullScreen:
@@ -525,7 +525,7 @@ public class PlotScale {
 			case Print:
 				return miDataWidth + (int)mfMarginLeft + (int)mfMarginRight; // cannot figure out this size ahead of time
 			case PreviewPane:
-				// Dimension dimView = Output_ToPlot.mPreviewScrollPane.getSize(); // does not work: .getViewport().getViewSize();
+				// Dimension dimView = Visualizer.mPreviewScrollPane.getSize(); // does not work: .getViewport().getViewSize();
 				Dimension dimView = Panel_View_Plot._getPreviewScrollPane().getSize();
 //				Dimension dimTabbed = Panel_View_Plot.getTabbedPane().getSize();
 				int iPreviewPaneWidth = (int)dimView.getWidth();
@@ -549,7 +549,7 @@ public class PlotScale {
 		if( dimOutput != null ) return dimOutput.height;
 		switch( meOutputOption ){
 			case ExternalWindow:
-				return Output_ToPlot.mPlotFrame.getHeight();
+				return Renderer.mCompositionFrame.getHeight();
 			case NewWindow:
 				return miDataHeight + (int)mfMarginTop + (int)mfMarginBottom;
 			case FullScreen:
