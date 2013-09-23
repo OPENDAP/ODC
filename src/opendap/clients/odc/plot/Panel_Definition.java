@@ -36,6 +36,25 @@ import javax.swing.event.*;
 // It has tabs for variables, colors, scale, text etc. The most important sub panel is the
 // one for defining which variable or variables from the dataset are to be used. For details
 // on this panel see the Panel_Variables class.
+//
+// Center of Panel_View_Plot qv
+
+/*
+	SplitPane Left:
+		Panel_Composition
+			NORTH: Composition Controls
+			CENTER: Composition Canvas
+	SplitPane Right:
+		Panel_Composition_Element
+			LEFT: Panel_Element_Configuration
+			CENTER: Panel_Configuration_Detail
+				- Panel_Variables
+				- Panel_PlotOptions
+				- Panel_PlotText
+				- Panel_PlotScale
+				- Panel_PlotAxes
+				- Panel_PlotColors
+ */
 
 public class Panel_Definition extends JPanel {
 	final static long serialVersionUID = 1;

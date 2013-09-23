@@ -14,10 +14,12 @@ import opendap.clients.odc.ApplicationController;
 import java.awt.*;
 import javax.swing.*;
 
-/** Displays a composition layout and allows a user to modify a composition
+/* Displays a composition layout and allows a user to modify a composition
  *  [[ NORTH - Panel_Composition_Controls
  *     [jcbLayout] [jbuttonOptions] [jbuttonScale] [jbuttonAddText] [jbuttonAddLegend] [jbuttonAddScale] ]]
  *  [[ CENTER - Panel_Composition_Canvas ]]
+ *
+ *  parent: Panel_Definition
  */
 
 class Panel_Composition extends JPanel {
