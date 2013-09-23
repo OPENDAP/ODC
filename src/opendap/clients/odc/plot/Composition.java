@@ -11,12 +11,28 @@ import opendap.clients.odc.Utility_String;
 
 public class Composition {
 	private Composition(){}
+
+	public enum LayoutStyle {
+		SinglePlot { @Override public String toString() { return "Single Plot"; } },
+		Row2 { @Override public String toString() { return "2 in a Row"; } },
+		Row3 { @Override public String toString() { return "3 in a Row"; } },
+		Row4 { @Override public String toString() { return "4 in a Row"; } },
+		Column2 { @Override public String toString() { return "2 in a Column"; } },
+		Column3 { @Override public String toString() { return "3 in a Column"; } },
+		Column4 { @Override public String toString() { return "4 in a Column"; } },
+		Array2x2 { @Override public String toString() { return "2x2 Array"; } },
+		Array3x3 { @Override public String toString() { return "3x3 Array"; } },
+		Array4x4 { @Override public String toString() { return "4x4 Array"; } },
+		CustomArray { @Override public String toString() { return "Custom Array"; } },
+		MixedArray { @Override public String toString() { return "Mixed Array"; } },
+		FreeForm { @Override public String toString() { return "Free Form"; } }
+	}
 	
 	private CompositionLayout layout = null;
-	private ArrayList<CompositionElement> listElements = new ArrayList<CompositionElement>();
+	private ArrayList<Plot> listPlots = new ArrayList<Plot>();
 
 	public CompositionLayout getLayout(){ return layout; }
-	public ArrayList<CompositionElement> getElementList(){ return listElements; }
+	public ArrayList<Plot> getPlotList(){ return listPlots; }
 
 	private BufferedImage mbi = null;
 	BufferedImage getBuffer(){
@@ -32,12 +48,26 @@ public class Composition {
 	
 	public final String _getID(){ return msID; }
 	public final String _getCaption(){ return msCaption; }
+	public final int getWidth_pixels(){
+		return 0; // todo
+	}
+	public final int getHeight_pixels(){
+		return 0; // todo
+	}
 
 	private static int miSessionCount = 0;
 	final private static String FORMAT_ID_date = "yyyyMMdd";
 
+	public static Composition create(){ return create( (ArrayList<Plot>)null ); }
+
+	public static Composition create( Plot plot ){
+		ArrayList<Plot> listPlots = new ArrayList<Plot>();
+		if( plot != null ) listPlots.add( plot );
+		return create( listPlots );
+	}
+
 	public static Composition create( ArrayList<Plot> listPlots ){
-		
+
 		// increment composition serial number
 		if( miSessionCount == 0 ){ // update from properties
 			if( ConfigurationManager.getInstance() == null ){
@@ -54,6 +84,8 @@ public class Composition {
 		else iCountWidth = 10;
 		
 		Composition composition = new Composition();
+
+		if( listPlots != null ) for( Plot plot : listPlots ) composition.listPlots.add( plot ); // copy the plot references to the local list so the source list can be garbage collected
 		
 		// create composition descriptive identifier
 		String sID_descriptive;
@@ -74,10 +106,10 @@ public class Composition {
 	// draws a full rendering of annotations and one or more plots
 	public boolean _zRender( StringBuffer sbError ){
 		BufferedImage bi = getBuffer();
-		for( CompositionElement element : getElementList() ){
-			Rectangle rectRenderingLocation = layout.getElementLayout( element );
-			if( ! element.zRender( bi, rectRenderingLocation, sbError ) ){
-				sbError.append( "error rendering composition element " +  element.getDescriptor() );
+		for( Plot plot : getPlotList() ){
+			Rectangle rectRenderingLocation = layout.getElementLayout( plot );
+			if( ! plot.zRender( bi, rectRenderingLocation, sbError ) ){
+				sbError.append( "error rendering composition element " +  plot.getDescriptor() );
 				return false;
 			}
 		}
