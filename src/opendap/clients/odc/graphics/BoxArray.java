@@ -7,7 +7,7 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
 
 public class BoxArray {
-	private int[] aiRaster = null;
+	private int[] aiRaster = null; // if this is non-null, then all inputs and derived values MUST be valid
 
 	// input values
 	private int pxOffset_x = 0;
@@ -55,6 +55,7 @@ public class BoxArray {
 	public int[] getColumn_y( int xRow1 ){ return apxColumn_y; }
 
 	public void draw(){
+		if( aiRaster == null ) return;
 
 		// draw background
 		for( int pxScanline = pxOffset_y; pxScanline < pxArrayHeight; pxScanline++ )
@@ -98,7 +99,7 @@ class BoxArray_TestPanel extends JPanel {
 	JPanel panelDisplay = new JPanel();
 	public static void main( String[] args )
 	{
-		if( DEBUG) System.out.println("FormTestPanel main, tests FormLayout");
+		if( DEBUG ) System.out.println("testing BoxArray...");
 		JFrame frame = new JFrame();
 		java.awt.event.WindowListener listenerCloser = new java.awt.event.WindowAdapter(){
 			@Override
@@ -108,7 +109,7 @@ class BoxArray_TestPanel extends JPanel {
 			}
 		};
 		frame.addWindowListener( listenerCloser );
-		BoxArray_TestPanel test_panel = new BoxArray_TestPanel();
+		final BoxArray_TestPanel test_panel = new BoxArray_TestPanel();
 		frame.add(test_panel);
 		frame.pack();
 		final int iFrameWidth = frame.getWidth();
@@ -116,51 +117,40 @@ class BoxArray_TestPanel extends JPanel {
 		java.awt.Dimension dimScreenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation( dimScreenSize.width/2 - (iFrameWidth/2), dimScreenSize.height/2 - (iFrameHeight/2) );
 		frame.setVisible( true );
+
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                // create panel here?
+            }
+        });
 	}
 
+// Paint the JPanel to a BufferedImage.
+//Dimension size = jpanel.getSize();
+//int imageType = BufferedImage.TYPE_INT_ARGB;
+//BufferedImage image = BufferedImage(size.width, size.height, imageType);
+//Graphics2D g2d = image.createGraphics();
+//jpanel.paint(g2);
+//
+//// Now iterate the image in row-major order to test its pixel colors.
+//for (int y=0; y<size.height; y++) {
+//  for (int x=0; ix<size.width; x++) {
+//    int pixel = image.getRGB(x, y);
+//    if (pixel == 0xFF000000) {
+//      // Black (assuming no transparency).
+//    } else if (pixel == 0xFFFFFFFF) {
+//      // White (assuming no transparency).
+//    } else {
+//      // Some other color...
+//    }
+//  }
+//}
+
 	BoxArray_TestPanel(){
-
-//	for( int a = 1; a < 50; a++ ){
-//		for( int b = a + 1; b < 51; b++ ){
-//			for( int c = 1; c < 700; c++ ){
-//				int a = 1;
-//				int b = 13;
-//				int c = 9;
-//FindAnswer:
-//				int ctSolutions = 0;
-//				for( int x = -200; x < 200; x++ ){
-//					for( int y = -200; y < 200; y++ ){
-//						if( a*x + b*y == c ){
-//							if( x + y < 80 ) break FindAnswer;
-//							if( x > 0 && y > 0 ){
-//								if( DEBUG) System.out.println("answer, a = " + a + " b = " + b + " c = " + c + " x = " + x + " y = " + y + " x+y = " + (x+y) );
-//								ctSolutions++;
-//							}
-//							break FindAnswer;
-//						}
-//					}
-//				}
-//				if( DEBUG) System.out.println( "c: " + c + " number of solutions: " +  ctSolutions );
-//			}
-//		}
-//	}
-
-//		long nStart = System.currentTimeMillis();
-//		double dAnswer = 0, dQuotient;
-//		dQuotient = 4.123d;
-//		double d1 = 5.6;
-//		double d2 = 6.5;
-//		for( int x = 1; x < 100000000; x++ ){
-//			dAnswer = Math.sqrt(dQuotient);
-//			dAnswer = d1 * d2;
-//		}
-//		if( DEBUG) System.out.println("total time: " + (System.currentTimeMillis() - nStart) );
-//		if( true ) System.exit(0);
-
 		this.setBorder( BorderFactory.createLineBorder( Color.YELLOW));
 		panelControls.add( new JLabel("control panel") );
-
-//		panelDisplay.setLayout( new FormLayout(panelDisplay) );
+		this.setLayout( new BorderLayout() );
 //
 //		panelDisplay = this;
 //		JLabel label1 = new JLabel("label 1");
@@ -187,6 +177,13 @@ class BoxArray_TestPanel extends JPanel {
 //		layout.setSpacing_Default( 0, 5, 0, 0, 10 );
 
 	}
+
+    @Override
+    public void paintComponent( Graphics g ){
+    	Graphics2D g2 = (Graphics2D)g;
+    	super.paintComponents( g );
+//    	g2.getDeviceConfiguration().createCompatibleImage( 0, 0 ).
+    }
 
 	void vDumpComponentSizing( Component c ){
 		if( DEBUG) System.out.println( "minimum: " + c.getMinimumSize() );
