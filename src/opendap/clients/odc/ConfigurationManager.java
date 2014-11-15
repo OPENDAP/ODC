@@ -65,6 +65,7 @@ public class ConfigurationManager {
 	private static final String URL_Default_GCMD = "http://gcmd.nasa.gov/OpenAPI/";
 	private static final String URL_Default_GCMD_old = "http://gcmd.nasa.gov/servlets/md/";
 	private static final String URL_Default_THREDDS = "http://motherlode.ucar.edu:8080/thredds/catalog.xml";
+	private static final String URL_Default_IPLookup = "http://wtfismyip.com/text";
 
 	private static final String DIR_Default_ImageCache = "ImageCache";
 	private static final String DIR_Default_DataCache = "DataCache";
@@ -91,6 +92,7 @@ public class ConfigurationManager {
 	public static final String PROPERTY_URL_ECHO = "url.ECHO";
 	public static final String PROPERTY_URL_THREDDS = "url.THREDDS";
 	public static final String PROPERTY_URL_DatasetList = "url.DatasetList";
+	public static final String PROPERTY_URL_IPLookup = "url.IPLookup";
 	public static final String PROPERTY_PATH_XML_DatasetList_Cache = "path.DatasetList_Cache";
 	public static final String PROPERTY_PATH_XML_THREDDS_Cache = "path.THREDDS_Cache";
 	public static final String PROPERTY_PATH_ECHO_Valids = "path.XML_ECHO_Valids";
@@ -428,6 +430,7 @@ public class ConfigurationManager {
 	}
 	public String getProperty_URL_ECHO(){ return getInstance().getOption(PROPERTY_URL_ECHO, getDefault_URL_ECHO()); }
 	public String getProperty_URL_THREDDS(){ return getInstance().getOption(PROPERTY_URL_THREDDS, getDefault_URL_THREDDS()); }
+	public String getProperty_URL_IPLookup(){ return getInstance().getOption( PROPERTY_URL_IPLookup, getDefault_URL_IPLookup() ); }
 	public String getProperty_URL_DatasetList(){ return getInstance().getOption(PROPERTY_URL_DatasetList, getDefault_URL_DatasetList()); }
 	public String getProperty_PATH_XML_DatasetList_Cache(){ return getInstance().getOption(PROPERTY_PATH_XML_DatasetList_Cache, this.getDefault_PATH_XML_DatasetList()); }
 	public String getProperty_PATH_XML_THREDDS_Cache(){ return getInstance().getOption(PROPERTY_PATH_XML_THREDDS_Cache, this.getDefault_PATH_XML_THREDDS()); }
@@ -887,7 +890,9 @@ public class ConfigurationManager {
 	public String getDefault_URL_DatasetList(){ return URL_Default_DatasetList; }
 
 	public String getDefault_URL_THREDDS(){ return URL_Default_THREDDS; }
-	
+
+	public String getDefault_URL_IPLookup(){ return URL_Default_IPLookup; }
+
 	public String getDefault_PATH_XML_DatasetList(){
 		return Utility.sConnectPaths( getBaseDirectory(), FILE_NAME_XML_DatasetList );
 	}
@@ -961,6 +966,7 @@ public class ConfigurationManager {
 		sb.append(PROPERTY_URL_ECHO + " = " + this.getProperty_URL_ECHO() + "\n" );
 		sb.append(PROPERTY_URL_DatasetList + " = " + this.getProperty_URL_DatasetList() + "\n" );
 		sb.append(PROPERTY_URL_THREDDS + " = " + this.getProperty_URL_THREDDS() + "\n" );
+		sb.append(PROPERTY_URL_IPLookup + " = " + this.getProperty_URL_IPLookup() + "\n" );
 		sb.append(PROPERTY_PATH_XML_DatasetList_Cache + " = " + this.getProperty_PATH_XML_DatasetList_Cache() + "\n" );
 		sb.append(PROPERTY_PATH_XML_THREDDS_Cache + " = " + this.getProperty_PATH_XML_THREDDS_Cache() + "\n" );
 		sb.append(PROPERTY_PATH_ECHO_Valids + " = " + this.getProperty_PATH_XML_ECHO_Valids() + "\n" );
@@ -1037,6 +1043,8 @@ public class ConfigurationManager {
 		if( fisProperties == null ){ // create a new file
 			mProperties.setProperty( PROPERTY_URL_GCMD, getDefault_URL_GCMD());
 			mProperties.setProperty( PROPERTY_URL_ECHO, getDefault_URL_ECHO());
+			mProperties.setProperty( PROPERTY_URL_THREDDS, getDefault_URL_THREDDS());
+			mProperties.setProperty( PROPERTY_URL_IPLookup, getDefault_URL_IPLookup());
 			mProperties.setProperty( PROPERTY_URL_DatasetList, getDefault_URL_DatasetList());
 			mProperties.setProperty( PROPERTY_PATH_XML_DatasetList_Cache, this.getDefault_PATH_XML_DatasetList());
 			mProperties.setProperty( PROPERTY_PATH_XML_THREDDS_Cache, this.getDefault_PATH_XML_THREDDS());

@@ -68,12 +68,12 @@ public class SpatialQuery {
 	public void buildSpatialQuery(String easternmost, String westernmost,
 								  String northernmost, String southernmost, JList keywords)
 	{
-		Object[] selected = keywords.getSelectedValues();
+		java.util.List selected = keywords.getSelectedValuesList();
 
 		//
 		// First element -- the rectangle
 		//
-		if (selected.length == 0) {
+		if( selected.size() == 0 ){
 
 			// remove letters in the strings
 			easternmost = toSigned(easternmost);
@@ -114,9 +114,9 @@ public class SpatialQuery {
 			spatialQuery[1] = new Element("spatialKeywords");
 			Element list = new Element("list");
 			Element value;
-			for (int i=0; i<selected.length; i++){
+			for( int i=0; i<selected.size(); i++ ){
 				value = new Element("value");
-				value.addContent("'" + selected[i].toString() + "'");
+				value.addContent("'" + selected.get( i ).toString() + "'");
 				list.addContent(value);
 			}
 			spatialQuery[1].addContent(list);

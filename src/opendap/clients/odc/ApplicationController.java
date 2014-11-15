@@ -50,14 +50,14 @@ public class ApplicationController {
 
 	private static final String msAppName = "OPeNDAP Data Connector";
 	private static final String msAppVersion = "3.09";
-	private static final String msAppReleaseDate = "May 2012"; // todo create ANT substitution
+	private static final String msAppReleaseDate = "December 2014"; // todo create ANT substitution
 	private static final long SPLASH_SCREEN_DELAY_MS = 0; // 1800; // 1.8 seconds
 
 	public final String getAppName(){ return msAppName; }
 	public final String getAppVersion(){ return msAppVersion; }
 	public final String getAppReleaseDate(){ return msAppReleaseDate; }
 	public final String getVersionString(){ return "ODC " + msAppVersion; }
-	public final String getVersionString_FileFormat(){ return "ODC308"; }
+	public final String getVersionString_FileFormat(){ return "ODC309"; }
 
 	private ApplicationFrame appframe;
 	private InterprocessServer server;
@@ -548,10 +548,14 @@ public class ApplicationController {
 		}
 	}
 
-	public static boolean zErrorPopupActive = false;
-	public static void vShowError( String sErrorMessage ){
+	public static void vLogError( String sErrorMessage ){
 		Date dateNow = new Date();
 		ApplicationController.getInstance().listErrors.add( dateNow.toString() + " " + sErrorMessage );
+	}
+
+	public static boolean zErrorPopupActive = false;
+	public static void vShowError( String sErrorMessage ){
+		vLogError( sErrorMessage );
 		ApplicationFrame app_frame = ApplicationController.getInstance().getAppFrame();
 		if( app_frame != null ) app_frame.vShowStatus( sErrorMessage );
 		System.out.println( sErrorMessage );
@@ -569,8 +573,7 @@ public class ApplicationController {
 	}
 
 	public static void vShowError_NoModal( String sErrorMessage ){
-		Date dateNow = new Date();
-		ApplicationController.getInstance().listErrors.add( dateNow.toString() + " " + sErrorMessage );
+		vLogError( sErrorMessage );
 		ApplicationFrame app_frame = ApplicationController.getInstance().getAppFrame();
 		if( app_frame != null ) app_frame.vShowStatus(sErrorMessage);
 		System.out.println(sErrorMessage);

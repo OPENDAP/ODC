@@ -61,6 +61,7 @@ public class Panel_Retrieve_SelectedDatasets extends JPanel {
     boolean zInitialize( StringBuffer sbError ){
 
         try {
+			setToolTipText( "Retrieve Selected Datasets Panel" );
 
 			model = Model.get().getRetrieveModel();
 			if( model == null ){
@@ -72,7 +73,68 @@ public class Panel_Retrieve_SelectedDatasets extends JPanel {
 //			Model_URLTable theListModel = new Model_URLTable(mjtableSelected, false, true, true); // old methodology
 			final Model_URLList theListModel = Model.get().getRetrieveModel().getURLList();
 			if( theListModel == null ){ sbError.append("internal error: retrieve model does not exist"); return false; }
-			final Panel_URLList theListPanel = new Panel_URLList_JList( theListModel );
+
+			// determine mouse behavior of the URL list in the retrieve panel
+			MouseAdapter mouse_behavior = new MouseAdapter(){
+				public void mousePressed( MouseEvent me ){
+					if( me.getClickCount() == 1 ){
+						Object oSelectedItem = theListModel.getSelectedURL();
+						Model_Dataset urlSelected = null;
+						if( oSelectedItem instanceof Model_Dataset ){
+							urlSelected = (Model_Dataset)oSelectedItem;
+						} else {
+							return; // there can be entries in the list that are not URLs -- ignore them
+						}
+						Model_Retrieve retrieve_model = Model.get().getRetrieveModel();
+						if( retrieve_model == null ){
+							ApplicationController.vShowError( "internal error: retrieval model does not exist for dataset activation" );
+							return;
+						}
+						if( urlSelected == null ){ // can happen because of a bug in the list / table component
+							retrieve_model.vClearSelection();
+							return;
+						}
+						if( me.isControlDown() ){
+							if( me.isShiftDown() ){
+								retrieve_model.vShowDAS( urlSelected, null );
+							} else {
+								retrieve_model.vShowDDS( urlSelected, null );
+							}
+						} else {
+							switch( me.getModifiers() ){
+								case InputEvent.BUTTON1_MASK:{  // left button
+									if( urlSelected.getType() == opendap.clients.odc.data.Model_Dataset.DATASET_TYPE.Data ){
+										retrieve_model.getRetrievePanel().vShowDirectory( false );
+									}
+									retrieve_model.vShowURL( urlSelected, null );
+									break;
+								}
+								case InputEvent.BUTTON2_MASK: { break; } // middle button
+								case InputEvent.BUTTON3_MASK: {          // right button
+									String s = (String)JOptionPane.showInputDialog(
+											ApplicationController.getInstance().getAppFrame(),
+											"Press Ok to change URL. This is the base URL. It should not have a type extension (.dds .das .info etc) and should have no constraint.",
+											"Dataset Base URL",
+											JOptionPane.PLAIN_MESSAGE,
+											null,                         // no icon
+											null,                         // no choice list
+											urlSelected.getBaseURL() );
+									if( (s != null) && (s.length() > 0) ){
+										urlSelected.setURL( s );
+										if( urlSelected.getType() == opendap.clients.odc.data.Model_Dataset.DATASET_TYPE.Data ){
+											retrieve_model.getRetrievePanel().vShowDirectory( false );
+										}
+										retrieve_model.vShowURL( urlSelected, null );
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			};
+
+			final Panel_URLList theListPanel = new Panel_URLList_JList( theListModel, mouse_behavior );
 			theListModel.setControl( theListPanel );
 
 			// Remove all selected data sets

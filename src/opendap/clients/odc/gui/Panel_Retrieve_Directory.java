@@ -79,6 +79,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 	boolean zInitialize( Panel_Retrieve_SelectedDatasets parent, StringBuffer sbError ){
 
 		try {
+			setToolTipText( "Retrieve Directory Panel" );
 
 			modelRetrieve = Model.get().getRetrieveModel();
 			if( modelRetrieve == null ){
@@ -130,6 +131,24 @@ public class Panel_Retrieve_Directory extends JPanel {
 			mtreeDirectory.addMouseListener(
 				new MouseAdapter(){
 				    public void mousePressed( MouseEvent me ){
+						switch( me.getModifiers() ){
+							case InputEvent.BUTTON1_MASK: { break; } // left button
+							case InputEvent.BUTTON2_MASK: { break; } // middle button
+							case InputEvent.BUTTON3_MASK: {          // right button
+								final JTree tree = (JTree)me.getSource();
+								final int row = tree.getRowForLocation( me.getX(),me.getY() );
+								if( row != -1 ){
+									TreePath path = tree.getPathForRow( row );
+									final DirectoryTreeNode node = ( DirectoryTreeNode ) path.getLastPathComponent();
+									StringBuffer sbInfo = new StringBuffer();
+									sbInfo.append( "title: " + node.getTitle() + "\n" );
+									sbInfo.append( "path: " + node.getPathString() + "\n" );
+									if( node.zHasError() ) sbInfo.append( "Error: " + node.getError() + "\n" );
+									JOptionPane.showMessageDialog( ApplicationController.getInstance().getAppFrame(), sbInfo.toString() );
+								}
+								return;
+							}
+						}
 						if( me.getClickCount() == 2 ){
 							final JTree tree = (JTree)me.getSource();
 							final int row = tree.getRowForLocation(me.getX(),me.getY());
@@ -437,7 +456,7 @@ public class Panel_Retrieve_Directory extends JPanel {
 
 		// show error if any
 		if( node.zHasError() ){
-			modelRetrieve.retrieve_panel.vShowMessage("Directory Error: \n" + node.getError());
+			modelRetrieve.retrieve_panel.vAdditionalCriteria_ShowText( "Directory Error: \n" + node.getError() );
 		}
 
 		String[] asFiles = mActiveNode.getFileList(); // one-based

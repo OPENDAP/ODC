@@ -256,10 +256,10 @@ public class DatasetList extends SearchInterface {
 	private final void vAddSelectedURLs(){
 		try {
 			StringBuffer sbError = new StringBuffer(80);
-			Model_Dataset[] urls = DatasetList.this.getURLs(sbError);
+			Model_Dataset[] urls = DatasetList.this.getURLs( sbError );
 			if( urls == null ) return;
 			Model_Retrieve retrieve_model = Model.get().getRetrieveModel();
-			retrieve_model.getURLList().vDatasets_Add( urls );
+			retrieve_model.getURLList().vDatasets_Add( urls, true );
 			ApplicationController.getInstance().getAppFrame().vActivateRetrievalPanel();
 
 			// select the first URL in the added ones, and activate it
@@ -287,7 +287,7 @@ public class DatasetList extends SearchInterface {
 		if( mode == MODE.DatasetList ){
 			sURL = ConfigurationManager.getInstance().getProperty_URL_DatasetList();
 			sTarget = "Dataset List";
-		} else if( mode == MODE.DatasetList ){
+		} else if( mode == MODE.THREDDS ){
 			sURL = ConfigurationManager.getInstance().getProperty_URL_THREDDS();
 			sTarget = "THREDDS master catalog";
 		} else {
@@ -537,24 +537,133 @@ public class DatasetList extends SearchInterface {
 		);
 	}
 
+	public ArrayList<String> getAllURLs( StringBuffer sbError ){
+		ArrayList<String> listURLs = new ArrayList<String>();
+		DOMTree.AdapterNode nodeRoot = ( DOMTree.AdapterNode ) xmlDOMTree.getModel().getRoot();
+		if( nodeRoot == null ){
+			sbError.append( "no root node " );
+			return null;
+		}
+		if( appendNodeURLs( nodeRoot, listURLs, "", sbError ) ) return listURLs;
+		return null;
+	}
+
+	public boolean appendNodeURLs( DOMTree.AdapterNode node, ArrayList<String> list, String prefix, StringBuffer sbError ){
+		if( node.isLeaf() ){
+			String sName = node.getAttributes().getNamedItem( DOMTree.ATTR_NAME ) == null ? null : node.getAttributes().getNamedItem( DOMTree.ATTR_NAME ).getNodeValue();
+			String sBaseURL = node.getAttributes().getNamedItem( DOMTree.ATTR_BASE_URL ) == null ? null : node.getAttributes().getNamedItem( DOMTree.ATTR_BASE_URL ).getNodeValue();
+			String sCatalog = node.getAttributes().getNamedItem( DOMTree.ATTR_CATALOG ) == null ? null : node.getAttributes().getNamedItem( DOMTree.ATTR_CATALOG ).getNodeValue();
+			String sDirectory = node.getAttributes().getNamedItem( DOMTree.ATTR_DIR ) == null ? null : node.getAttributes().getNamedItem( DOMTree.ATTR_DIR ).getNodeValue();
+			if( sBaseURL != null ) list.add( "URL " + prefix + " / " + sName + " ~ " + sBaseURL );
+			if( sCatalog != null ) list.add( "CAT " + prefix + " / " + sName + " ~ " + sCatalog );
+			if( sDirectory != null ) list.add( "DIR " + prefix + " / " + sName + " ~ " + sDirectory );
+		} else {
+			prefix += " / " + node.content();
+			for( int xChild = 0; xChild < node.childCount(); xChild++ ){
+				DOMTree.AdapterNode nodeChild = node.getChild( xChild, sbError );
+				if( nodeChild != null )
+					if( !appendNodeURLs( nodeChild, list, prefix, sbError ) ) return false;
+			}
+		}
+		return true;
+	}
+
+//
+//		if( nodes != null ){
+//			for (int i=0; i < nodes.length; i++) {
+//				DOMTree.AdapterNode thisnode = (DOMTree.AdapterNode) nodes[i];
+//				if (thisnode.isLeaf()) {
+//					String key = null;
+//					if (thisnode.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL) != null) {
+//						key = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL).getNodeValue();
+//					} else if( thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null) {
+//						key = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR).getNodeValue();
+//					} else {
+//						org.w3c.dom.Node nodeUnusable = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_NAME);
+//						String sAttributeName = nodeUnusable == null ? "[unknown]" : nodeUnusable.getNodeValue();
+//						ApplicationController.vShowWarning("Entry is not a data URL or directory URL: " + sAttributeName);
+//					}
+//					if( key != null ){
+//						if (! urlshash.containsKey(key)) {
+//							urlshash.put(key,key);
+//							urlsvect.addElement(thisnode);
+//						}
+//					}
+//				} else {	// aggregated entry
+//					for (int s=0; s < thisnode.childCount(); s++) {
+//						String key = null;
+//						DOMTree.AdapterNode nodeChild = thisnode.getChild( s, sbError );
+//						if( nodeChild == null ){
+//							ApplicationController.vShowWarning("Error getting child " + s + ": " + sbError );
+//							return null;
+//						}
+//						if( nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL) != null) {
+//							key = nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL).getNodeValue();
+//						} else if( nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null) {
+//							key = nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_DIR).getNodeValue();
+//						} else {
+//							org.w3c.dom.Node nodeUnusable = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_NAME);
+//							String sAttributeName = nodeUnusable == null ? "[unknown]" : nodeUnusable.getNodeValue();
+//							ApplicationController.vShowStatus_NoCache("Entry is not a data URL or directory URL: " + sAttributeName);
+//						}
+//						if( key != null ){
+//							if (! urlshash.containsKey(key)) {
+//								urlshash.put(key,key);
+//								urlsvect.addElement( nodeChild );
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		if( urlsvect.size() > 0 ){
+//			Model_Dataset[] urls = new Model_Dataset[urlsvect.size()];
+//			for (int i=0; i < urlsvect.size(); i++) {
+//				DOMTree.AdapterNode thisnode = (DOMTree.AdapterNode) urlsvect.elementAt(i);
+//				String sURL = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR).getNodeValue();
+//				if( thisnode.getAttributes().getNamedItem(DOMTree.ATTR_CATALOG) != null ||
+//						thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null) {
+//					Model_Dataset model = Model_Dataset.createDirectoryFromURL( sURL, sbError );
+//					if( model == null ){
+//						sbError.insert( 0, "unable to create internal model for directory: " );
+//						return null;
+//					}
+//					urls[i] = model;
+//				} else {
+//					Model_Dataset model = Model_Dataset.createDirectoryFromURL( sURL, sbError );
+//					if( model == null ){
+//						sbError.insert( 0, "unable to create internal model for directory: " );
+//						return null;
+//					}
+//					urls[i] = model;
+//				}
+//				urls[i].setTitle(thisnode.getAttributes().getNamedItem(DOMTree.ATTR_NAME).getNodeValue());
+//			}
+//			return urls;
+//		} else {
+//			return null;
+//		}
+//	}
+
     // Returns DodsUrl object with selected URLs
 	public Model_Dataset[] getURLs( StringBuffer sbError ) {
         Hashtable<String,String> urlshash = new Hashtable<String,String>();
         Vector<DOMTree.AdapterNode> urlsvect = new Vector<DOMTree.AdapterNode>();
-        Object[] nodes = xmlDOMTree.getSelection();
-		if (nodes != null) {
-            for (int i=0; i < nodes.length; i++) {
-                DOMTree.AdapterNode thisnode = (DOMTree.AdapterNode) nodes[i];
-                if (thisnode.isLeaf()) {
+        Object[] listSelectedNodes = xmlDOMTree.getSelection();
+		if( listSelectedNodes != null ){
+            for( int i=0; i < listSelectedNodes.length; i++ ){
+                DOMTree.AdapterNode thisnode = (DOMTree.AdapterNode) listSelectedNodes[i];
+                if( thisnode.isLeaf() ){
 					String key = null;
-                    if (thisnode.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL) != null) {
+                    if( thisnode.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL) != null ){
                         key = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL).getNodeValue();
                     } else if( thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null) {
 						key = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR).getNodeValue();
 					} else {
 						org.w3c.dom.Node nodeUnusable = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_NAME);
 						String sAttributeName = nodeUnusable == null ? "[unknown]" : nodeUnusable.getNodeValue();
-						ApplicationController.vShowWarning("Entry is not a data URL or directory URL: " + sAttributeName);
+						ApplicationController.vShowWarning( "Entry is not a data URL or directory URL: " + sAttributeName );
 				    }
 					if( key != null ){
 						if (! urlshash.containsKey(key)) {
@@ -562,7 +671,7 @@ public class DatasetList extends SearchInterface {
 							urlsvect.addElement(thisnode);
 						}
 					}
-                } else {	// aggregated entry
+                } else {	// adding an entire directory of URLs
                     for (int s=0; s < thisnode.childCount(); s++) {
 						String key = null;
 						DOMTree.AdapterNode nodeChild = thisnode.getChild( s, sbError );
@@ -592,11 +701,19 @@ public class DatasetList extends SearchInterface {
 
         if( urlsvect.size() > 0 ){
             Model_Dataset[] urls = new Model_Dataset[urlsvect.size()];
-            for (int i=0; i < urlsvect.size(); i++) {
+            for( int i=0; i < urlsvect.size(); i++ ){
                 DOMTree.AdapterNode thisnode = (DOMTree.AdapterNode) urlsvect.elementAt(i);
-                String sURL = thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR).getNodeValue();
-                if( thisnode.getAttributes().getNamedItem(DOMTree.ATTR_CATALOG) != null ||
-					thisnode.getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null) {
+				String sName = thisnode.getAttributes().getNamedItem( DOMTree.ATTR_NAME ) == null ? "[unnamed]" : thisnode.getAttributes().getNamedItem( DOMTree.ATTR_NAME ).getNodeValue();
+                if( thisnode.getAttributes().getNamedItem(DOMTree.ATTR_CATALOG) != null ){
+					String sURL = thisnode.getAttributes().getNamedItem( DOMTree.ATTR_CATALOG ).getNodeValue();
+					Model_Dataset model = Model_Dataset.createDirectoryFromURL( sURL, sbError );
+					if( model == null ){
+						sbError.insert( 0, "unable to create internal model for catalog: " );
+						return null;
+					}
+					urls[i] = model;
+				} else if( thisnode.getAttributes().getNamedItem( DOMTree.ATTR_DIR ) != null ){
+					String sURL = thisnode.getAttributes().getNamedItem( DOMTree.ATTR_DIR ).getNodeValue();
                 	Model_Dataset model = Model_Dataset.createDirectoryFromURL( sURL, sbError );
                 	if( model == null ){
                 		sbError.insert( 0, "unable to create internal model for directory: " );
@@ -604,14 +721,15 @@ public class DatasetList extends SearchInterface {
                 	}
                 	urls[i] = model;
                 } else {
-                	Model_Dataset model = Model_Dataset.createDirectoryFromURL( sURL, sbError );
+					String sURL = thisnode.getAttributes().getNamedItem( DOMTree.ATTR_BASE_URL ).getNodeValue();
+                	Model_Dataset model = Model_Dataset.createDataFromURL( sURL, sbError );
                 	if( model == null ){
-                		sbError.insert( 0, "unable to create internal model for directory: " );
+                		sbError.insert( 0, "unable to create internal model for base URL: " );
                 		return null;
                 	}
                 	urls[i] = model;
                 }
-                urls[i].setTitle(thisnode.getAttributes().getNamedItem(DOMTree.ATTR_NAME).getNodeValue());
+                urls[i].setTitle(thisnode.getAttributes().getNamedItem( DOMTree.ATTR_NAME ).getNodeValue());
             }
             return urls;
         } else {

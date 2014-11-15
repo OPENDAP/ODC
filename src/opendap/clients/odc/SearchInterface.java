@@ -43,15 +43,15 @@ import opendap.clients.odc.data.Model_URLList;
 public abstract class SearchInterface extends JPanel {
 	public abstract Model_Dataset[] getURLs( StringBuffer sbError );
 	public abstract void addListSelectionListener( ListSelectionListener listener );
-	public void vAddSelected(){
+	public void vAddSelected( boolean zAddToRecent ){ // needs parameter to prevent recent from adding to recent
 		StringBuffer sbError = new StringBuffer(80);
-		Model_Dataset[] urls = getURLs(sbError);
+		Model_Dataset[] urls = getURLs( sbError );
 		if( urls == null ){
 			ApplicationController.vShowError("failed to get selected urls for retrieval: " + sbError);
 		} else {
 			Model_Retrieve retrieve_model = Model.get().getRetrieveModel();
 			Model_URLList urllist = retrieve_model.getURLList();
-			urllist.vDatasets_Add(urls);
+			urllist.vDatasets_Add( urls, zAddToRecent );
 			ApplicationController.getInstance().getAppFrame().vActivateRetrievalPanel();
 		}
 	}

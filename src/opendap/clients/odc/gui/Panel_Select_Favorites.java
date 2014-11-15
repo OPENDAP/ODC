@@ -60,7 +60,7 @@ public class Panel_Select_Favorites extends SearchInterface implements IControlP
 
 	int[] maiSelected;
 
-    public boolean zInitialize(StringBuffer sbError){
+    public boolean zInitialize( StringBuffer sbError ){
 
         try {
 
@@ -69,10 +69,19 @@ public class Panel_Select_Favorites extends SearchInterface implements IControlP
 
 			setLayout(new java.awt.BorderLayout());
 
+			// determine mouse behavior of the URL list in the retrieve panel
+			MouseAdapter mouse_behavior = new MouseAdapter(){
+				public void mousePressed( MouseEvent me ){
+					if( me.getClickCount() == 2 ){
+						vAddSelected( true );
+					}
+				}
+			};
+
 			// Create and intialize the favorites list
 			jscrollpaneList = new JScrollPane();
 			mListModel = new Model_URLList( false ); // do not do type checking
-			mListPanel = new Panel_URLList_JList( mListModel );
+			mListPanel = new Panel_URLList_JList( mListModel, mouse_behavior );
 			mListModel.setControl( mListPanel );
 // TODO
 //			DatasetListRenderer renderer = new DatasetListRenderer(jlistFavorites, false, false);

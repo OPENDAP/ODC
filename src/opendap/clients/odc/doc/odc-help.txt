@@ -1,5 +1,5 @@
 #~Introduction
-(help file revised 28 February 2012)
+(help file revised 23 October 2014)
 
 This is the OPeNDAP Data Connector (ODC). Using the ODC you can search for and retrieve datasets published by OPeNDAP data servers. OPeNDAP servers (also known as DODS servers) located at major institutions around the world serve a wide variety of data including: climatic data, satellite imagery, and ocean sensor results. The ODC allows you to find these datasets, download them to your machine, save them, and import them into client applications like IDL, Matlab, SPSS, Excel, or into databases such as Access and Oracle. The ODC is your gateway to terabytes of scientific data and imagery.
 
@@ -163,7 +163,9 @@ When you select a directory any files in the directory will be shown in the list
 
 You may subset one or more directory files by double-clicking the file name. The criteria for that file will appear in the lower pane of the Additional Criteria area. Any criteria specified here will be applied to all the selected files in the directory tree.
 
-* Display the DDS (structure information) for a dataset by holding down the control key and double-clicking the dataset. Display the DAS (ancillary/descriptive information) for a dataset by holding down the shift and control keys while double-clicking.
+* Display the DDS (structure information) for a dataset by holding down the control key and clicking the dataset. Display the DAS (ancillary/descriptive information) for a dataset by holding down the shift and control keys while clicking.
+
+* Change the URL for the dataset by right-clicking on the dataset. Enter only the base URL (no extensions like .dds and no constraints).
 
 * You must select a dataset for a download to occur. In the case of a directory you must select one or more files within the directory, just selecting the directory itself will do nothing. The files you have selected will be listed in the "Selected Datasets" list box in the lower left of the retrieval panel.
 

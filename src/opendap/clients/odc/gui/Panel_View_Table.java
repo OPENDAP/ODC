@@ -595,26 +595,29 @@ public class Panel_View_Table extends JPanel implements IControlPanel {
 		}
 		int eState = 1;
 		int eLastState = -1;
-		public void write(int iByte) throws IOException {
+		public void write( int iByte ) throws IOException {
 			// not used because printing to table should always send arrays
 		}
-		public void write(byte[] buffer) throws IOException {
-			write(buffer, 0, buffer.length);
+		public void write( byte[] buffer ) throws IOException {
+			write( buffer, 0, buffer.length );
 		}
-		public void write(byte[] abWriteBuffer, int offset, int count) throws IOException { // loads the buffer
+		public void write( byte[] abWriteBuffer, int offset, int count ) throws IOException { // loads the buffer
 			if( zMaxedOut ) return; // no more output
-			String sBuffer = new String(abWriteBuffer, offset, count);
-			msbBuffer.append(sBuffer);
+			String sBuffer = new String( abWriteBuffer, offset, count );
+			msbBuffer.append( sBuffer );
 			try {
 				vProcessBuffer();
-			} catch(TableFormatException ex) {
-				throw new java.io.WriteAbortedException("Table format problem", ex);
+			} catch( TableFormatException ex ){
+				throw new java.io.WriteAbortedException( "Table format problem", ex );
 			}
 		}
 		private void vProcessBuffer() throws TableFormatException {
+			System.out.println( "---------- begin buffer ----------- " );
+			System.out.println( msbBuffer );
+			System.out.println( "---------- end buffer ----------- " );
 			if( msbBuffer.length() ==  0 ) return; // nothing to process
 			if( maData0.length >= MAX_Rows ){
-				ApplicationController.vShowStatus("Table view limit of " + MAX_Rows + " rows exceeded. Remaining output omitted.");
+				ApplicationController.vShowStatus( "Table view limit of " + MAX_Rows + " rows exceeded. Remaining output omitted." );
 				zMaxedOut = true;
 				msbBuffer.setLength(0);
 				return;
@@ -624,7 +627,7 @@ public class Panel_View_Table extends JPanel implements IControlPanel {
 			while(true){
 				char c = msbBuffer.charAt(posBuffer);
 				if( eState == eLastState && posBuffer == posLast ){
-					vTerminateWithError("Internal error, infinite loop in state machine, " + "state: " + eState + " char: '" + c + "'");
+					vTerminateWithError( "Internal error, infinite loop in state machine, " + "state: " + eState + " char: '" + c + "'" );
 				}
 				eLastState = eState;
 				posLast = posBuffer;
@@ -684,7 +687,7 @@ public class Panel_View_Table extends JPanel implements IControlPanel {
 							vAddValue();
 							eState = 6;
 						} else {
-							vTerminateWithError("Unexpected character after quote in header (" + c + " [" + (int)c + "]). Must be whitespace, quote or closing brace. " + Utility_String.sSafeSubstring(msbBuffer, posBuffer-12, 24));
+							vTerminateWithError( "Unexpected character after quote in header (" + c + " [" + (int)c + "]). Must be whitespace, quote or closing brace. " + Utility_String.sSafeSubstring(msbBuffer, posBuffer-12, 24) );
 						}
 						posBuffer++;
 						break;
@@ -760,7 +763,7 @@ public class Panel_View_Table extends JPanel implements IControlPanel {
 							vAddValue();
 							eState = 13;
 						} else {
-							vTerminateWithError("Unexpected character after quote in record (" + c + " [" + (int)c + "]). Must be quote, comma, space or closing brace. " + Utility_String.sSafeSubstring(msbBuffer, posBuffer-12, 24));
+							vTerminateWithError( "Unexpected character after quote in record (" + c + " [" + (int)c + "]). Must be quote, comma, space or closing brace. " + Utility_String.sSafeSubstring(msbBuffer, posBuffer-12, 24) );
 						}
 						posBuffer++;
 						break;
@@ -797,7 +800,7 @@ public class Panel_View_Table extends JPanel implements IControlPanel {
 			if( !iterator.hasNext() ){ vTerminateWithError("incomplete header, no table name"); }
 			if( !iterator.hasNext() ){ vTerminateWithError("incomplete header, no row count label"); }
 			String sRowCountLabel = (String)iterator.next();
-			if( !sRowCountLabel.equals( "RowCount:" ) ){ vTerminateWithError("incomplete header, invalid row count label (" + sRowCountLabel + ")"); }
+			if( !sRowCountLabel.equals( "RowCount:" ) ){ vTerminateWithError( "incomplete header, invalid row count label (" + sRowCountLabel + ")" ); }
 			if( !iterator.hasNext() ){ vTerminateWithError("incomplete header, no row count"); }
 			String sRowCount = (String)iterator.next();
 			if( !Utility_String.isInteger( sRowCount ) ){ vTerminateWithError("invalid header, row count is not an integer (" + sRowCount + ")"); }
@@ -805,7 +808,7 @@ public class Panel_View_Table extends JPanel implements IControlPanel {
 			int iRowCount = iDataRowCount + 1; // need extra row for header
 			if( !iterator.hasNext() ){ vTerminateWithError("incomplete header, no column count label"); }
 			String sColumnCountLabel = (String)iterator.next();
-			if( !sColumnCountLabel.equals("ColumnCount:") ){ vTerminateWithError("incomplete header, invalid column count label (" + sColumnCountLabel + ")"); }
+			if( !sColumnCountLabel.equals("ColumnCount:") ){ vTerminateWithError( "incomplete header, invalid column count label (" + sColumnCountLabel + ")" ); }
 			if( !iterator.hasNext() ){ vTerminateWithError("incomplete header, no column count"); }
 			String sColumnCount = (String)iterator.next();
 			if( !Utility_String.isInteger( sColumnCount ) ){ vTerminateWithError("invalid header, column count is not an integer (" + sColumnCount + ")"); }

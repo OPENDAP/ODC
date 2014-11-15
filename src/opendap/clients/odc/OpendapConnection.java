@@ -72,7 +72,7 @@ public class OpendapConnection {
      * @param sbError Buffer to write any error message to.
      * @return the opened <code>InputStream</code> or null in the case of an error.
      */
-    ByteTracker openConnection(URL url, int iConnectTimeout_seconds, int iReadTimeout_seconds, ByteCounter bc, Activity activity, StringBuffer sbError) {
+    ByteTracker openConnection( URL url, int iConnectTimeout_seconds, int iReadTimeout_seconds, ByteCounter bc, Activity activity, StringBuffer sbError ){
 		return openConnection( url, iConnectTimeout_seconds, iReadTimeout_seconds, bc, null, activity, sbError );
 	}
 
@@ -82,7 +82,7 @@ public class OpendapConnection {
      * @param sbError Buffer to write any error message to.
      * @return the opened <code>InputStream</code> or null in the case of an error.
      */
-    ByteTracker openConnection(URL url, int iConnectTimeout_seconds, int iReadTimeout_seconds, ByteCounter bc, String sProtocol, Activity activity, StringBuffer sbError) {
+    ByteTracker openConnection( URL url, int iConnectTimeout_seconds, int iReadTimeout_seconds, ByteCounter bc, String sProtocol, Activity activity, StringBuffer sbError ){
 		if( url == null ){
 			sbError.append("URL missing");
 			return null;
@@ -94,6 +94,7 @@ public class OpendapConnection {
 		String sRequest_Host           = url.getHost();
 		int    iRequest_Port           = url.getPort();
 		String sRequest_Query          = url.getQuery();
+		if( iRequest_Port == -1 ) iRequest_Port = 80;
 		boolean zUseProxy = ConfigurationManager.getInstance().getProperty_ProxyUse();
 		boolean zUseBasicAuthentication = ConfigurationManager.getInstance().getProperty_ProxyUseBasicAuthentication();
 		String sRequestLocator;
@@ -155,6 +156,8 @@ public class OpendapConnection {
 		}
 		boolean zHeaderExists = sHeader.toUpperCase().startsWith("HTTP/");
 
+		long nContentLength = -1;
+
 		if( zHeaderExists ){
 			if( zLogHeaders )
 				ApplicationController.vShowStatus("Response header for (" + sRequest_Print + "):\n" + Utility_String.sShowUnprintable(sHeader));
@@ -184,12 +187,19 @@ public class OpendapConnection {
 			}
 			if( sResponseCode.equals("200") ){
 				// connection opened successfully
+			} else if( sResponseCode.equals("301") || sResponseCode.equals("303") || sResponseCode.equals("303") ){
+				String sLocation = 	getHeaderField( sHeader, "Location" );
+				if( sLocation == null ) sLocation = "[null]";
+				sbError.append( "server attempted to redirect (" + Utility_String.sSafeSubstring( sHTTP_Response, 0, 250 ) + ") to " + sLocation );
+				sbError.append( "\nyou can change URLs to a different location by right clicking on the retrieve item" );
+				try { socket_channel.close(); } catch( Throwable t_is ){}
+				return null;
 			} else if( sResponseCode.equals("401") ){ // password protected web site
 				sbError.append("server returned HTTP error code 401, authentication required");
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			} else if( sResponseCode.equals("407") ){ // authenticated proxy
-				String sAuthenticationHeader = getHeaderField(sHeader, "Proxy-Authenticate");
+				String sAuthenticationHeader = getHeaderField( sHeader, "Proxy-Authenticate" );
 				int xFirstSpace = sAuthenticationHeader.indexOf(' ');
 				String sAuthenticationScheme = (xFirstSpace < 1 ) ? sAuthenticationHeader : sAuthenticationHeader.substring(0, xFirstSpace - 1);
 				if( sAuthenticationScheme.equalsIgnoreCase("BASIC") ){
@@ -197,28 +207,29 @@ public class OpendapConnection {
 				} else {
 					sbError.append( "proxy server requires a non-supported authentication scheme: " + sAuthenticationScheme );
 				}
+				return null;
 			} else {
-				sbError.append("server returned HTTP error code: " + Utility_String.sSafeSubstring(sHTTP_Response, 0, 250));
+				sbError.append( "server returned HTTP error code: " + Utility_String.sSafeSubstring( sHTTP_Response, 0, 250 ) );
 //				System.out.println( getRemainder(socket_channel, 10000, iReadTimeout_seconds) );
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
 			String type = getHeaderField(sHeader, "content-description");
-			if (type != null && (type.equalsIgnoreCase("dods_error") || type.equalsIgnoreCase("dods-error") )) {
+			if( type != null && ( (type.equalsIgnoreCase("dods_error") || type.equalsIgnoreCase("dods-error") ) )){
 				sbError.append("server error: " + getRemainder(socket_channel, 1000, iReadTimeout_seconds, activity));
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
 
             // Determine the Server VErsion from the HTTP header.
-            String sServerVersion = getHeaderField(sHeader, "xdap");
-            if (sServerVersion != null){
+            String sServerVersion = getHeaderField( sHeader, "xdap" );
+            if( sServerVersion != null ){
 
                 try{
                     ver = new ServerVersion(sServerVersion,ServerVersion.XDAP);
                 }
                 catch(opendap.dap.DAP2Exception e){
-                    sbError.append("not a valid OPeNDAP server, cannot parse field xdap header: "+sServerVersion);
+                    sbError.append( "not a valid OPeNDAP server, cannot parse field xdap header: " + sServerVersion );
                     try { socket_channel.close(); } catch( Throwable t_is ){}
                     return null;
                 }
@@ -226,7 +237,7 @@ public class OpendapConnection {
             }
             else {
                 sServerVersion = getHeaderField(sHeader, "xdods-server");
-                if (sServerVersion == null){
+                if( sServerVersion == null ){
                     sbError.append("not a valid OPeNDAP server, missing MIME Header field \"xdods-server.\" (" + sRequest_Print + ")");
                     try { socket_channel.close(); } catch( Throwable t_is ){}
                     return null;
@@ -235,7 +246,7 @@ public class OpendapConnection {
                     ver = new ServerVersion(sServerVersion,ServerVersion.XDODS_SERVER);
                 }
                 catch(opendap.dap.DAP2Exception e){
-                    sbError.append("not a valid OPeNDAP server, cannot parse field xdods-server header: "+sServerVersion);
+                    sbError.append( "not a valid OPeNDAP server, cannot parse field xdods-server header: " + sServerVersion );
                     try { socket_channel.close(); } catch( Throwable t_is ){}
                     return null;
                 }
@@ -250,7 +261,7 @@ public class OpendapConnection {
 				} else { // trying using 1.0 protocol
 	    			try { socket_channel.close(); } catch( Throwable t_is ){}
 					ApplicationController.vShowWarning("trying HTTP/1.0 because server is chunking (" + sRequest_Print + ")");
-					mByteTracker = openConnection(url, iConnectTimeout_seconds, iReadTimeout_seconds, bc, "HTTP/1.0", activity, sbError);
+					mByteTracker = openConnection( url, iConnectTimeout_seconds, iReadTimeout_seconds, bc, "HTTP/1.0", activity, sbError );
 					if( mByteTracker == null ){
 						sbError.insert(0, "(" + sRequest_Print + ") failed using HTTP/1.0: ");
 						return null;
@@ -259,13 +270,23 @@ public class OpendapConnection {
 					}
 				}
 			}
+
+			String sContentLength = getHeaderField( sHeader, "content-length" );
+			if( sContentLength != null ){
+				try {
+					nContentLength = Long.parseLong( sContentLength );
+				} catch( Throwable t ){
+					sbError.append( "Content-Length header field (" + sContentLength + ") could not be interpreted as a long" );
+					return null;
+				}
+			}
 		} else {
 			if( zLogHeaders )
 				ApplicationController.vShowWarning("No header returned for " + sRequest_Print);
 		}
 
 		// create and return the ByteTracker
-		mByteTracker = new ByteTracker( activity, socket_channel, BUFFER_SIZE, iReadTimeout_seconds, bc );
+		mByteTracker = new ByteTracker( activity, socket_channel, BUFFER_SIZE, iReadTimeout_seconds, bc, nContentLength );
         return mByteTracker;
     }
 
@@ -350,18 +371,19 @@ public class OpendapConnection {
 		return IO.getStaticContent( sURL, bc, activity, sbError );
 	}
 
+	// the redirect egg will contain the redirected base URL, if there was one
     public DDS getDDS( String sBaseURL, String sCE, Activity activity, StringBuffer sbError ){
 		InputStream is = getDDS_InputStream( sBaseURL, sCE, activity, sbError );
 		if( is == null ){
 			if( sbError.length() > 0 )
-				sbError.insert(0, "error opening connection: ");
+				sbError.insert(0, "error opening connection for DDS: ");
 			return null;
 		}
         DDS dds = new DDS();
         try {
-            dds.parse(is);
+            dds.parse( is );
 		} catch(Throwable t) {
-			sbError.append("error parsing DDS: " + t);
+			sbError.append( "error parsing DDS: " + t );
 			return null;
         } finally {
 			try{ is.close(); } catch(Throwable t) {}
@@ -375,10 +397,10 @@ public class OpendapConnection {
 		try {
 			url = new URL(sURL);
 		} catch(Exception ex) {
-			sbError.append("Error forming URL " + sURL + ": " + ex);
+			sbError.append( "Error forming URL " + sURL + ": " + ex );
 			return null;
 		}
-		return openConnection(url, miTimeoutConnect_seconds, miTimeoutRead_seconds, null, activity, sbError );
+		return openConnection( url, miTimeoutConnect_seconds, miTimeoutRead_seconds, null, activity, sbError );
 	}
 
     public DAS getDAS( String sBaseURL, String sCE, Activity activity, StringBuffer sbError ){
@@ -499,10 +521,10 @@ public class OpendapConnection {
 		try {
 			url = new URL(sURL);
 		} catch(Exception ex) {
-			sbError.append("Error forming URL " + sURL + ": " + ex);
+			sbError.append( "Error forming URL " + sURL + ": " + ex );
 			return null;
 		}
-		ByteTracker bt = openConnection(url, miTimeoutConnect_seconds, miTimeoutRead_seconds, bc, activity, sbError );
+		ByteTracker bt = openConnection( url, miTimeoutConnect_seconds, miTimeoutRead_seconds, bc, activity, sbError );
 		if( bt == null ){
 			if( sbError.length() > 0 )
 				sbError.insert(0, "error making connection to " + url + ": ");
@@ -602,18 +624,20 @@ class ByteTracker extends InputStream {
 	public final static int TIMEOUT_CHECK_INTERVAL_ms = 100;
 	SocketChannel m_socket_channel;
 	long nBytesRead = 0;
+	long mnMaxBytesToRead = 0;
 	ByteBuffer mBuffer;
 	boolean mzEndOfStream = false;
 	int miReadTimeout_seconds = 10;
 	private ByteCounter mByteCounter = null;
 	private Activity mActivity;
-	ByteTracker( Activity activity, SocketChannel socket_channel, int buffer_size, int iReadTimeout_seconds, ByteCounter bc ){
+	ByteTracker( Activity activity, SocketChannel socket_channel, int buffer_size, int iReadTimeout_seconds, ByteCounter bc, long nMaxBytesToRead ){
 		mActivity = activity;
 		m_socket_channel = socket_channel;
 		mByteCounter = bc;
 		mBuffer = ByteBuffer.allocateDirect(buffer_size);
 		mBuffer.limit(0); // set mBuffer to empty in drain state
 		miReadTimeout_seconds = iReadTimeout_seconds;
+		mnMaxBytesToRead = nMaxBytesToRead;
 	}
 	public long getBytesRead(){ return nBytesRead; }
 	public int available() throws IOException {
@@ -639,6 +663,7 @@ class ByteTracker extends InputStream {
 			return iValue;
 		}
 		if( mzEndOfStream ) return -1;
+		if( mnMaxBytesToRead > -1 ) if( nBytesRead >= mnMaxBytesToRead ) return -1;
 		read_channel();
 		if( mBuffer.remaining() > 0 ){
 		    nBytesRead++;
@@ -748,8 +773,8 @@ ReadLoop:
 class ByteTracker_Chunked extends ByteTracker {
 	private final static boolean zALLOW_BLOCKING = false; // no blocking
 	InputStream_Chunked mIS_chunked;
-	ByteTracker_Chunked( Activity activity, SocketChannel socket_channel, int buffer_size, int iReadTimeout_seconds, ByteCounter bc ){
-		super( activity, socket_channel, buffer_size, iReadTimeout_seconds, bc );
+	ByteTracker_Chunked( Activity activity, SocketChannel socket_channel, int buffer_size, int iReadTimeout_seconds, ByteCounter bc, long nContentLength ){
+		super( activity, socket_channel, buffer_size, iReadTimeout_seconds, bc, nContentLength );
 		try {
 			mIS_chunked = new InputStream_Chunked( this, zALLOW_BLOCKING );
 		} catch(Exception ex) {}
