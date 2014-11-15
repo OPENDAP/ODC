@@ -68,6 +68,7 @@ public class Panel_Retrieve_Output extends JPanel {
     boolean zInitialize( StringBuffer sbError ){
 
         try {
+			setToolTipText( "Retrieve Output Panel" );
 
 			Model_Retrieve model = Model.get().getRetrieveModel();
 			if( model == null ){

@@ -34,17 +34,14 @@ package opendap.clients.odc.gui;
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 
-import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.Button_Select;
-import opendap.clients.odc.ConfigurationManager;
-import opendap.clients.odc.IControlPanel;
-import opendap.clients.odc.SearchInterface;
-import opendap.clients.odc.Utility;
-import opendap.clients.odc.Utility_String;
+import opendap.clients.odc.*;
 import opendap.clients.odc.data.Model_Dataset;
+import opendap.clients.odc.data.Model_Retrieve;
 import opendap.clients.odc.data.Model_URLList;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 
 public class Panel_Select_Recent extends SearchInterface implements IControlPanel {
@@ -58,7 +55,7 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 	Model_Dataset[] maURLs = null;
 	JTextArea mjtaInfo;
 
-    public boolean zInitialize(StringBuffer sbError){
+    public boolean zInitialize( final StringBuffer sbError ){
 
         try {
 
@@ -67,9 +64,18 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 
 			this.setLayout(new java.awt.BorderLayout());
 
+			// determine mouse behavior of the URL list in the retrieve panel
+			MouseAdapter mouse_behavior = new MouseAdapter(){
+				public void mousePressed( MouseEvent me ){
+					if( me.getClickCount() == 2 ){
+						vAddSelected( false );
+					}
+				}
+			};
+
 			// Create and intialize the Recents list
 			mListModel = new Model_URLList( false ); // do not do type checking
-			mListPanel = new Panel_URLList_JList( mListModel );
+			mListPanel = new Panel_URLList_JList( mListModel, mouse_behavior );
 			mListModel.setControl( mListPanel );
 			// TODO
 			// DatasetListRenderer renderer = new DatasetListRenderer(jlistFavorites, false, false);
@@ -109,10 +115,10 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 
 			// Create the info panel
 			mjtaInfo = new JTextArea();
-			mjtaInfo.setMargin(new Insets(6, 10, 10, 10));
+			mjtaInfo.setMargin( new Insets(6, 10, 10, 10) );
 			mjscrollInfo = new JScrollPane();
-			mjscrollInfo.setViewportView(mjtaInfo);
-			mjscrollInfo.setPreferredSize(new Dimension(600, 100));
+			mjscrollInfo.setViewportView( mjtaInfo );
+			mjscrollInfo.setPreferredSize( new Dimension(600, 100) );
 
 			// Select
 			Button_Select jbuttonSelect = new Button_Select(this);
@@ -146,7 +152,7 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 	void vRefreshRecentList(){
 		maURLs = Model_Dataset.getPreferenceURLs_Recent();
 		mListModel.vDatasets_DeleteAll();
-		mListModel.vDatasets_Add(maURLs, false);
+		mListModel.vDatasets_Add( maURLs, false );
 		return;
 	}
 
@@ -183,7 +189,7 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 		opendap.clients.odc.gui.Filter_Recent filter = new opendap.clients.odc.gui.Filter_Recent();
 		File[] afile = ConfigurationManager.getPreferencesFiles(filter);
 		if( afile == null ){
-			ApplicationController.vShowError("error adding recent: directory list unexpectedly null");
+			ApplicationController.vShowError( "error adding recent: directory list unexpectedly null" );
 			return;
 		}
 
@@ -193,11 +199,11 @@ public class Panel_Select_Recent extends SearchInterface implements IControlPane
 			ApplicationController.vShowWarning("error adding recent: recent panel unavailable");
 			return;
 		}
-		int xFileToDelete = panelRecent.xIndexOfMatchingBaseURL(url);
+		int xFileToDelete = panelRecent.xIndexOfMatchingBaseURL( url );
 		if( xFileToDelete != - 1 ){ // already in there (replace existing object)
 			String sFilename = afile[xFileToDelete].getName();
-			if( !ApplicationController.zDeletePreferenceObject(sFilename, sbError) ){
-				ApplicationController.vShowWarning("failed to delete matching recent: " + sbError);
+			if( !ApplicationController.zDeletePreferenceObject( sFilename, sbError ) ){
+				ApplicationController.vShowWarning( "failed to delete matching recent: " + sbError );
 				return;
 			}
 		}

@@ -321,7 +321,7 @@ public class Panel_Thumbnails extends JPanel implements Printable, MouseListener
 	}
 
 	private void vClickPlot(Thumbnail tn){
-		Panel_View_Plot._getInstance()._vPlot( tn.url, Visualizer.OutputTarget.ExternalWindow );
+		Panel_View_Plot._getInstance()._vPlot( tn.url, Renderer.OutputTarget.ExternalWindow );
 	}
 
 	// Mouse motion interface

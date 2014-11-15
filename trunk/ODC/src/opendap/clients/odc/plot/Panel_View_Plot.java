@@ -25,7 +25,7 @@ package opendap.clients.odc.plot;
 /**
  * Title:        Panel_View_Plot
  * Description:  Manages the plotting interface
- * Copyright:    Copyright (c) 2003-13
+ * Copyright:    Copyright (c) 2003-14
  * Company:      OPeNDAP.org
  * @author       John Chamberlain
  * @version      3.09

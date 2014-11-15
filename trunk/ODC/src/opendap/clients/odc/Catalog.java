@@ -890,10 +890,10 @@ class Variable extends JPanel{
 
     // Get the current selection
     public String[] getSelectedItems() {
-		Object[] tobj = selList.getSelectedValues();
-		String[] sel = new String[tobj.length];
-		for (int i = 0; i < tobj.length; i++) {
-			sel[i] = (String) tobj[i];
+		java.util.List tobj = selList.getSelectedValuesList();
+		String[] sel = new String[ tobj.size() ];
+		for (int i = 0; i < tobj.size(); i++) {
+			sel[i] = (String) tobj.get( i );
 		}
 		return sel;
     }

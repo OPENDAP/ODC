@@ -69,6 +69,7 @@ public class Model_Dataset implements java.io.Serializable {
 
     private DATASET_TYPE meType;
     private String msURL;
+	private String msURL_Redirected;
     private String msCE;
 	private String msSubDirectory; // with no leading slash
 	private String msDirectoryRegex;
@@ -112,6 +113,7 @@ public class Model_Dataset implements java.io.Serializable {
     	}
     	Model_Dataset model = new Model_Dataset();
 		model.msURL = "";
+		model.msURL_Redirected = "";
 		model.msCE = "";
 		model.meType = DATASET_TYPE.Data;
 		model.msTitle = null;
@@ -127,8 +129,7 @@ public class Model_Dataset implements java.io.Serializable {
      * Create a <code>DodsURL</code> with a specific base URL of type
      * <code>type</code>.  The constraint expression is set to an empty string
      * and the urlProcessor is set to the default for the give type.
-     * @param dodsURL The base url.
-     * @param type The type of URL.
+     * @param sURL The URL text.
      */
     public final static Model_Dataset createDataFromURL( final String sURL, StringBuffer sbError ){
     	if( sURL == null ){
@@ -149,8 +150,7 @@ public class Model_Dataset implements java.io.Serializable {
      * Create a <code>DodsURL model</code> of the Directory type.
      * The constraint expression is set to an empty string
      * and the urlProcessor is set to the default for the give type.
-     * @param dodsURL The base url.
-     * @param type The type of URL.
+	 * @param sURL The URL text.
      */
     public final static Model_Dataset createDirectoryFromURL( final String sURL, StringBuffer sbError ){
     	if( sURL == null ){
@@ -166,7 +166,7 @@ public class Model_Dataset implements java.io.Serializable {
 		model.mSavable = new SavableImplementation( Model_Dataset.class, null, null );
 		return model;
     }
-    
+
     /**
      * Create a new <code>Model_Dataset</code> of the data type.
      */
@@ -246,12 +246,13 @@ public class Model_Dataset implements java.io.Serializable {
     
     /**
      * Create a <code>Model_Dataset</code> by copying an existing <code>Model_Dataset</code>
-     * @param model The model to copy.
+     * @param existing_model The model to copy.
      */
     public final static Model_Dataset createClone( Model_Dataset existing_model ){
     	if( existing_model == null ) return null;
     	Model_Dataset model = new Model_Dataset();
 		model.msURL = existing_model.msURL;
+		model.msURL_Redirected = existing_model.msURL_Redirected;
 		model.msCE = existing_model.msCE;
 		model.msSubDirectory = existing_model.msSubDirectory; // with no leading slash
 		model.msDirectoryRegex = existing_model.msDirectoryRegex;
@@ -275,8 +276,6 @@ public class Model_Dataset implements java.io.Serializable {
      * Create a <code>DodsURL</code> with a specific base URL and constraint
      * expression.  This url is assumed to be a TYPE_Data, and it uses the
      * default TYPE_Data processor.
-     * @param dodsURL The base url.
-     * @param dodsCE The constraint expression.
     public Model_Dataset( String dodsURL, String dodsCE ){
 		msURL = dodsURL;
 		msCE = dodsCE;
@@ -322,6 +321,7 @@ public class Model_Dataset implements java.io.Serializable {
 		StringBuffer sbInfo = new StringBuffer(1000);
 		sbInfo.append("Title: " + this.getTitle() + '\n');
 		sbInfo.append("Full URL: " + this.getFullURL() + '\n');
+		sbInfo.append("Redirected URL: " + this.getFullURL() + '\n');
 		sbInfo.append("URL type: " + this.getTypeString() + '\n' );
 		if( this.isUnreachable() ) sbInfo.append( "URL is unreachable: " + this.getError() + "\n" );
 		DATASET_TYPE eType = getType();
@@ -369,10 +369,15 @@ public class Model_Dataset implements java.io.Serializable {
 	public void setDigest(int iNewDigest){ miDigest = iNewDigest; }
 
 	boolean mzErrorDDS = false;
+	String msErrorDDS = null;
 
 	/** was there an error getting the DDS for this URL? */
 	public boolean getDDS_Error(){ return mzErrorDDS; }
 	public boolean setDDS_Error(boolean z){ return mzErrorDDS = z; }
+
+	/** was there an error getting the DDS for this URL? */
+	public String getDDS_ErrorCode(){ return msErrorDDS; }
+	public String setDDS_ErrorCode( String s ){ return msErrorDDS = s; }
 
 	public DDS getDDS_Full(){ return mDDS_Full; }
 
@@ -501,8 +506,12 @@ public class Model_Dataset implements java.io.Serializable {
 		return msURL;
     }
 
+	public String getBaseURL_Redirected() {
+		return msURL_Redirected;
+	}
+
 	/** this form is used when making URLs from Directories */
-	public String getFullURL(String sBaseURL){
+	public String getFullURL( String sBaseURL ){
 		if(msCE.length() > 0){
 			return sBaseURL + "?" + this.getConstraintExpression_Encoded();
 		} else {
@@ -517,9 +526,22 @@ public class Model_Dataset implements java.io.Serializable {
      */
     public String getFullURL() {
 		if( this.meType == DATASET_TYPE.Directory && msSubDirectory != null){
-			return getFullURL(Utility.sConnectPaths(getBaseURL(), "/", getSubDirectory()));
+			return getFullURL( Utility.sConnectPaths(getBaseURL(), "/", getSubDirectory()) );
 		} else {
-			return getFullURL(getBaseURL());
+			return getFullURL( getBaseURL() );
+		}
+	}
+
+	/**
+	 * Concatenates the redirected baseURL and the constraint expression to get
+	 * the full Dods URL.
+	 * @return a complete Dods URL.
+	 */
+	public String getRedirectedURL() {
+		if( this.meType == DATASET_TYPE.Directory && msSubDirectory != null){
+			return getFullURL(Utility.sConnectPaths( getRedirectedURL(), "/", getSubDirectory()));
+		} else {
+			return getFullURL( getRedirectedURL() );
 		}
 	}
 
@@ -561,18 +583,22 @@ public class Model_Dataset implements java.io.Serializable {
      * @return The full URL.
      */
     public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append( getTypeString() ).append( ": " );
     	String sFileName = getFileName();
     	if( sFileName == null || sFileName.length() == 0 ){
     		if( msTitle == null ){
-    			return "[unnamed]";
-    		} else return msTitle;
+    			sb.append( "[unnamed]" );
+    		} else sb.append( msTitle );
     	} else {
 			if( msTitle == null ){
-	            return getFileName();
+				sb.append( getFileName() );
 			} else {
-				return msTitle + " (" + getFileName() + ")";
+				sb.append( msTitle + " (" + getFileName() + ")" );
 			}
     	}
+		sb.append( ' ' ).append( getFullURL() );
+		return sb.toString();
     }
 
     /**
@@ -621,15 +647,15 @@ public class Model_Dataset implements java.io.Serializable {
 
     /**
      * Set the title of the URL.
-     * @param urlTitle The title of the URL.
+     * @param sNewTitle The title of the URL.
      */
-    public void setTitle(String sNewTitle) {
+    public void setTitle( String sNewTitle ) {
 		msTitle = sNewTitle;
     }
 
     /**
      * Set the directory location of the file this dataset is currently being saved to.
-     * @param urlTitle The title of the URL.
+     * @param sNewFileName The new file name.
      */
     public void setFileName( String sNewFileName ){
 		mSavable._setFileName( sNewFileName );
@@ -637,7 +663,7 @@ public class Model_Dataset implements java.io.Serializable {
 
     /**
      * Set the directory location of the file this dataset is currently being saved to.
-     * @param urlTitle The title of the URL.
+     * @param sNewDirectory The new directory.
      */
     public void setFileDirectory( String sNewDirectory ){
 		mSavable._setFileDirectory( sNewDirectory );
@@ -647,9 +673,13 @@ public class Model_Dataset implements java.io.Serializable {
      * Set the base URL
      * @param dodsURL the base URL.
      */
-    public void setURL(String dodsURL) {
+    public void setURL( String dodsURL ){
 		msURL = dodsURL;
     }
+
+	public void setURL_Redirected( String sURL ) {
+		msURL_Redirected = sURL;
+	}
 
 	public int getID(){ return miID; }
 	public void setID( int iNewID ){ miID = iNewID; }

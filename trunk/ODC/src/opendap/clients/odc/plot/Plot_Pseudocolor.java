@@ -73,7 +73,7 @@ class Plot_Pseudocolor extends Plot {
 		}
 	}
 
-	static boolean zPlot_PseudoColor( PlotEnvironment environment, PlotLayout layout, Model_Dataset model, String sCaption, PlottingVariable pv, Visualizer.OutputTarget eOutputOption, int iFrame, int ctFrames, StringBuffer sbError ){
+	static boolean zPlot_PseudoColor( PlotEnvironment environment, PlotLayout layout, Model_Dataset model, String sCaption, PlottingVariable pv, Renderer.OutputTarget eOutputOption, int iFrame, int ctFrames, StringBuffer sbError ){
 		sbError.append( "not implemented" );
 		return false;
 	}

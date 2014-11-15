@@ -513,7 +513,7 @@ public class OutputEngine implements ByteCounter {
 					if( iTarget == OutputProfile.TARGET_ViewText ){
 						ApplicationController.getInstance().getAppFrame().vActivateCommandPanel();
 					}
-					vOutput(url, os, iFormat);
+					vOutput( url, os, iFormat );
 					String sTerminator = mOutputProfile.getTerminator();
 					if( sTerminator != null ) os.write(sTerminator.getBytes());
 					try{
@@ -807,7 +807,7 @@ public class OutputEngine implements ByteCounter {
 			return ctIndex;
 		}
 
-		private void vOutput_FormattedASCII(Model_Dataset url, OutputStream os, Activity activity){
+		private void vOutput_FormattedASCII( Model_Dataset url, OutputStream os, Activity activity ){
 			String sFullURL = url.getFullURL();
 			StringBuffer sbError = new StringBuffer(80);
 			DataDDS datadds = getDataDDS(url, activity, sbError);
@@ -1173,9 +1173,9 @@ public class OutputEngine implements ByteCounter {
 						}
 					}
 				}
-				sbOut.append(" ColumnTypes:" + sbColumnTypes);
-				sbOut.append("}");
-				os.write(sbOut.toString().getBytes());
+				sbOut.append( " ColumnTypes:" + sbColumnTypes );
+				sbOut.append( "}" );
+				os.write( sbOut.toString().getBytes() );
 
 				// output values {dim_index 1 ... val1.1 val1.2 val1.3 ... val1.n}{dim_index1... val2.1 val2.2 val2.3 ... val2.n} etc.
 				int[] aiMapIndexes = new int[ctDimensions]; // stores where you are in the array as you recurse

@@ -199,7 +199,7 @@ public class Panel_Definition extends JPanel {
 //		if( mActivePlottingDefinition != null ) mActivePlottingDefinition.setPlotType(ePlotType);
 //				int xURL_0 = this.jlistSelectedURLs.getSelectedIndex();
 //				if( xURL_0 < 0 ){
-//					mpanelVariables.vShowMessage("Nothing selected from dataset list.");
+//					mpanelVariables.vAdditionalCriteria_ShowText("Nothing selected from dataset list.");
 //				} else {
 //					DodsURL urlEntry = (DodsURL) listPlotterData.get(xURL_0);
 //				}

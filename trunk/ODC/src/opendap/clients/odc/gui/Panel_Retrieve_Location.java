@@ -50,6 +50,7 @@ public class Panel_Retrieve_Location extends JPanel {
     boolean zInitialize(StringBuffer sbError){
 
         try {
+			setToolTipText( "Retrieve Location Panel" );
 
 			model = Model.get().getRetrieveModel();
 			if( model == null ){
@@ -65,7 +66,7 @@ public class Panel_Retrieve_Location extends JPanel {
 
 			final JButton jbuttonAddToList = new JButton();
 			// jbuttonAddToList_ViewPanel.setForeground(Color.RED);
-			jbuttonAddToList.setText("Add To List");
+			jbuttonAddToList.setText( "Add To List" );
 			final ActionListener actionGo =
 				new ActionListener(){
 					public void actionPerformed(ActionEvent event) {

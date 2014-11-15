@@ -29,6 +29,7 @@ import java.net.InetSocketAddress;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class IO {
 
@@ -41,7 +42,27 @@ public class IO {
 
     public IO(){}
 
-	public static String getStaticContent(String sURL, ByteCounter bc, Activity activity, StringBuffer sbError) {
+	public static void main( String[] args ){
+		try {
+
+			StringBuffer sbError = new StringBuffer(256);
+			String sURL = "http://social.msdn.microsoft.com/Search/en-US?query=fileopen&emptyWatermark=true&ac=2";
+			String s = IO.getStaticContent( sURL, null, null, sbError );
+			if( sbError.length() != 0 ) {
+				System.out.println( sbError.toString() );
+			} else {
+				System.out.println( s );
+			}
+
+		} catch( Throwable t ) {
+			String sStackTrace = Utility.errorExtractStackTrace( t );
+			System.out.println( "Unexpected error starting IO: " + sStackTrace );
+			ApplicationController.vShowStartupDialog( "Failed to IO: " + sStackTrace );
+			System.exit(1);
+		}
+	}
+
+	public static String getStaticContent( String sURL, ByteCounter bc, Activity activity, StringBuffer sbError ){
 		URL url;
 		try {
 			 url = new URL(sURL);
@@ -104,12 +125,12 @@ public class IO {
 	 * @param sBasicAuthentication Optional the Base64 encoded username:password required for HTTP Basic Authentication scheme if any
 	 * @param eggLocation Optional the 1-member array to accept a redirect location, if non-null then a redirect occurred
      * @param bc Optional ByteCounter object to get progress feedback, supply null if unwanted
-     * @param Activity Optional activity object to manage asynchronous connections, supply null if unwanted
-     * @param iRedirectCounter if this is a redirect increment this value; more than 3 redirects result in a failure
+     * @param activity Optional activity object to manage asynchronous connections, supply null if unwanted
+     * @param iRedirectCount if this is a redirect increment this value; more than 3 redirects result in a failure
      * @param sbError Buffer to write any error message to.
      * @return the content of the return as a String or null in the case of an error.
      */
-	public static String getStaticContent(String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList<String> listClientCookies, ArrayList<String> listServerCookies, String sBasicAuthentication, String[] eggLocation, ByteCounter bc, Activity activity, int iRedirectCount, StringBuffer sbError) {
+	public static String getStaticContent( String sCommand, String sHost, int iPort, String sPath, String sQuery, String sProtocol, String sReferer, String sContentType, String sContent, ArrayList<String> listClientCookies, ArrayList<String> listServerCookies, String sBasicAuthentication, String[] eggLocation, ByteCounter bc, Activity activity, int iRedirectCount, StringBuffer sbError) {
 		if( sHost == null ){
 			sbError.append("host missing");
 			return null;
@@ -121,7 +142,7 @@ public class IO {
 		int iTimeoutRead_seconds = ConfigurationManager.getInstance().getProperty_Timeout_InternetRead();
 		String sUserAgent = ApplicationController.getInstance().getVersionString();
 
-		SocketChannel socket_channel = IO.oAcquireSocketChannel(sHost, iPort, iTimeoutConnect_seconds, activity, sbError);
+		SocketChannel socket_channel = IO.oAcquireSocketChannel( sHost, iPort, iTimeoutConnect_seconds, activity, sbError );
 
 		// render request
 		String sRequestLocator = sPath + (sQuery == null ? "" : '?' + sQuery);
@@ -152,12 +173,12 @@ public class IO {
 			sRequest += "\r\n"; // end of header
 		}
 
-		if( zLogHeaders ) ApplicationController.vShowStatus("Request header:\n" + Utility_String.sShowUnprintable(sRequest));
+		if( zLogHeaders ) ApplicationController.vShowStatus( "Request header:\n" + Utility_String.sShowUnprintable(sRequest) );
 
 		try {
 			byte[] ab = sRequest.getBytes();
 			if( activity != null ) activity.vUpdateStatus("sending request " + sRequestLocator);
-			socket_channel.write(ByteBuffer.wrap(ab));
+			socket_channel.write( ByteBuffer.wrap(ab) );
 		} catch( Throwable t ) {
 			try { socket_channel.close(); } catch( Throwable t_is ){}
 			return null;
@@ -179,7 +200,7 @@ public class IO {
 		boolean zChunked = false;
 		if( zHeaderExists ){
 
-			if( zLogHeaders ) ApplicationController.vShowStatus("Response header http://" + sHost + ":" + iPort + sRequestLocator + ":\n" + Utility_String.sShowUnprintable(sHeader));
+			if( zLogHeaders ) ApplicationController.vShowStatus( "Response header http://" + sHost + ":" + iPort + sRequestLocator + ":\n" + Utility_String.sShowUnprintable(sHeader));
 
 			// validate HTTP protocol, load and check headers
 			String sHTTP_Response = getHeaderField( sHeader, 1 );
@@ -221,8 +242,8 @@ public class IO {
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
-			if( !sResponseCode.equals("200") && !sResponseCode.equals("302") && !sResponseCode.equals( "303" ) ){
-				sbError.append("server returned HTTP error code: " + Utility_String.sSafeSubstring( sHTTP_Response, 0, 500 ));
+			if( !sResponseCode.equals("200") && !sResponseCode.equals("301") && !sResponseCode.equals("302") && !sResponseCode.equals( "303" ) ){
+				sbError.append( "server returned HTTP error code: " + Utility_String.sSafeSubstring( sHTTP_Response, 0, 500 ) );
 				try { socket_channel.close(); } catch( Throwable t_is ){}
 				return null;
 			}
@@ -235,7 +256,7 @@ public class IO {
 					iContentLength = Integer.parseInt(sContentLength);
 					zHasContentLength = true;
 				} catch(Exception ex) {
-					ApplicationController.vShowWarning("failed to interpret content length (" + sContentLength + ") as integer");
+					ApplicationController.vShowWarning( "failed to interpret content length (" + sContentLength + ") as integer" );
 				}
 			}
 			String sTransferEncoding = getHeaderField(sHeader, "transfer-encoding");
@@ -282,32 +303,33 @@ public class IO {
 
 			// note that the redirect is done after the cookie scan because
 			// any cookies in the redirecting page must be accepted before the redirect occurs
-			if( sResponseCode.equals("302") || sResponseCode.equals("303") ){ // a redirect has occurred
+			if( sResponseCode.equals("301") || sResponseCode.equals("302") || sResponseCode.equals("303") ){ // a redirect has occurred
 				if( iRedirectCount >= 3 ){
-					sbError.append("request abandoned because there were more than 3 redirects; could be infinite");
+					sbError.append( "request abandoned because there were more than 3 redirects; could be infinite" );
 					return null;
 				}
 				if( sLocation == null ){
-					sbError.append("request returned redirect but there was no Location header");
+					sbError.append( "request returned redirect but there was no Location header" );
 					return null;
 				}
 				URL urlRedirectLocation;
 				try {
-					 urlRedirectLocation = new URL(sLocation);
+					 urlRedirectLocation = new URL( sLocation );
 				} catch(Exception ex) {
 					sbError.append("Failed to interpret redirect location " + sLocation + " as an URL: " + ex);
 					return null;
 				}
+				ApplicationController.vShowWarning( "Request " + sRequest + " resulted in a " + sResponseCode + " redirect to " + sLocation );
 				String sHost_redirect  = urlRedirectLocation.getHost();
 				int    iPort_redirect  = urlRedirectLocation.getPort();
 				String sPath_redirect  = urlRedirectLocation.getPath();
 				String sQuery_redirect = urlRedirectLocation.getQuery();
-				if( iPort == -1 ) iPort = 80;
+				if( iPort_redirect == -1 ) iPort_redirect = 80;
 				return getStaticContent( "GET", sHost_redirect, iPort_redirect, sPath_redirect, sQuery_redirect, sProtocol, sReferer, sContentType, sContent, listClientCookies, listServerCookies, sBasicAuthentication, eggLocation, bc, activity, iRedirectCount + 1, sbError );
 			}
 
 		} else {
-			if( zLogHeaders ) ApplicationController.vShowWarning("No header http://" + sHost + ":" + iPort + sRequestLocator);
+			if( zLogHeaders ) ApplicationController.vShowWarning( "No header http://" + sHost + ":" + iPort + sRequestLocator );
 		}
 
 		String sDocument;

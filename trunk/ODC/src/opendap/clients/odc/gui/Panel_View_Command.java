@@ -93,11 +93,20 @@ public class Panel_View_Command extends JPanel implements IControlPanel {
 							// JOptionPane.showMessageDialog(Panel_View_Text.this, "Enter commands by typing them in the box at the bottom of the screen and hitting enter.", "How to Enter Commands", JOptionPane.OK_OPTION);
 							String sDisplayText = jtaDisplay.getText();
 							int posEndOfLine = sDisplayText.length();
-							String sLine = sDisplayText.substring( mposBeginningOfLine, posEndOfLine );
+							final String sLine = sDisplayText.substring( mposBeginningOfLine, posEndOfLine );
 							System.out.println("command [" + sLine + "]");
 //							JOptionPane.showMessageDialog(Panel_View_Text.this, "line is: [" + sLine + "] posb: " + posBeginningOfLine, "How to Enter Commands", JOptionPane.OK_OPTION);
 							listCommands.add( sLine );
-							ApplicationController.getInstance().vCommand( sLine );
+							SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+								@Override
+								protected Void doInBackground() throws Exception {
+									ApplicationController.getInstance().vCommand( sLine );
+									jtfCommand.setText( "" );
+									return null;
+								}
+							};
+							worker.execute();
 							mCommandOnLine_1 = 0;
 							ke.consume();
 						} else 
@@ -151,9 +160,17 @@ public class Panel_View_Command extends JPanel implements IControlPanel {
 				new KeyListener(){
 					public void keyPressed(KeyEvent ke){
 						if( ke.getKeyCode() == KeyEvent.VK_ENTER ){
-							String sCommand = jtfCommand.getText();
-							ApplicationController.getInstance().vCommand( sCommand, null );
-							jtfCommand.setText("");
+							final String sCommand = jtfCommand.getText();
+							SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+								@Override
+								protected Void doInBackground() throws Exception {
+									ApplicationController.getInstance().vCommand( sCommand, null );
+									jtfCommand.setText( "" );
+									return null;
+								}
+							};
+							worker.execute();
 						}
 					}
 					public void keyReleased(KeyEvent ke){}

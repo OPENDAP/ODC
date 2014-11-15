@@ -77,6 +77,8 @@ public class Panel_Retrieve_AdditionalCriteria extends JPanel {
 			mjtaInfo.setBorder(borderEmpty);
 			mjscrollInfo.setViewportView(mjtaInfo);
 
+			mjtaInfo.setLineWrap( true ); // set word wrapping on
+
             return true;
 
         } catch(Exception ex){
@@ -134,7 +136,7 @@ public class Panel_Retrieve_AdditionalCriteria extends JPanel {
 			   model.setLocationString("");
 			   return false;
 			}
-			if( ! mPanel_DDX.setStructure(url, sbError) ) return false;
+			if( ! mPanel_DDX.setStructure( url, sbError ) ) return false;
 			model.setLocationString( url.getFullURL() );
 			add( mPanel_DDX );
 			return true;

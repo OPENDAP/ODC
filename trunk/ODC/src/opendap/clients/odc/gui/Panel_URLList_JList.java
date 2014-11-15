@@ -31,32 +31,23 @@ package opendap.clients.odc.gui;
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 /////////////////////////////////////////////////////////////////////////////
 
-import javax.swing.JList;
-import javax.swing.JScrollPane;
-import javax.swing.ListModel;
+import javax.swing.*;
 
 import opendap.clients.odc.ApplicationController;
-import opendap.clients.odc.Model;
-import opendap.clients.odc.data.DatasetListRenderer;
-import opendap.clients.odc.data.Model_Dataset;
-import opendap.clients.odc.data.Model_Datasets;
-import opendap.clients.odc.data.Model_Retrieve;
-import opendap.clients.odc.data.Model_Dataset.DATASET_TYPE;
+import opendap.clients.odc.data.*;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class Panel_URLList_JList extends Panel_URLList {
-	private JList mjlist;
-    public Panel_URLList_JList( final Model_Datasets control_model ){
+	private JList mjlist = new JList();
+    public Panel_URLList_JList( final Model_Datasets control_model, MouseAdapter mouse_behavior ){
 		super( control_model );
 
+		setToolTipText( "URL List Panel" );
 		this.setLayout( new BorderLayout() );
 
 		// Setup List
-		mjlist = new JList();
-
 		ListModel list_model = (ListModel)control_model;
 
 		mjlist.setModel( list_model );
@@ -83,42 +74,7 @@ public class Panel_URLList_JList extends Panel_URLList {
 			}
 		);
 
-		mjlist.addMouseListener(
-			new MouseAdapter(){
-				public void mousePressed( MouseEvent me ){
-					if( me.getClickCount() == 1 ){
-						Object oSelectedItem = mjlist.getSelectedValue();
-						Model_Dataset urlSelected = null;
-						if( oSelectedItem instanceof Model_Dataset ){
-							urlSelected = (Model_Dataset)oSelectedItem;
-						} else {
-							return; // there can be entries in the list that are not URLs -- ignore them
-						}
-						Model_Retrieve retrieve_model = Model.get().getRetrieveModel();
-						if( retrieve_model == null ){
-							ApplicationController.vShowError( "internal error: retrieval model does not exist for dataset activation" );
-							return;
-						}
-						if( urlSelected == null ){ // can happen because of a bug in the list / table component
-							retrieve_model.vClearSelection();
-							return;
-						}
-						if( me.isControlDown() ){
-							if( me.isShiftDown() ){
-								retrieve_model.vShowDAS( urlSelected, null );
-							} else {
-								retrieve_model.vShowDDS( urlSelected, null );
-							}
-						} else {
-							if( urlSelected.getType() == opendap.clients.odc.data.Model_Dataset.DATASET_TYPE.Data ){
-								retrieve_model.getRetrievePanel().vShowDirectory( false );
-							}
-							retrieve_model.vShowURL( urlSelected, null );
-						}
-					}
-				}
-			}
-		);
+		mjlist.addMouseListener( mouse_behavior );
 
 		JScrollPane jscrollpaneList = new JScrollPane();
 		jscrollpaneList.setViewportView(mjlist);

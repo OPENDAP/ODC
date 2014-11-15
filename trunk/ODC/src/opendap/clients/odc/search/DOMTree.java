@@ -178,8 +178,7 @@ public class DOMTree extends JTree {
 					return;
 				}
 				if (nodeChild.isLeaf()) {
-					if (nodeChild.getAttributes().getNamedItem(DOMTree.
-						ATTR_BASE_URL) != null)continue; // data url
+					if (nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_BASE_URL) != null)continue; // data url
 					if (nodeChild.getAttributes().getNamedItem(DOMTree.ATTR_DIR) != null)continue; // directory url
 					node.removeChild(xChild); // not a valid node
 				} else {

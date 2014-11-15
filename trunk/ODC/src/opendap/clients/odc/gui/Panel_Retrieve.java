@@ -172,10 +172,10 @@ public class Panel_Retrieve extends JPanel implements IControlPanel {
 	}
 
 	final public boolean zShowStructure( Model_Dataset url, StringBuffer sbError ){
-		return panelAdditionalCriteria.zShowStructure(url, sbError);
+		return panelAdditionalCriteria.zShowStructure( url, sbError );
 	}
 
-	final public void vShowMessage( final String sMessage ){
+	final public void vAdditionalCriteria_ShowText( final String sMessage ){
 		SwingUtilities.invokeLater(
 			new Runnable(){
 				public void run(){

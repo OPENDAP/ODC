@@ -59,7 +59,7 @@ public class Model_Retrieve {
 	public Panel_Retrieve getRetrievePanel(){ return retrieve_panel; }
 
 	public void vShowURL( Model_Dataset url, Activity activity ){
-		if( url.getType() == DATASET_TYPE.Data ){
+		if( url.getType() == DATASET_TYPE.Data || url.getType() == DATASET_TYPE.Definition ){
 			vShowConstraintEditor( url, activity );
 			ApplicationController.getInstance().getAppFrame().getPanel_Retrieve().getOutputPanel().vUpdateOutput_Data();
 		} else if( url.getType() == DATASET_TYPE.Directory ){
@@ -88,14 +88,18 @@ public class Model_Retrieve {
 			final Continuation_SuccessFailure con = new Continuation_SuccessFailure(){
 				public void Success(){
 					if( activity != null ) activity.vUpdateStatus("creating structure interface");
-					if( retrieve_panel.zShowStructure(url, sbError) ){
+					if( retrieve_panel.zShowStructure( url, sbError ) ){
 						// System.out.println("structure for (" + url + ") is displayed");
 					} else {
-						retrieve_panel.vShowMessage("Error showing constraint editor: " + sbError);
+						String sError = "Error showing constraint editor: " + sbError;
+						retrieve_panel.vAdditionalCriteria_ShowText( sError );
+						ApplicationController.vLogError( sError );
 					}
 				}
 				public void Failure( String sReason ){
-					retrieve_panel.vShowMessage("Error getting structure information: " + sbError);
+					String sError = "Error getting structure information while showing constraint editor: " + sReason;
+					retrieve_panel.vAdditionalCriteria_ShowText( sError );
+					ApplicationController.vLogError( sError );
 				}
 			};
 			vUpdateStructure( url, con, activity );
@@ -103,7 +107,9 @@ public class Model_Retrieve {
 			if( retrieve_panel.getPanelDDX().setStructure( url, sbError ) ){
 				// System.out.println("structure for (" + url + ") is displayed");
 			} else {
-				retrieve_panel.vShowMessage("Error showing constraint editor: " + sbError);
+				String sError = "Error showing constraint editor: " + sbError;
+				retrieve_panel.vAdditionalCriteria_ShowText( sError );
+				ApplicationController.vLogError( sError );
 			}
 		}
 	}
@@ -117,26 +123,26 @@ public class Model_Retrieve {
 						// System.out.println("directory for node at (" + url + ") is displayed: " + url.getDirectoryTree().getPrintout() );
 						Model_Retrieve.this.mActiveDirectoryTree = url.getDirectoryTree();
 					} else {
-						retrieve_panel.getPanelDirectory().vShowMessage("Error showing directory node: " + sbError);
+						retrieve_panel.getPanelDirectory().vShowMessage( "Error showing directory node: " + sbError );
 					}
 					retrieve_panel.vShowDirectory(true);
 				}
 				public void Failure( String sReason ){
 					if( retrieve_panel == null ){
-						ApplicationController.vShowError( "internal error trying to show directory in non-existent retrieve panel (Error getting structure information: " + sbError + ")");
+						ApplicationController.vShowError( "internal error trying to show directory in non-existent retrieve panel ( Error getting structure information: " + sReason + ")" );
 					} else {
 						retrieve_panel.vShowDirectory(true);
-						retrieve_panel.getPanelDirectory().vShowMessage("Error getting structure information: " + sbError);
+						retrieve_panel.getPanelDirectory().vShowMessage( "Error getting structure information while showing directory: " + sReason );
 					}
 				}
 			};
 			vUpdateDirectory( url, con, activity );
 		} else {
-			if( retrieve_panel.getPanelDirectory().setURL(url, sbError) ){
-				retrieve_panel.vAdditionalCriteria_Clear();
-				// System.out.println("structure for (" + url + ") is displayed");
+			if( retrieve_panel.getPanelDirectory().setURL( url, sbError ) ){
+				retrieve_panel.vAdditionalCriteria_ShowText( url.toString() );
+				// retrieve_panel.vAdditionalCriteria_Clear();
 			} else {
-				retrieve_panel.vShowMessage("Error showing constraint editor: " + sbError);
+				retrieve_panel.vAdditionalCriteria_ShowText( "Error showing constraint editor: " + sbError );
 			}
 		}
 	}
@@ -236,30 +242,30 @@ public class Model_Retrieve {
 					opendap.dap.DDS dds = null;
 					opendap.dap.DAS das = null;
 					if( sBaseURL == null ){
-						if( con != null ) con.Failure("base URL was null");
+						if( con != null ) con.Failure( "base URL was null" );
 					} else {
 
 						// initialize connection handler
-						connection.setUserAgent(ApplicationController.getInstance().getVersionString());
+						connection.setUserAgent( ApplicationController.getInstance().getVersionString() );
 
 						final StringBuffer sbError = new StringBuffer(80);
 
 						// get base/full dds
-						activity.vUpdateStatus("getting DDS");
-						dds = connection.getDDS(sBaseURL, sCE, activity, sbError);
+						activity.vUpdateStatus( "getting DDS" );
+						dds = connection.getDDS( sBaseURL, sCE, activity, sbError );
 						if( dds == null ){
-							ApplicationController.vShowError("Connection returned no DDS for " + sBaseURL + ": " + sbError);
 							url.setDDS_Error( true );
+							if( con != null ) con.Failure( "While updating structure, connection returned no DDS for base URL: " + sBaseURL + ": " + sbError );
 							return;
 						}
 						url.setDDS_Full(dds);
 
 						// get subset DDS
 						if( sCE != null && sCE.length() > 0 ){
-							activity.vUpdateStatus("getting subset DDS");
-							dds = connection.getDDS(sBaseURL, sCE, activity, sbError);
+							activity.vUpdateStatus( "getting subset DDS" );
+							dds = connection.getDDS( sBaseURL, sCE, activity, sbError );
 							if( dds == null ){
-								ApplicationController.vShowError("Connection returned no subsetted DDS for: " + sSubsettedURL + ": " + sbError);
+								if( con != null ) con.Failure( "Connection returned no subsetted DDS for: " + sSubsettedURL + ": " + sbError );
 								url.setDDS_Error( true );
 								return;
 							}
@@ -268,19 +274,19 @@ public class Model_Retrieve {
 
 						// get DAS
 						activity.vUpdateStatus("getting DAS");
-						das = connection.getDAS(sBaseURL, sCE, activity, sbError);
+						das = connection.getDAS( sBaseURL, sCE, activity, sbError );
 						if( das == null && url.getType() == DATASET_TYPE.Catalog ){
-							ApplicationController.vShowError("Connection returned no DAS for catalog " + sBaseURL + ": " + sbError);
+							if( con != null ) con.Failure(  "Connection returned no DAS for catalog " + sBaseURL + ": " + sbError );
 							return;
 						}
 						url.setDAS(das);
-						if( das == null ) ApplicationController.vShowStatus("DAS unavailable for " + sBaseURL + "?" + sCE);
+						if( das == null ) ApplicationController.vShowStatus( "DAS unavailable for " + sBaseURL + "?" + sCE );
 					}
 					if( con != null ) con.Success();
-			   } catch(Exception ex) {
+			   } catch( Exception ex ){
 				   StringBuffer sbError = new StringBuffer(80);
 				   ApplicationController.vUnexpectedError( ex, sbError);
-				   if( con != null ) con.Failure(sbError.toString());
+				   if( con != null ) con.Failure( sbError.toString() );
 			   }
 		   }
 		   public void Cancel(){
@@ -313,7 +319,7 @@ public class Model_Retrieve {
 						return;
 					}
 					final boolean zRecurse = false; // only do root, not whole tree, because some trees are enormous
-					activity.vUpdateStatus("generating directory tree");
+					activity.vUpdateStatus( "generating directory tree" );
 					Model_DirectoryTree dirtree = zGenerateDirectoryTree( activity, sBaseURL, zRecurse, sbError );
 					if( dirtree == null ){
 						if( con != null ) con.Failure("Error getting directory " + sBaseURL + " for retrieve panel: " + sbError);
@@ -463,7 +469,7 @@ public class Model_Retrieve {
 		}
 		sbError.setLength(0);
 		String sInfo = url.getInfo();
-		retrieve_panel.vShowMessage( sInfo );
+		retrieve_panel.vAdditionalCriteria_ShowText( sInfo );
 		ApplicationController.vClearStatus();
 		return;
 	}
@@ -590,15 +596,15 @@ public class Model_Retrieve {
 
 System.out.println("\n**********\nloading node " + sPageURL + ": \n");
 			sbNodeError.setLength(0);
-			if( activity != null ) activity.vUpdateStatus("getting content for " + sPageURL);
-			String sPageHTML = IO.getStaticContent(sPageURL, null, activity, sbNodeError);
-			if( activity != null ) activity.vUpdateStatus("building node for " + sPageURL);
+			if( activity != null ) activity.vUpdateStatus( "getting content for " + sPageURL );
+			String sPageHTML = IO.getStaticContent( sPageURL, null, activity, sbNodeError );
+			if( activity != null ) activity.vUpdateStatus( "building node for " + sPageURL );
 //System.out.println("\n**********\nraw page html for " + sPageURL + ": \n" + sPageHTML);
 //System.out.println("\n*******  END *******\n");
 //System.out.println("\n**********\npage html for " + sPageURL + ": \n" + Utility.sShowUnprintable(sPageHTML));
 //System.out.println("\n*******  END *******\n");
 			if( sPageHTML == null ){
-				node.setError("bad directory: " + sbNodeError);
+				node.setError( "bad directory (" + sPageURL + "): " + sbNodeError );
 				return;
 			} else {
 				String sServerError = Utility.sGetDODSError( sPageHTML );

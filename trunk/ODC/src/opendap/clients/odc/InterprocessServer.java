@@ -32,6 +32,9 @@ import opendap.clients.odc.data.Model_Dataset;
 import opendap.clients.odc.data.Model_Retrieve;
 import opendap.clients.odc.data.Model_URLList;
 import opendap.clients.odc.data.OutputProfile;
+import org.python.indexer.Util;
+
+import javax.swing.*;
 
 public class InterprocessServer extends Thread {
 
@@ -167,10 +170,10 @@ class CommandListener extends Thread {
 		try {
 			InputStreamReader reader = new InputStreamReader(mClientSocket.getInputStream());
 			BufferedReader breader = new BufferedReader(reader);
-			while(true){
-				String sCommand = breader.readLine();
+			while( true ){
+				final String sCommand = breader.readLine();
 				if( sCommand.trim().length()==0 ) continue;
-				vExecute(sCommand, null, FORMATTING_ResponseTermination);
+				vExecute( sCommand, null, FORMATTING_ResponseTermination );
 			}
 		} catch(java.net.SocketException exSocket) {  // socket closed
 			try { mClientSocket.close(); } catch(Exception ex) {}
@@ -259,6 +262,7 @@ class CommandListener extends Thread {
 				writeLine("eval [exp]         - evaluates an environment expression");
 				writeLine("getall             - gets the values of all environment variables");
 				writeLine("reload exps        - reloads the one-liner expression history");
+				writeLine("validate datasets  - checks connectivity to all URLs in the dataset list");
 			} else if( sCommandUpper.equals("ABOUT") ){
 				writeLine(ApplicationController.getInstance().getAppName() + " version " + ApplicationController.getInstance().getAppVersion() + " " + ApplicationController.getInstance().getAppReleaseDate());
 				writeLine("  OPeNDAP.org");
@@ -436,8 +440,26 @@ class CommandListener extends Thread {
 					Model_Dataset[] aURL = new Model_Dataset[1];
 					aURL[0] = model;
 					aURL[0].setTitle("[untitled]");
-					Model.get().getRetrieveModel().getURLList().vDatasets_Add(aURL);
+					Model.get().getRetrieveModel().getURLList().vDatasets_Add( aURL, true );
 					writeLine( sType + " URL added: " + aURL[0].toString() );
+				}
+			} else if( sCommandUpper.startsWith("VALIDATE DATASETS")){
+				ArrayList<String> listURLs = ApplicationController.getInstance().mSearchPanel_DatasetList.getAllURLs( sbError );
+				if( listURLs == null ){
+					writeLine( "Error getting URLs from dataset list: " + sbError );
+					sbError.setLength( 0 );
+				} else {
+					for( final String s : listURLs ){
+						int posTilde = s.indexOf( " ~ " );
+						final String sURL = s.substring( posTilde + 3 );
+						StringBuffer sbIOError = new StringBuffer();
+						String sPageContent = IO.getStaticContent( sURL, null, null, sbIOError );
+						if( sPageContent == null ){
+							writeLine( "BAD " + s + " " + sbIOError.toString() );
+						} else {
+							writeLine( "OK  " + s );
+						}
+					}
 				}
 			} else if( sCommandUpper.startsWith("GETSELECTIONCOUNT")){
 				int iCount = urllist.getSelectedURLsCount();
@@ -664,7 +686,7 @@ class CommandListener extends Thread {
 				opendap.clients.odc.plot.Panel_View_Plot._vTestLayout();
 				writeLine("layout tester launched");
 			} else if( sCommandUpper.startsWith( "GETIP" ) ){
-				String sURL = "http://ttools.kattare.com/IPLookup/servlet/iplookup.IPLookupServlet3";
+				String sURL = ConfigurationManager.getInstance().getProperty_URL_IPLookup();
 				String sIP = IO.getStaticContent( sURL, null, null, sbError );
 				if( sbError.length() != 0 ) {
 					writeLine(sbError.toString());
@@ -688,10 +710,11 @@ class CommandListener extends Thread {
 		}
 	}
 
-	void writeLine(String sLineText) throws java.io.IOException {
+	void writeLine( String sLineText ) throws java.io.IOException {
 		mbwriter.write(sLineText);
 		mbwriter.newLine();
 		mbwriter.flush();
+		System.out.println( sLineText );
 	}
 }
 

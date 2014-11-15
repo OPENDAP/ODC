@@ -145,17 +145,13 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		}
 	}
 
-	public void vDatasets_Add( Model_Dataset[] aURLsToAdd ){
-		vDatasets_Add( aURLsToAdd, true );
-	}
-
 	public void vDatasets_Add( Model_Dataset[] aURLsToAdd0, boolean zAddToRecent ){
-		if(aURLsToAdd0 == null){
+		if( aURLsToAdd0 == null ){
 			return; // nothing to add
 		}
 		int ctURLsToAdd = aURLsToAdd0.length;
 		if(aURLsToAdd0.length == 0) {
-			ApplicationController.getInstance().vShowStatus("You currently have no URLs selected to download");
+			ApplicationController.getInstance().vShowStatus( "You currently have no URLs selected to download" );
 			return;
 		}
 		int ctURLsExisting;
@@ -203,7 +199,7 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 		try {
 
 			// determine if the list will only contain a subset of the selected URLs
-			if (madodsurlSelected.length > MAX_URLs_TO_DISPLAY) {
+			if( madodsurlSelected.length > MAX_URLs_TO_DISPLAY ){
 				zDisplayingSubset = true;
 				madodsurlDisplay = new Model_Dataset[MAX_URLs_TO_DISPLAY];
 				for (int xURL = 0; xURL < MAX_URLs_TO_DISPLAY; xURL++) {
@@ -215,19 +211,19 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 				madodsurlDisplay = madodsurlSelected;
 			}
 			Model_Dataset[] aDisplayedURLs = this.getDisplayURLs();
-			if (aDisplayedURLs == null) {
+			if( aDisplayedURLs == null ){
 				this.removeAllElements();
 				return;
 			}
 
 			// add any URLs that are in the display list but not in the JTable
 			int ctItemsAdded = 0;
-			for (int xURL = 0; xURL < aDisplayedURLs.length; xURL++) {
+			for( int xURL = 0; xURL < aDisplayedURLs.length; xURL++ ){
 				int ctElements = this.getSize();
 				int xElement = 0;
 				while (true) {
-					if (xElement >= ctElements) { // did not find url in JList
-						this.addElement(aDisplayedURLs[xURL]);
+					if( xElement >= ctElements ){ // did not find url in JList
+						this.addElement( aDisplayedURLs[xURL] );
 						ctItemsAdded++;
 						ctElements = this.getSize();
 						break;
@@ -312,10 +308,10 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 	public void vDatasets_DeleteSelected(){
 	    int[] aiSelectedToDelete = mpanelList.getSelectedIndices();
 		if( aiSelectedToDelete == null || aiSelectedToDelete.length == 0 ){
-			ApplicationController.getInstance().vShowStatus("Nothing selected for delete request.");
+			ApplicationController.getInstance().vShowStatus( "Nothing selected for delete request." );
 			return;
 		}
-		this.vDatasets_Delete(aiSelectedToDelete);
+		this.vDatasets_Delete( aiSelectedToDelete );
 	}
 
 	public void vDatasets_DeleteAll(){
@@ -375,7 +371,6 @@ public class Model_URLList extends javax.swing.DefaultListModel implements Model
 				madodsurlSelected = adodsurlNew;
 			}
 			this.vSynchronizeJList();
-			ApplicationController.getInstance().getAppFrame().vActivateRetrievalPanel();
 		} catch(Exception ex) {
 			ApplicationController.getInstance().vShowError("unexpected error removing URLs: " + ex);
 		}
